@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<package name="activity" namespace="/" extends="base-package">
+		<action name="activityAction_*"  method="{1}"   class="activityAction">
+				<result name="showAllList">/WEB-INF/jsp/frame/aboutActivity/activityList.jsp</result>
+				<result name="showList">/WEB-INF/jsp/frame/aboutActivity/activityList.jsp</result>
+				<result name="visitorList">/WEB-INF/jsp/frame/aboutActivity/visitorList.jsp</result>
+		</action>
+	</package>
+</struts>

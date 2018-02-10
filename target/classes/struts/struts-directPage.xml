@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<package name="directPage" namespace="/" extends="base-package">
+		<action name="directPageAction"   class="directPageAction">
+			<result name="home">/WEB-INF/jsp/frame/home.jsp</result>   
+			<result name="top">/WEB-INF/jsp/frame/top.jsp</result>   
+			<result name="left">/WEB-INF/jsp/frame/left.jsp</result>   
+		</action>
+	</package>
+</struts>

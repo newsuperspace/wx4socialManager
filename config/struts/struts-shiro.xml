@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<package name="shiro" namespace="/" extends="base-package">
+		<action name="shiroAction_*"  method="{1}"   class="shiroAction">
+				<!-- 身份认证 成功→ 通过动态结果集跳转原本所请求的URL上，剩下的就是权限认证的事儿了-->
+				<result   type="redirect">${wxURL}</result>
+				<!-- 身份认证 失败→跳转到指定JSP页面上，用来向该用户提示错误信息 -->
+				<result name="failure" >/WEB-INF/jsp/message/shiroAuthenticationMessage.jsp</result>
+				<result  name="page4login">/openJSP/login.jsp</result>
+				<result name="json"  type="json"></result>
+			</action>
+	</package>
+</struts>

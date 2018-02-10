@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="cc.natapp4.ddaig.domain.Permission">
+		<id name="pid" length="50">
+			<!-- 
+				设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段
+			 -->
+			 <!-- 
+			 	设置主键产生器是assigned，是由于需要根据用户的wid来生成qrcode，因此需要手动创建uid
+			  -->
+			<generator class="uuid"></generator>
+		</id>
+		<property name="permission" length="50"  ></property>
+		<property name="description" length="100"></property>
+		<property name="available"  type="true_false"></property>
+		
+		<set name="roles"   table="role_perm"  cascade="save-update"  lazy="false">
+			<key>
+				<column name="pid"></column>
+			</key>
+			<many-to-many  class="cc.natapp4.ddaig.domain.Role"   column="rid"></many-to-many>
+		</set>
+		
+	</class>
+</hibernate-mapping>

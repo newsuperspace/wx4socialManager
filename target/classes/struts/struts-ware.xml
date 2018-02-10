@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<package name="ware" namespace="/" extends="base-package">
+		<action name="wareAction_*"  method="{1}"   class="wareAction">
+				<result name="wareList" >/WEB-INF/jsp/frame/aboutWare/wareList.jsp</result>
+				<result name="exchangeList" >/WEB-INF/jsp/frame/aboutExchange/exchangeList.jsp</result>
+				<result  name="json"  type="json"></result>
+		</action>
+	</package>
+</struts>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<package name="role" namespace="/" extends="base-package">
+		<action name="roleAction_*"  method="{1}"   class="roleAction">
+				<result name="roles" >/WEB-INF/jsp/frame/aboutShiro/roleList.jsp</result>
+				<result name="admins" >/WEB-INF/jsp/frame/aboutShiro/assignedRole.jsp</result>
+				<result name="json"  type="json"></result>
+				<result name="showRoles"  type="redirectAction">roleAction_showRoles</result>
+		</action>
+	</package>
+</struts>

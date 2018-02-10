@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="cc.natapp4.ddaig.domain.cengji.FirstLevel">
+		<id name="flid" length="50">
+			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
+			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
+			<generator class="assigned"></generator>
+		</id>
+		<property name="name" length="100"></property>
+		<property name="description" length="200"></property>
+		<property name="level" type="integer"></property>
+
+
+		<many-to-one name="manager" column="uid"
+			class="cc.natapp4.ddaig.domain.User" cascade="save-update" lazy="false" unique="true">
+		</many-to-one>
+
+		<set name="children" cascade="save-update" lazy="true">
+			<key>
+				<column name="flid"></column>
+			</key>
+			<one-to-many class="cc.natapp4.ddaig.domain.cengji.SecondLevel" />
+		</set>
+
+		<many-to-one name="role" column="rid"
+			class="cc.natapp4.ddaig.domain.Role" cascade="save-update" ></many-to-one>
+
+	</class>
+</hibernate-mapping>
