@@ -69,9 +69,3 @@ memeber表中会配套创建一个一对一的数据条目，在memeber表中除了常见的uid、openid、s
 
 （10）社区社会组织（third层级对象）的字段
 name、description等外，还应该引入平级。
-
-
-
-
-
-
