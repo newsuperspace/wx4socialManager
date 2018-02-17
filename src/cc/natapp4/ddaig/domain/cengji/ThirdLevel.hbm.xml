@@ -3,34 +3,57 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 	<class name="cc.natapp4.ddaig.domain.cengji.ThirdLevel">
-		<id name="foid" length="50">
+		<id name="thid" length="50">
 			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
 			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
-			<generator class="assigned"></generator>
+			<generator class="uuid"></generator>
 		</id>
 		<property name="name" length="100"></property>
 		<property name="description" length="200"></property>
 		<property name="level" type="integer"></property>
 
-		<!-- 多个当前层级实例，可能同属于一个上级实例 -->
-		<many-to-one name="parent" column="thid"
-			class="cc.natapp4.ddaig.domain.cengji.ThirdLevel" cascade="save-update"></many-to-one>
+		<many-to-one name="parent" column="scid"
+			class="cc.natapp4.ddaig.domain.cengji.SecondLevel" cascade="save-update"></many-to-one>
 
-		<!-- 一个层级实例拥有多个次层级实例 -->
 		<set name="children" cascade="save-update" lazy="true">
 			<key>
-				<column name="foid"></column>
+				<!-- 当前表中被引用为外键的字段是主键 -->
+				<column name="thid"></column>
 			</key>
+			<!-- 当前表中数据与secondLevel映射类表中数据的关系是——一对多 -->
 			<one-to-many class="cc.natapp4.ddaig.domain.cengji.FourthLevel" />
 		</set>
 
-		<!-- 多对一，因为同一个管理者可能需要管理多个层级或团队 -->
-		<many-to-one name="manager" column="uid"
-			class="cc.natapp4.ddaig.domain.User" cascade="save-update" lazy="false">
+		<many-to-one name="manager" column="mid"
+			class="cc.natapp4.ddaig.domain.Manager" cascade="save-update">
 		</many-to-one>
 
-		<!-- 多个层级实例拥有同一个role -->
-		<many-to-one name="role" column="rid"
-			class="cc.natapp4.ddaig.domain.Role" cascade="save-update"></many-to-one>
+		<set name="members" cascade="save-update" lazy="true">
+			<key>
+				<column name="thid"></column>
+			</key>
+			<one-to-many  class="cc.natapp4.ddaig.domain.Member"/>
+		</set>
+		
+		<set name="permissions" cascade="save-update">
+			<key>
+				<column name="thid"></column>
+			</key>
+			<many-to-many class="cc.natapp4.ddaig.domain.Permission" column="pid"></many-to-many>
+		</set>
+		
+		<set name="doingProjects" cascade="save-update" lazy="true">
+			<key>
+				<column name="thid"></column>
+			</key>
+			<one-to-many  class="cc.natapp4.ddaig.domain.DoingProject"/>
+		</set>
+
+		<set name="besureProjects" cascade="save-update" lazy="true">
+			<key>
+				<column name="thid"></column>
+			</key>
+			<one-to-many  class="cc.natapp4.ddaig.domain.BesureProject"/>
+		</set>
 	</class>
 </hibernate-mapping>

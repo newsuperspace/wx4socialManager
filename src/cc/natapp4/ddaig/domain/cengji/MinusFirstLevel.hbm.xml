@@ -2,8 +2,8 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-	<class name="cc.natapp4.ddaig.domain.cengji.FirstLevel">
-		<id name="flid" length="50">
+	<class name="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel">
+		<id name="mflid" length="50">
 			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
 			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
 			<generator class="uuid"></generator>
@@ -12,16 +12,13 @@
 		<property name="description" length="200"></property>
 		<property name="level" type="integer"></property>
 
-		<many-to-one name="parent" column="zid"
-			class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" cascade="save-update"></many-to-one>
-
 		<set name="children" cascade="save-update" lazy="true">
 			<key>
 				<!-- 当前表中被引用为外键的字段是主键 -->
-				<column name="flid"></column>
+				<column name="mflid"></column>
 			</key>
 			<!-- 当前表中数据与secondLevel映射类表中数据的关系是——一对多 -->
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.SecondLevel" />
+			<one-to-many class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" />
 		</set>
 
 		<many-to-one name="manager" column="mid"
@@ -30,28 +27,28 @@
 
 		<set name="members" cascade="save-update" lazy="true">
 			<key>
-				<column name="flid"></column>
+				<column name="mflid"></column>
 			</key>
 			<one-to-many  class="cc.natapp4.ddaig.domain.Member"/>
 		</set>
 		
 		<set name="permissions" cascade="save-update">
 			<key>
-				<column name="flid"></column>
+				<column name="mflid"></column>
 			</key>
 			<many-to-many class="cc.natapp4.ddaig.domain.Permission" column="pid"></many-to-many>
 		</set>
 		
 		<set name="doingProjects" cascade="save-update" lazy="true">
 			<key>
-				<column name="flid"></column>
+				<column name="mflid"></column>
 			</key>
 			<one-to-many  class="cc.natapp4.ddaig.domain.DoingProject"/>
 		</set>
 
 		<set name="besureProjects" cascade="save-update" lazy="true">
 			<key>
-				<column name="flid"></column>
+				<column name="mflid"></column>
 			</key>
 			<one-to-many  class="cc.natapp4.ddaig.domain.BesureProject"/>
 		</set>

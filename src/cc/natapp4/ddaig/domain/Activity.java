@@ -1,17 +1,28 @@
 package cc.natapp4.ddaig.domain;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
-import org.apache.struts2.json.annotations.JSON;
 
 public class Activity implements Serializable {
 
-	private String aid;				// 活动的id
-	private String beginData;   // 活动的开始时间
-	private String endData;		// 活动的借书时间
-	private String score;				// 当前活动的积分
+	// 【主键】
+	private String aid;				
+	// 发起活动的类型——开放报名、指定团队
+	private String type;
+	// 如果type类型是开放报名，则需要在这里设置最高报名人数
+	private int baoMingNumber;   
+	/*
+	 * 通过endTime - beginTime，可以计算出活动的持续时间
+	 * 同时给予SimpleDateFormate类可以方便地将毫秒值转换成类似2018-1-2 19:23:30这样的时间格式字符串
+	 * 因此这个字段设置成long类型是最合适的
+	 */
+	private long activityBeginTime;   // 活动的开始时间（以1970-1-1日为起点的毫秒值）
+	private long activityEndTime;		// 活动的借书时间（以1970-1-1日为起点的毫秒值）
+	private long baoMingBeginTime; // 活动报名的开始时间
+	private long baoMingEndTime;  // 活动报名的截止时间
+	
+	private String score;				// 当前活动所分配到的积分
 	private String qrcodeUrl;    // 活动扫码的二维码图片地址
 	private String name;      // 活动名称
 	private String description;     // 活动的描述
@@ -19,96 +30,19 @@ public class Activity implements Serializable {
 	private String author;   // 发起人（用户的uid）
 	private String community;  // 活动所属社区（社区的cid）
 	 
-	private Set<User>  users;  // 参与该活动的用户列表
+	private Set<User>  users;  // 实际参与活动的用户列表
+	/*
+	 *  报名的用户列表
+	 *  如果你报名了，但是截止到活动结束后你没有来（签到），则会降低用户的
+	 *  信誉值？
+	 *  经验值（时长）？
+	 *  积分？
+	 *  选择哪一个合适呢，想想？
+	 */
+//	private Set<BaoMingUser>  baoMingUsers
+	// 当前活动所属的项目坚持———【项目为核心原则，有项目才能发起活动】
+	private DoingProject  project;
 
-	public String getState() {
-		return state;
-	}
-
-	public void setState(String state) {
-		this.state = state;
-	}
-
-	public String getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-
-	public String getCommunity() {
-		return community;
-	}
-
-	public void setCommunity(String community) {
-		this.community = community;
-	}
-
-	public String getAid() {
-		return aid;
-	}
-
-	public void setAid(String aid) {
-		this.aid = aid;
-	}
-
-	public String getBeginData() {
-		return beginData;
-	}
-
-	public void setBeginData(String beginData) {
-		this.beginData = beginData;
-	}
-
-	public String getEndData() {
-		return endData;
-	}
-
-	public void setEndData(String endData) {
-		this.endData = endData;
-	}
-
-	public String getScore() {
-		return score;
-	}
-
-	public void setScore(String score) {
-		this.score = score;
-	}
-
-	public String getQrcodeUrl() {
-		return qrcodeUrl;
-	}
-
-	public void setQrcodeUrl(String qrcodeUrl) {
-		this.qrcodeUrl = qrcodeUrl;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	@JSON(serialize=false)
-	public Set<User> getUsers() {
-		return users;
-	}
-
-	public void setUsers(Set<User> users) {
-		this.users = users;
-	}
 
 	
 }
