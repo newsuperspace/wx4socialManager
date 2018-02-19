@@ -9,4 +9,13 @@ import java.io.Serializable;
  */
 public class ProjectType implements Serializable {
 
+	// 【主键】
+	private String ptid;
+	// 类型名称（显示在前端发起项目页面，类型选择的selector的选项用）
+	private String name;
+	// 类型说明
+	private String description;
+	
+	
+	
 }

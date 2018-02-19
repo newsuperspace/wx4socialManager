@@ -18,9 +18,7 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 public class Member implements Serializable {
 	
 	// 主键
-	private String memid; 
-	// 与User表同步的信息
-	private String openid; // 微信的openID值 ★
+	private String uid; 
 	// 外键关联
 	private User user;    // 与User表一对一
 	/*
@@ -28,7 +26,7 @@ public class Member implements Serializable {
 	 * 他的fourthLevel = null 而thirdLevel、secondLevel、firstLevle和
 	 * minusFirstLevel、zeroLevel一定都是有值得，从而可以索引到其所归属 的具体层级对象。
 	 */
-	private MinusFirstLevel minusFirstLevel;
+	private MinusFirstLevel minusFirstLevel;   
 	private ZeroLevel zeroLevel;
 	private FirstLevel firstLevel;
 	private SecondLevel secondLevel;
@@ -37,17 +35,12 @@ public class Member implements Serializable {
 
 	
 	// ==========================SETTERs/GETTERs=============================
-	public String getMemid() {
-		return memid;
+
+	public String getUid() {
+		return uid;
 	}
-	public void setMemid(String memid) {
-		this.memid = memid;
-	}
-	public String getOpenid() {
-		return openid;
-	}
-	public void setOpenid(String openid) {
-		this.openid = openid;
+	public void setUid(String uid) {
+		this.uid = uid;
 	}
 	
 	// 不设@JSON

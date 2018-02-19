@@ -5,11 +5,6 @@ import java.util.Set;
 
 import org.apache.struts2.json.annotations.JSON;
 
-import cc.natapp4.ddaig.domain.cengji.FirstLevel;
-import cc.natapp4.ddaig.domain.cengji.FourthLevel;
-import cc.natapp4.ddaig.domain.cengji.LevelInterface;
-import cc.natapp4.ddaig.domain.cengji.SecondLevel;
-import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 
 
 public class User implements Serializable {
@@ -23,9 +18,9 @@ public class User implements Serializable {
 	private String address;      // 家庭住址
 	private long serveTime;     // 服务时长（毫秒值，用它可以换算出用户等级）★
 	private String email;    // 电子邮箱
-	private String score;    // 积分  ★
+	private int score;    // 积分  ★
 	private String sex;      // 性别
-	private String age;    // 年龄
+	private int age;    // 年龄
 	private String phone;   // 电话号码
 	private boolean ishere;   // 该用户当前是否在公众号中 
 	private String qrcode;   // 用户专属qrcode的相对路径————qrcode/1/12/xxxx.gif
@@ -34,6 +29,12 @@ public class User implements Serializable {
 	private Grouping grouping;     // 所在分组（与微信的tag标签一一对应，每个tag对应一种前端的菜单样式和后端的管理层级★★★）
 	private Set<Activity>  activities;  // 当前用户所参加过的活动列表
 	private Set<Exchange> exchanges; // 当前用户的消分记录
+	
+	
+	/*
+	 *  我们通过“共用主键”的一对一映射配置实现了
+	 *  Manager/User/member使用相同主键的设计
+	 */
 	/*
 	 * 如果grouping.tag == minus_first/zero/first/second/third/fourth中的任何一个，
 	 * 则可在此处找到与身为管理员的当前用户有关的数据信息
@@ -101,27 +102,24 @@ public class User implements Serializable {
 		this.email = email;
 	}
 
-	public String getScore() {
+	public int getScore() {
 		return score;
 	}
-	public void setScore(String score) {
+	public void setScore(int score) {
 		this.score = score;
 	}
-
+	public int getAge() {
+		return age;
+	}
+	public void setAge(int age) {
+		this.age = age;
+	}
 	public String getSex() {
 		return sex;
 	}
 	public void setSex(String sex) {
 		this.sex = sex;
 	}
-
-	public String getAge() {
-		return age;
-	}
-	public void setAge(String age) {
-		this.age = age;
-	}
-
 
 	public String getPhone() {
 		return phone;

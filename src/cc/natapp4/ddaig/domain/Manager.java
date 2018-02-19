@@ -27,10 +27,12 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 public class Manager implements Serializable {
 
 	// 主键
-	private String mid;
+	private String uid;
 	// 与User表同步的信息
-	private String openid;  // 微信的openID值 ★
-	// 外键关联的容器（一对多）
+	/*
+	 * 外键关联的容器（一对多）
+	 * 借助user.grouping.tag 来确定从以下哪个集合中查找当前用户所管理的层级对象★
+	 */
 	private Set<MinusFirstLevel>  mfls;
 	private Set<ZeroLevel> zls;
 	private Set<FirstLevel>  fls;
@@ -42,19 +44,14 @@ public class Manager implements Serializable {
 
 	
 	// ===============================SETTERs/GETTERs================================
-	public String getMid() {
-		return mid;
-	}
-	public void setMid(String mid) {
-		this.mid = mid;
-	}
 
-	public String getOpenid() {
-		return openid;
+	public String getUid() {
+		return uid;
 	}
-	public void setOpenid(String openid) {
-		this.openid = openid;
+	public void setUid(String uid) {
+		this.uid = uid;
 	}
+	
 
 	// 不设@JSON
 	public Use getUser() {
@@ -64,11 +61,19 @@ public class Manager implements Serializable {
 		this.user = user;
 	}
 
+	/**
+	 * 获取所管理的FirstLevel层级对象列表
+	 * @return
+	 */
 	@JSON(serialize=false)
 	public Set<FirstLevel> getFls() {
 		return fls;
 	}
 	
+	/**
+	 * 获取所管理的MinusFirstLevel层级对象列表
+	 * @return
+	 */
 	@JSON(serialize=false)
 	public Set<MinusFirstLevel> getMfls() {
 		return mfls;
@@ -78,6 +83,10 @@ public class Manager implements Serializable {
 		this.mfls = mfls;
 	}
 	
+	/**
+	 * 获取所管理的ZeroLevel层级对象列表
+	 * @return
+	 */
 	@JSON(serialize=false)
 	public Set<ZeroLevel> getZls() {
 		return zls;
@@ -89,6 +98,10 @@ public class Manager implements Serializable {
 		this.fls = fls;
 	}
 	
+	/**
+	 * 获取所管理的SecondLevel层级对象列表
+	 * @return
+	 */
 	@JSON(serialize=false)
 	public Set<SecondLevel> getScls() {
 		return scls;
@@ -97,6 +110,10 @@ public class Manager implements Serializable {
 		this.scls = scls;
 	}
 	
+	/**
+	 * 获取所管理的ThirdLevel层级对象列表
+	 * @return
+	 */
 	@JSON(serialize=false)
 	public Set<ThirdLevel> getTls() {
 		return tls;
@@ -105,6 +122,10 @@ public class Manager implements Serializable {
 		this.tls = tls;
 	}
 	
+	/**
+	 * 获取所管理的FourthLevel层级对象列表
+	 * @return
+	 */
 	@JSON(serialize=false)
 	public Set<FourthLevel> getFols() {
 		return fols;
