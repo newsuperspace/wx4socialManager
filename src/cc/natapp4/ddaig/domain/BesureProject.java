@@ -36,7 +36,7 @@ public class BesureProject implements Serializable {
 
 	// -----------------------------------基本数据（所有项目都必须有）-------------------------------
 	// 【主键】
-	private String bpid;
+	private String pid;
 	// 项目名称
 	private String name; 
 	// 项目简介（150字）
@@ -74,6 +74,8 @@ public class BesureProject implements Serializable {
 	private long startTime;
 	// 项目结束时间（格里高利历偏移量的毫秒值）
 	private long endTime;
+	// 预计活动开展场次数
+	private int activityTotal;
 	// -----------------------------------审核者回馈的数据信息-------------------------------
 	private List<Receipt4BesureProject>   receipts;
 	// ----------------------------定位项目的发起者（某个层级化对象）在层级化体系中的位置------------------------
@@ -82,25 +84,32 @@ public class BesureProject implements Serializable {
 	private FirstLevel firstLevel;							// 空值是null
 	private SecondLevel secondLevel;				// 空值是null
 	private ThirdLevel thirdLevel;						// 空值是null
-	private FourthLevel fourthLevel;					// 空值是null
 	// -----------------------------------有积分数据必须有-------------------------------
 	// 项目书存储相对路径————“2/10/项目书.doc”
 	private String   filePath;				
 	// 劳务经费数(元)必须是正整数
 	private int  laborCost;					// 0为无积分项目；>0为有积分项目
-	// 物资采买，可以是浮点数
+	// 物资采买，可以是浮点数，限定到小数点后1位★
 	private float purchaseCost;			// 空值是0
 	// -----------------项目通过审核后与DoingProject数据一一对应----------------
 	private DoingProject  doingProject;
 
 	// ============================SETTERs/GETTERs======================
-	public String getBpid() {
-		return bpid;
+	
+	public int getActivityTotal() {
+		return activityTotal;
 	}
-	public void setBpid(String bpid) {
-		this.bpid = bpid;
+	public void setActivityTotal(int activityTotal) {
+		this.activityTotal = activityTotal;
 	}
 	
+	public String getPid() {
+		return pid;
+	}
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -205,13 +214,6 @@ public class BesureProject implements Serializable {
 	}
 	public void setThirdLevel(ThirdLevel thirdLevel) {
 		this.thirdLevel = thirdLevel;
-	}
-	
-	public FourthLevel getFourthLevel() {
-		return fourthLevel;
-	}
-	public void setFourthLevel(FourthLevel fourthLevel) {
-		this.fourthLevel = fourthLevel;
 	}
 	
 	public String getFilePath() {

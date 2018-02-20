@@ -1,6 +1,14 @@
 package cc.natapp4.ddaig.domain;
 
 import java.io.Serializable;
+import java.util.List;
+
+import cc.natapp4.ddaig.domain.cengji.FirstLevel;
+import cc.natapp4.ddaig.domain.cengji.FourthLevel;
+import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
+import cc.natapp4.ddaig.domain.cengji.SecondLevel;
+import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
+import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 
 /**
  * 正在进行中的项目列表
@@ -50,13 +58,33 @@ import java.io.Serializable;
 public class DoingProject implements Serializable {
 
 	// 主键
-	private String dpid;
+	private String pid;
 	
-	
-	
-	
-	
+	// -------------------------------------Foreign Key---------------------
 	// 一对一(通过它可以了解到项目的审核历史以及确定项目的发起方等信息，因此还是很有用的)
 	private BesureProject  besureProject;
+	// 定位项目的在层级化结构中的执行方
+	private MinusFirstLevel minusFirstLevel;     // 空值是null
+	private ZeroLevel zeroLevel; 						// 空值是null
+	private FirstLevel firstLevel;							// 空值是null
+	private SecondLevel secondLevel;				// 空值是null
+	private ThirdLevel thirdLevel;						// 空值是null
+	
+	// 项目包含的活动列表信息【以项目来管理活动的原则体现★】
+	private List<Activity>  activities;
+	
+	/*
+	 *  项目劳务积分,从BesuereProject.laborCost的金钱直接1:10兑换成积分存储在这里
+	 *  之所以是1:10的意思就是 1块钱相当于10积分，也就是说1积分相当于0.1块钱
+	 */
+	private int	laborCost;       // 项目总劳务积分
+	/*
+	 *  项目剩余劳务积分
+	 *  lastLaborCost/laborCost =  项目开展进度
+	 */
+	private int	lastLaborCost; 
+	// 项目材料资金管理实体
+	
+	
 	
 }
