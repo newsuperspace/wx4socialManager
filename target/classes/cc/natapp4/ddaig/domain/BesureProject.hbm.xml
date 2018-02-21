@@ -27,7 +27,7 @@
 
 
 		<list name="receipts" cascade="all" lazy="true">
-			<key column="bpid"></key>
+			<key column="pid"></key>
 			<list-index  column="index"></list-index>
 			<one-to-many class="cc.natapp4.ddaig.domain.Receipt4BesureProject"/>
 		</list>
