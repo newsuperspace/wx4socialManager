@@ -13,13 +13,26 @@
 			</generator>
 		</id>
 
-		<property name="laborCost" type="integer"></property>
-		<property name="lastLaborCost" type="integer"></property>
-		<!-- 一对一关联 -->
-		<one-to-one name="besureProject" cascade="save-update"
-			lazy="false" class="cc.natapp4.ddaig.domain.BesureProject"
-			constrained="true">
-		</one-to-one>
+		<property name="name" length="100"></property>
+		<property name="description" length="500"></property>
+
+		<many-to-one name="projectType" column="ptid"
+			class="cc.natapp4.ddaig.domain.ProjectType" cascade="save-update"
+			lazy="false">
+		</many-to-one>
+
+		<property name="state" length="20"></property>
+		<property name="examinedTime" type="long"></property>
+		<property name="commitTime" type="long"></property>
+		<property name="updateNum" type="integer"></property>
+		<property name="startTime" type="long"></property>
+		<property name="endTime" type="long"></property>
+
+		<list name="receipts" cascade="all" lazy="true">
+			<key column="bpid"></key>
+			<list-index column="index"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Receipt4BesureProject" />
+		</list>
 
 		<many-to-one name="minusFirstLevel"
 			class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel" column="mflid"
@@ -36,12 +49,21 @@
 		<many-to-one name="thirdLevel"
 			class="cc.natapp4.ddaig.domain.cengji.ThirdLevel" column="thid"
 			cascade="save-update" lazy="false"></many-to-one>
+		<many-to-one name="fourthLevel"
+			class="cc.natapp4.ddaig.domain.cengji.FourthLevel" column="foid"
+			cascade="save-update" lazy="false"></many-to-one>
 
-		<list name="activities" cascade="all" lazy="true">
-			<key column="pid"></key>
-			<list-index column="index"></list-index>
-			<one-to-many class="cc.natapp4.ddaig.domain.Activity" />
-		</list>
+		<property name="filePath" length="200"></property>
+		<property name="laborCost" type="integer"></property>
+		<property name="purchaseCost" type="float"></property>
+
+
+		<!-- 一对一关联 -->
+		<one-to-one name="besureProject" cascade="save-update"
+			lazy="false" class="cc.natapp4.ddaig.domain.BesureProject"
+			constrained="true">
+		</one-to-one>
+
 
 
 	</class>
