@@ -28,7 +28,6 @@ public class Activity implements Serializable {
 	private String description;     // 活动的描述
 	private String state;  // 进行中，已完成、已取消
 	private String author;   // 发起人（用户的uid）
-	private String community;  // 活动所属社区（社区的cid）
 	 
 	private Set<User>  users;  // 实际参与活动的用户列表
 	/*
@@ -42,7 +41,7 @@ public class Activity implements Serializable {
 //	private Set<BaoMingUser>  baoMingUsers
 	// 当前活动所属的项目坚持———【项目为核心原则，有项目才能发起活动】
 	private DoingProject  project;
-
+	
 
 	
 }

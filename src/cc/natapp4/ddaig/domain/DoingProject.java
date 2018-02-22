@@ -3,6 +3,8 @@ package cc.natapp4.ddaig.domain;
 import java.io.Serializable;
 import java.util.List;
 
+import org.apache.struts2.json.annotations.JSON;
+
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
@@ -59,6 +61,16 @@ public class DoingProject implements Serializable {
 
 	// 主键
 	private String pid;
+	/*
+	 *  项目劳务积分,从BesuereProject.laborCost的金钱直接1:10兑换成积分存储在这里
+	 *  之所以是1:10的意思就是 1块钱相当于10积分，也就是说1积分相当于0.1块钱
+	 */
+	private int	laborCost;       // 项目总劳务积分
+	/*
+	 *  项目剩余劳务积分
+	 *  lastLaborCost/laborCost =  项目开展进度
+	 */
+	private int	lastLaborCost; 
 	
 	// -------------------------------------Foreign Key---------------------
 	// 一对一(通过它可以了解到项目的审核历史以及确定项目的发起方等信息，因此还是很有用的)
@@ -73,18 +85,92 @@ public class DoingProject implements Serializable {
 	// 项目包含的活动列表信息【以项目来管理活动的原则体现★】
 	private List<Activity>  activities;
 	
-	/*
-	 *  项目劳务积分,从BesuereProject.laborCost的金钱直接1:10兑换成积分存储在这里
-	 *  之所以是1:10的意思就是 1块钱相当于10积分，也就是说1积分相当于0.1块钱
-	 */
-	private int	laborCost;       // 项目总劳务积分
-	/*
-	 *  项目剩余劳务积分
-	 *  lastLaborCost/laborCost =  项目开展进度
-	 */
-	private int	lastLaborCost; 
-	// 项目材料资金管理实体
-	
+	// 项目材料资金部分管理实体(一对一)
+	private ProjectAboutShoping   projectAboutShoping;
+
+	// ======================SETTERs/GETTERs=============
+	public String getPid() {
+		return pid;
+	}
+
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
+
+	public int getLaborCost() {
+		return laborCost;
+	}
+
+	public void setLaborCost(int laborCost) {
+		this.laborCost = laborCost;
+	}
+
+	public int getLastLaborCost() {
+		return lastLaborCost;
+	}
+
+	public void setLastLaborCost(int lastLaborCost) {
+		this.lastLaborCost = lastLaborCost;
+	}
+
+	// no @JSON
+	public BesureProject getBesureProject() {
+		return besureProject;
+	}
+	public void setBesureProject(BesureProject besureProject) {
+		this.besureProject = besureProject;
+	}
+
+	public MinusFirstLevel getMinusFirstLevel() {
+		return minusFirstLevel;
+	}
+	public void setMinusFirstLevel(MinusFirstLevel minusFirstLevel) {
+		this.minusFirstLevel = minusFirstLevel;
+	}
+
+	public ZeroLevel getZeroLevel() {
+		return zeroLevel;
+	}
+	public void setZeroLevel(ZeroLevel zeroLevel) {
+		this.zeroLevel = zeroLevel;
+	}
+
+	public FirstLevel getFirstLevel() {
+		return firstLevel;
+	}
+	public void setFirstLevel(FirstLevel firstLevel) {
+		this.firstLevel = firstLevel;
+	}
+
+	public SecondLevel getSecondLevel() {
+		return secondLevel;
+	}
+	public void setSecondLevel(SecondLevel secondLevel) {
+		this.secondLevel = secondLevel;
+	}
+
+	public ThirdLevel getThirdLevel() {
+		return thirdLevel;
+	}
+	public void setThirdLevel(ThirdLevel thirdLevel) {
+		this.thirdLevel = thirdLevel;
+	}
+
+	@JSON(serialize=false)
+	public List<Activity> getActivities() {
+		return activities;
+	}
+	public void setActivities(List<Activity> activities) {
+		this.activities = activities;
+	}
+
+	// no @JSON
+	public ProjectAboutShoping getProjectAboutShoping() {
+		return projectAboutShoping;
+	}
+	public void setProjectAboutShoping(ProjectAboutShoping projectAboutShoping) {
+		this.projectAboutShoping = projectAboutShoping;
+	}
 	
 	
 }

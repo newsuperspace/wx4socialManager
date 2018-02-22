@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="cc.natapp4.ddaig.domain.Receipt4BesureProject">
+		<id name="rbpid" length="50">
+			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
+			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
+			<!-- 自动按照数字序号增加，无需手动维护，但逐渐字段必须是数值类型（int/long等） -->
+			<generator class="uuid"></generator>
+		</id>
+
+		<property name="name" length="50"></property>
+		<property name="type" length="10"></property>
+		<property name="content" length="500"></property>
+
+		<many-to-one name="besureProject"
+			class="cc.natapp4.ddaig.domain.BesureProject"
+			column="pid" cascade="all" lazy="false"></many-to-one>
+		
+		<property name="time" type="long"></property>
+
+
+	</class>
+</hibernate-mapping>
