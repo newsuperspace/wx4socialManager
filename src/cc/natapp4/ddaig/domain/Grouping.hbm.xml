@@ -15,7 +15,7 @@
 		<property name="tag" length="20"></property>
 		<property name="tagid" length="20" ></property>
 		
-		<set name="users"  cascade="save-update"  lazy="false">   
+		<set name="users"  cascade="save-update"  lazy="true">   
 			<key>
 				<column name="gid" ></column>
 			</key>

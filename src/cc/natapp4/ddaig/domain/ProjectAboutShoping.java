@@ -12,6 +12,6 @@ import java.io.Serializable;
 public class ProjectAboutShoping implements Serializable {
 
 	// 【主键】
-	private String pasid;
+	private String pid;
 	
 }

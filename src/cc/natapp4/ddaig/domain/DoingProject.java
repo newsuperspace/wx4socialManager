@@ -85,7 +85,7 @@ public class DoingProject implements Serializable {
 	// 项目包含的活动列表信息【以项目来管理活动的原则体现★】
 	private List<Activity>  activities;
 	
-	// 项目材料资金部分管理实体(一对一)
+	// TODO 项目材料资金部分管理实体(一对一)
 	private ProjectAboutShoping   projectAboutShoping;
 
 	// ======================SETTERs/GETTERs=============

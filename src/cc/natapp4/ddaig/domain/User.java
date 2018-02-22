@@ -1,11 +1,10 @@
 package cc.natapp4.ddaig.domain;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.struts2.json.annotations.JSON;
-
-
 
 public class User implements Serializable {
 	
@@ -27,7 +26,8 @@ public class User implements Serializable {
 	private boolean locked;  // 是否被封禁 true=封禁  false或null = 正常
 	// ---------------------------------------Foreign-KEY-------------------------------------
 	private Grouping grouping;     // 所在分组（与微信的tag标签一一对应，每个tag对应一种前端的菜单样式和后端的管理层级★★★）
-	private Set<Activity>  activities;  // 当前用户所参加过的活动列表
+
+	private List<Visitor> visits;
 	private Set<Exchange> exchanges; // 当前用户的消分记录
 	
 	
@@ -163,19 +163,14 @@ public class User implements Serializable {
 		this.grouping = grouping;
 	}
 
-	/*
-	 * 由于前端管理后台在查找某一用户的时候不需要服务器连带返回用户的参与活动信息，
-	 * 因此这里添加上JSON注解来提高JSON组织效率。同时，如果前端真的需要所要某一
-	 * 用户的活动记录的时候通过ajax连接再将该Set直接放入到栈顶后JSON解析传递过去也是来得及的。
-	 */
 	@JSON(serialize=false)
-	public Set<Activity> getActivities() {
-		return activities;
+	public List<Visitor> getVisits() {
+		return visits;
 	}
-	public void setActivities(Set<Activity> activities) {
-		this.activities = activities;
+	public void setVisits(List<Visitor> visits) {
+		this.visits = visits;
 	}
-
+	
 	@JSON(serialize=false)
 	public Set<Exchange> getExchanges() {
 		return exchanges;

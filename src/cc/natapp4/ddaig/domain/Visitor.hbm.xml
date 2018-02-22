@@ -2,24 +2,24 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-	<class name="cc.natapp4.ddaig.domain.Receipt4BesureProject">
-		<id name="rbpid" length="50">
+	<class name="cc.natapp4.ddaig.domain.Visitor">
+		<id name="vid" length="50">
 			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
 			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
-			<!-- 自动按照数字序号增加，无需手动维护，但逐渐字段必须是数值类型（int/long等） -->
 			<generator class="increment"></generator>
 		</id>
-
-		<property name="name" length="50"></property>
-		<property name="type" length="10"></property>
-		<property name="content" length="500"></property>
-
-		<many-to-one name="besureProject"
-			class="cc.natapp4.ddaig.domain.BesureProject"
-			column="pid" cascade="all" lazy="false"></many-to-one>
 		
-		<property name="time" type="long"></property>
-
+		<property name="startTime" type="long"></property>
+		<property name="endTime" type="long"></property>
+		<property name="score" type="integer"></property>
+		<property name="workTime" type="long"></property>
+		
+		<many-to-one name="user" column="uid"
+			class="cc.natapp4.ddaig.domain.User" cascade="save-update" lazy="false">
+		</many-to-one>
+		<many-to-one name="activity" column="aid"
+			class="cc.natapp4.ddaig.domain.Activity" cascade="save-update" lazy="false">
+		</many-to-one>
 
 	</class>
 </hibernate-mapping>

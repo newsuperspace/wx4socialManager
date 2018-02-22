@@ -26,14 +26,11 @@
 			class="cc.natapp4.ddaig.domain.Grouping" cascade="save-update" lazy="false">
 		</many-to-one>
 
-		<set name="activities" table="activity_user" cascade="save-update"
-			lazy="true">
-			<key>
-				<column name="uid"></column>
-			</key>
-			<many-to-many class="cc.natapp4.ddaig.domain.Activity"
-				column="aid"></many-to-many>
-		</set>
+		<list name="visits"  cascade="save-update" lazy="true">
+			<key  column="uid"></key>
+			<list-index column="index4user"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Visitor" />
+		</list>
 
 		<set name="exchanges" cascade="save-update" lazy="true">
 			<key>

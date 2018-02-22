@@ -35,7 +35,7 @@
 			<one-to-many  class="cc.natapp4.ddaig.domain.Member"/>
 		</set>
 		
-		<set name="permissions" cascade="save-update">
+		<set name="permissions" table="permission_thirdLevel"  cascade="save-update">
 			<key>
 				<column name="thid"></column>
 			</key>

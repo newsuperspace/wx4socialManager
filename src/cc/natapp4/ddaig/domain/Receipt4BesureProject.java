@@ -10,11 +10,11 @@ import java.io.Serializable;
 public class Receipt4BesureProject implements Serializable {
 
 	// 【主键】——建议主键产生器使用sequence，节省空间消耗
-	private String rbpid;
+	private int rbpid;
 	// 回复人姓名
 	private String name;
 	/*
-	 * 信息类型（当前硬编码至此）
+	 * 消息类型（当前硬编码至此）
 	 * succeed: 通过审核
 	 * note: 修改通知
 	 * lost：未通过
@@ -28,10 +28,11 @@ public class Receipt4BesureProject implements Serializable {
 	private long time;
 
 	// ==============SETTERs/GETTERs================
-	public String getRbpid() {
+	
+	public int getRbpid() {
 		return rbpid;
 	}
-	public void setRbpid(String rbpid) {
+	public void setRbpid(int rbpid) {
 		this.rbpid = rbpid;
 	}
 	
@@ -65,8 +66,6 @@ public class Receipt4BesureProject implements Serializable {
 	public void setTime(long time) {
 		this.time = time;
 	}
-	
-	
 	
 	
 }

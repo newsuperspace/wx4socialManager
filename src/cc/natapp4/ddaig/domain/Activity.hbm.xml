@@ -13,22 +13,33 @@
 			<generator class="assigned"></generator>
 		</id>
 
-		<property name="beginData" length="30"></property>
-		<property name="endData" length="30"></property>
-		<property name="score" length="20"></property>
+		<property name="type" length="30"></property>
+		<property name="baoMingUplimit" type="integer"></property>		
+		<property name="activityBeginTime" type="long"></property>
+		<property name="activityEndTime" type="long"></property>
+		<property name="baoMingBeginTime" type="long"></property>
+		<property name="baoMingEndTime" type="long"></property>
+		<property name="score" type="integer"></property>		
 		<property name="qrcodeUrl" length="100"></property>
-		<property name="name" length="100"></property>
-		<property name="description" length="200"></property>
-		<property name="state" length="50"></property>
-		<property name="author" length="50"></property>
-		<property name="community" length="50"></property>
-
-		<set name="users"   table="activity_user"   cascade="save-update">
-			<key>
-				<column name="aid"></column>
-			</key>
-			<many-to-many class="cc.natapp4.ddaig.domain.User" column="uid"></many-to-many>
-		</set>			
+		<property name="name" length="50"></property>
+		<property name="description" length="500"></property>
+		<property name="state" length="10"></property>
+		
+		<list name="visitors" cascade="save-update" lazy="true">
+			<key column="aid"></key>
+			<list-index column="index4activity" ></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Visitor"/>
+		</list>		
+		
+		<many-to-one name="project"
+			class="cc.natapp4.ddaig.domain.DoingProject"
+			column="pid"
+			cascade="save-update"
+		></many-to-one>
+		
+		
+		
+		
 	
 	</class>
 </hibernate-mapping>

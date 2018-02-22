@@ -4,24 +4,55 @@
 <hibernate-mapping>
 	<class name="cc.natapp4.ddaig.domain.Permission">
 		<id name="pid" length="50">
-			<!-- 
-				设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段
-			 -->
-			 <!-- 
-			 	设置主键产生器是assigned，是由于需要根据用户的wid来生成qrcode，因此需要手动创建uid
-			  -->
+			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
+			<!-- 设置主键产生器是assigned，是由于需要根据用户的wid来生成qrcode，因此需要手动创建uid -->
 			<generator class="uuid"></generator>
 		</id>
-		<property name="permission" length="50"  ></property>
-		<property name="description" length="100"></property>
-		<property name="available"  type="true_false"></property>
+		<property name="permission" length="50"></property>
+		<property name="description" length="200"></property>
+		<property name="enabled" type="true_false"></property>
+
+		<many-to-one name="type" column="ptid"
+			class="cc.natapp4.ddaig.domain.PermissionType" cascade="save-update">
+		</many-to-one>
 		
-		<set name="roles"   table="role_perm"  cascade="save-update"  lazy="false">
+		<set name="minusFirstLevels" table="permission_minusFirstLevel" cascade="save-update" lazy="true">
 			<key>
 				<column name="pid"></column>
 			</key>
-			<many-to-many  class="cc.natapp4.ddaig.domain.Role"   column="rid"></many-to-many>
+			<many-to-many class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel" column="mflid"></many-to-many>
 		</set>
-		
+		<set name="zeroLevels" table="permission_zeroLevel" cascade="save-update" lazy="true">
+			<key>
+				<column name="pid"></column>
+			</key>
+			<many-to-many class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" column="zid"></many-to-many>
+		</set>
+		<set name="firstLevels" table="permission_firstLevel" cascade="save-update" lazy="true">
+			<key>
+				<column name="pid"></column>
+			</key>
+			<many-to-many class="cc.natapp4.ddaig.domain.cengji.FirstLevel" column="flid"></many-to-many>
+		</set>
+		<set name="secondLevels" table="permission_secondLevel" cascade="save-update" lazy="true">
+			<key>
+				<column name="pid"></column>
+			</key>
+			<many-to-many class="cc.natapp4.ddaig.domain.cengji.SecondLevel" column="scid"></many-to-many>
+		</set>
+		<set name="thirdLevels" table="permission_thirdLevel" cascade="save-update" lazy="true">
+			<key>
+				<column name="pid"></column>
+			</key>
+			<many-to-many class="cc.natapp4.ddaig.domain.cengji.ThirdLevel" column="thid"></many-to-many>
+		</set>
+		<set name="fourthLevels" table="permission_fourthLevel" cascade="save-update" lazy="true">
+			<key>
+				<column name="pid"></column>
+			</key>
+			<many-to-many class="cc.natapp4.ddaig.domain.cengji.FourthLevel" column="foid"></many-to-many>
+		</set>
+
+
 	</class>
 </hibernate-mapping>
