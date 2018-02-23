@@ -13,7 +13,7 @@
 		<property name="level" type="integer"></property>
 
 		<many-to-one name="parent" column="zid"
-			class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" cascade="save-update"></many-to-one>
+			class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" cascade="save-update" lazy="false"></many-to-one>
 
 		<set name="children" cascade="save-update" lazy="true">
 			<key>
@@ -24,7 +24,7 @@
 			<one-to-many class="cc.natapp4.ddaig.domain.cengji.SecondLevel" />
 		</set>
 
-		<many-to-one name="manager" column="mid"
+		<many-to-one name="manager" column="uid"  lazy="false"
 			class="cc.natapp4.ddaig.domain.Manager" cascade="save-update">
 		</many-to-one>
 

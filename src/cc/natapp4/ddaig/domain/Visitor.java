@@ -22,9 +22,56 @@ public class Visitor implements Serializable {
 	private User  user;
 	// 当前活动参与者参与的活动是。。。
 	private Activity  activity;
+
+	//==================SETTERs/GETTERs===================
+	public int getVid() {
+		return vid;
+	}
+	public void setVid(int vid) {
+		this.vid = vid;
+	}
 	
+	public long getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
+	}
 	
+	public long getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(long endTime) {
+		this.endTime = endTime;
+	}
 	
+	public int getScore() {
+		return score;
+	}
+	public void setScore(int score) {
+		this.score = score;
+	}
+	
+	public long getWorkTime() {
+		return workTime;
+	}
+	public void setWorkTime(long workTime) {
+		this.workTime = workTime;
+	}
+	
+	public User getUser() {
+		return user;
+	}
+	public void setUser(User user) {
+		this.user = user;
+	}
+	
+	public Activity getActivity() {
+		return activity;
+	}
+	public void setActivity(Activity activity) {
+		this.activity = activity;
+	}
 	
 	
 }

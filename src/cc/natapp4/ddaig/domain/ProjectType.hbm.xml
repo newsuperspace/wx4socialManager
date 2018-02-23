@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 	<class name="cc.natapp4.ddaig.domain.ProjectType">
-		<id name="pid" length="50">
+		<id name="ptid" length="50">
 			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
 			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
 			<!-- increment自动按照数字序号增加，无需手动维护，但逐渐字段必须是数值类型（int/long等） -->

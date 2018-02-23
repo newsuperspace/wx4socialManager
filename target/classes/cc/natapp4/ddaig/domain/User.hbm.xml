@@ -11,6 +11,8 @@
 		<property name="openid" length="50"></property>
 		<property name="cardid" length="20"></property>
 		<property name="username" length="20"></property>
+		<property name="sickname" length="20"></property>
+		<property name="registrationTime" type="long"></property>
 		<property name="address" length="100"></property>
 		<property name="serveTime" type="long"></property>
 		<property name="email" length="50"></property>

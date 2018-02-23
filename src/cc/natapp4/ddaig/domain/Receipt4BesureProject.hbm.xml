@@ -12,7 +12,7 @@
 
 		<property name="name" length="50"></property>
 		<property name="type" length="10"></property>
-		<property name="content" length="500"></property>
+		<property name="content" length="600"></property>
 
 		<many-to-one name="besureProject"
 			class="cc.natapp4.ddaig.domain.BesureProject"

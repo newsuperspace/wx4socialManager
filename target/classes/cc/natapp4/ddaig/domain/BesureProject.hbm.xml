@@ -48,7 +48,7 @@
 			class="cc.natapp4.ddaig.domain.cengji.ThirdLevel"
 			column="thid" cascade="save-update" lazy="false"></many-to-one>
 
-		<property name="filePath" length="200"></property>
+		<property name="filePath" length="100"></property>
 		<property name="laborCost" type="integer"></property>
 		<property name="purchaseCost" type="float"></property>
 

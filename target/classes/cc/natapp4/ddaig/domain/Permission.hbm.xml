@@ -12,7 +12,7 @@
 		<property name="description" length="200"></property>
 		<property name="enabled" type="true_false"></property>
 
-		<many-to-one name="type" column="ptid"
+		<many-to-one name="type" column="ptid"  lazy="false"
 			class="cc.natapp4.ddaig.domain.PermissionType" cascade="save-update">
 		</many-to-one>
 		

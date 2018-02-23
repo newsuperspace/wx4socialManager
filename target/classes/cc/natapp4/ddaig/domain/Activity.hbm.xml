@@ -35,6 +35,7 @@
 			class="cc.natapp4.ddaig.domain.DoingProject"
 			column="pid"
 			cascade="save-update"
+			lazy="false"
 		></many-to-one>
 		
 		

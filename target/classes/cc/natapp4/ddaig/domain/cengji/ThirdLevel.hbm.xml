@@ -12,7 +12,7 @@
 		<property name="description" length="200"></property>
 		<property name="level" type="integer"></property>
 
-		<many-to-one name="parent" column="scid"
+		<many-to-one name="parent" column="scid" lazy="false"
 			class="cc.natapp4.ddaig.domain.cengji.SecondLevel" cascade="save-update"></many-to-one>
 
 		<set name="children" cascade="save-update" lazy="true">
@@ -24,7 +24,7 @@
 			<one-to-many class="cc.natapp4.ddaig.domain.cengji.FourthLevel" />
 		</set>
 
-		<many-to-one name="manager" column="mid"
+		<many-to-one name="manager" column="uid" lazy="false"
 			class="cc.natapp4.ddaig.domain.Manager" cascade="save-update">
 		</many-to-one>
 
@@ -35,7 +35,7 @@
 			<one-to-many  class="cc.natapp4.ddaig.domain.Member"/>
 		</set>
 		
-		<set name="permissions" table="permission_thirdLevel"  cascade="save-update">
+		<set name="permissions" table="permission_thirdLevel"  cascade="save-update" lazy="true">
 			<key>
 				<column name="thid"></column>
 			</key>

@@ -19,8 +19,6 @@ public class Member implements Serializable {
 	
 	// 主键
 	private String uid; 
-	// 外键关联
-	private User user;    // 与User表一对一
 	/*
 	 * 以下就是用来描述该用户作为层级化结构中的成员 其所在的具体位置的。 假设该用户属于third层级的成员，但不属于具体的fourth层级，那么
 	 * 他的fourthLevel = null 而thirdLevel、secondLevel、firstLevle和
@@ -32,7 +30,8 @@ public class Member implements Serializable {
 	private SecondLevel secondLevel;
 	private ThirdLevel thirdLevel;
 	private FourthLevel fourthLevel;
-
+	// 外键关联
+	private User user;    // 与User表一对一
 	
 	// ==========================SETTERs/GETTERs=============================
 

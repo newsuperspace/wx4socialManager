@@ -10,24 +10,26 @@ public class User implements Serializable {
 	
 	//====================================字段==================================
 	// ---------------------------------------普通字段-------------------------------------
+	private String uid;  // 【主键】
 	private String openid;  // 微信的openID值 ★
 	private String cardid;  // 身份证号
-	private String uid;  // 【主键】
-	private String username;    // 名字
+	private String username;    // 真实名字
+	private String sickname;  // 微信昵称
+	private long registrationTime; // 注册日期(格里高利历毫秒值偏移量)
 	private String address;      // 家庭住址
-	private long serveTime;     // 服务时长（毫秒值，用它可以换算出用户等级）★
+	private long serveTime;     // 累计服务时长（毫秒值，用它可以换算出用户等级）★
 	private String email;    // 电子邮箱
 	private int score;    // 积分  ★
 	private String sex;      // 性别
 	private int age;    // 年龄
 	private String phone;   // 电话号码
-	private boolean ishere;   // 该用户当前是否在公众号中 
 	private String qrcode;   // 用户专属qrcode的相对路径————qrcode/1/12/xxxx.gif
+	private boolean ishere;   // 该用户当前是否在公众号中 
 	private boolean locked;  // 是否被封禁 true=封禁  false或null = 正常
 	// ---------------------------------------Foreign-KEY-------------------------------------
 	private Grouping grouping;     // 所在分组（与微信的tag标签一一对应，每个tag对应一种前端的菜单样式和后端的管理层级★★★）
 
-	private List<Visitor> visits;
+	private List<Visitor> visits; // 该用户个人参加活动的信息列表
 	private Set<Exchange> exchanges; // 当前用户的消分记录
 	
 	
@@ -53,6 +55,23 @@ public class User implements Serializable {
 	 */
 	public User() {}
 	//==============================SETTERs/GETTERs============================
+	
+	
+	
+	public String getSickname() {
+		return sickname;
+	}
+	public void setSickname(String sickname) {
+		this.sickname = sickname;
+	}
+	
+	public long getRegistrationTime() {
+		return registrationTime;
+	}
+	public void setRegistrationTime(long registrationTime) {
+		this.registrationTime = registrationTime;
+	}
+	
 	public String getOpenid() {
 		return openid;
 	}

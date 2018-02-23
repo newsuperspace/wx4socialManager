@@ -45,7 +45,6 @@ public class MinusFirstLevel implements LevelInterface {
 	private Set<DoingProject> doingProjects;
 	// 当前层级之下等待审核的项目列表
 	private Set<BesureProject>  besureProjects;
-
 	
 	// ==================================SETTERs/GETTERs=====================================
 	public String getMflid() {

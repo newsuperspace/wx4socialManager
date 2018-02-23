@@ -9,8 +9,8 @@
 			 -->
 			<generator class="uuid"></generator>
 		</id>
-		<property name="groupName" length="100"  ></property>
-		<property name="description" length="200"></property>
+		<property name="groupName" length="50"  ></property>
+		<property name="description" length="100"></property>
 		<property name="logoPath" length="50"></property>
 		<property name="tag" length="20"></property>
 		<property name="tagid" length="20" ></property>

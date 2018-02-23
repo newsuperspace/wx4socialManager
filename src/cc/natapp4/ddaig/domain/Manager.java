@@ -44,7 +44,6 @@ public class Manager implements Serializable {
 
 	
 	// ===============================SETTERs/GETTERs================================
-
 	public String getUid() {
 		return uid;
 	}
