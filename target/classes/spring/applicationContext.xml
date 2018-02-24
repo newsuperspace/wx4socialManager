@@ -114,18 +114,19 @@
 		基于注解和类扫描的“声明式事务处理”。 AOP编程的基础就是——动态代理或静态代理（装饰或适配器） -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
-
+ 
 	<!-- 通过SpringMVC框架入口（一个配置在当前工程中的web.xml中的一个servlet）来处理前端提交来的websocket协议请求 
 		而判断到是websocket协议后就会提交给下面的配置来处理。 allowed-prigins属性 是实现跨域请求的 path属性定义的值是 /login，该属性将与web.xml中配置的SpringMVC入口的servlet类的<url-pattern>中的url映射的/ws/*的“*”相对应 
 		共同构成以后前端可以使用的连接当前服务器的ws://ddaig.natapp4.cc/weixin/ws/login 的URL的相对路径部分。这是一个坑，一定要注意★ -->
+<!-- 
 	<bean id="webSocketHandler4Login" class="cc.natapp4.ddaig.websocket.WebSocketHandler4Login" />
 	<websocket:handlers allowed-origins="*">
-		<!-- 对于请求路径是 /ws/login 的websocket请求，将交由名叫webSocketHandler4Login的处理类处理 -->
+		对于请求路径是 /ws/login 的websocket请求，将交由名叫webSocketHandler4Login的处理类处理
 		<websocket:mapping path="/login" handler="webSocketHandler4Login" />
-		<!-- 在交给该处理类处理webSocket请求之前，需要先经过特定拦截器，在该拦截器中可以做预先和善后准备工作 -->
+		在交给该处理类处理webSocket请求之前，需要先经过特定拦截器，在该拦截器中可以做预先和善后准备工作
 		<websocket:handshake-interceptors>
 			<bean class="cc.natapp4.ddaig.websocket.HandShakeInterceptor4Login" />
 		</websocket:handshake-interceptors>
 	</websocket:handlers>
-
+-->
 </beans>

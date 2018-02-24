@@ -1,58 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-	<class name="cc.natapp4.ddaig.domain.Manager">
-		<id name="uid" length="50">
-			<!-- 这个foreign主键产生器与以往我一直使用的uuid和assign不一样 它的作用是共用user属性（当前ORM映射类中的一个属性叫user）的类（也是一个ORM类） 
+ <class name="cc.natapp4.ddaig.domain.Manager">
+  <id length="50" name="uid">
+   <!-- 这个foreign主键产生器与以往我一直使用的uuid和assign不一样 它的作用是共用user属性（当前ORM映射类中的一个属性叫user）的类（也是一个ORM类） 
 				映射的数据库表的主键。 也就是实现了Manager“跟随”User使用相同主键的效果 -->
-			<generator class="foreign">
-				<param name="property">user</param>
-			</generator>
-		</id>
-
-		<set name="mfls" cascade="save-update" lazy="true">
-			<key>
-				<column name="uid"></column>
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel" />
-		</set>
-		<set name="zls" cascade="save-update" lazy="true">
-			<key>
-				<column name="uid"></column>
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" />
-		</set>
-		<set name="fls" cascade="save-update" lazy="true">
-			<key>
-				<column name="uid"></column>
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.FirstLevel" />
-		</set>
-		<set name="scls" cascade="save-update" lazy="true">
-			<key>
-				<column name="uid"></column>
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.SecondLevel" />
-		</set>
-		<set name="tls" cascade="save-update" lazy="true">
-			<key>
-				<column name="uid"></column>
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.ThirdLevel" />
-		</set>
-		<set name="fols" cascade="save-update" lazy="true">
-			<key>
-				<column name="uid"></column>
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.FourthLevel" />
-		</set>
-
-
-		<!-- 一对一的关键就是借助unique=true实现manager、member表外键的唯一性 -->
-		<one-to-one name="user" cascade="all"
-			class="cc.natapp4.ddaig.domain.User" lazy="false" constrained="true">
-		</one-to-one>
-
-	</class>
+   <generator class="foreign">
+    <param name="property">user</param>
+   </generator>
+  </id>
+  <set cascade="save-update" lazy="true" name="mfls" sort="unsorted">
+   <key>
+    <column name="uid"/>
+   </key>
+   <one-to-many class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel"/>
+  </set>
+  <set cascade="save-update" lazy="true" name="zls" sort="unsorted">
+   <key>
+    <column name="uid"/>
+   </key>
+   <one-to-many class="cc.natapp4.ddaig.domain.cengji.ZeroLevel"/>
+  </set>
+  <set cascade="save-update" lazy="true" name="fls" sort="unsorted">
+   <key>
+    <column name="uid"/>
+   </key>
+   <one-to-many class="cc.natapp4.ddaig.domain.cengji.FirstLevel"/>
+  </set>
+  <set cascade="save-update" lazy="true" name="scls" sort="unsorted">
+   <key>
+    <column name="uid"/>
+   </key>
+   <one-to-many class="cc.natapp4.ddaig.domain.cengji.SecondLevel"/>
+  </set>
+  <set cascade="save-update" lazy="true" name="tls" sort="unsorted">
+   <key>
+    <column name="uid"/>
+   </key>
+   <one-to-many class="cc.natapp4.ddaig.domain.cengji.ThirdLevel"/>
+  </set>
+  <set cascade="save-update" lazy="true" name="fols" sort="unsorted">
+   <key>
+    <column name="uid"/>
+   </key>
+   <one-to-many class="cc.natapp4.ddaig.domain.cengji.FourthLevel"/>
+  </set>
+  <!-- 一对一的关键就是借助unique=true实现manager、member表外键的唯一性 -->
+  <one-to-one cascade="save-update" class="cc.natapp4.ddaig.domain.User"
+   constrained="true" lazy="false" name="user"/>
+ </class>
 </hibernate-mapping>

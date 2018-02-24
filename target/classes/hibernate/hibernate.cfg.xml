@@ -19,14 +19,28 @@
 		com.mysql.jdbc.Driver
 	</property>
 	<property name="format_sql">true</property>
-	<property name="show_sql">false</property>
+	<property name="show_sql">true</property>
 	<mapping resource="cc/natapp4/ddaig/domain/Grouping.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/User.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Activity.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Ware.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Exchange.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/Role.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/BesureProject.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/DoingProject.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Manager.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Member.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Permission.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/PermissionType.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/ProjectType.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Receipt4BesureProject.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Visitor.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/cengji/FirstLevel.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/cengji/FourthLevel.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/cengji/MinusFirstLevel.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/cengji/SecondLevel.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/cengji/ThirdLevel.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/cengji/ZeroLevel.hbm.xml" />
+	
 </session-factory>
 
 </hibernate-configuration>
