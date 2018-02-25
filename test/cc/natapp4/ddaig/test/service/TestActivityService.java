@@ -1,32 +1,31 @@
 package cc.natapp4.ddaig.test.service;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.List;
-
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.orm.hibernate5.HibernateTemplate;
 
-import cc.natapp4.ddaig.domain.Activity;
-import cc.natapp4.ddaig.domain.User;
-import cc.natapp4.ddaig.service_interface.ActivityService;
-import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.domain.BesureProject;
+import cc.natapp4.ddaig.service_interface.BesureProjectService;
 
 public class TestActivityService {
 
-	private static  ApplicationContext context  =  new  ClassPathXmlApplicationContext("spring/applicationContext.xml");
-	
+	private static ApplicationContext context = new ClassPathXmlApplicationContext("spring/applicationContext.xml");
+
 	@Test
-	public void testQueryByTagName(){
+	public void testSave() {
+
+		BesureProject  p=  new BesureProject();
+		p.setActivityTotal(10);
+		p.setCommitTime(System.currentTimeMillis());
+		p.setDescription("这是一个非常非常非常非常非常NB的项目，能够改变人类的命运。");
+
+		BesureProjectService  service  =  (BesureProjectService) context.getBean("besureProjectService");
+		service.save(p);
 		
-		UserService service = (UserService) context.getBean("testUserService");
-		List<User> list = service.queryByTagName("community_user");
-		for(User u: list){
-			System.out.println(u.getUsername());
-		}
 	}
+	
+
+	
 	
 	
 }

@@ -29,7 +29,7 @@
    class="cc.natapp4.ddaig.domain.cengji.FourthLevel" column="foid"
    lazy="false" name="fourthLevel"/>
   <!-- 一对一的关键就是借助unique=true实现manager、member表外键的唯一性 -->
-  <one-to-one cascade="save-update" class="cc.natapp4.ddaig.domain.User"
-   constrained="true" lazy="false" name="user"/>
+  <one-to-one  class="cc.natapp4.ddaig.domain.User"
+   constrained="true"  name="user"/>
  </class>
 </hibernate-mapping>

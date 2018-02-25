@@ -6,9 +6,15 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import org.springframework.orm.hibernate5.HibernateTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import cc.natapp4.ddaig.dao_interface.BaseDao;
 
+/*
+ * TODO 在Junit测试Dao层的时候 需要开启这个注解，进行声明式事务处理，
+ * 正常开发时这个注解是注在BaseServiceImpl上的。
+ */
+//@Transactional  
 public abstract class BaseDaoImpl<T> implements BaseDao<T> {
 
 	/**

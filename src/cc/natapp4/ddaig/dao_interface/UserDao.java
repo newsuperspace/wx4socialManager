@@ -22,4 +22,6 @@ public interface UserDao extends BaseDao<User>{
 	 * @return
 	 */
 	public List<User>  queryByTagName(String tagName);
+	
+	
 }

@@ -3,8 +3,6 @@ package cc.natapp4.ddaig.domain;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.jws.soap.SOAPBinding.Use;
-
 import org.apache.struts2.json.annotations.JSON;
 
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
@@ -40,7 +38,7 @@ public class Manager implements Serializable {
 	private Set<ThirdLevel>  tls;
 	private Set<FourthLevel>  fols;
 	// 当前管理者的具体用户信息
-	private Use user;
+	private User user;
 
 	
 	// ===============================SETTERs/GETTERs================================
@@ -53,10 +51,10 @@ public class Manager implements Serializable {
 	
 
 	// 不设@JSON
-	public Use getUser() {
+	public User getUser() {
 		return user;
 	}
-	public void setUser(Use user) {
+	public void setUser(User user) {
 		this.user = user;
 	}
 
