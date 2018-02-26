@@ -8,7 +8,7 @@
 			<!-- 设置主键产生器是assigned，是由于需要根据用户的wid来生成qrcode，因此需要手动创建uid -->
 			<generator class="uuid"></generator>
 		</id>
-		<property name="permissionType" length="50"></property>
+		<property name="permissionType" length="50" unique="true"></property>
 		<property name="description" length="200"></property>
 		<property name="enabled" type="true_false"></property>
 

@@ -53,7 +53,7 @@
 		<property name="purchaseCost" type="float"></property>
 
 		<!-- 一对一关联 -->
-		<one-to-one name="doingProject" cascade="save-update" lazy="false"
+		<one-to-one name="doingProject" cascade="save-update"  fetch="join"
 			class="cc.natapp4.ddaig.domain.DoingProject">
 		</one-to-one>
 

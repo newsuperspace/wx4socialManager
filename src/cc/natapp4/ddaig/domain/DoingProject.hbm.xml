@@ -16,8 +16,8 @@
 		<property name="laborCost" type="integer"></property>
 		<property name="lastLaborCost" type="integer"></property>
 		<!-- 一对一关联 -->
-		<one-to-one name="besureProject" cascade="save-update"
-			lazy="false" class="cc.natapp4.ddaig.domain.BesureProject"
+		<one-to-one name="besureProject" 
+			 class="cc.natapp4.ddaig.domain.BesureProject"
 			constrained="true">
 		</one-to-one>
 
