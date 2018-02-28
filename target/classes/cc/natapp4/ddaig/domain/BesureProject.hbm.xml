@@ -12,11 +12,12 @@
 
 		<property name="name" length="100"></property>
 		<property name="description" length="500"></property>
-		
+
 		<many-to-one name="projectType" column="ptid"
-			class="cc.natapp4.ddaig.domain.ProjectType" cascade="save-update" lazy="false">
+			class="cc.natapp4.ddaig.domain.ProjectType" cascade="save-update"
+			lazy="false">
 		</many-to-one>
-		
+
 		<property name="state" length="20"></property>
 		<property name="examinedTime" type="long"></property>
 		<property name="commitTime" type="long"></property>
@@ -26,35 +27,37 @@
 		<property name="activityTotal" type="integer"></property>
 
 
-		<list name="receipts" cascade="all" lazy="true">
+		<list name="receipts" cascade="all" lazy="false">
 			<key column="pid"></key>
-			<list-index  column="index4bproject"></list-index>
-			<one-to-many class="cc.natapp4.ddaig.domain.Receipt4BesureProject"/>
+			<list-index base="1">
+				<column name="index4bproject" ></column>
+			</list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Receipt4BesureProject" />
 		</list>
 
 		<many-to-one name="minusFirstLevel"
-			class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel"
-			column="mflid" cascade="save-update" lazy="false"></many-to-one>
+			class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel" column="mflid"
+			cascade="save-update" lazy="false"></many-to-one>
 		<many-to-one name="zeroLevel"
-			class="cc.natapp4.ddaig.domain.cengji.ZeroLevel"
-			column="zid" cascade="save-update" lazy="false"></many-to-one>
+			class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" column="zid"
+			cascade="save-update" lazy="false"></many-to-one>
 		<many-to-one name="firstLevel"
-			class="cc.natapp4.ddaig.domain.cengji.FirstLevel"
-			column="flid" cascade="save-update" lazy="false"></many-to-one>
+			class="cc.natapp4.ddaig.domain.cengji.FirstLevel" column="flid"
+			cascade="save-update" lazy="false"></many-to-one>
 		<many-to-one name="secondLevel"
-			class="cc.natapp4.ddaig.domain.cengji.SecondLevel"
-			column="scid" cascade="save-update" lazy="false"></many-to-one>
+			class="cc.natapp4.ddaig.domain.cengji.SecondLevel" column="scid"
+			cascade="save-update" lazy="false"></many-to-one>
 		<many-to-one name="thirdLevel"
-			class="cc.natapp4.ddaig.domain.cengji.ThirdLevel"
-			column="thid" cascade="save-update" lazy="false"></many-to-one>
+			class="cc.natapp4.ddaig.domain.cengji.ThirdLevel" column="thid"
+			cascade="save-update" lazy="false"></many-to-one>
 
 		<property name="filePath" length="100"></property>
 		<property name="laborCost" type="integer"></property>
 		<property name="purchaseCost" type="float"></property>
 
 		<!-- 一对一关联 -->
-		<one-to-one name="doingProject" cascade="save-update"  fetch="join"
-			class="cc.natapp4.ddaig.domain.DoingProject">
+		<one-to-one name="doingProject" cascade="save-update"
+			fetch="join" class="cc.natapp4.ddaig.domain.DoingProject">
 		</one-to-one>
 
 

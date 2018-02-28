@@ -26,9 +26,24 @@ public class Receipt4BesureProject implements Serializable {
 	private BesureProject  besureProject;
 	// 回复时间 2018-1-23 13:32:01（格里高利历毫秒值偏移）
 	private long time;
-
+	/*
+	 * ★
+	 * 这个是用来记录当前数据库数据的排序的序号字段，
+	 * 虽然是由Hibernate自动维护的，但也要像配置普通字段那样
+	 * 设置好SETTERs/GETTERs和ORM映射的<property />描述
+	 */
+	private int  index4bproject;
+	
+	
 	// ==============SETTERs/GETTERs================
 	
+	public int getIndex4bproject() {
+		return index4bproject;
+	}
+	public void setIndex4bproject(int index4bproject) {
+		this.index4bproject = index4bproject;
+	}
+
 	public int getRbpid() {
 		return rbpid;
 	}
