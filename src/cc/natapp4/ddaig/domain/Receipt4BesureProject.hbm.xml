@@ -14,17 +14,9 @@
 		<property name="type" length="10"></property>
 		<property name="content" length="600"></property>
 		
-		<!-- 
-			★
-	 		这个是用来记录当前数据库数据的排序的序号字段，
-	 		虽然是由Hibernate自动维护的，但也要像配置普通字段那样
-	 		设置好SETTERs/GETTERs和ORM映射的<property />描述
-		 -->
-		<property name="index4bproject"  type="integer" ></property>
-
 		<many-to-one name="besureProject"
 			class="cc.natapp4.ddaig.domain.BesureProject"
-			column="pid" cascade="save-update" fetch="join"></many-to-one>
+			column="pid" cascade="none" ></many-to-one>
 		
 		<property name="time" type="long"></property>
 

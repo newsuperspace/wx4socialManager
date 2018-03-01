@@ -24,14 +24,12 @@
 		<property name="updateNum" type="integer"></property>
 		<property name="startTime" type="long"></property>
 		<property name="endTime" type="long"></property>
-		<property name="activityTotal" type="integer"></property>
+		<property name="activityTotal" type="integer" ></property>
 
 
 		<list name="receipts" cascade="all" lazy="false">
 			<key column="pid"></key>
-			<list-index base="1">
-				<column name="index4bproject" ></column>
-			</list-index>
+			<index column="index4bproject" type="integer"></index>
 			<one-to-many class="cc.natapp4.ddaig.domain.Receipt4BesureProject" />
 		</list>
 

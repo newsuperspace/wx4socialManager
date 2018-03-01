@@ -2,6 +2,7 @@ package cc.natapp4.ddaig.test.service;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -31,32 +32,52 @@ public class TestBesureProjectService {
 		p.setDescription("222222222222222222");
 		p.setLaborCost(10000);
 		
-		DoingProject  dp  =  new  DoingProject();
-		dp.setBesureProject(p);
-		p.setDoingProject(dp);
-		dp.setLaborCost(p.getLaborCost());
-		
 		BesureProjectService  service  =  (BesureProjectService) context.getBean("besureProjectService");
+		List<Receipt4BesureProject>  list =  new  ArrayList<Receipt4BesureProject>();
+		for(int i=0;i<4;i++){
+			Receipt4BesureProject rp = new  Receipt4BesureProject();
+			rp.setContent("chuangyibucuo");
+			rp.setName(""+i);
+			rp.setTime(System.currentTimeMillis());
+			rp.setType("repeat");
+			list.add(rp);
+		}
+		p.setReceipts(list);
 		service.save(p);
 	}
 	
 	@Test  // pass
 	public void  testQueryAndUpdate(){
-		// First
+		// ---------------------------------------First
 //		BesureProjectService service = (BesureProjectService) context.getBean("besureProjectService");
 //		BesureProject bp = service.queryEntityById("402881fa61cfec660161cfec92a70000");
 //		bp.getDoingProject().setLaborCost(bp.getDoingProject().getLaborCost()*2);
 //		bp.setLaborCost(bp.getDoingProject().getLaborCost());
 //		// 已经证实，如果不显式地调用update()方法保存修改，则二级缓存机制不会生效，所有对持久化状态对象的数据修改都会被回滚
 //		service.update(bp);
-		// Second
+		// --------------------------------------Second
+		/*
+		 * ★★★★★
+		 * Receipt4BesureProject  是作为 其主表——BesureProject的List容器属性的元素存在的
+		 * 因此为了能够让Hibernate自动维护排序属性（在主表BesureProject.hbm.xml中在<list-index>或<index>标签中规定的用来表明从表中数据排序
+		 * 的特殊字段，该字段是由Hibernate自行维护，无需在从表Receipt4BesureProject的持久化类中出现对应的属性和配套的SET/GET方法）
+		 * 而如果你需要让Hibernate自动维护，那么就必须让Hibernate知道当前List容器中的已有元素数量，这样Hibernate才能按顺序设置后续值，这就要求
+		 * 在存储Receipt4BesureProject数据的时候，必须从BesureProject主表来级联操作，也就是先通过BesureProject.getReceipts()来从从表
+		 * Receipt4BesureProject查找出所有数据项目到List容器，这样就能知道ORDER属性应该顺延写多少了，然后再把新建的Receipt数据放入到List容器中
+		 * 并且通过BesureProjectService来update或saveBesureProject数据，这样Receipt4BesureProject的新建数据也就级联地被保存到数据库了。
+		 * 
+		 * 因此，我们不能也不需要通过Receipt4BesureProjectService来新建数据，一切关于新建、修改、查询都可以通过主表BesureProjectService来实现。
+		 */
 		BesureProjectService service = (BesureProjectService) context.getBean("besureProjectService");
-		BesureProject bp = service.queryEntityById("4028810161dac4f70161dac558f80000");
+		BesureProject bp = service.queryEntityById("402881e961dcbcf00161dcbd2f2e0000");
 		List<Receipt4BesureProject> list = bp.getReceipts();
 		System.out.println("List is  length:"+list.size());
 		for(Receipt4BesureProject  r: list){
 			System.out.println(r.getName());
 		}
+		// --------------------------------------third
+		
+		
 	}
 	
 	@Test   // pass
