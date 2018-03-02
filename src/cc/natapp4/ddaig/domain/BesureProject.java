@@ -36,7 +36,7 @@ public class BesureProject implements Serializable {
 
 	// -----------------------------------基本数据（所有项目都必须有）-------------------------------
 	// 【主键】
-	private String pid;
+	private String bpid;
 	// 项目名称
 	private String name; 
 	// 项目简介（150字）
@@ -96,6 +96,13 @@ public class BesureProject implements Serializable {
 
 	// ============================SETTERs/GETTERs======================
 	
+	public String getBpid() {
+		return bpid;
+	}
+	public void setBpid(String bpid) {
+		this.bpid = bpid;
+	}	
+	
 	public int getActivityTotal() {
 		return activityTotal;
 	}
@@ -103,13 +110,6 @@ public class BesureProject implements Serializable {
 		this.activityTotal = activityTotal;
 	}
 	
-	public String getPid() {
-		return pid;
-	}
-	public void setPid(String pid) {
-		this.pid = pid;
-	}
-
 	public String getName() {
 		return name;
 	}

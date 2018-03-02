@@ -60,7 +60,7 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 public class DoingProject implements Serializable {
 
 	// 主键
-	private String pid;
+	private String dpid;
 	/*
 	 *  项目劳务积分,从BesuereProject.laborCost的金钱直接1:10兑换成积分存储在这里
 	 *  之所以是1:10的意思就是 1块钱相当于10积分，也就是说1积分相当于0.1块钱
@@ -89,18 +89,18 @@ public class DoingProject implements Serializable {
 	private ProjectAboutShoping   projectAboutShoping;
 
 	// ======================SETTERs/GETTERs=============
-	public String getPid() {
-		return pid;
-	}
 
-	public void setPid(String pid) {
-		this.pid = pid;
+	public String getDpid() {
+		return dpid;
 	}
-
+	public void setDpid(String dpid) {
+		this.dpid = dpid;
+	}
+	
+	
 	public int getLaborCost() {
 		return laborCost;
 	}
-
 	public void setLaborCost(int laborCost) {
 		this.laborCost = laborCost;
 	}

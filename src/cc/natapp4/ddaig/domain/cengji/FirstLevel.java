@@ -9,6 +9,7 @@ import cc.natapp4.ddaig.domain.DoingProject;
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.Permission;
+import cc.natapp4.ddaig.domain.User;
 
 /**
  * 层级化管理结构对象First层级——大类型
@@ -36,7 +37,7 @@ public class FirstLevel implements LevelInterface {
 	// 存放属于当前级别的下一级别的级别对象（一对多）
 	private Set<SecondLevel> children;
 	// 当前层级的管理者（一对多）
-	private Manager manager;
+	private Manager  manager;
 	// 当前层级对象所管辖的成员（一对多）
 	private Set<Member> members;
 	// 当前层级对象所能行使的权限（多对多）

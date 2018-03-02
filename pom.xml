@@ -132,13 +132,24 @@
 			<groupId>org.apache.struts</groupId>
 			<artifactId>struts2-core</artifactId>
 			<version>2.3.1.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javassist</groupId>
+					<artifactId>javassist</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-		<!-- java的字节码类库，具体内容哦现在还不了解 -->
-		<dependency>
-			<groupId>javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>3.12.1.GA</version>
-		</dependency>
+		<!-- 
+			java的字节码类库，具体内容哦现在还不了解
+			<dependency>
+				<groupId>javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>3.12.1.GA</version>
+			</dependency>
+			由于其他框架已经依赖了更高级的3.20.1.GA的版本，为了防止冲突导致Hibernate出现  
+			 XXXXXX（类全名）_$$_javassist_1 cannot be cast to javassist.util.proxy.Proxy  的异常
+			 所以只要保持Maven Dependency中存在个javassist.jar就可以 ★★
+		 -->
 		<!-- MySQL数据库的数据库驱动，要与MySQL数据库进行交互就必须有它 ★ -->
 		<dependency>
 			<groupId>mysql</groupId>

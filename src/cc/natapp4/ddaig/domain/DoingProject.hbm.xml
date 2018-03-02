@@ -3,23 +3,35 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 	<class name="cc.natapp4.ddaig.domain.DoingProject">
-		<id name="pid" length="50">
+		<id name="dpid" length="50">
 			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
 			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
 			<!-- increment自动按照数字序号增加，无需手动维护，但逐渐字段必须是数值类型（int/long等） -->
 			<!-- "foreign"主键与外部其他关联表（通常为一对一关联）共用 -->
-			<generator class="foreign">
-				<param name="property">besureProject</param>
-			</generator>
+			<!-- 
+				<generator class="foreign">
+					<param name="property">besureProject</param>
+				</generator>
+			 -->
+			 <generator class="uuid"></generator>
 		</id>
 
 		<property name="laborCost" type="integer"></property>
 		<property name="lastLaborCost" type="integer"></property>
+		
 		<!-- 一对一关联 -->
-		<one-to-one name="besureProject" 
-			 class="cc.natapp4.ddaig.domain.BesureProject"
-			constrained="true">
-		</one-to-one>
+		<!-- 
+		<one-to-one name="besureProject" class="cc.natapp4.ddaig.domain.BesureProject" 
+			constrained="true"> </one-to-one> 
+		 -->
+		<many-to-one name="besureProject" 
+			class="cc.natapp4.ddaig.domain.BesureProject"
+			cascade="none"
+			column="bpid"
+			lazy="false"> <!-- ★这里的lazy不能省略，一对一默认懒加载？ -->
+		</many-to-one> 
+		
+
 
 		<many-to-one name="minusFirstLevel"
 			class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel" column="mflid"

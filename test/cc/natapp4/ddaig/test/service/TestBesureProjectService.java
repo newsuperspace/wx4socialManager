@@ -19,13 +19,15 @@ import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.BesureProjectService;
 import cc.natapp4.ddaig.service_interface.UserService;
 
+
+
 public class TestBesureProjectService {
 
 	private static  ApplicationContext context  =  new  ClassPathXmlApplicationContext("spring/applicationContext.xml");
 	
 	@Test   // pass
 	public void testSave() {
-
+		// -------------------First
 		BesureProject  p=  new BesureProject();
 		p.setActivityTotal(10);
 		p.setCommitTime(System.currentTimeMillis());
@@ -48,11 +50,24 @@ public class TestBesureProjectService {
 	
 	@Test  // pass
 	public void  testQueryAndUpdate(){
+		// ---------------------------------------Zero
+		BesureProjectService service = (BesureProjectService) context.getBean("besureProjectService");
+		BesureProject bp = service.queryEntityById("4028810161e094fa0161e09525ee0000");
+		
+		DoingProject  dp  =  new  DoingProject();
+		dp.setLaborCost(bp.getLaborCost());
+		dp.setBesureProject(bp);   // ★
+		
+		bp.setDoingProject(dp);
+		
+		service.update(bp);
 		// ---------------------------------------First
 //		BesureProjectService service = (BesureProjectService) context.getBean("besureProjectService");
-//		BesureProject bp = service.queryEntityById("402881fa61cfec660161cfec92a70000");
-//		bp.getDoingProject().setLaborCost(bp.getDoingProject().getLaborCost()*2);
-//		bp.setLaborCost(bp.getDoingProject().getLaborCost());
+//		BesureProject bp = service.queryEntityById("4028810161df6db10161df6dc60d0000");
+//		DoingProject  dp  =  new  DoingProject();
+//		dp.setBesureProject(bp);
+//		dp.setLaborCost(bp.getLaborCost());
+//		bp.setDoingProject(dp);
 //		// 已经证实，如果不显式地调用update()方法保存修改，则二级缓存机制不会生效，所有对持久化状态对象的数据修改都会被回滚
 //		service.update(bp);
 		// --------------------------------------Second
@@ -68,13 +83,13 @@ public class TestBesureProjectService {
 		 * 
 		 * 因此，我们不能也不需要通过Receipt4BesureProjectService来新建数据，一切关于新建、修改、查询都可以通过主表BesureProjectService来实现。
 		 */
-		BesureProjectService service = (BesureProjectService) context.getBean("besureProjectService");
-		BesureProject bp = service.queryEntityById("402881e961dcbcf00161dcbd2f2e0000");
-		List<Receipt4BesureProject> list = bp.getReceipts();
-		System.out.println("List is  length:"+list.size());
-		for(Receipt4BesureProject  r: list){
-			System.out.println(r.getName());
-		}
+//		BesureProjectService service = (BesureProjectService) context.getBean("besureProjectService");
+//		BesureProject bp = service.queryEntityById("4028810161df63ee0161df6416ed0000");
+//		List<Receipt4BesureProject> list = bp.getReceipts();
+//		System.out.println("List is  length:"+list.size());
+//		for(int i=0;i<list.size();i++){
+//			System.out.println(list.get(i).getName());
+//		}
 		// --------------------------------------third
 		
 		

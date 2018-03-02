@@ -62,8 +62,13 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	private UserDao dao;
 	@Resource(name = "groupingService")
 	private GroupingService groupingService;
-	@Resource(name = "weixinService4Setting")
-	private WeixinService4SettingImpl wxService4Setting;
+	/*
+	 * TODO 
+	 * 下方涉及微信交互的weixinService4Setting等Service由于需要Servlet开发环境的支持
+	 * 因此在JUnit测试有关User/Manager/Member的Service→Dao层的时候请先注解掉这部分内容
+	 */
+//	@Resource(name = "weixinService4Setting")
+//	private WeixinService4SettingImpl wxService4Setting;
 	
 	// TODO 一下这些DI注入式专门给 isAdmin()这个测试方法使用的，正式部署程序的使用应该弃用
 	@Resource(name="roleService")
@@ -165,17 +170,17 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	 * 非初始化阶段（），所调用的新建用户的save，它会顺便生成每个用户专属的qrcode
 	 */
 	@Override
-	public void save(User t) {
-		// 由于需要使用uid来创建qrcode，所以这里手动uid并传入到bean中
-		String uid = UUID.randomUUID().toString();
-		t.setUid(uid);
-		// 根据uid生成qrcode，并将 qrcode/1/12/xxx.gif 这样的相对路径字符串传入到bean中
-		String qrcode = QRCodeUtils.createUserQR(uid);
-		t.setQrcode(qrcode);
-
-		// 至此后台新建用户所需要的数据都已经放入到bean中了，最后再提交父类，调用UserDao保存到数据库
-		super.save(t);
-	}
+//	public void save(User t) {
+//		// 由于需要使用uid来创建qrcode，所以这里手动uid并传入到bean中
+//		String uid = UUID.randomUUID().toString();
+//		t.setUid(uid);
+//		// 根据uid生成qrcode，并将 qrcode/1/12/xxx.gif 这样的相对路径字符串传入到bean中
+//		String qrcode = QRCodeUtils.createUserQR(uid);
+//		t.setQrcode(qrcode);
+//
+//		// 至此后台新建用户所需要的数据都已经放入到bean中了，最后再提交父类，调用UserDao保存到数据库
+//		super.save(t);
+//	}
 
 	/**
 	 * 在公众号初始化阶段(WeiXinAction类中的recall()中调用mpService4Setting.InitPlatform()实现公众号初始化)

@@ -3,6 +3,8 @@ package cc.natapp4.ddaig.test.service;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import cc.natapp4.ddaig.domain.Manager;
+import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.LevelInterface;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
@@ -33,8 +35,8 @@ public class TestFirstLevelService {
 	public void testQueryAndUpdate(){
 		FirstLevelService service = (FirstLevelService) context.getBean("firstLevelService");
 		FirstLevel fl = service.queryEntityById("402881fa61d079800161d0799dce0000");
-		fl.setDescription(fl.getDescription()+"111");
-		service.update(fl);
+		Manager manager = fl.getManager();
+		System.out.println(manager.getUser().getUsername());
 	}
 
 	@Test  // test
