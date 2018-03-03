@@ -42,9 +42,9 @@
 		</set>
 
 		<!-- 一对一的关键就是借助unique=true实现manager、member表外键的唯一性 -->
-		<one-to-one name="manager" cascade="all" fetch="join"
+		<one-to-one name="manager" cascade="all" fetch="join"   lazy="false"
 			class="cc.natapp4.ddaig.domain.Manager"></one-to-one>
-		<one-to-one name="member" cascade="all" fetch="join"
+		<one-to-one name="member" cascade="all" fetch="join"   lazy="false"
 			class="cc.natapp4.ddaig.domain.Member"></one-to-one>
 
 

@@ -1,7 +1,9 @@
 1、关于“一对一”关系在执行级联查询时出现  XXXXXX（类全名）_$$_javassist_1 cannot be cast to javassist.util.proxy.Proxy  的异常的处理
 
 
-2、
+2、项目中 BesureProject与DoingProject使用的是“基于外键”的一对一关联
+	Manager  User  Member 使用的是基于“公用主键”的一对一关联
+	两种方式都可以实现表与表中数据的一一关联。
 	 
 3、/*
 	 * ★★★★★

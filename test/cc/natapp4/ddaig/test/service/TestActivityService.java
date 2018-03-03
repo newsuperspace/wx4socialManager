@@ -1,5 +1,7 @@
 package cc.natapp4.ddaig.test.service;
 
+import java.util.UUID;
+
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -18,16 +20,9 @@ public class TestActivityService {
 		
 		ActivityService  service  =  (ActivityService) context.getBean("activityService");
 		Activity  a =  new  Activity();
-		a.setActivityBeginTime(System.currentTimeMillis()+1000*60*60*10);
-		a.setActivityEndTime(System.currentTimeMillis() + 1000*60*60*24);
-		a.setBaoMingBeginTime(System.currentTimeMillis()+1000*60*60*4);
-		a.setBaoMingEndTime(System.currentTimeMillis()+1000*60*60*5);
-		a.setBaoMingUplimit(20);
-		a.setDescription("这是一个短暂额测试活动");
-		a.setName("这是一个测试活动");
-		a.setScore(1000);
-		a.setState("筹备中");
-		a.setType("室内活动");
+		a.setAid(UUID.randomUUID().toString());
+		a.setName("测试活动A");
+		a.setDescription("这是一个用来参与Junit测试的活动数据");
 		service.save(a);
 	}
 	

@@ -34,7 +34,7 @@ public class TestFirstLevelService {
 	@Test  // pass
 	public void testQueryAndUpdate(){
 		FirstLevelService service = (FirstLevelService) context.getBean("firstLevelService");
-		FirstLevel fl = service.queryEntityById("402881fa61d079800161d0799dce0000");
+		FirstLevel fl = service.queryEntityById("402881e961eb71540161eb71af290000");
 		Manager manager = fl.getManager();
 		System.out.println(manager.getUser().getUsername());
 	}

@@ -19,7 +19,7 @@
 		<property name="laborCost" type="integer"></property>
 		<property name="lastLaborCost" type="integer"></property>
 		
-		<!-- 一对一关联 -->
+		<!-- 一对一(共用主键)关联 -->
 		<!-- 
 		<one-to-one name="besureProject" class="cc.natapp4.ddaig.domain.BesureProject" 
 			constrained="true"> </one-to-one> 
@@ -28,7 +28,7 @@
 			class="cc.natapp4.ddaig.domain.BesureProject"
 			cascade="none"
 			column="bpid"
-			lazy="false"> <!-- ★这里的lazy不能省略，一对一默认懒加载？ -->
+			lazy="false"> <!-- ★这里的lazy不能省略，莫非一对一默认懒加载？ -->
 		</many-to-one> 
 		
 

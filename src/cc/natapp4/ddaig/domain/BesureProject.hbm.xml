@@ -53,20 +53,10 @@
 		<property name="laborCost" type="integer"></property>
 		<property name="purchaseCost" type="float"></property>
 
-		<!-- 
-			★★★★★
-			基于外键的一对一关联
-			由于是基于外键的一对一关联，因此在配置关联关系的属性时除了要声明出当前类中名叫doingProject的属性
-			是作为引用一对一关联表DoingProject的引用属性外，还要告诉Hiberant对方表应用本持久化类数据的引用属性是哪一个
-			那就是通过 property-ref属性来指定。这相当重要★★★
-			试想一下普通的一对多的配置方式是什么？是不是一定是基于某个容器（SET、List、MAP等）属性，而容器属性就是作为承接
-			对方关联表数据的持久化类载体而声明的，而这里基于外键的一对一关系，对方作为从表的BesureProject中是通过<many-to-one>
-			配合unique=true属性实现的从表一端的“唯一性”，而当前作为主表的BesureProject需要告知从表要到哪里获取主表数据，也就是
-			通过property-ref
-		 -->
+		
 		<one-to-one name="doingProject" cascade="save-update" 
 			 class="cc.natapp4.ddaig.domain.DoingProject" 
-			 lazy="false"> <!-- ★这里的lazy="false"不能省略，一对一默认懒加载吗？ -->
+			 lazy="false"> <!-- ★这里的lazy="false"不能省略，莫非一对一默认懒加载吗？ -->
 		</one-to-one>
 
 

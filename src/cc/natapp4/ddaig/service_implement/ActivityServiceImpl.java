@@ -24,7 +24,6 @@ public class ActivityServiceImpl extends BaseServiceImpl<Activity> implements Ac
 	@Resource(name="activityDao")
 	private ActivityDao  dao;
 	
-	
 	@Override
 	protected BaseDao<Activity> getBaseDao() {
 		return dao;
