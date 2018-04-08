@@ -4,4 +4,7 @@ import cc.natapp4.ddaig.domain.Grouping;
 
 public interface GroupingService extends BaseService<Grouping> {
 
+	public  Grouping queryByTagName(String  tag);
+	
+	
 }

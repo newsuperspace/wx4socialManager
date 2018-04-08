@@ -13,6 +13,8 @@
 <!-- Bootstrap CSS -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap-grid.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap-reboot.css">
 </head>
 <body>
 
@@ -33,19 +35,19 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2">用户信息</h1>
+							<h1 class="h2">街道信息</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#newUserModal">
+										data-toggle="modal" data-target="#newMinusFirstLevelModal">
 										<span class="glyphicon glyphicon-plus"></span> 新建
 									</button>
 									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#selectUsers">
+										data-toggle="modal" data-target="#selectMinusFirstLevelModal">
 										<span class="glyphicon glyphicon-search"></span> 筛选
 									</button>
 									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#selectUsers">
+										data-toggle="modal" data-target="#orderMinusFirstLevelModa">
 										<span class="glyphicon glyphicon-sort-by-order"></span> 排序
 									</button>
 								</div>
@@ -56,8 +58,7 @@
 							</div>
 						</div>
 						<!-- =============表格=========== -->
-						<div
-							style="
+						<div style="
                         white-space: nowrap;
                         overflow-x: hidden;
                         overflow-x: auto;">
@@ -65,112 +66,48 @@
 								class="table table-striped table-sm table-bordered table-hover text-center">
 								<thead class="thead-dark">
 									<tr>
-										<th>用户名</th>
-										<th>昵称</th>
-										<th>性别</th>
-										<th>年龄</th>
-										<th>分组</th>
-										<th>服务时长（时）</th>
-										<th>积分</th>
-										<th>电话</th>
-										<th>住址</th>
-										<th>邮箱</th>
-										<th>身份证</th>
-										<th>注册日期</th>
-										<th>是否在公众号</th>
-										<th>账号状态</th>
+										<th>名称</th>
+										<th style="width: 150px">mflid</th>
+										<th>描述</th>
+										<th>级别</th>
+										<th>管理者</th>
+										<th>社区数量</th>
+										<th>管辖人数</th>
 										<th>操作</th>
 									</tr>
 								</thead>
 								<tbody>
-									<tr>
-										<td>张三李四</td>
-										<td>isthereanybody</td>
-										<td>男</td>
-										<td>1000</td>
-										<td><span class="badge badge-success">一级管理者</span></td>
-										<td>11.12</td>
-										<td>300</td>
-										<td>13718805500</td>
-										<td>北京市朝阳区呼家楼</td>
-										<td>isthereanybody@foxmail.com</td>
-										<td>110105198808211118</td>
-										<td>2018-03-11 21:33:56</td>
-										<td>是</td>
-										<td><span class="badge badge-success">正常</span></td>
-										<td>
-											<div class="btn-group" role="group">
-												<button type="button"
-													class="btn btn-outline-secondary btn-sm">修改</button>
-												<button type="button"
-													class="btn btn-outline-secondary btn-sm">推送</button>
-												<button type="button"
-													class="btn btn-outline-secondary btn-sm">其他</button>
-											</div>
-										</td> </tr>
-										<s:iterator value="#users">
+									<s:iterator value="#levels">
 										<tr>
-									<td><s:a  href="#"  onclick="userModal.op.userInfo('%{uid}')">
-											<s:property value="username" />
-										</s:a></td>
-									<td><s:property value="sickname" /></td>
-									<td><s:property value="sex" /></td>
-									<td><s:property value="age" /></td>
-									<td><s:if test="grouping.tag=='common'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:if> <s:elseif test="grouping.tag=='unreal'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='admin'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='zero'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='first'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='second'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='third'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='fourth'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='minus_first'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='money'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif></td>
-									<td><s:property value="serveTime" /></td>
-									<td><s:property value="score" /></td>
-									<td><s:property value="phone" /></td>
-									<td><s:property value="address" /></td>
-									<td><s:property value="email" /></td>
-									<td><s:property value="cardid" /></td>
-									<td><s:property value="registrationTime" /></td>
-									<td><s:if test="ishere">是</s:if> <s:else>否</s:else></td>
-									<td><s:if test="locked">
-											<span class="badge badge-danger">锁死</span>
-										</s:if> <s:else>
-											<span class="badge badge-success">正常</span>
-										</s:else></td>
-									</tr>
+											<td><s:a href="#"
+													onclick="minusFirstLevelModal.op.levelInfo('%{mflid}')">
+													<s:property value="name" />
+												</s:a></td>
+											<td class="text-truncate"   data-toggle="tooltip"   title=<s:property value="mflid" />><s:property value="mflid" /></td>
+											<td><s:property value="description" /></td>
+											<td><s:property value="level" /></td>
+											<td><s:if test="null==manager || null==manager.user">
+													<a href="#">未分配</a>
+												</s:if> <s:else>
+													<a href="#"><s:property value="manager.user.username" /></a>
+												</s:else></td>
+											<td><s:if test="null==children">0</s:if> <s:else>
+													<a href="#"><s:property value="children.size()" /></a>
+												</s:else></td>
+											<td><s:if test="null==members">0</s:if> <s:else>
+													<a href="#"><s:property value="members.size()" /></a>
+												</s:else></td>
+											<td>
+												<div class="btn-group" role="group">
+													<button type="button"
+														class="btn btn-outline-secondary btn-sm">修改</button>
+													<button type="button"
+														class="btn btn-outline-secondary btn-sm">通知</button>
+													<button type="button"
+														class="btn btn-outline-secondary btn-sm">其他</button>
+												</div>
+											</td>
+										</tr>
 									</s:iterator>
 								</tbody>
 							</table>
@@ -199,13 +136,14 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
-		<!-- Modal 4 新建用户 -->
-		<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog"
-			aria-labelledby="createUser" aria-hidden="true">
+		<!-- Modal 4 新建社区 -->
+		<div class="modal fade" id="newMinusFirstLevelModal" tabindex="-1"
+			role="dialog" aria-labelledby="newMinusFirstLevelModal"
+			aria-hidden="true">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title">新建用户</h4>
+						<h4 class="modal-title">新建街道</h4>
 						<button type="button" class="close" data-dismiss="modal"
 							aria-label="Close">
 							<span aria-hidden="true">&times;</span>
@@ -218,101 +156,31 @@
 									<span class="input-group-text"><span
 										class="glyphicon glyphicon-user" /></span>
 								</div>
-								<input type="text" class="form-control" name="username"
-									id="username">
+								<input type="text" class="form-control" name="name" id="name">
 								<div class="input-group-prepend">
-									<span class="input-group-text">用户名</span>
+									<span class="input-group-text">名称</span>
 								</div>
 							</div>
 
 							<div class="input-group input-group-sm mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text"><span
-										class="glyphicon glyphicon-glass" /span>
+										class="glyphicon glyphicon-glass"></span></span>
 								</div>
-								<input type="text" class="form-control" name="sickname"
-									id="sickname">
+								<input type="text" class="form-control" name="description"
+									id="description">
 								<div class="input-group-prepend">
-									<span class="input-group-text">昵称</span>
+									<span class="input-group-text">描述</span>
 								</div>
 							</div>
 
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text">ID</span>
-								</div>
-								<input type="text" class="form-control" name="cardid"
-									id="cardid">
-								<div class="input-group-prepend">
-									<span class="input-group-text">身份证</span>
-								</div>
-							</div>
-
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text"><span
-										class="glyphicon glyphicon-tint" /></span>
-								</div>
-								<select class="custom-select" id="sex" name="sex">
-									<option value="0" selected>请选择...</option>
-									<option value="1">男</option>
-									<option value="2">女</option>
-								</select>
-								<div class="input-group-append">
-									<label class="input-group-text">性别</label>
-								</div>
-							</div>
-
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text"><span
-										class="glyphicon glyphicon-text-background"></span>
-								</div>
-								<input type="text" class="form-control" name="age" id="age">
-								<div class="input-group-prepend">
-									<span class="input-group-text">年龄</span>
-								</div>
-							</div>
-
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text"><span
-										class="glyphicon glyphicon-phone-alt" /></span>
-								</div>
-								<input type="text" class="form-control" name="phone" id="phone">
-								<div class="input-group-prepend">
-									<span class="input-group-text">电话</span>
-								</div>
-							</div>
-
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text">@</span>
-								</div>
-								<input type="text" class="form-control" name="email" id="email">
-								<div class="input-group-prepend">
-									<span class="input-group-text">E-mail</span>
-								</div>
-							</div>
-
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text"><span
-										class="glyphicon glyphicon-font" /></span>
-								</div>
-								<input type="text" class="form-control" name="address"
-									id="address">
-								<div class="input-group-prepend">
-									<span class="input-group-text">地址</span>
-								</div>
-							</div>
 						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary"
 							data-dismiss="modal">关闭</button>
 						<button type="button" class="btn btn-primary"
-							onclick="userModal.op.createUser();">新建</button>
+							onclick="minusFirstLevelModal.op.createMinusFirstLevel();">新建</button>
 					</div>
 				</div>
 			</div>

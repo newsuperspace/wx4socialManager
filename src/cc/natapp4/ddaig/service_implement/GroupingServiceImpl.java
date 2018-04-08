@@ -20,4 +20,12 @@ public class GroupingServiceImpl extends BaseServiceImpl<Grouping> implements Gr
 		return dao;
 	}
 
+	@Override
+	public Grouping queryByTagName(String tag) {
+
+		Grouping grouping = dao.queryByTagName(tag);
+		
+		return grouping;
+	}
+
 }

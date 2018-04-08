@@ -7,7 +7,7 @@
 	<package name="user" namespace="/" extends="base-package">
 		<action name="userAction_*"  method="{1}"   class="userAction">
 				<result>/index.jsp</result>
-				<result name="list" >/WEB-INF/jsp/frame/aboutUser/userList.jsp</result>
+				<result name="list" >/WEB-INF/pages/right/user/userList.jsp</result>
 				<result name="exchangeList" >/WEB-INF/jsp/frame/aboutExchange/exchangeList.jsp</result>
 				<result  name="json"  type="json"></result>
 		</action>

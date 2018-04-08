@@ -1,6 +1,7 @@
 package cc.natapp4.ddaig.action;
 
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -22,6 +23,7 @@ import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.GroupingService;
 import cc.natapp4.ddaig.service_interface.RoleService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.utils.ConfigUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
 import me.chanjar.weixin.common.exception.WxErrorException;
 
@@ -226,6 +228,50 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		ActionContext.getContext().put("exchanges", set);
 		return "exchangeList";
 	}
+	
+	
+	public String create(){
+		
+		/**
+		 * TODO
+		 * 需要权限认证，获取执行当前操作的管理者的所在权限，
+		 * 然后新建的用户就置于该管理者的层级之下。
+		 */
+		
+		
+		ReturnMessage4Common message =  new  ReturnMessage4Common();
+
+		User u  =  new  User();
+		u.setUsername(user.getUsername());
+		u.setSickname(user.getSickname());
+		u.setCardid(user.getCardid());
+		u.setAddress(user.getAddress());
+		u.setEmail(user.getEmail());
+		u.setPhone(user.getPhone());
+		u.setAge(user.getAge());
+		
+		Grouping g = groupingService.queryByTagName("common");
+		u.setGrouping(g);
+		
+		if("1".equals(user.getSex())){
+			u.setSex("男");
+			userService.save(u);
+			message.setMessage("新建成功！");
+			message.setResult(true);
+		}else if("2".equals(user.getSex())){
+			u.setSex("女");
+			userService.save(u);
+			message.setMessage("新建成功！");
+			message.setResult(true);
+		}else{
+			message.setResult(false);
+			message.setMessage("未选择性别，新建失败");
+		}
+		
+		ActionContext.getContext().getValueStack().push(message);
+		return "json";
+	}
+	
 	
 	
 }

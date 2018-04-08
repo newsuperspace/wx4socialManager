@@ -26,4 +26,16 @@ public class GroupingDaoImpl extends BaseDaoImpl<Grouping> implements GroupingDa
 		return this.template;
 	}
 
+	@Override
+	public Grouping queryByTagName(String tag) {
+
+		List<Grouping> list = (List<Grouping>) this.template.find("from Grouping g where g.tag=?", tag);
+		
+		if(list.isEmpty()){
+			return null;
+		}else{
+			return list.get(0);
+		}
+	}
+
 }
