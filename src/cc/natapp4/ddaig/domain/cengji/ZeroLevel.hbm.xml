@@ -6,11 +6,13 @@
 		<id name="zid" length="50">
 			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
 			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
-			<generator class="uuid"></generator>
+			<generator class="assigned"></generator>
 		</id>
 		<property name="name" length="100"></property>
 		<property name="description" length="200"></property>
 		<property name="level" type="integer"></property>
+		<property name="qrcode" length="100"></property>
+
 
 		<many-to-one name="parent" column="mflid"  lazy="false"
 			class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel" cascade="save-update"></many-to-one>

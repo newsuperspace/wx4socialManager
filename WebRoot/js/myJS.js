@@ -1,47 +1,102 @@
-// ========================街道层级========================
-var  minusFirstLevelModal  =  {
-		init:{
-			
+/**
+ * ========================社區层级========================
+ */
+var zeroLevelModal = {
+	init : {},
+	data : {},
+	op : {
+
+
+
+	}
+};
+
+/**
+ * ========================街道层级========================
+ */
+var minusFirstLevelModal = {
+	init : {
+
+	},
+
+	data : {
+
+	},
+
+	op : {
+
+		/**
+		 * 新建街道层级
+		 */
+		createMinusFirstLevel : function() {
+			var data = {
+				name : $("#name").val(),
+				description : $("#description").val(),
+			};
+
+			$.post("minusFirstLevelAction_createLevel.action", data, function(data, textStatus, req) {
+				$("#newMinusFirstLevelModal").modal("hide");
+				alert(data.message);
+				window.location.reload()
+			});
+			return false;
 		},
-		
-		data:{
+
+
+		/**
+		 * 准备并显示用于创建某个街道的子层级对象的
+		 * MODAL
+		 * 这个函数的实现告诉我们，在学会Angular之前，掌握jQuery是多么重要
+		 */
+		showCreateSonLevelModal : function(obj) {
+
+			var self = $(obj);
+			var description = self.parent().parent().prev().prev().prev().prev().prev();
+			var mflid = description.prev();
+			var name = mflid.prev();
 			
+			$("#newSonLevelModal_title").text("新建" + name.children().text() + "的子元素");
+			$("#mflid").val(mflid.attr("data-original-title"));
+			$("#parentDescription").val(description.text());
+
+			$("#newSonLevelModal").modal('show');
+			return false;
 		},
-		
-		op:{
+
+
+		/**
+		 * 新建某个街道层级的子层级对象
+		 */
+		createSonLevel : function() {
+			$("#newSonLevelModal").modal('hide');
+
+			var data = {
+				mflid : $('#mflid').val(),
+				sonDescription: $('#sonDescription').val(),
+				sonName: $("#sonName").val()
+			};
 			
-			/**
-			 * 新建街道层级
-			 */
-			createMinusFirstLevel:function(){
-				var data ={
-						name: $("#name").val(),
-						description: $("#description").val(),
-				};
-				
-				$.post("minusFirstLevelAction_createLevel.action", data, function(data, textStatus, req) {
-					$("#newMinusFirstLevelModal").modal("hide");
-					alert(data.message);
-					window.location.reload()
-				});
-				return false;
-			},
-			
-			/**
-			 * 获取详细信息
-			 */
-			levelInfo:function(id){
-				alert("当前获取详细信息的MinusFirstLevel的ID是："+id);
-				return false;
-			},
-			
-		}
+			$.post("minusFirstLevelAction_createSonLevel.action", data, function(data, textStatus, req) {
+				alert(data.message);
+			});
+		},
+
+		/**
+		 * 获取详细信息
+		 */
+		levelInfo : function(id) {
+			alert("当前获取详细信息的MinusFirstLevel的ID是：" + id);
+			return false;
+		},
+	}
 };
 
 
 
 
-// ========================用户User========================
+/**
+ *========================用户User========================
+ */
 var userModal = {
 	init : {
 
@@ -80,7 +135,7 @@ var userModal = {
 
 			$.post("userAction_getUser4ajax.action", data, function(data, textStatus, req) {
 				$("#detialsModal_title").text(data.username + "的详细信息");
-				$("#detialsModal_qrcode").attr("src",data.qrcode);
+				$("#detialsModal_qrcode").attr("src", data.qrcode);
 				$("#detialsModal_username").text(data.username);
 				$("#detialsModal_uid").text(data.uid);
 				$("#detialsModal_openid").text(data.openid);
@@ -128,17 +183,25 @@ var userModal = {
 			});
 			return false;
 		},
-	} // op is over
+	} // ======== op is over ========
 };
 
 
+/*
+ * 默认执行语句，如果当前运行应用程序的设备屏幕宽度是大屏幕，则显示左侧工具栏。
+ * 否则小平面不现实左侧工具栏。
+ */
 if (window.screen.availWidth >= 768) {
 	$('#contentId').collapse({
 		toggle : true
 	});
-};
+}
+;
 
-$(function(){
+/*
+ * 通过jQuery实现的初始化操作，作用是将当前页面上的所有tooltip效果激活
+ */
+$(function() {
 	$('[data-toggle="tooltip"]').tooltip();
 });
 

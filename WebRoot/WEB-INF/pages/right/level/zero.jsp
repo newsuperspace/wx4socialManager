@@ -13,10 +13,8 @@
 <!-- Bootstrap CSS -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
-<link rel="stylesheet"
-	href="${pageContext.request.contextPath}/css/bootstrap-grid.css">
-<link rel="stylesheet"
-	href="${pageContext.request.contextPath}/css/bootstrap-reboot.css">
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap-grid.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap-reboot.css">
 </head>
 <body>
 
@@ -37,7 +35,7 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2">街道信息</h1>
+							<h1 class="h2">社区信息</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 									<button class="btn btn-sm btn-outline-secondary"
@@ -60,8 +58,7 @@
 							</div>
 						</div>
 						<!-- =============表格=========== -->
-						<div
-							style="
+						<div style="
                         white-space: nowrap;
                         overflow-x: hidden;
                         overflow-x: auto;">
@@ -70,11 +67,11 @@
 								<thead class="thead-dark">
 									<tr>
 										<th>名称</th>
-										<th>mflid</th>
+										<th>zid</th>
 										<th>描述</th>
 										<th>级别</th>
 										<th>管理者</th>
-										<th>社区数量</th>
+										<th>一级层级数量</th>
 										<th>管辖人数</th>
 										<th>操作</th>
 									</tr>
@@ -86,9 +83,7 @@
 													onclick="minusFirstLevelModal.op.levelInfo('%{mflid}')">
 													<s:property value="name" />
 												</s:a></td>
-											<td class="text-truncate" data-toggle="tooltip"
-												title=<s:property value="mflid" />><s:property
-													value="mflid" /></td>
+											<td class="text-truncate"   data-toggle="tooltip"   title=<s:property value="mflid" />><s:property value="mflid" /></td>
 											<td><s:property value="description" /></td>
 											<td><s:property value="level" /></td>
 											<td><s:if test="null==manager || null==manager.user">
@@ -104,7 +99,6 @@
 												</s:else></td>
 											<td>
 												<div class="btn-group" role="group">
-													<s:a cssClass="btn btn-sm btn-outline-secondary" role="button" onclick="minusFirstLevelModal.op.showCreateSonLevelModal(this);" href="#">建子项</s:a>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">修改</button>
 													<button type="button"
@@ -284,72 +278,7 @@
 			</div>
 		</div>
 		<!-- Modal 4 用户更改 -->
-		
-		<!-- Modal 建立子层级对象 -->
-		<div class="modal fade" id="newSonLevelModal" tabindex="-1"
-			role="dialog" aria-labelledby="newSonLevelModal"
-			aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title" id="newSonLevelModal_title">新建xxx的子层级</h4>
-						<button type="button" class="close" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div class="container-fluid">
-							<input type="hidden" name="mflid" id="mflid" />
 
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text"> P </span>
-								</div>
-								<input type="text" class="form-control" name="parentDescription"
-									id="parentDescription" disabled>
-								<div class="input-group-prepend">
-									<span class="input-group-text">父层级描述</span>
-								</div>
-							</div>
-
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text"> <span
-										class="glyphicon glyphicon-user"></span>
-									</span>
-								</div>
-								<input type="text" class="form-control" name="sonName"
-									id="sonName">
-								<div class="input-group-prepend">
-									<span class="input-group-text">名称</span>
-								</div>
-							</div>
-
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text"> <span
-										class="glyphicon glyphicon-glass"></span>
-									</span>
-								</div>
-								<input type="text" class="form-control" name="sonDescription"
-									id="sonDescription">
-								<div class="input-group-prepend">
-									<span class="input-group-text">描述</span>
-								</div>
-							</div>
-
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary"
-							data-dismiss="modal">关闭</button>
-						<button type="button" class="btn btn-primary"
-							onclick="minusFirstLevelModal.op.createSonLevel();">新建</button>
-					</div>
-				</div>
-			</div>
-		</div>
 		<!-- Modal 4 排序 -->
 
 		<!-- Modal 4 筛选 -->

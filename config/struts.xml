@@ -21,7 +21,7 @@
 	<include file="struts/struts-permission.xml"></include>
 	<include file="struts/struts-role.xml"></include>
 	<include file="struts/struts-minusFirstLevel.xml"></include>
-	
+	<include file="struts/struts-zeroLevel.xml"></include>	
 
 	<!-- 
 		定义一个基础包，该包将是所有子struts配置文件中声明的包的父包

@@ -29,5 +29,6 @@ public class ZeroLevelServiceImpl extends BaseServiceImpl<ZeroLevel> implements 
 		return zeroLevelDao;
 	}
 
+	// =========================个性化方法=====================
 	
 }

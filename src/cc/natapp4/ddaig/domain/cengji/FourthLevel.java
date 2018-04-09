@@ -36,6 +36,8 @@ public class FourthLevel implements LevelInterface {
 	private Set<Member> members;
 	// 当前层级对象所能行使的权限（多对多）
 	private Set<Permission> permissions;
+	// qrcode 的相對路徑  ,包含形如："level:-1;id:293jjf8239832jf8j298ufd987sfh28923"的字符串的二維碼被放置在形如"qrcode/1/12/xxxx.gif"之下
+		private String  qrcode;
 	// ---------------------项目管理(Fourth层级不具有项目管理权限)------------------
 	// 当前层级之下正在进行的项目列表（一对多）
 //	private Set<DoingProject> doingProjects;
@@ -112,6 +114,12 @@ public class FourthLevel implements LevelInterface {
 	}
 	public void setPermissions(Set<Permission> permissions) {
 		this.permissions = permissions;
+	}
+	public String getQrcode() {
+		return qrcode;
+	}
+	public void setQrcode(String qrcode) {
+		this.qrcode = qrcode;
 	}
 	
 }

@@ -67,6 +67,20 @@ public class QRCodeUtils {
 		return codePath;
 	}
 	
+	
+	
+	/**
+	 * 创建各个层级管理对象的ID的qrcode
+	 * @param lid
+	 * @return  返回qrcode的相对路径
+	 */
+	public static String createLevelQR(String lid){
+		
+		return createActivityQR(lid);
+	}
+	
+	
+	
 	/**
 	 * 创建用户qrcode
 	 * @param uid  用户的uid

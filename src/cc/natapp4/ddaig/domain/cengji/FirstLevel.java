@@ -42,6 +42,8 @@ public class FirstLevel implements LevelInterface {
 	private Set<Member> members;
 	// 当前层级对象所能行使的权限（多对多）
 	private Set<Permission>  permissions;
+	// qrcode 的相對路徑  ,包含形如："level:-1;id:293jjf8239832jf8j298ufd987sfh28923"的字符串的二維碼被放置在形如"qrcode/1/12/xxxx.gif"之下
+		private String  qrcode;
 	//---------------------项目管理------------------
 	// 当前层级之下正在进行的项目列表（一对多）
 	private Set<DoingProject> doingProjects;
@@ -161,6 +163,12 @@ public class FirstLevel implements LevelInterface {
 	}
 	public void setBesureProjects(Set<BesureProject> besureProjects) {
 		this.besureProjects = besureProjects;
+	}
+	public String getQrcode() {
+		return qrcode;
+	}
+	public void setQrcode(String qrcode) {
+		this.qrcode = qrcode;
 	}
 
 }
