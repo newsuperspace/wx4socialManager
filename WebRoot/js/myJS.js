@@ -1,13 +1,226 @@
+
+
+
 /**
- * ========================社區层级========================
+ * ========================第二层级========================
+ */
+// <!-- ● -->
+var secondLevelModal = {
+	init : {},
+	data : {},
+	op : {
+		/**
+		 * 创建当前层级
+		 */
+		createLevel : function() {
+
+			var data = {
+				description : $("#description").val(),
+				name : $("#name").val(),
+			};
+			
+			// <!-- ● -->
+			$.post("secondLevelAction_createLevel.action", data, function(data, textStatus, req) {
+
+				$("#newModal").modal("hide");
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 准备并显示用于创建某个当前级的子层级对象的
+		 * MODAL
+		 * 这个函数的实现告诉我们，在学会Angular之前，掌握jQuery的选择器是多么重要
+		 */
+		showCreateSonLevelModal : function(obj) {
+
+			var self = $(obj);
+			var parentDescription = self.parent().parent().prev().prev().prev().prev().prev().prev().prev().prev();  // <!-- ● -->
+			var parentId = parentDescription.prev();
+			var parentName = parentId.prev();
+
+			$("#newSonLevelModal_title").text("新建" + parentName.children().text() + "的子层级");
+			$("#parentId").val(parentId.attr("data-original-title"));
+			$("#parentDescription").val(parentDescription.text());
+
+			$("#newSonLevelModal").modal('show');
+			return false;
+		},
+
+		/**
+		 * 新建某个当前级的子层级对象
+		 */
+		createSonLevel : function() {
+			$("#newSonLevelModal").modal('hide');
+
+			var data = {
+				parentId : $('#parentId').val(),
+				sonDescription : $('#sonDescription').val(),
+				sonName : $("#sonName").val()
+			};
+
+			// <!-- ● -->
+			$.post("secondLevelAction_createSonLevel.action", data, function(data, textStatus, req) {
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 获取详细信息
+		 */
+		levelInfo : function(id) {
+			// <!-- ● -->
+			alert("当前获取详细信息的SecondLevel的ID是：" + id);
+			return false;
+		},
+	}
+};
+
+/**
+ * ========================第一层级========================
+ */
+var firstLevelModal = {
+	init : {},
+	data : {},
+	op : {
+		/**
+		 * 创建当前层级
+		 */
+		createLevel : function() {
+
+			var data = {
+				description : $("#description").val(),
+				name : $("#name").val(),
+			};
+			
+			// <!-- ● -->
+			$.post("firstLevelAction_createLevel.action", data, function(data, textStatus, req) {
+
+				$("#newModal").modal("hide");
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 准备并显示用于创建某个当前级的子层级对象的
+		 * MODAL
+		 * 这个函数的实现告诉我们，在学会Angular之前，掌握jQuery的选择器是多么重要
+		 */
+		showCreateSonLevelModal : function(obj) {
+
+			var self = $(obj);
+			var parentDescription = self.parent().parent().prev().prev().prev().prev().prev().prev().prev();  // <!-- ● -->
+			var parentId = parentDescription.prev();
+			var parentName = parentId.prev();
+
+			$("#newSonLevelModal_title").text("新建" + parentName.children().text() + "的子层级");
+			$("#parentId").val(parentId.attr("data-original-title"));
+			$("#parentDescription").val(parentDescription.text());
+
+			$("#newSonLevelModal").modal('show');
+			return false;
+		},
+
+		/**
+		 * 新建某个当前级的子层级对象
+		 */
+		createSonLevel : function() {
+			$("#newSonLevelModal").modal('hide');
+
+			var data = {
+				parentId : $('#parentId').val(),
+				sonDescription : $('#sonDescription').val(),
+				sonName : $("#sonName").val()
+			};
+
+			// <!-- ● -->
+			$.post("firstLevelAction_createSonLevel.action", data, function(data, textStatus, req) {
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 获取详细信息
+		 */
+		levelInfo : function(id) {
+			// <!-- ● -->
+			alert("当前获取详细信息的FirstLevel的ID是：" + id);
+			return false;
+		},
+	}
+};
+
+/**
+ * ========================社区层级========================
  */
 var zeroLevelModal = {
 	init : {},
 	data : {},
 	op : {
+		createLevel : function() {
 
+			var data = {
+				description : $("#description").val(),
+				name : $("#name").val(),
+			};
 
+			$.post("zeroLevelAction_createLevel.action", data, function(data, textStatus, req) {
 
+				$("#newModal").modal("hide");
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 准备并显示用于创建某个当前级的子层级对象的
+		 * MODAL
+		 * 这个函数的实现告诉我们，在学会Angular之前，掌握jQuery的选择器是多么重要
+		 */
+		showCreateSonLevelModal : function(obj) {
+
+			var self = $(obj);
+			var parentDescription = self.parent().parent().prev().prev().prev().prev().prev().prev();
+			var parentId = parentDescription.prev();
+			var parentName = parentId.prev();
+
+			$("#newSonLevelModal_title").text("新建" + parentName.children().text() + "的子层级");
+			$("#parentId").val(parentId.attr("data-original-title"));
+			$("#parentDescription").val(parentDescription.text());
+
+			$("#newSonLevelModal").modal('show');
+			return false;
+		},
+
+		/**
+		 * 新建某个当前级的子层级对象
+		 */
+		createSonLevel : function() {
+			$("#newSonLevelModal").modal('hide');
+
+			var data = {
+				parentId : $('#parentId').val(),
+				sonDescription : $('#sonDescription').val(),
+				sonName : $("#sonName").val()
+			};
+
+			$.post("zeroLevelAction_createSonLevel.action", data, function(data, textStatus, req) {
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 获取详细信息
+		 */
+		levelInfo : function(id) {
+			alert("当前获取详细信息的MinusFirstLevel的ID是：" + id);
+			return false;
+		},
 	}
 };
 
@@ -54,8 +267,8 @@ var minusFirstLevelModal = {
 			var description = self.parent().parent().prev().prev().prev().prev().prev();
 			var mflid = description.prev();
 			var name = mflid.prev();
-			
-			$("#newSonLevelModal_title").text("新建" + name.children().text() + "的子元素");
+
+			$("#newSonLevelModal_title").text("新建" + name.children().text() + "的子层级");
 			$("#mflid").val(mflid.attr("data-original-title"));
 			$("#parentDescription").val(description.text());
 
@@ -72,12 +285,13 @@ var minusFirstLevelModal = {
 
 			var data = {
 				mflid : $('#mflid').val(),
-				sonDescription: $('#sonDescription').val(),
-				sonName: $("#sonName").val()
+				sonDescription : $('#sonDescription').val(),
+				sonName : $("#sonName").val()
 			};
-			
+
 			$.post("minusFirstLevelAction_createSonLevel.action", data, function(data, textStatus, req) {
 				alert(data.message);
+				window.location.reload();
 			});
 		},
 
@@ -90,9 +304,6 @@ var minusFirstLevelModal = {
 		},
 	}
 };
-
-
-
 
 /**
  *========================用户User========================
@@ -121,6 +332,14 @@ var userModal = {
 
 			$.post("userAction_create.action", data, function(data, textStatus, req) {
 				$("#newUserModal").modal("hide");
+				$("#username").val(""),
+				$("#sickname").val(""),
+				$("#cardid").val(""),
+				$("#address").val(""),
+				$("#email").val(""),
+				$("#phone").val(""),
+				$("#age").val(""),
+				$("#sex").val(""),
 				alert(data.message);
 				// 使用这种引导当前页面定位的方式，可以即时性地刷新页面，在列表中显现修改后的结果。
 				//						$(location).attr('href', 'userAction_getUserList.action');
@@ -139,7 +358,7 @@ var userModal = {
 				$("#detialsModal_username").text(data.username);
 				$("#detialsModal_uid").text(data.uid);
 				$("#detialsModal_openid").text(data.openid);
-				$("#detialsModal_registrationTime").text(data.registrationTime);
+				$("#detialsModal_registrationTime").text(data.registrationTimeStr);
 				if (null == data.member) {
 					$("#detialsModal_minusFirst").text("无");
 					$("#detialsModal_zero").text("无");

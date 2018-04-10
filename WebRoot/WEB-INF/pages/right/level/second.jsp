@@ -37,19 +37,19 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2">街道信息</h1>
+							<h1 class="h2">第二层级信息</h1> <!-- ● -->
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#newMinusFirstLevelModal">
+										data-toggle="modal" data-target="#newModal">
 										<span class="glyphicon glyphicon-plus"></span> 新建
 									</button>
 									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#selectMinusFirstLevelModal">
+										data-toggle="modal" data-target="#selectModal">
 										<span class="glyphicon glyphicon-search"></span> 筛选
 									</button>
 									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#orderMinusFirstLevelModa">
+										data-toggle="modal" data-target="#orderModal">
 										<span class="glyphicon glyphicon-sort-by-order"></span> 排序
 									</button>
 								</div>
@@ -70,11 +70,16 @@
 								<thead class="thead-dark">
 									<tr>
 										<th>名称</th>
-										<th>mflid</th>
+										<th>scid</th>   <!-- ● -->
 										<th>描述</th>
 										<th>级别</th>
 										<th>管理者</th>
-										<th>社区数量</th>
+										<!-- ● -->
+										<th>所属街道</th>
+										<th>所属社区</th>  
+										<th>第一层级</th>
+										<!-- ● -->  
+										<th>次层级数量</th>
 										<th>管辖人数</th>
 										<th>操作</th>
 									</tr>
@@ -83,12 +88,13 @@
 									<s:iterator value="#levels">
 										<tr>
 											<td><s:a href="#"
-													onclick="minusFirstLevelModal.op.levelInfo('%{mflid}')">
+													onclick="secondLevelModal.op.levelInfo('%{scid}')">  <!-- ● -->
 													<s:property value="name" />
 												</s:a></td>
+												<!-- ● -->
 											<td class="text-truncate" data-toggle="tooltip"
-												title=<s:property value="mflid" />><s:property
-													value="mflid" /></td>
+												title=<s:property value="scid" />><s:property 
+													value="scid" /></td>
 											<td><s:property value="description" /></td>
 											<td><s:property value="level" /></td>
 											<td><s:if test="null==manager || null==manager.user">
@@ -96,6 +102,17 @@
 												</s:if> <s:else>
 													<a href="#"><s:property value="manager.user.username" /></a>
 												</s:else></td>
+											<!-- ● -->
+											<td>
+												<s:property  value="parent.parent.parent.name"/>
+											</td>
+											<td>
+												<s:property  value="parent.parent.name"/>
+											</td>
+											<td>
+												<s:property value="parent.name"/>
+											</td>
+											<!-- ● -->
 											<td><s:if test="null==children">0</s:if> <s:else>
 													<a href="#"><s:property value="children.size()" /></a>
 												</s:else></td>
@@ -104,9 +121,10 @@
 												</s:else></td>
 											<td>
 												<div class="btn-group" role="group">
+													<!-- ● -->
 													<s:a cssClass="btn btn-sm btn-outline-secondary"
 														role="button"
-														onclick="minusFirstLevelModal.op.showCreateSonLevelModal(this);"
+														onclick="secondLevelModal.op.showCreateSonLevelModal(this);"
 														href="#">建子项</s:a>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">修改</button>
@@ -145,14 +163,79 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
-		<!-- Modal 4 新建社区 -->
-		<div class="modal fade" id="newMinusFirstLevelModal" tabindex="-1"
-			role="dialog" aria-labelledby="newMinusFirstLevelModal"
-			aria-hidden="true">
+		<!-- Modal 建立子层级对象 -->
+		<div class="modal fade" id="newSonLevelModal" tabindex="-1"
+			role="dialog" aria-labelledby="newSonLevelModal" aria-hidden="true">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title">新建街道</h4>
+						<h4 class="modal-title" id="newSonLevelModal_title">新建xxx的子层级</h4>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+							<input type="hidden" name="parentId" id="parentId" />
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"> P </span>
+								</div>
+								<input type="text" class="form-control" name="parentDescription"
+									id="parentDescription" disabled>
+								<div class="input-group-prepend">
+									<span class="input-group-text">父层级描述</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"> <span
+										class="glyphicon glyphicon-user"></span>
+									</span>
+								</div>
+								<input type="text" class="form-control" name="sonName"
+									id="sonName">
+								<div class="input-group-prepend">
+									<span class="input-group-text">名称</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"> <span
+										class="glyphicon glyphicon-glass"></span>
+									</span>
+								</div>
+								<input type="text" class="form-control" name="sonDescription"
+									id="sonDescription">
+								<div class="input-group-prepend">
+									<span class="input-group-text">描述</span>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">关闭</button>
+							<!-- ● -->
+						<button type="button" class="btn btn-primary"
+							onclick="secondLevelModal.op.createSonLevel();">新建</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal 4 新建当前层级 -->
+		<div class="modal fade" id="newModal" tabindex="-1" role="dialog"
+			aria-labelledby="newModal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<!-- ● -->
+						<h4 class="modal-title">新建第二层级</h4>
 						<button type="button" class="close" data-dismiss="modal"
 							aria-label="Close">
 							<span aria-hidden="true">&times;</span>
@@ -188,13 +271,14 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary"
 							data-dismiss="modal">关闭</button>
+						<!-- ● -->
 						<button type="button" class="btn btn-primary"
-							onclick="minusFirstLevelModal.op.createMinusFirstLevel();">新建</button>
+							onclick="secondLevelModal.op.createLevel();">新建</button>
 					</div>
 				</div>
 			</div>
 		</div>
-		<!-- Modal 4 用户详情 -->
+		<!-- Modal 层级详情 -->
 		<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
 			aria-labelledby="detialsModal" aria-hidden="true">
 			<div class="modal-dialog modal-lg" role="document">
@@ -286,81 +370,17 @@
 				</div>
 			</div>
 		</div>
-		<!-- Modal 4 用户更改 -->
+		<!-- Modal 4 更改 -->
 
-		<!-- Modal 建立子层级对象 -->
-		<div class="modal fade" id="newSonLevelModal" tabindex="-1"
-			role="dialog" aria-labelledby="newSonLevelModal" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title" id="newSonLevelModal_title">新建xxx的子层级</h4>
-						<button type="button" class="close" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div class="container-fluid">
-							<input type="hidden" name="mflid" id="mflid" />
-
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text"> P </span>
-								</div>
-								<input type="text" class="form-control" name="parentDescription"
-									id="parentDescription" disabled>
-								<div class="input-group-prepend">
-									<span class="input-group-text">父层级描述</span>
-								</div>
-							</div>
-
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text"> <span
-										class="glyphicon glyphicon-user"></span>
-									</span>
-								</div>
-								<input type="text" class="form-control" name="sonName"
-									id="sonName">
-								<div class="input-group-prepend">
-									<span class="input-group-text">名称</span>
-								</div>
-							</div>
-
-							<div class="input-group input-group-sm mb-3">
-								<div class="input-group-prepend">
-									<span class="input-group-text"> <span
-										class="glyphicon glyphicon-glass"></span>
-									</span>
-								</div>
-								<input type="text" class="form-control" name="sonDescription"
-									id="sonDescription">
-								<div class="input-group-prepend">
-									<span class="input-group-text">描述</span>
-								</div>
-							</div>
-
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary"
-							data-dismiss="modal">关闭</button>
-						<button type="button" class="btn btn-primary"
-							onclick="minusFirstLevelModal.op.createSonLevel();">新建</button>
-					</div>
-				</div>
-			</div>
-		</div>
 		<!-- Modal 4 排序 -->
 
 		<!-- Modal 4 筛选 -->
-		<div class="modal fade" id="selectUserModal" tabindex="-1"
-			role="dialog" aria-labelledby="selectUserModal" aria-hidden="true">
+		<div class="modal fade" id="selectModal" tabindex="-1" role="dialog"
+			aria-labelledby="selectModal" aria-hidden="true">
 			<div class="modal-dialog  modal-lg" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title">筛选用户</h4>
+						<h4 class="modal-title">筛选</h4>
 						<button type="button" class="close" data-dismiss="modal"
 							aria-label="Close">
 							<span aria-hidden="true">&times;</span>

@@ -83,94 +83,80 @@
 									</tr>
 								</thead>
 								<tbody>
-									<tr>
-										<td>张三李四</td>
-										<td>isthereanybody</td>
-										<td>男</td>
-										<td>1000</td>
-										<td><span class="badge badge-success">一级管理者</span></td>
-										<td>11.12</td>
-										<td>300</td>
-										<td>13718805500</td>
-										<td>北京市朝阳区呼家楼</td>
-										<td>isthereanybody@foxmail.com</td>
-										<td>110105198808211118</td>
-										<td>2018-03-11 21:33:56</td>
-										<td>是</td>
-										<td><span class="badge badge-success">正常</span></td>
-										<td>
-											<div class="btn-group" role="group">
-												<button type="button"
-													class="btn btn-outline-secondary btn-sm">修改</button>
-												<button type="button"
-													class="btn btn-outline-secondary btn-sm">推送</button>
-												<button type="button"
-													class="btn btn-outline-secondary btn-sm">其他</button>
-											</div>
-										</td> </tr>
-										<s:iterator value="#users">
+									<s:iterator value="#users">
 										<tr>
-									<td><s:a  href="#"  onclick="userModal.op.userInfo('%{uid}')">
-											<s:property value="username" />
-										</s:a></td>
-									<td><s:property value="sickname" /></td>
-									<td><s:property value="sex" /></td>
-									<td><s:property value="age" /></td>
-									<td><s:if test="grouping.tag=='common'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:if> <s:elseif test="grouping.tag=='unreal'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='admin'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='zero'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='first'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='second'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='third'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='fourth'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='minus_first'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif> <s:elseif test="grouping.tag=='money'">
-											<span class="badge badge-success"> <s:property
-													value="grouping.groupName" />
-											</span>
-										</s:elseif></td>
-									<td><s:property value="serveTime" /></td>
-									<td><s:property value="score" /></td>
-									<td><s:property value="phone" /></td>
-									<td><s:property value="address" /></td>
-									<td><s:property value="email" /></td>
-									<td><s:property value="cardid" /></td>
-									<td><s:property value="registrationTime" /></td>
-									<td><s:if test="ishere">是</s:if> <s:else>否</s:else></td>
-									<td><s:if test="locked">
-											<span class="badge badge-danger">锁死</span>
-										</s:if> <s:else>
-											<span class="badge badge-success">正常</span>
-										</s:else></td>
-									</tr>
+											<td><s:a href="#"
+													onclick="userModal.op.userInfo('%{uid}')">
+													<s:property value="username" />
+												</s:a></td>
+											<td><s:property value="sickname" /></td>
+											<td><s:property value="sex" /></td>
+											<td><s:property value="age" /></td>
+											<td><s:if test="grouping.tag=='common'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:if> <s:elseif test="grouping.tag=='unreal'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:elseif> <s:elseif test="grouping.tag=='admin'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:elseif> <s:elseif test="grouping.tag=='zero'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:elseif> <s:elseif test="grouping.tag=='first'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:elseif> <s:elseif test="grouping.tag=='second'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:elseif> <s:elseif test="grouping.tag=='third'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:elseif> <s:elseif test="grouping.tag=='fourth'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:elseif> <s:elseif test="grouping.tag=='minus_first'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:elseif> <s:elseif test="grouping.tag=='money'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:elseif></td>
+											<td><s:property value="serveTime" /></td>
+											<td><s:property value="score" /></td>
+											<td><s:property value="phone" /></td>
+											<td class="text-truncate"   data-toggle="tooltip"   title="<s:property value='address'/>"><s:property value="address" /></td>
+											<td><s:property value="email" /></td>
+											<td><s:property value="cardid" /></td>
+											<td><s:property value="registrationTimeStr" /></td>
+											<td><s:if test="ishere">是</s:if> <s:else>否</s:else></td>
+											<td><s:if test="locked">
+													<span class="badge badge-danger">锁死</span>
+												</s:if> <s:else>
+													<span class="badge badge-success">正常</span>
+												</s:else></td>
+											<td>
+												<div class="btn-group" role="group">
+													<button type="button"
+														class="btn btn-outline-secondary btn-sm">修改</button>
+													<button type="button"
+														class="btn btn-outline-secondary btn-sm">推送</button>
+													<button type="button"
+														class="btn btn-outline-secondary btn-sm">其他</button>
+												</div>
+											</td>
+										</tr>
 									</s:iterator>
 								</tbody>
 							</table>
@@ -216,7 +202,7 @@
 							<div class="input-group input-group-sm mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text"><span
-										class="glyphicon glyphicon-user" /></span>
+										class="glyphicon glyphicon-user"></span></span>
 								</div>
 								<input type="text" class="form-control" name="username"
 									id="username">
@@ -228,7 +214,7 @@
 							<div class="input-group input-group-sm mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text"><span
-										class="glyphicon glyphicon-glass" /span>
+										class="glyphicon glyphicon-glass"></span></span>
 								</div>
 								<input type="text" class="form-control" name="sickname"
 									id="sickname">
@@ -251,7 +237,7 @@
 							<div class="input-group input-group-sm mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text"><span
-										class="glyphicon glyphicon-tint" /></span>
+										class="glyphicon glyphicon-tint"></span></span>
 								</div>
 								<select class="custom-select" id="sex" name="sex">
 									<option value="0" selected>请选择...</option>
@@ -266,7 +252,7 @@
 							<div class="input-group input-group-sm mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text"><span
-										class="glyphicon glyphicon-text-background"></span>
+										class="glyphicon glyphicon-text-background"></span></span>
 								</div>
 								<input type="text" class="form-control" name="age" id="age">
 								<div class="input-group-prepend">
@@ -277,7 +263,7 @@
 							<div class="input-group input-group-sm mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text"><span
-										class="glyphicon glyphicon-phone-alt" /></span>
+										class="glyphicon glyphicon-phone-alt"></span></span>
 								</div>
 								<input type="text" class="form-control" name="phone" id="phone">
 								<div class="input-group-prepend">
@@ -298,7 +284,7 @@
 							<div class="input-group input-group-sm mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text"><span
-										class="glyphicon glyphicon-font" /></span>
+										class="glyphicon glyphicon-font"></span></span>
 								</div>
 								<input type="text" class="form-control" name="address"
 									id="address">
@@ -334,7 +320,7 @@
 							<div class="row">
 								<div class="col-lg-2 pr-0 col-xs-12">
 									<img src="./img/qrcode.gif" class="img-fluid"
-										id="detialsModal_qrcode" alt="Responsive image">
+										id="detialsModal_qrcode" alt="二维码丢失">
 								</div>
 								<div class="col-lg-10 pl-0 col-xs-12">
 									<div class="row">

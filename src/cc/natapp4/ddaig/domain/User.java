@@ -15,7 +15,8 @@ public class User implements Serializable {
 	private String cardid;  // 身份证号
 	private String username;    // 真实名字
 	private String sickname;  // 微信昵称
-	private long registrationTime; // 注册日期(格里高利历毫秒值偏移量)
+	private long registrationTime; // 注册日期(格里高利历毫秒值偏移量,存放到数据库之用)
+	private String registrationTimeStr;  //  根据registrationTime转换成人类可辨识的yyyy-MM-dd HH:mm:ss (24小时制)的字符串，供给JSP页面显示之用，数据库中没有这个字段只是作为Struts模型驱动使用。
 	private String address;      // 家庭住址
 	private long serveTime;     // 累计服务时长（毫秒值，用它可以换算出用户等级）★
 	private String email;    // 电子邮箱
@@ -221,6 +222,18 @@ public class User implements Serializable {
 	}
 	public void setMember(Member member) {
 		this.member = member;
+	}
+
+
+
+	public String getRegistrationTimeStr() {
+		return registrationTimeStr;
+	}
+
+
+
+	public void setRegistrationTimeStr(String registrationTimeStr) {
+		this.registrationTimeStr = registrationTimeStr;
 	}
 	
 }
