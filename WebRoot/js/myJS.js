@@ -538,30 +538,78 @@ var userModal = {
 };
 
 
-/*
- * 默认执行语句，如果当前运行应用程序的设备屏幕宽度是大屏幕，则显示左侧工具栏。
- * 否则小平面不现实左侧工具栏。
+/**
+ *========================用户User========================
  */
-if (window.screen.availWidth >= 768) {
-	$('#contentId').collapse({
-		toggle : true
-	});
-}
-;
+var overAll = {
+	
+	init:{
+	
+		op:{
+			/*
+			 * 通过jQuery实现的初始化操作，作用是将当前页面上的所有tooltip效果激活
+			 */
+			startToolTip: function(){
+				$('[data-toggle="tooltip"]').tooltip();
+			},
+			/*
+			 * 默认执行语句，如果当前运行应用程序的设备屏幕宽度是大屏幕，则显示左侧工具栏。
+			 * 否则小平面不现实左侧工具栏。
+			 */
+			screenIsBigOrSmall: function(){
+				if (window.screen.availWidth >= 768) {
+					$('#contentId').collapse({
+						toggle : true
+					});
+				};
+				console.log("屏幕像素分辨完成");
+			},
+			/*
+			 * 页面被加载的时候通过localStorage确定左侧边栏应该打开的是哪个content
+			 */
+			prepareCollapse:function(){
+				let  cid = localStorage.getItem("contentID");
+				if(null===cid){
+					$("#userContent").collapse('show');
+				}else{
+					$("#"+cid).collapse('show');
+				}
+			},
+		},
+		
+		data:{
+			
+		},
+	},
+	
+	data:{
+		
+	},
 
-/*
- * 通过jQuery实现的初始化操作，作用是将当前页面上的所有tooltip效果激活
+	op: {
+		/*
+		 *当用户点击左侧Menu侧边栏上的连接的时候会调用本方法 
+		 *作用：
+		 *（1）通过localStorage保存所点击的连接所属的Collapse分页的xxxxContent的ID
+		 *（2）执行页面跳转操作
+		 */
+		saveCollapseContentID2LS: function(contentID,uri) {
+			
+			localStorage.setItem("contentID", contentID);
+			$(location).attr('href', uri);
+		},
+	},
+};
+
+
+
+
+
+/**
+ * 初始化工作
  */
 $(function() {
-	$('[data-toggle="tooltip"]').tooltip();
+	overAll.init.op.startToolTip();
+	overAll.init.op.screenIsBigOrSmall();
+	overAll.init.op.prepareCollapse();
 });
-
-function toggle() {
-	/*
-	 要操作Collapse中的某一个特定的card的时候，需要先获取到该card的card-body上一层的div的id
-	 然后再通过执行collapse()配合 hide（关闭）、show（展开）、toggle（切换——结合了hide和show）
-	*/
-	console.log("关闭关闭")
-	$('#section1ContentId').collapse('toggle');
-}
-;

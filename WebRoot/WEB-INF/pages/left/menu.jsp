@@ -51,27 +51,28 @@
 						<div class="card">
 							<div class="card-header px-0 py-1" role="tab"
 								id="section1HeaderId">
-								<a class="nav-link" data-toggle="collapse"
-									href="#section1ContentId" aria-expanded="false"
-									aria-controls="section1ContentId"> 人员管理 </a>
+								<a class="nav-link" data-toggle="collapse" href="#userContent"
+									aria-expanded="false" aria-controls="userContent"> 人员管理 </a>
 							</div>
 							<!--
                                         注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
                                         并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
                                         因此同一时间只能打开其中一个card
                                     -->
-							<div id="section1ContentId" class="collapse in"
+							<div id="userContent" class="collapse in"
 								data-parent="#accordianId" role="tabpanel"
 								aria-labelledby="section1HeaderId">
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
-										<li class="nav-item active"><a class="nav-link" href="#">待分配人员
+										<li class="nav-item active"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getXXXXList.action")'>待分配人员
 												<span class="sr-only">(current)</span>
 										</a></li>
-										<li class="nav-item"><a class="nav-link"
-											href="userAction_getUserList.action">所辖人员</a></li>
-										<li class="nav-item"><a class="nav-link" href="#">人员任免</a>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getUserList.action")'>所辖人员</a></li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getXXXXList.action")'>人员任免</a>
 										</li>
 
 									</ul>
@@ -83,25 +84,28 @@
 							<div class="card-header px-0 py-1" role="tab"
 								id="section3HeaderId">
 								<a class="nav-link" data-toggle="collapse"
-									href="#section3ContentId" aria-expanded="false"
-									aria-controls="section3ContentId"> 项目管理 </a>
+									href="#projectContent" aria-expanded="false"
+									aria-controls="projectContent"> 项目管理 </a>
 							</div>
 							<!--
                                         注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
                                         并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
                                         因此同一时间只能打开其中一个card
                                     -->
-							<div id="section3ContentId" class="collapse in"
+							<div id="projectContent" class="collapse in"
 								data-parent="#accordianId" role="tabpanel"
 								aria-labelledby="section3HeaderId">
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
-										<li class="nav-item"><a class="nav-link" href="#">执行中项目</a>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>执行中项目</a>
 										</li>
-										<li class="nav-item"><a class="nav-link" href="#">待审核项目</a>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>待审核项目</a>
 										</li>
-										<li class="nav-item"><a class="nav-link" href="#">申请中项目</a>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>申请中项目</a>
 										</li>
 
 									</ul>
@@ -112,41 +116,40 @@
 						<div class="card">
 							<div class="card-header px-0 py-1" role="tab"
 								id="section2HeaderId">
-								<a class="nav-link" data-toggle="collapse"
-									href="#section2ContentId" aria-expanded="false"
-									aria-controls="section2ContentId"> 组织层级化管理 </a>
+								<a class="nav-link" data-toggle="collapse" href="#levelContent"
+									aria-expanded="false" aria-controls="levelContent"> 组织层级化管理
+								</a>
 							</div>
 							<!--
                                         注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
                                         并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
                                         因此同一时间只能打开其中一个card
                                     -->
-							<div id="section2ContentId" class="collapse in" role="tabpanel"
+							<div id="levelContent" class="collapse in" role="tabpanel"
 								data-parent="#accordianId" aria-labelledby="section2HeaderId">
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
-										<li class="nav-item active"><a class="nav-link" href="minusFirstLevelAction_getLevelList.action">街道层级
+										<li class="nav-item active"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "minusFirstLevelAction_getLevelList.action")'>街道层级
 												<span class="sr-only">(current)</span>
 										</a></li>
-										<li class="nav-item"><a class="nav-link" href="zeroLevelAction_getLevelList.action">社区层级</a>
-										</li>
-										<li class="nav-item"><a class="nav-link" href="firstLevelAction_getLevelList.action">第一层级</a>
-										</li>
-										<li class="nav-item"><a class="nav-link" href="secondLevelAction_getLevelList.action">第二层级</a>
-										</li>
-										<li class="nav-item"><a class="nav-link" href="thirdLevelAction_getLevelList.action">第三层级</a>
-										</li>
-										<li class="nav-item"><a class="nav-link" href="fourthLevelAction_getLevelList.action">第四层级</a>
-										</li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "zeroLevelAction_getLevelList.action")'>社区层级</a></li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "firstLevelAction_getLevelList.action")'>第一层级</a></li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "secondLevelAction_getLevelList.action")'>第二层级</a></li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "thirdLevelAction_getLevelList.action")'>第三层级</a></li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "fourthLevelAction_getLevelList.action")'>第四层级</a></li>
 
 									</ul>
 
 								</div>
 							</div>
 						</div>
-						<a name="toggle" id="toggle" class="btn btn-secondary btn-block"
-							href="javascript:toggle();" role="button">折叠切换</a>
 					</div>
 				</div>
 			</div>
