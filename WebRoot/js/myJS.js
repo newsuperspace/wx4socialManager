@@ -1,5 +1,137 @@
 
+/**
+ * ========================第三层级========================
+ */
+// <!-- ● -->
+var fourthLevelModal = {
+	init : {},
+	data : {},
+	op : {
+		/**
+		 * 创建当前层级
+		 */
+		createLevel : function() {
 
+			var data = {
+				description : $("#description").val(),
+				name : $("#name").val(),
+			};
+			
+			// <!-- ● -->
+			$.post("fourthLevelAction_createLevel.action", data, function(data, textStatus, req) {
+
+				$("#newModal").modal("hide");
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 新建某个当前级的子层级对象
+		 */
+		createSonLevel : function() {
+			$("#newSonLevelModal").modal('hide');
+
+			var data = {
+				parentId : $('#parentId').val(),
+				sonDescription : $('#sonDescription').val(),
+				sonName : $("#sonName").val()
+			};
+
+			// <!-- ● -->
+			$.post("fourthLevelAction_createSonLevel.action", data, function(data, textStatus, req) {
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 获取详细信息
+		 */
+		levelInfo : function(id) {
+			// <!-- ● -->
+			alert("当前获取详细信息的thirdLevel的ID是：" + id);
+			return false;
+		},
+	}
+};
+
+/**
+ * ========================第三层级========================
+ */
+// <!-- ● -->
+var thirdLevelModal = {
+	init : {},
+	data : {},
+	op : {
+		/**
+		 * 创建当前层级
+		 */
+		createLevel : function() {
+
+			var data = {
+				description : $("#description").val(),
+				name : $("#name").val(),
+			};
+			
+			// <!-- ● -->
+			$.post("thirdLevelAction_createLevel.action", data, function(data, textStatus, req) {
+
+				$("#newModal").modal("hide");
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 准备并显示用于创建某个当前级的子层级对象的
+		 * MODAL
+		 * 这个函数的实现告诉我们，在学会Angular之前，掌握jQuery的选择器是多么重要
+		 */
+		showCreateSonLevelModal : function(obj) {
+
+			var self = $(obj);
+			var parentDescription = self.parent().parent().prev().prev().prev().prev().prev().prev().prev().prev().prev();  // <!-- ● -->
+			var parentId = parentDescription.prev();
+			var parentName = parentId.prev();
+
+			$("#newSonLevelModal_title").text("新建" + parentName.children().text() + "的子层级");
+			$("#parentId").val(parentId.attr("data-original-title"));
+			$("#parentDescription").val(parentDescription.text());
+
+			$("#newSonLevelModal").modal('show');
+			return false;
+		},
+
+		/**
+		 * 新建某个当前级的子层级对象
+		 */
+		createSonLevel : function() {
+			$("#newSonLevelModal").modal('hide');
+
+			var data = {
+				parentId : $('#parentId').val(),
+				sonDescription : $('#sonDescription').val(),
+				sonName : $("#sonName").val()
+			};
+
+			// <!-- ● -->
+			$.post("thirdLevelAction_createSonLevel.action", data, function(data, textStatus, req) {
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 获取详细信息
+		 */
+		levelInfo : function(id) {
+			// <!-- ● -->
+			alert("当前获取详细信息的thirdLevel的ID是：" + id);
+			return false;
+		},
+	}
+};
 
 /**
  * ========================第二层级========================
