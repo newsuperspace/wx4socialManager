@@ -163,4 +163,18 @@ public class PermissionAction extends ActionSupport  implements ModelDriven<Perm
 	
 	
 	
+	public String getPermissionLevelList(){
+		
+		return "permissionLevelList";
+	}
+	
+	public String getPermissionTypeList(){
+		
+		return "permissionTypeList";
+	}
+	
+	public String getPermissionList(){
+		
+		return "permissionList";
+	}
 }

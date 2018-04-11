@@ -151,6 +151,39 @@
 							</div>
 						</div>
 					</div>
+				
+					<div class="card">
+							<div class="card-header px-0 py-1" role="tab"
+								id="section2HeaderId">
+								<a class="nav-link" data-toggle="collapse" href="#permissionContent"
+									aria-expanded="false" aria-controls="permissionContent"> 系统权限管理
+								</a>
+							</div>
+							<!--
+                                        注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
+                                        并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
+                                        因此同一时间只能打开其中一个card
+                                    -->
+							<div id="permissionContent" class="collapse in" role="tabpanel"
+								data-parent="#accordianId" aria-labelledby="section2HeaderId">
+								<div class="card-body py-1">
+
+									<ul class="navbar-nav mr-auto mt-0 pt-0">
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionAction_getPermissionLevelList.action")'>权限层级管理</a></li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionAction_getPermissionTypeList.action")'>权限类型管理</a></li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionAction_getPermisionList.action")'>权限管理</a></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				
+				
+				
+				
 				</div>
 			</div>
 		</div>

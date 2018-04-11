@@ -16,14 +16,14 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 public class Permission implements Serializable {
 
 	private String pid;   // 主键
-	private String permission;   // 权限标识符，如： save、update、delete等
+	private String permissionName;   // 权限标识符，如： save、update、delete等
 	private String description;   // 描述权限作用
 	
 	private boolean enabled;		// 是否可用(默认是true)
 	
 	// ------Foreign Key--------
 	// 当前权限所属类型，如user、project、activity等
-	private PermissionType  type;
+	private PermissionType  permissionType;
 	
 	// 拥有当前权限的所有层级化对象
 	private Set<MinusFirstLevel>  minusFirstLevels;
@@ -43,12 +43,12 @@ public class Permission implements Serializable {
 		this.pid = pid;
 	}
 
-	public String getPermission() {
-		return permission;
+	public String getPermissionName() {
+		return permissionName;
 	}
 
-	public void setPermission(String permission) {
-		this.permission = permission;
+	public void setPermissionName(String permissionName) {
+		this.permissionName = permissionName;
 	}
 
 	public String getDescription() {
@@ -68,11 +68,11 @@ public class Permission implements Serializable {
 	}
 
 	// no @JSON
-	public PermissionType getType() {
-		return type;
+	public PermissionType getPermissionType() {
+		return permissionType;
 	}
-	public void setType(PermissionType type) {
-		this.type = type;
+	public void setType(PermissionType permissionType) {
+		this.permissionType = permissionType;
 	}
 
 	@JSON(serialize=false)

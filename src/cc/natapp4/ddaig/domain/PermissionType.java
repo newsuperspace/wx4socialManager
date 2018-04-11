@@ -16,7 +16,7 @@ public class PermissionType implements Serializable {
 	// 主键
 	private  String ptid;
 	// 类型名
-	private String permissionType;
+	private String permissionTypeName;
 	// 权限类型功能说明
 	private String description;
 	// 权限是否可用（默认是true）
@@ -34,11 +34,11 @@ public class PermissionType implements Serializable {
 		this.ptid = ptid;
 	}
 
-	public String getPermissionType() {
-		return permissionType;
+	public String getPermissionTypeName() {
+		return permissionTypeName;
 	}
-	public void setPermissionType(String permissionType) {
-		this.permissionType = permissionType;
+	public void setPermissionTypeName(String permissionTypeName) {
+		this.permissionTypeName = permissionTypeName;
 	}
 
 	public String getDescription() {

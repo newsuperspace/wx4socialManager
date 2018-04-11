@@ -29,6 +29,7 @@
 	<mapping resource="cc/natapp4/ddaig/domain/Member.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Permission.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/PermissionType.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/PermissionLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/ProjectType.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Receipt4BesureProject.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Visitor.hbm.xml" />
