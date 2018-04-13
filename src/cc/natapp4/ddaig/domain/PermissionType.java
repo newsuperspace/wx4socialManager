@@ -25,8 +25,17 @@ public class PermissionType implements Serializable {
 	// ------------Foreign Key-------------
 	// 当前类型中包含的所有权限
 	private Set<Permission>  permissions;
-
+	// 当前类型所属的层级级别
+	private PermissionLevel  permissionLevel;
+	
 	//===========GETTERs/SETTERs=======
+	
+	public PermissionLevel getPermissionLevel() {
+		return permissionLevel;
+	}
+	public void setPermissionLevel(PermissionLevel permissionLevel) {
+		this.permissionLevel = permissionLevel;
+	}
 	public String getPtid() {
 		return ptid;
 	}

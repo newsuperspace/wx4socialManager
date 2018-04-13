@@ -71,7 +71,7 @@ public class Permission implements Serializable {
 	public PermissionType getPermissionType() {
 		return permissionType;
 	}
-	public void setType(PermissionType permissionType) {
+	public void setPermissionType(PermissionType permissionType) {
 		this.permissionType = permissionType;
 	}
 

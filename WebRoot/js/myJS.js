@@ -1,6 +1,143 @@
+/**
+ * ========================权限层级PermissionLevel========================
+ */
+var permissionLevelModal = {
+	init : {
+		data : {},
+		op : {},
+	},
+	data : {},
+	op : {
+
+		/**
+		 * 新建权限
+		 */
+		create : function() {
+			var data = {
+				permissionLevelName : $("#permissionLevelName").val(),
+				description : $("#description").val(),
+			};
+			$.post("permissionLevelAction_create.action", data, function(data, textStatus, req) {
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 获取详细信息
+		 */
+		itemInfo : function(id) {
+			alert("当前获取详细信息的ID是：" + id);
+			return false;
+		},
+	}
+}
+
 
 /**
- * ========================第三层级========================
+ * ========================权限类型PermissionType========================
+ */
+var permissionTypeModal = {
+	init : {
+		data : {},
+		op : {},
+	},
+	data : {},
+	op : {
+
+		/**
+		 * 新建权限
+		 */
+		create : function() {
+			var data = {
+				plid : $("#plid").val(),
+				permissionTypeName : $("#permissionTypeName").val(),
+				description : $("#description").val(),
+			};
+			$.post("permissionTypeAction_create.action", data, function(data, textStatus, req) {
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 获取详细信息
+		 */
+		itemInfo : function(id) {
+			alert("当前获取详细信息的ID是：" + id);
+			return false;
+		},
+	}
+}
+
+
+/**
+ * ========================权限Permission========================
+ */
+var permissionModal = {
+	init : {
+		data : {},
+		op : {},
+	},
+	data : {},
+	op : {
+
+		/**
+		 * 新建权限
+		 */
+		create : function() {
+			var data = {
+				plid : $("#plid").val(),
+				ptid : $("#ptid").val(),
+				permissionName : $("#permissionName").val(),
+				description : $("#description").val(),
+			};
+			$.post("permissionAction_create.action", data, function(data, textStatus, req) {
+				alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 获取详细信息
+		 */
+		itemInfo : function(id) {
+			alert("当前获取详细信息的ID是：" + id);
+			return false;
+		},
+
+		/**
+		 * 当用户在新建权限Modal中选定了PermissionLevel后，会调用本方法，
+		 * 它会通过Ajax技术从后端获取指定PermissionLevel之下的PermissionType数据放入到Select中
+		 */
+		preparePermissionTypeByPermissionLevel : function() {
+
+			var plid = $("#plid").val();
+			$("#ptid").empty();
+
+			if ('0' == plid) {
+				$("#ptid").append("<option value='0' selected>请先选择权限层级</option>").attr("disabled", disabled);
+				return;
+			}
+
+			var data = {
+				plid : plid,
+			};
+			$.post("permissionAction_getPermissionTypeList.action", data, function(data, textStatus, req) {
+				console.log(data);
+				// 激活该select;增加默认选项
+				$("#ptid").removeAttr("disabled").append("<option value='0' selected>请选择...</option>");
+				$.each(data, function(index, elt) {
+					// 解析出的每个元素都是一个包含一个PermissionType数据的JSON对象，可从中获取必要的PermissionType数据信息
+					$("#ptid").append("<option value=" + elt.ptid + ">" + elt.permissionTypeName + "</option>");
+				});
+			});
+		},
+	}
+}
+
+/**
+ * ========================第四层级========================
  */
 // <!-- ● -->
 var fourthLevelModal = {
@@ -16,7 +153,7 @@ var fourthLevelModal = {
 				description : $("#description").val(),
 				name : $("#name").val(),
 			};
-			
+
 			// <!-- ● -->
 			$.post("fourthLevelAction_createLevel.action", data, function(data, textStatus, req) {
 
@@ -73,7 +210,7 @@ var thirdLevelModal = {
 				description : $("#description").val(),
 				name : $("#name").val(),
 			};
-			
+
 			// <!-- ● -->
 			$.post("thirdLevelAction_createLevel.action", data, function(data, textStatus, req) {
 
@@ -91,7 +228,7 @@ var thirdLevelModal = {
 		showCreateSonLevelModal : function(obj) {
 
 			var self = $(obj);
-			var parentDescription = self.parent().parent().prev().prev().prev().prev().prev().prev().prev().prev().prev();  // <!-- ● -->
+			var parentDescription = self.parent().parent().prev().prev().prev().prev().prev().prev().prev().prev().prev(); // <!-- ● -->
 			var parentId = parentDescription.prev();
 			var parentName = parentId.prev();
 
@@ -150,7 +287,7 @@ var secondLevelModal = {
 				description : $("#description").val(),
 				name : $("#name").val(),
 			};
-			
+
 			// <!-- ● -->
 			$.post("secondLevelAction_createLevel.action", data, function(data, textStatus, req) {
 
@@ -168,7 +305,7 @@ var secondLevelModal = {
 		showCreateSonLevelModal : function(obj) {
 
 			var self = $(obj);
-			var parentDescription = self.parent().parent().prev().prev().prev().prev().prev().prev().prev().prev();  // <!-- ● -->
+			var parentDescription = self.parent().parent().prev().prev().prev().prev().prev().prev().prev().prev(); // <!-- ● -->
 			var parentId = parentDescription.prev();
 			var parentName = parentId.prev();
 
@@ -226,7 +363,7 @@ var firstLevelModal = {
 				description : $("#description").val(),
 				name : $("#name").val(),
 			};
-			
+
 			// <!-- ● -->
 			$.post("firstLevelAction_createLevel.action", data, function(data, textStatus, req) {
 
@@ -244,7 +381,7 @@ var firstLevelModal = {
 		showCreateSonLevelModal : function(obj) {
 
 			var self = $(obj);
-			var parentDescription = self.parent().parent().prev().prev().prev().prev().prev().prev().prev();  // <!-- ● -->
+			var parentDescription = self.parent().parent().prev().prev().prev().prev().prev().prev().prev(); // <!-- ● -->
 			var parentId = parentDescription.prev();
 			var parentName = parentId.prev();
 
@@ -542,59 +679,58 @@ var userModal = {
  *========================用户User========================
  */
 var overAll = {
-	
-	init:{
-	
-		op:{
+	init : {
+		op : {
 			/*
 			 * 通过jQuery实现的初始化操作，作用是将当前页面上的所有tooltip效果激活
 			 */
-			startToolTip: function(){
+			startToolTip : function() {
 				$('[data-toggle="tooltip"]').tooltip();
 			},
 			/*
 			 * 默认执行语句，如果当前运行应用程序的设备屏幕宽度是大屏幕，则显示左侧工具栏。
 			 * 否则小平面不现实左侧工具栏。
 			 */
-			screenIsBigOrSmall: function(){
+			screenIsBigOrSmall : function() {
 				if (window.screen.availWidth >= 768) {
 					$('#contentId').collapse({
 						toggle : true
 					});
-				};
+				}
+				;
 				console.log("屏幕像素分辨完成");
 			},
 			/*
 			 * 页面被加载的时候通过localStorage确定左侧边栏应该打开的是哪个content
 			 */
-			prepareCollapse:function(){
-				let  cid = localStorage.getItem("contentID");
-				if(null===cid){
+			prepareCollapse : function() {
+				let cid = localStorage.getItem("contentID");
+				if (null === cid) {
 					$("#userContent").collapse('show');
-				}else{
-					$("#"+cid).collapse('show');
+				} else {
+					$("#" + cid).collapse('show');
 				}
 			},
 		},
-		
-		data:{
-			
+
+		data : {
+
 		},
 	},
-	
-	data:{
-		
+
+	data : {
+
 	},
 
-	op: {
+	op : {
 		/*
 		 *当用户点击左侧Menu侧边栏上的连接的时候会调用本方法 
 		 *作用：
 		 *（1）通过localStorage保存所点击的连接所属的Collapse分页的xxxxContent的ID
 		 *（2）执行页面跳转操作
 		 */
-		saveCollapseContentID2LS: function(contentID,uri) {
-			
+		saveCollapseContentID2LS : function(contentID, uri) {
+
 			localStorage.setItem("contentID", contentID);
 			$(location).attr('href', uri);
 		},

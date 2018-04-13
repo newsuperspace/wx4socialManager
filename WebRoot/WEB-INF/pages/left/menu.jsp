@@ -150,9 +150,9 @@
 								</div>
 							</div>
 						</div>
-					</div>
-				
-					<div class="card">
+
+
+						<div class="card">
 							<div class="card-header px-0 py-1" role="tab"
 								id="section2HeaderId">
 								<a class="nav-link" data-toggle="collapse" href="#permissionContent"
@@ -170,20 +170,19 @@
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionAction_getPermissionLevelList.action")'>权限层级管理</a></li>
+											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionLevelAction_getList.action")'>权限层级管理</a></li>
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionAction_getPermissionTypeList.action")'>权限类型管理</a></li>
+											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionTypeAction_getList.action")'>权限类型管理</a></li>
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionAction_getPermisionList.action")'>权限管理</a></li>
+											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionAction_getList.action")'>权限管理</a></li>
 									</ul>
 								</div>
 							</div>
 						</div>
+						
+
+					
 					</div>
-				
-				
-				
-				
 				</div>
 			</div>
 		</div>

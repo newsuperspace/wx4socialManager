@@ -4,10 +4,10 @@
         "http://struts.apache.org/dtds/struts-2.0.dtd">
 
 <struts>
-	<package name="permission" namespace="/" extends="base-package">
-		<action name="permissionAction_*"  method="{1}"   class="permissionAction">
+	<package name="permissionType" namespace="/" extends="base-package">
+		<action name="permissionTypeAction_*"  method="{1}"   class="permissionTypeAction">
 				<result  name="json"  type="json"></result>
-				<result name="list" >/WEB-INF/pages/right/permission/permission.jsp</result>
+				<result name="list" >/WEB-INF/pages/right/permission/permissionType.jsp</result>
 		</action>
 	</package>
 </struts>

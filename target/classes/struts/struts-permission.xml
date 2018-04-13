@@ -6,9 +6,8 @@
 <struts>
 	<package name="permission" namespace="/" extends="base-package">
 		<action name="permissionAction_*"  method="{1}"   class="permissionAction">
-				<result name="roles" >/WEB-INF/jsp/frame/aboutShiro/roles4Permission.jsp</result>
 				<result  name="json"  type="json"></result>
-				<result  name="permissions">/WEB-INF/jsp/frame/aboutShiro/permissionList.jsp</result>
+				<result name="list" >/WEB-INF/pages/right/permission/permission.jsp</result>
 		</action>
 	</package>
 </struts>

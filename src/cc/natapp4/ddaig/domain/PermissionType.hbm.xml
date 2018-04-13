@@ -8,7 +8,7 @@
 			<!-- 设置主键产生器是assigned，是由于需要根据用户的wid来生成qrcode，因此需要手动创建uid -->
 			<generator class="uuid"></generator>
 		</id>
-		<property name="permissionTypeName" length="50" unique="true"></property>
+		<property name="permissionTypeName" length="50"></property>
 		<property name="description" length="200"></property>
 		<property name="enabled" type="true_false"></property>
 
@@ -18,6 +18,8 @@
 			</key>
 			<one-to-many class="cc.natapp4.ddaig.domain.Permission" />
 		</set>
+
+		<many-to-one name="permissionLevel" column="plid" cascade="save-update"  class="cc.natapp4.ddaig.domain.PermissionLevel"></many-to-one>
 
 	</class>
 </hibernate-mapping>
