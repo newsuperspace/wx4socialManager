@@ -27,7 +27,6 @@ public class PermissionLevel implements Serializable {
 	// ------------Foreign Key-------------
 	// 当前类型中包含的所有权限
 	private Set<PermissionType>  permissionTypes;
-
 	
 	//===========GETTERs/SETTERs=======
 

@@ -1,0 +1,70 @@
+[
+	{
+		"description":"街道层级",
+		"permissionLevelName": "minus_first",
+		"level": -1,
+		"enabled": true,
+		"permissionTypes": 
+		[
+			{
+				"description": "人员类型",
+				"permissionTypeName": "user",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "项目类型",
+				"permissionTypeName": "project",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			}
+		]
+	}
+	
+	
+	
+]

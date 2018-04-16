@@ -13,6 +13,8 @@
 
 
 
+
+
 	<dependencies>
 		<!-- ===================================for Shiro===================================== -->
 		<!-- https://mvnrepository.com/artifact/org.apache.shiro/shiro-core -->
@@ -71,11 +73,14 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.7</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson  用于JSON解析的框架-->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.8.1</version>
+			<version>2.8.2</version>
 		</dependency>
+
 
 		<!-- ========================================下面是常规需求============================= -->
 
@@ -139,17 +144,10 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- 
-			java的字节码类库，具体内容哦现在还不了解
-			<dependency>
-				<groupId>javassist</groupId>
-				<artifactId>javassist</artifactId>
-				<version>3.12.1.GA</version>
-			</dependency>
-			由于其他框架已经依赖了更高级的3.20.1.GA的版本，为了防止冲突导致Hibernate出现  
-			 XXXXXX（类全名）_$$_javassist_1 cannot be cast to javassist.util.proxy.Proxy  的异常
-			 所以只要保持Maven Dependency中存在个javassist.jar就可以 ★★
-		 -->
+		<!-- java的字节码类库，具体内容哦现在还不了解 <dependency> <groupId>javassist</groupId> <artifactId>javassist</artifactId> 
+			<version>3.12.1.GA</version> </dependency> 由于其他框架已经依赖了更高级的3.20.1.GA的版本，为了防止冲突导致Hibernate出现 
+			XXXXXX（类全名）_$$_javassist_1 cannot be cast to javassist.util.proxy.Proxy 的异常 
+			所以只要保持Maven Dependency中存在个javassist.jar就可以 ★★ -->
 		<!-- MySQL数据库的数据库驱动，要与MySQL数据库进行交互就必须有它 ★ -->
 		<dependency>
 			<groupId>mysql</groupId>
