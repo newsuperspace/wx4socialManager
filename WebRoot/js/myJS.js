@@ -133,6 +133,22 @@ var permissionModal = {
 				});
 			});
 		},
+		
+		/**
+		 * 批量自动化创建系统基础权限
+		 */
+		batchAutoCreate:function(){
+			var answer  =  confirm("自动化批量创建权限将删除系统后台已有权限，是否继续？");
+			if(answer){
+				$.post("permissionAction_batchCreatePermission.action", null, function(data, textStatus, req) {
+					alert(data.message);
+					window.location.reload();
+				});
+			}else{
+				// 什么也不做
+			}
+			return false;
+		},
 	}
 }
 

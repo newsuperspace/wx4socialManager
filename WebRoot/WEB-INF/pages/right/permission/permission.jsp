@@ -54,10 +54,23 @@
 										<span class="glyphicon glyphicon-sort-by-order"></span> 排序
 									</button>
 								</div>
-								<button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-									data-toggle="toggle" data-target="#">
-									<span class="glyphicon glyphicon-cog"></span> 其他
-								</button>
+								<div class="dropdown">
+									<button
+										class="btn btn-sm btn-outline-secondary dropdown-toggle"
+										type="button" id="others" data-toggle="dropdown"
+										aria-haspopup="true" aria-expanded="false">
+										<span class="glyphicon glyphicon-cog"></span> 其他
+									</button>
+									<div class="dropdown-menu" aria-labelledby="others">
+										<a class="dropdown-item" href="#" onclick="permissionModal.op.batchAutoCreate();">自动创建基础权限</a> 
+										<a class="dropdown-item disabled" href="#">Disabled action</a>
+										<h6 class="dropdown-header">Section header</h6>
+										<a class="dropdown-item" href="#">Action</a>
+										<div class="dropdown-divider"></div>
+										<a class="dropdown-item" href="#">After divider action</a>
+									</div>
+								</div>
+
 							</div>
 						</div>
 						<!-- =============表格=========== -->
