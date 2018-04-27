@@ -133,18 +133,18 @@ var permissionModal = {
 				});
 			});
 		},
-		
+
 		/**
 		 * 批量自动化创建系统基础权限
 		 */
-		batchAutoCreate:function(){
-			var answer  =  confirm("自动化批量创建权限将删除系统后台已有权限，是否继续？");
-			if(answer){
+		batchAutoCreate : function() {
+			var answer = confirm("自动化批量创建权限将删除系统后台已有权限，是否继续？");
+			if (answer) {
 				$.post("permissionAction_batchCreatePermission.action", null, function(data, textStatus, req) {
 					alert(data.message);
 					window.location.reload();
 				});
-			}else{
+			} else {
 				// 什么也不做
 			}
 			return false;
@@ -522,6 +522,73 @@ var minusFirstLevelModal = {
 	},
 
 	op : {
+
+
+		/**
+		 * 显示权限配置的Modal
+		 */
+		showPermissionModal : function(level, lid) {
+			var data = {
+				level : level,
+				lid : lid
+			};
+
+			$.post("PermissionAction_permissionSetting.action", data, function(data, textStatus, req) {
+				// 先清空MODAL中负责显示权限内容的DIV中的内容
+				$("#permission-modal-body").empty();
+				// 然后开始分析data中的数据，重建MODAL中的内容
+				for (var i = 0; i < data.length; i++) {
+					// 得到“权限类型”
+					var permissionType = data[i];
+					// 新建外层的collapse的Card部分及其card-Header部分
+					var titleHTML = $("<a></a>");
+					titleHTML.attr("data-toggle", "collapse").attr("data-parent","#permission-modal-body").attr("data-parent", "#accordianId").attr("href", permissionType.ptid);
+					titleHTML.text(permissionType.description);
+					var h5HTML = $("<h5></h5>").attr("class", "mb-0");
+					h5HTML.append(titleHTML);
+					var cardHeaderHTML =  $("<div></div>").attr("role", "tab").append(h5HTML);
+					var cardHTML = $("<div></div>").attr("class", "card").append(cardHeaderHTML);
+					// 得到该类型下的所有“权限”
+					var permissions = permissionType.permissions;
+					var rowHTML = $("<div></div>").attr("class", "row");
+					// 开始创建row中包含权限复选框的的文档结构
+					for (var j = 0; j < permissions.length; j++) {
+						var permission = permissions[0];
+						// 开始组建一个权限复选框的HTML对象
+						var permissionInput = $("<input></input>");
+						permissionInput.attr("class", "form-check-input");
+						permissionInput.attr("type", "checkbox");
+						permissionInput.attr("data-permission", "1");
+						permissionInput.attr("name", "permission");
+						permissionInput.attr("value",permission.pid);
+						if(permission.isOpen){
+							permissionInput.attr("checked", true);
+						}
+						var permissionLabel = $("<label></label>");
+						permissionLabel.attr("class", "form-check-label").append(permissionInput).append(permission.description);
+						var permissionHTML = $("<div></div>");
+						permissionHTML.attr("class", "col-lg-2  col-md-3 col-sm-6").append(permissionLabel);
+						rowHTML.append(permissionHTML);
+					}
+					// 至此ROW已经完善了，开始组建card-body部分
+					var containerHTML = $("<div></div>").attr("class", "container").append(rowHTML);
+					var cardBodyHTML = $("<div></div>").attr("class","card-body").append(containerHTML);
+					var contentHTML = $("<div></div>").attr("id",permissionType.ptid).attr("class","collapse in").attr("role","tabpanel").append(cardBodyHTML);
+					// 最后将card-body也组装到card之上，至此包含有一个permissionType信息的Card创建完成
+					cardHTML.append(contentHTML);
+					// 最后的最后，将创建完成的card添加到id=permission-modal-body的div下即可完成一个有关permissionType下拉的创建工作
+					$("#permission-modal-body").append(cardHTML);
+				};
+			});
+		},
+
+		/**
+		 * 配置某层级对象的权限
+		 * level 为当前JSP页面的层级对象的数字层级，minusFirstLevel默认为-1，用以告诉后台需要从什么PermissionLevel中查找权限（如果是Shiro框架则并不需要这么做）
+		 * lid 为需要设置权限的层级对象的ID，用以从后台查找该层级对象已有权限，用以在前端显示的时候自动设置为选中状态
+		 */
+		updatePermission : function(level, lid) {},
+
 
 		/**
 		 * 新建街道层级

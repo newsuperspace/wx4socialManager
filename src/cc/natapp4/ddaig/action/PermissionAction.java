@@ -23,10 +23,17 @@ import com.opensymphony.xwork2.ModelDriven;
 import cc.natapp4.ddaig.domain.Permission;
 import cc.natapp4.ddaig.domain.PermissionLevel;
 import cc.natapp4.ddaig.domain.PermissionType;
+import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
+import cc.natapp4.ddaig.service_interface.FirstLevelService;
+import cc.natapp4.ddaig.service_interface.FourthLevelService;
+import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
 import cc.natapp4.ddaig.service_interface.PermissionLevelService;
 import cc.natapp4.ddaig.service_interface.PermissionService;
 import cc.natapp4.ddaig.service_interface.PermissionTypeService;
+import cc.natapp4.ddaig.service_interface.SecondLevelService;
+import cc.natapp4.ddaig.service_interface.ThirdLevelService;
+import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.ConfigUtils;
 
 @Controller("permissionAction")
@@ -35,12 +42,26 @@ import cc.natapp4.ddaig.utils.ConfigUtils;
 public class PermissionAction extends ActionSupport implements ModelDriven<Permission> {
 
 	// ====================DI注入=====================
+	// 权限相关
 	@Resource(name = "permissionService")
 	private PermissionService permissionService;
 	@Resource(name = "permissionTypeService")
 	private PermissionTypeService permissionTypeService;
 	@Resource(name = "permissionLevelService")
 	private PermissionLevelService permissionLevelService;
+	// 层级对象相关
+	@Resource(name="minusFirstLevelService")
+	private MinusFirstLevelService  minusFirstLevelService;
+	@Resource(name="zeroLevelService")
+	private ZeroLevelService  zeroLevelService;
+	@Resource(name="firstLevelService")
+	private FirstLevelService  firstLevelService;
+	@Resource(name="secondLevelService")
+	private SecondLevelService secondLevelService;
+	@Resource(name="thirdLevelService")
+	private ThirdLevelService thirdLevelService;
+	@Resource(name="fourthLevelService")
+	private FourthLevelService fourthLevelService;
 	// ====================模型驱动====================
 	private Permission permission = new Permission();
 
@@ -52,6 +73,24 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	// ====================属性驱动====================
 	// 新建权限时，承接从前端提交过来的权限状态（对应数据库中的available字段）
 	private String state;
+	private int level;
+	private String lid;
+	
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
+	public String getLid() {
+		return lid;
+	}
+
+	public void setLid(String lid) {
+		this.lid = lid;
+	}
 
 	public String getState() {
 		return state;
@@ -115,7 +154,8 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	}
 
 	/**
-	 * 【完成】 更新权限
+	 * AJAX
+	 * 【完成】 更新设置权限
 	 * 
 	 * @return
 	 */
@@ -207,5 +247,70 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 		ActionContext.getContext().getValueStack().push(r);
 		return "json";
 	}
+	
+	
+	/**
+	 * AJAX
+	 * 根据从前端提交过来的层级对象的level（-1、0、1、2、3）获知所要设置权限的层级对象属于哪一层级
+	 * 然后根据lid得知所要设置权限的层级对象的ID
+	 * 那么就能将必要的权限数据连同该层级对象当前的权限设置状态（True/false）一同返回给前端了
+	 * 前端只需要便利返回的JSON，然后然找层级关系在页面上动态生成checkBox等元素就行了。
+	 */
+	public String permissionSetting(){
+		Set<PermissionType> permissionTypes = null;
+		PermissionLevel permissionLevel = null;
+		Set<Permission> openedPermissions = null;
+		
+		switch (this.getLevel()) {
+		case -1:
+			// 获取需要设置权限的minusFirstLevel层级对象
+			MinusFirstLevel  minusFirstLevel  =  minusFirstLevelService.queryEntityById(this.getLid());
+			// 获取该层级对象拥有的“权限”
+			openedPermissions = minusFirstLevel.getPermissions(); 
+			// 获取该层级对象可以设置的全部“权限类型”
+			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
+			permissionTypes = permissionLevel.getPermissionTypes();
+			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
+			for(PermissionType  pt:permissionTypes ){
+				Set<Permission> permissions = pt.getPermissions();
+				for(Permission p: permissions){
+					for(Permission opened: openedPermissions){
+						if(p.getPid().equals(opened.getPid())){
+							// 如果两个权限对象相同，则表示当前被进行设置的层级对象已经拥有了该权限，则设置标记isOpen为true
+							p.setOpen(true);
+							break;
+						}
+					}
+				}
+			}
+			break;
+		case 0:
+			
+			break;
+		case 1:
+			
+			break;
+		case 2:
+			
+			break;
+		case 3:
+			
+			break;
+		case 4:
+			
+			break;
+		default:
+			
+			break;
+		}
+		
+		ActionContext.getContext().getValueStack().push(permissionTypes);
+		return "json";
+	}
+	
+	
+	
+	
+	
 
 }

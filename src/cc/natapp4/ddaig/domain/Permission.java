@@ -21,6 +21,12 @@ public class Permission implements Serializable {
 	
 	private boolean enabled;		// 是否可用(默认是true)
 	
+	/*
+	 * 该属性为非数据库字段，仅用作在设置某一层级对象的权限是，用来标记该权限是否被某一层级对象所拥有
+	 * true是拥有该权限
+	 * false是不拥有
+	 */
+	private boolean isOpen;
 	// ------Foreign Key--------
 	// 当前权限所属类型，如user、project、activity等
 	private PermissionType  permissionType;
@@ -35,9 +41,18 @@ public class Permission implements Serializable {
 	
 
 	// ===========GETTERs/SETTERs=========
+	
+	public boolean isOpen() {
+		return isOpen;
+	}
+	
+	public void setOpen(boolean isOpen) {
+		this.isOpen = isOpen;
+	}
 	public String getPid() {
 		return pid;
 	}
+
 
 	public void setPid(String pid) {
 		this.pid = pid;

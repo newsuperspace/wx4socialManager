@@ -29,11 +29,16 @@ public class PermissionLevelServiceImpl extends BaseServiceImpl<PermissionLevel>
 		return permissionLevelDao;
 	}
 
+
 	// =================其他所需要的DI注入（基于Spring容器）====================
 
 	
 	
 	// ================真正实现的业务逻辑方法===================
+	@Override
+	public PermissionLevel queryEntityByLevel(int level) {
+		return permissionLevelDao.queryEntityByLevel(level);
+	}
 	
 	
 	

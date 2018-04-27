@@ -108,10 +108,12 @@
 														role="button"
 														onclick="minusFirstLevelModal.op.showCreateSonLevelModal(this);"
 														href="#">建子项</s:a>
+													<s:a cssClass="btn btn-sm btn-outline-secondary"
+														role="button"
+														onclick="minusFirstLevelModal.op.showPermissionModal(-1,'%{mflid}');"
+														href="#">权限</s:a>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">修改</button>
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">群通知</button>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">其他</button>
 												</div>
@@ -145,6 +147,67 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
+		<!-- 权限设置Modal -->
+		<div class="modal fade" id="permissionModal" tabindex="-1" role="dialog"
+			aria-labelledby="modelTitleId" aria-hidden="true">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modelTitleId">权限设置</h4>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<!-- Collapse开始 -->
+						<div id="permission-modal-body" role="tablist" aria-multiselectable="true"
+							class="ml-0 mr-0 pl-0 pr-0">
+
+							<!-- 开始迭代PermissionType -->
+							<div class="card">
+								<div class="card-header" role="tab" id="section1HeaderId">
+									<h5 class="mb-0">
+										<a data-toggle="collapse" data-parent="#permission-modal-body"
+											href="#section1ContentId" aria-expanded="true"
+											aria-controls="section1ContentId"> 用户权限 </a>
+									</h5>
+								</div>
+								<div id="section1ContentId" class="collapse in" role="tabpanel"
+									aria-labelledby="section1HeaderId">
+									<div class="card-body">
+										<div class="container">
+											<div class="row">
+
+												<!-- 开始迭代Permission -->
+												<div class="col-lg-2  col-md-3 col-sm-6">
+													<label class="form-check-label"> <input
+														class="form-check-input" type="checkbox" data-permission="1" name="permission"
+														 value="aaa"> 获取用户专属二维码
+													</label>
+												</div>
+												<!-- 结束迭代Permission -->
+
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- 结束迭代PermissionType -->
+
+						</div>
+						<!-- Collapse结束 -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary">Save</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
 		<!-- Modal 4 新建社区 -->
 		<div class="modal fade" id="newMinusFirstLevelModal" tabindex="-1"
 			role="dialog" aria-labelledby="newMinusFirstLevelModal"

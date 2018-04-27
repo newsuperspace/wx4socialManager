@@ -1,5 +1,7 @@
 package cc.natapp4.ddaig.dao_implement;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -19,8 +21,15 @@ public class PermissionLevelDaoImpl extends BaseDaoImpl<PermissionLevel> impleme
 	public HibernateTemplate getHibernateTemplate() {
 		return this.hibernateTemplate;
 	}
-
 	// ===========下面实现的是各个个性化Interface接口提供的个性化业务数据库操作方法============
+
+	@Override
+	public PermissionLevel queryEntityByLevel(int level) {
+		
+		List<PermissionLevel> list = (List<PermissionLevel>) this.hibernateTemplate.find("from PermissionLevel where level=?", level);
+		return list.get(0);
+	}
+
 	
 	
 }
