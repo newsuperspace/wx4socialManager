@@ -28,7 +28,6 @@ public class TestPermissionTypeService {
 		PermissionType t  = new PermissionType();
 		t.setDescription("这是一个测试用的权限类型");
 		t.setEnabled(true);
-		t.setPermissionType("PermissionType001");
 		service.save(t);
 	}
 	

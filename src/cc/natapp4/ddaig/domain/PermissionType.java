@@ -1,6 +1,7 @@
 package cc.natapp4.ddaig.domain;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.struts2.json.annotations.JSON;
@@ -28,7 +29,18 @@ public class PermissionType implements Serializable {
 	// 当前类型所属的层级级别
 	private PermissionLevel  permissionLevel;
 	
+	// ------------Ajax-------------
+	private List<Permission> permissions4Ajax;
+	
+	
 	//===========GETTERs/SETTERs=======
+	
+	public List<Permission> getPermissions4Ajax() {
+		return permissions4Ajax;
+	}
+	public void setPermissions4Ajax(List<Permission> permissions4Ajax) {
+		this.permissions4Ajax = permissions4Ajax;
+	}
 	
 	public PermissionLevel getPermissionLevel() {
 		return permissionLevel;

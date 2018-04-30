@@ -533,7 +533,7 @@ var minusFirstLevelModal = {
 				lid : lid
 			};
 
-			$.post("PermissionAction_permissionSetting.action", data, function(data, textStatus, req) {
+			$.post("permissionAction_permissionSetting.action", data, function(data, textStatus, req) {
 				// 先清空MODAL中负责显示权限内容的DIV中的内容
 				$("#permission-modal-body").empty();
 				// 然后开始分析data中的数据，重建MODAL中的内容
@@ -542,18 +542,18 @@ var minusFirstLevelModal = {
 					var permissionType = data[i];
 					// 新建外层的collapse的Card部分及其card-Header部分
 					var titleHTML = $("<a></a>");
-					titleHTML.attr("data-toggle", "collapse").attr("data-parent","#permission-modal-body").attr("data-parent", "#accordianId").attr("href", permissionType.ptid);
+					titleHTML.attr("data-toggle", "collapse").attr("data-parent","#permission-modal-body").attr("data-parent", "#accordianId").attr("href", "#"+permissionType.ptid);
 					titleHTML.text(permissionType.description);
 					var h5HTML = $("<h5></h5>").attr("class", "mb-0");
 					h5HTML.append(titleHTML);
-					var cardHeaderHTML =  $("<div></div>").attr("role", "tab").append(h5HTML);
+					var cardHeaderHTML =  $("<div></div>").attr("role", "tab").attr("class","card-header").append(h5HTML);
 					var cardHTML = $("<div></div>").attr("class", "card").append(cardHeaderHTML);
 					// 得到该类型下的所有“权限”
-					var permissions = permissionType.permissions;
+					var permissions = permissionType.permissions4Ajax;
 					var rowHTML = $("<div></div>").attr("class", "row");
 					// 开始创建row中包含权限复选框的的文档结构
 					for (var j = 0; j < permissions.length; j++) {
-						var permission = permissions[0];
+						var permission = permissions[j];
 						// 开始组建一个权限复选框的HTML对象
 						var permissionInput = $("<input></input>");
 						permissionInput.attr("class", "form-check-input");
@@ -561,7 +561,7 @@ var minusFirstLevelModal = {
 						permissionInput.attr("data-permission", "1");
 						permissionInput.attr("name", "permission");
 						permissionInput.attr("value",permission.pid);
-						if(permission.isOpen){
+						if(permission.open){
 							permissionInput.attr("checked", true);
 						}
 						var permissionLabel = $("<label></label>");
@@ -579,6 +579,7 @@ var minusFirstLevelModal = {
 					// 最后的最后，将创建完成的card添加到id=permission-modal-body的div下即可完成一个有关permissionType下拉的创建工作
 					$("#permission-modal-body").append(cardHTML);
 				};
+				$("#permissionModal").modal("show");
 			});
 		},
 

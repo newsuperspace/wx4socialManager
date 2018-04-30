@@ -272,6 +272,7 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 			permissionTypes = permissionLevel.getPermissionTypes();
 			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
 			for(PermissionType  pt:permissionTypes ){
+				ArrayList<Permission>  list  =  new  ArrayList<Permission>();
 				Set<Permission> permissions = pt.getPermissions();
 				for(Permission p: permissions){
 					for(Permission opened: openedPermissions){
@@ -281,7 +282,11 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 							break;
 						}
 					}
+					// 切断Permission与PermissionType的联系，放置JSON解析的时候出现死循环
+					p.setPermissionType(null);
+					list.add(p);
 				}
+				pt.setPermissions4Ajax(list);
 			}
 			break;
 		case 0:
