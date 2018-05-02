@@ -200,8 +200,8 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary"
-							data-dismiss="modal">Close</button>
-						<button type="button" class="btn btn-primary">Save</button>
+							data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-primary" id="savePermission">保存</button>
 					</div>
 				</div>
 			</div>

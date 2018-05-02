@@ -523,16 +523,53 @@ var minusFirstLevelModal = {
 
 	op : {
 
+		/**
+		 * 保存Permission数据到后端
+		 */
+		savePermission: function(level, lid){
+			
+			// 准备AJAX的请求参数
+			var data ={
+				selected:'',
+				level: level,
+				lid: lid
+			};
+			// 获取到所有权限设置的checkbox
+			var $inputs = $("input[data-permission='-1']");
+			console.log($inputs);
+			// 遍历每个input
+			$inputs.each(function(i, element) {
+				if($(this).is(':checked')){
+					data.selected += $(this).val()+",";
+				}
+			});
+			console.log(data.selected);
+			// 将被选中的权限ID字符串发送到后端
+			$.post("permissionAction_permissionSaving.action", data, function(data, textStatus, req) {
+				alert(data.message);
+			});
+		},
 
 		/**
 		 * 显示权限配置的Modal
+		 * 1、获取当前JSP页面对应操作的层级对象的level数值（当前MinusFirst为-1）
+		 * 2、获取被操作的层级对象的ID（当前MinusFirstLevel为mflid）
+		 * 3、通过AJAX与后端通讯，获取当前层级的所有权限类型，以及每个权限的设置状态（是否被当前层级对象所拥有）
+		 * 4、遍历从后端传递来的数据，并使用jQuery重组前端页面的HTML元素，用来构建MODAL中的内容
+		 * 5、显示MODAL
 		 */
 		showPermissionModal : function(level, lid) {
+
+			$("#savePermission").unbind().bind("click", function() {
+				minusFirstLevelModal.op.savePermission(level, lid);
+			});
+			
+			// 准备AJAX的请求参数
 			var data = {
 				level : level,
 				lid : lid
 			};
-
+			// 执行AJAX的POST请求
 			$.post("permissionAction_permissionSetting.action", data, function(data, textStatus, req) {
 				// 先清空MODAL中负责显示权限内容的DIV中的内容
 				$("#permission-modal-body").empty();
@@ -558,7 +595,7 @@ var minusFirstLevelModal = {
 						var permissionInput = $("<input></input>");
 						permissionInput.attr("class", "form-check-input");
 						permissionInput.attr("type", "checkbox");
-						permissionInput.attr("data-permission", "1");
+						permissionInput.attr("data-permission", "-1");
 						permissionInput.attr("name", "permission");
 						permissionInput.attr("value",permission.pid);
 						if(permission.open){

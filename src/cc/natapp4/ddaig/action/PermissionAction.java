@@ -3,6 +3,7 @@ package cc.natapp4.ddaig.action;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -50,17 +51,17 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	@Resource(name = "permissionLevelService")
 	private PermissionLevelService permissionLevelService;
 	// 层级对象相关
-	@Resource(name="minusFirstLevelService")
-	private MinusFirstLevelService  minusFirstLevelService;
-	@Resource(name="zeroLevelService")
-	private ZeroLevelService  zeroLevelService;
-	@Resource(name="firstLevelService")
-	private FirstLevelService  firstLevelService;
-	@Resource(name="secondLevelService")
+	@Resource(name = "minusFirstLevelService")
+	private MinusFirstLevelService minusFirstLevelService;
+	@Resource(name = "zeroLevelService")
+	private ZeroLevelService zeroLevelService;
+	@Resource(name = "firstLevelService")
+	private FirstLevelService firstLevelService;
+	@Resource(name = "secondLevelService")
 	private SecondLevelService secondLevelService;
-	@Resource(name="thirdLevelService")
+	@Resource(name = "thirdLevelService")
 	private ThirdLevelService thirdLevelService;
-	@Resource(name="fourthLevelService")
+	@Resource(name = "fourthLevelService")
 	private FourthLevelService fourthLevelService;
 	// ====================模型驱动====================
 	private Permission permission = new Permission();
@@ -75,7 +76,16 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	private String state;
 	private int level;
 	private String lid;
-	
+	private String selected; // 包含有所有被选中的权限ID的字符串，彼此之间以逗号分隔
+
+	public String getSelected() {
+		return selected;
+	}
+
+	public void setSelected(String selected) {
+		this.selected = selected;
+	}
+
 	public int getLevel() {
 		return level;
 	}
@@ -154,8 +164,7 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	}
 
 	/**
-	 * AJAX
-	 * 【完成】 更新设置权限
+	 * AJAX 【完成】 更新设置权限
 	 * 
 	 * @return
 	 */
@@ -238,45 +247,83 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 		Gson g = new Gson();
 		ArrayList<PermissionLevel> list = g.fromJson(json, t);
 		// 批量向数据库中存入PermissionLevel的数据，而其他PermissionType和Permission也级联地操作完成。
-		for(PermissionLevel p: list){
+		for (PermissionLevel p : list) {
 			permissionLevelService.save(p);
 		}
-		
+
 		r.setMessage("创建成功！");
 		r.setResult(true);
 		ActionContext.getContext().getValueStack().push(r);
 		return "json";
 	}
-	
-	
+
 	/**
-	 * AJAX
-	 * 根据从前端提交过来的层级对象的level（-1、0、1、2、3）获知所要设置权限的层级对象属于哪一层级
-	 * 然后根据lid得知所要设置权限的层级对象的ID
-	 * 那么就能将必要的权限数据连同该层级对象当前的权限设置状态（True/false）一同返回给前端了
-	 * 前端只需要便利返回的JSON，然后然找层级关系在页面上动态生成checkBox等元素就行了。
+	 * AJAX 用于更改/保存指定层级对象的权限集
 	 */
-	public String permissionSetting(){
-		Set<PermissionType> permissionTypes = null;
-		PermissionLevel permissionLevel = null;
-		Set<Permission> openedPermissions = null;
+	public String permissionSaving() {
+
+		ReturnMessage4Common  message =  new  ReturnMessage4Common();
 		
 		switch (this.getLevel()) {
 		case -1:
+			MinusFirstLevel minusFirstLevel  = minusFirstLevelService.queryEntityById(this.getLid());
+			if(minusFirstLevel!=null && !this.getSelected().isEmpty()){
+				String[] pids = this.getSelected().split(",");
+				Permission p  =  null;
+				Set<Permission>  permissions  =  new  HashSet<Permission>();
+				for(String pid: pids){
+					p = permissionService.queryEntityById(pid);
+					permissions.add(p);
+				}
+				minusFirstLevel.setPermissions(permissions);
+			}
+			minusFirstLevelService.update(minusFirstLevel);
+			message.setMessage("关于街道层级对象“"+minusFirstLevel.getName()+"”的权限设置成功。");
+			message.setResult(true);
+			break;
+		case 0:
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		default:
+			break;
+		}
+		ActionContext.getContext().getValueStack().push(message);
+		return "json";
+	}
+
+	/**
+	 * AJAX 根据从前端提交过来的层级对象的level（-1、0、1、2、3）获知所要设置权限的层级对象属于哪一层级
+	 * 然后根据lid得知所要设置权限的层级对象的ID 那么就能将必要的权限数据连同该层级对象当前的权限设置状态（True/false）一同返回给前端了
+	 * 前端只需要便利返回的JSON，然后然找层级关系在页面上动态生成checkBox等元素就行了。
+	 */
+	public String permissionSetting() {
+		Set<PermissionType> permissionTypes = null;
+		PermissionLevel permissionLevel = null;
+		Set<Permission> openedPermissions = null;
+
+		switch (this.getLevel()) {
+		case -1:
 			// 获取需要设置权限的minusFirstLevel层级对象
-			MinusFirstLevel  minusFirstLevel  =  minusFirstLevelService.queryEntityById(this.getLid());
+			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(this.getLid());
 			// 获取该层级对象拥有的“权限”
-			openedPermissions = minusFirstLevel.getPermissions(); 
+			openedPermissions = minusFirstLevel.getPermissions();
 			// 获取该层级对象可以设置的全部“权限类型”
 			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
 			permissionTypes = permissionLevel.getPermissionTypes();
 			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
-			for(PermissionType  pt:permissionTypes ){
-				ArrayList<Permission>  list  =  new  ArrayList<Permission>();
+			for (PermissionType pt : permissionTypes) {
+				ArrayList<Permission> list = new ArrayList<Permission>();
 				Set<Permission> permissions = pt.getPermissions();
-				for(Permission p: permissions){
-					for(Permission opened: openedPermissions){
-						if(p.getPid().equals(opened.getPid())){
+				for (Permission p : permissions) {
+					for (Permission opened : openedPermissions) {
+						if (p.getPid().equals(opened.getPid())) {
 							// 如果两个权限对象相同，则表示当前被进行设置的层级对象已经拥有了该权限，则设置标记isOpen为true
 							p.setOpen(true);
 							break;
@@ -290,32 +337,27 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 			}
 			break;
 		case 0:
-			
+
 			break;
 		case 1:
-			
+
 			break;
 		case 2:
-			
+
 			break;
 		case 3:
-			
+
 			break;
 		case 4:
-			
+
 			break;
 		default:
-			
+
 			break;
 		}
-		
+
 		ActionContext.getContext().getValueStack().push(permissionTypes);
 		return "json";
 	}
-	
-	
-	
-	
-	
 
 }
