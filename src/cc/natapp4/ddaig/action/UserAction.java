@@ -121,7 +121,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	/**
 	 * 供给后台通过AJax技术，实现修改特定用户基本信息
 	 */
-	public String getUser4ajax() {
+	public String getUserInfo() {
 
 		String uid = this.user.getUid();
 
@@ -148,19 +148,30 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	 * 
 	 * @return 结果集索引字符串
 	 */
-	public String update4Json() {
+	public String update() {
+
 		String uid = this.user.getUid();
 		String username = this.user.getUsername();
+		String sickname = this.user.getSickname();
 		String cardid = this.user.getCardid();
+		int age = this.user.getAge();
+		String phone = this.user.getPhone();
+		String email = this.user.getEmail();
 		String address = this.user.getAddress();
+		String sex = this.user.getSex().equals("1")?"男":"女";
 		String tag = this.tag;
 
 		User u = userService.queryEntityById(uid);
 
-		// u.setUsername(username);
+		u.setUsername(username);
+		u.setSickname(sickname);
 		u.setCardid(cardid);
+		u.setAge(age);
+		u.setPhone(phone);
+		u.setEmail(email);
 		u.setAddress(address);
-
+		u.setSex(sex);
+		
 		List<Grouping> list = groupingService.queryEntities();
 		for (Grouping g : list) {
 			if (g.getTag().equals(tag)) {
@@ -170,7 +181,9 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				if (org.springframework.util.StringUtils.isEmpty(openid)) {
 					break;
 				}
-				// 修改微信公众号的该用户的tag
+				/*
+				 * 接入微信平台后需要开启这部分代码用来修改微信公众号的该用户的tag
+				 */
 				String[] ids = { openid };
 				try {
 					weixinService4Setting.getUserTagService().batchTagging(g.getTagid(), ids);
@@ -180,7 +193,6 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			}
 		}
 		userService.update(u);
-
 		return "json";
 	}
 
@@ -196,41 +208,11 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	}
 
 	/**
-	 * 后台页面提交过来的新建用户的ajax请求
-	 * 
-	 * @return 结果集索引字符串
-	 */
-	public String addUser4ajax() {
-
-		String username = user.getUsername();
-		String address = user.getAddress();
-		String tag = this.tag;
-		String cardid = user.getCardid();
-
-		User u = new User();
-		u.setAddress(address);
-		u.setCardid(cardid);
-		u.setUsername(username);
-
-		List<Grouping> list = groupingService.queryEntities();
-		for (Grouping g : list) {
-			if (g.getTag().equals(tag)) {
-				u.setGrouping(g);
-			}
-		}
-		userService.save(u);
-
-		ReturnMessage4Common result = new ReturnMessage4Common("新建成功！", true);
-		ActionContext.getContext().getValueStack().push(result);
-		return "json";
-	}
-
-	/**
 	 * 接受从后台传递来的ajax请求，用来批量重新生成每个用户的qrcode
 	 * 
 	 * @return 结果集索引字符串
 	 */
-	public String batchCreateUserQR4ajax() {
+	public String batchCreateQR() {
 
 		userService.batchCreateUserQR();
 		ReturnMessage4Common result = new ReturnMessage4Common("用户二维码批量生成成功", true);

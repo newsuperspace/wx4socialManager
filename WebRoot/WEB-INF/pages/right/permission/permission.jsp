@@ -61,7 +61,7 @@
 										aria-haspopup="true" aria-expanded="false">
 										<span class="glyphicon glyphicon-cog"></span> 其他
 									</button>
-									<div class="dropdown-menu" aria-labelledby="others">
+									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="others">
 										<a class="dropdown-item" href="#" onclick="permissionModal.op.batchAutoCreate();">自动创建基础权限</a> 
 										<a class="dropdown-item disabled" href="#">Disabled action</a>
 										<h6 class="dropdown-header">Section header</h6>

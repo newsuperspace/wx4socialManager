@@ -593,29 +593,29 @@ var minusFirstLevelModal = {
 /**
  *========================层级页面的Modal通用方法========================
  */
-var commonLevelModal ={
-	init:{},
-	data:{},
-	op:{
-		
+var commonLevelModal = {
+	init : {},
+	data : {},
+	op : {
+
 		/**
 		 * 保存Permission数据到后端
 		 */
-		savePermission: function(level, lid){
-			
+		savePermission : function(level, lid) {
+
 			// 准备AJAX的请求参数
-			var data ={
-				selected:'',
-				level: level,
-				lid: lid
+			var data = {
+				selected : '',
+				level : level,
+				lid : lid
 			};
 			// 获取到所有权限设置的checkbox
 			var $inputs = $("input[data-permission='-1']");
 			console.log($inputs);
 			// 遍历每个input
 			$inputs.each(function(i, element) {
-				if($(this).is(':checked')){
-					data.selected += $(this).val()+",";
+				if ($(this).is(':checked')) {
+					data.selected += $(this).val() + ",";
 				}
 			});
 			console.log(data.selected);
@@ -638,7 +638,7 @@ var commonLevelModal ={
 			$("#savePermission").unbind().bind("click", function() {
 				commonLevelModal.op.savePermission(level, lid);
 			});
-			
+
 			// 准备AJAX的请求参数
 			var data = {
 				level : level,
@@ -654,11 +654,11 @@ var commonLevelModal ={
 					var permissionType = data[i];
 					// 新建外层的collapse的Card部分及其card-Header部分
 					var titleHTML = $("<a></a>");
-					titleHTML.attr("data-toggle", "collapse").attr("data-parent","#permission-modal-body").attr("data-parent", "#accordianId").attr("href", "#"+permissionType.ptid);
+					titleHTML.attr("data-toggle", "collapse").attr("data-parent", "#permission-modal-body").attr("data-parent", "#accordianId").attr("href", "#" + permissionType.ptid);
 					titleHTML.text(permissionType.description);
 					var h5HTML = $("<h5></h5>").attr("class", "mb-0");
 					h5HTML.append(titleHTML);
-					var cardHeaderHTML =  $("<div></div>").attr("role", "tab").attr("class","card-header").append(h5HTML);
+					var cardHeaderHTML = $("<div></div>").attr("role", "tab").attr("class", "card-header").append(h5HTML);
 					var cardHTML = $("<div></div>").attr("class", "card").append(cardHeaderHTML);
 					// 得到该类型下的所有“权限”
 					var permissions = permissionType.permissions4Ajax;
@@ -672,8 +672,8 @@ var commonLevelModal ={
 						permissionInput.attr("type", "checkbox");
 						permissionInput.attr("data-permission", "-1");
 						permissionInput.attr("name", "permission");
-						permissionInput.attr("value",permission.pid);
-						if(permission.open){
+						permissionInput.attr("value", permission.pid);
+						if (permission.open) {
 							permissionInput.attr("checked", true);
 						}
 						var permissionLabel = $("<label></label>");
@@ -684,18 +684,18 @@ var commonLevelModal ={
 					}
 					// 至此ROW已经完善了，开始组建card-body部分
 					var containerHTML = $("<div></div>").attr("class", "container").append(rowHTML);
-					var cardBodyHTML = $("<div></div>").attr("class","card-body").append(containerHTML);
-					var contentHTML = $("<div></div>").attr("id",permissionType.ptid).attr("class","collapse in").attr("role","tabpanel").append(cardBodyHTML);
+					var cardBodyHTML = $("<div></div>").attr("class", "card-body").append(containerHTML);
+					var contentHTML = $("<div></div>").attr("id", permissionType.ptid).attr("class", "collapse in").attr("role", "tabpanel").append(cardBodyHTML);
 					// 最后将card-body也组装到card之上，至此包含有一个permissionType信息的Card创建完成
 					cardHTML.append(contentHTML);
 					// 最后的最后，将创建完成的card添加到id=permission-modal-body的div下即可完成一个有关permissionType下拉的创建工作
 					$("#permission-modal-body").append(cardHTML);
-				};
+				}
+				;
 				$("#permissionModal").modal("show");
 			});
 		},
 	},
-	
 };
 
 
@@ -713,6 +713,82 @@ var userModal = {
 	},
 
 	op : {
+		/*
+		 * 批量生成用户二维码
+		 */
+		batchCreateQR : function() {
+			$.post("userAction_batchCreateQR.action", null, function(data, textStatus, req) {
+				if (data.result) {
+					alert(data.message);
+					window.location.href("userAction_getUserList.action");
+				} else {
+					alert("二维码生成失败");
+				}
+			});
+		},
+
+		/*
+		 * 更新用户数据信息
+		 */
+		updateUser : function(uid) {
+			var data = {
+				uid: uid,
+				username : $("#username4update").val(),
+				sickname : $("#sickname4update").val(),
+				cardid : $("#cardid4update").val(),
+				age : $("#age4update").val(),
+				phone : $("#phone4update").val(),
+				email : $("#email4update").val(),
+				address : $("#address4update").val(),
+				sex: $('#sex4update').val(),
+				tag: $('#tag4update').val(),
+			};
+			
+			$.post("userAction_update.action", data, function(data, textStatus, req) {
+				// 使用这种引导当前页面定位的方式，可以即时性地刷新页面，在列表中显现修改后的结果。
+				//						$(location).attr('href', 'userAction_getUserList.action');
+				window.location.reload();
+			});
+		},
+
+		/*
+		 * 显示更新用户的Modal
+		 */
+		showUpdateUserModal : function(uid) {
+
+			$('#updateUserButton').unbind().bind('click', function() {
+				userModal.op.updateUser(uid);
+			});
+
+			var data = {
+				uid : uid,
+			};
+
+			$.post("userAction_getUserInfo.action", data, function(data, textStatus, req) {
+
+				$("#updateUserModalTitle").text("修改用户——" + data.username);
+				$("#username4update").val(data.username);
+				$("#sickname4update").val(data.sickname);
+				$("#cardid4update").val(data.cardid);
+				$("#age4update").val(data.age);
+				$("#phone4update").val(data.phone);
+				$("#email4update").val(data.email);
+				$("#address4update").val(data.address);
+
+				if ('男' == data.sex) {
+					 $("#sex4update").find("option[value = '1']").attr("selected","selected");
+				} else {
+					$("#sex4update").find("option[value = '2']").attr("selected","selected");
+				}
+
+				$('#tag4update').find("option[value='"+data.grouping.tag+"']").attr("selected","selected");
+				
+				$("#updateUserModal").modal('show');
+			});
+			$("#updateUserModal").modal('show');
+			return false;
+		},
+
 		createUser : function() {
 			var data = {
 				username : $("#username").val(),
@@ -738,7 +814,7 @@ var userModal = {
 				alert(data.message);
 				// 使用这种引导当前页面定位的方式，可以即时性地刷新页面，在列表中显现修改后的结果。
 				//						$(location).attr('href', 'userAction_getUserList.action');
-				window.location.reload()
+				window.location.reload();
 			});
 		},
 
@@ -747,7 +823,7 @@ var userModal = {
 				uid : uid,
 			};
 
-			$.post("userAction_getUser4ajax.action", data, function(data, textStatus, req) {
+			$.post("userAction_getUserInfo.action", data, function(data, textStatus, req) {
 				$("#detialsModal_title").text(data.username + "的详细信息");
 				$("#detialsModal_qrcode").attr("src", data.qrcode);
 				$("#detialsModal_username").text(data.username);

@@ -212,7 +212,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 			// 由于Hibernate的二级缓存机制，使得哦们根本不需要显式调用update()方法，就能自动向数据库保存修改了 ★
 //			this.update(u);
 		}
-		System.out.println("全部用户的uid重新已重新生成！");
+		System.out.println("全部用户的uid已重新生成！");
 	}
 
 	@Override

@@ -48,11 +48,25 @@
 										data-toggle="modal" data-target="#selectUsers">
 										<span class="glyphicon glyphicon-sort-by-order"></span> 排序
 									</button>
+									<div class="dropdown ml-1">
+										<button
+											class="btn btn-sm btn-outline-secondary dropdown-toggle"
+											type="button" id="others" data-toggle="dropdown"
+											aria-haspopup="true" aria-expanded="false">
+											<span class="glyphicon glyphicon-cog"></span> 其他
+										</button>
+										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="others">
+											<a class="dropdown-item" href="#"
+												onclick="userModal.op.batchCreateQR();">批量重建二维码</a>
+											<a class="dropdown-item disabled" href="#">Disabled
+												action</a>
+											<h6 class="dropdown-header">Section header</h6>
+											<a class="dropdown-item" href="#">Action</a>
+											<div class="dropdown-divider"></div>
+											<a class="dropdown-item" href="#">After divider action</a>
+										</div>
+									</div>
 								</div>
-								<button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-									data-toggle="toggle" data-target="#">
-									<span class="glyphicon glyphicon-cog"></span> 其他
-								</button>
 							</div>
 						</div>
 						<!-- =============表格=========== -->
@@ -136,7 +150,9 @@
 											<td><s:property value="serveTime" /></td>
 											<td><s:property value="score" /></td>
 											<td><s:property value="phone" /></td>
-											<td class="text-truncate"   data-toggle="tooltip"   title="<s:property value='address'/>"><s:property value="address" /></td>
+											<td class="text-truncate" data-toggle="tooltip"
+												title="<s:property value='address'/>"><s:property
+													value="address" /></td>
 											<td><s:property value="email" /></td>
 											<td><s:property value="cardid" /></td>
 											<td><s:property value="registrationTimeStr" /></td>
@@ -148,8 +164,8 @@
 												</s:else></td>
 											<td>
 												<div class="btn-group" role="group">
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">修改</button>
+													<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
+														onclick="userModal.op.showUpdateUserModal('%{uid}')">修改</s:a>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">推送</button>
 													<button type="button"
@@ -185,6 +201,150 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
+		<!-- Modal 4 修改用户 -->
+		<div class="modal fade" id="updateUserModal" tabindex="-1"
+			role="dialog" aria-labelledby="updateUser" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="updateUserModalTitle">修改用户</h4>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-user"></span></span>
+								</div>
+								<input type="text" class="form-control" name="username"
+									id="username4update" disabled="disabled">
+								<div class="input-group-prepend">
+									<span class="input-group-text">用户名</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-glass"></span></span>
+								</div>
+								<input type="text" class="form-control" name="sickname"
+									id="sickname4update">
+								<div class="input-group-prepend">
+									<span class="input-group-text">昵称</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text">ID</span>
+								</div>
+								<input type="text" class="form-control" name="cardid"
+									id="cardid4update">
+								<div class="input-group-prepend">
+									<span class="input-group-text">身份证</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-tint"></span></span>
+								</div>
+								<select class="custom-select" id="sex4update" name="sex">
+									<option value="0" selected>请选择...</option>
+									<option value="1">男</option>
+									<option value="2">女</option>
+								</select>
+								<div class="input-group-append">
+									<label class="input-group-text">性别</label>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-tint"></span></span>
+								</div>
+								<select class="custom-select" id="tag4update" name="sex">
+									<option value="unreal">未实名认证</option>
+									<option value="common">普通认证用户</option>
+									<option value="admin">管理员</option>
+									<option value="minus_first">街道管理者</option>
+									<option value="zero">社区管理者</option>
+									<option value="first">第一层级管理者</option>
+									<option value="second">第二层级管理者</option>
+									<option value="third">第三层级管理者</option>
+									<option value="fourth">第四层级管理者</option>
+									<option value="money">社会组织</option>
+								</select>
+								<div class="input-group-append">
+									<label class="input-group-text">分组</label>
+								</div>
+							</div>
+							
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-text-background"></span></span>
+								</div>
+								<input type="text" class="form-control" name="age"
+									id="age4update">
+								<div class="input-group-prepend">
+									<span class="input-group-text">年龄</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-phone-alt"></span></span>
+								</div>
+								<input type="text" class="form-control" name="phone"
+									id="phone4update">
+								<div class="input-group-prepend">
+									<span class="input-group-text">电话</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text">@</span>
+								</div>
+								<input type="text" class="form-control" name="email"
+									id="email4update">
+								<div class="input-group-prepend">
+									<span class="input-group-text">E-mail</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-font"></span></span>
+								</div>
+								<input type="text" class="form-control" name="address4update"
+									id="address4update">
+								<div class="input-group-prepend">
+									<span class="input-group-text">地址</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-primary" id="updateUserButton">更新</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
 		<!-- Modal 4 新建用户 -->
 		<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog"
 			aria-labelledby="createUser" aria-hidden="true">
