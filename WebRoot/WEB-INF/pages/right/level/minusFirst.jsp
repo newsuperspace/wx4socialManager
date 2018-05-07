@@ -110,7 +110,7 @@
 														href="#">建子项</s:a>
 													<s:a cssClass="btn btn-sm btn-outline-secondary"
 														role="button"
-														onclick="minusFirstLevelModal.op.showPermissionModal(-1,'%{mflid}');"
+														onclick="commonLevelModal.op.showPermissionModal(-1,'%{mflid}');"
 														href="#">权限</s:a>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">修改</button>

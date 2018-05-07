@@ -24,7 +24,12 @@ import com.opensymphony.xwork2.ModelDriven;
 import cc.natapp4.ddaig.domain.Permission;
 import cc.natapp4.ddaig.domain.PermissionLevel;
 import cc.natapp4.ddaig.domain.PermissionType;
+import cc.natapp4.ddaig.domain.cengji.FirstLevel;
+import cc.natapp4.ddaig.domain.cengji.FourthLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
+import cc.natapp4.ddaig.domain.cengji.SecondLevel;
+import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
+import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.FourthLevelService;
@@ -262,36 +267,108 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	 */
 	public String permissionSaving() {
 
-		ReturnMessage4Common  message =  new  ReturnMessage4Common();
-		
+		ReturnMessage4Common message = new ReturnMessage4Common();
+
 		switch (this.getLevel()) {
 		case -1:
-			MinusFirstLevel minusFirstLevel  = minusFirstLevelService.queryEntityById(this.getLid());
-			if(minusFirstLevel!=null && !this.getSelected().isEmpty()){
+			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(this.getLid());
+			if (minusFirstLevel != null && !this.getSelected().isEmpty()) {
 				String[] pids = this.getSelected().split(",");
-				Permission p  =  null;
-				Set<Permission>  permissions  =  new  HashSet<Permission>();
-				for(String pid: pids){
+				Permission p = null;
+				Set<Permission> permissions = new HashSet<Permission>();
+				for (String pid : pids) {
 					p = permissionService.queryEntityById(pid);
 					permissions.add(p);
 				}
 				minusFirstLevel.setPermissions(permissions);
 			}
 			minusFirstLevelService.update(minusFirstLevel);
-			message.setMessage("关于街道层级对象“"+minusFirstLevel.getName()+"”的权限设置成功。");
+			message.setMessage("关于街道层级对象“" + minusFirstLevel.getName() + "”的权限设置成功。");
 			message.setResult(true);
 			break;
 		case 0:
+			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(this.getLid());
+			if (zeroLevel != null && !this.getSelected().isEmpty()) {
+				String[] pids = this.getSelected().split(",");
+				Permission p = null;
+				Set<Permission> permissions = new HashSet<Permission>();
+				for (String pid : pids) {
+					p = permissionService.queryEntityById(pid);
+					permissions.add(p);
+				}
+				zeroLevel.setPermissions(permissions);
+			}
+			zeroLevelService.update(zeroLevel);
+			message.setMessage("关于社区层级对象“" + zeroLevel.getName() + "”的权限设置成功。");
+			message.setResult(true);
 			break;
 		case 1:
+			FirstLevel firstLevel = firstLevelService.queryEntityById(this.getLid());
+			if (firstLevel != null && !this.getSelected().isEmpty()) {
+				String[] pids = this.getSelected().split(",");
+				Permission p = null;
+				Set<Permission> permissions = new HashSet<Permission>();
+				for (String pid : pids) {
+					p = permissionService.queryEntityById(pid);
+					permissions.add(p);
+				}
+				firstLevel.setPermissions(permissions);
+			}
+			firstLevelService.update(firstLevel);
+			message.setMessage("第一层级对象“" + firstLevel.getName() + "”的权限设置成功。");
+			message.setResult(true);
 			break;
 		case 2:
+			SecondLevel secondLevel = secondLevelService.queryEntityById(this.getLid());
+			if (secondLevel != null && !this.getSelected().isEmpty()) {
+				String[] pids = this.getSelected().split(",");
+				Permission p = null;
+				Set<Permission> permissions = new HashSet<Permission>();
+				for (String pid : pids) {
+					p = permissionService.queryEntityById(pid);
+					permissions.add(p);
+				}
+				secondLevel.setPermissions(permissions);
+			}
+			secondLevelService.update(secondLevel);
+			message.setMessage("第二层级对象“" + secondLevel.getName() + "”的权限设置成功。");
+			message.setResult(true);
 			break;
 		case 3:
+			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(this.getLid());
+			if (thirdLevel != null && !this.getSelected().isEmpty()) {
+				String[] pids = this.getSelected().split(",");
+				Permission p = null;
+				Set<Permission> permissions = new HashSet<Permission>();
+				for (String pid : pids) {
+					p = permissionService.queryEntityById(pid);
+					permissions.add(p);
+				}
+				thirdLevel.setPermissions(permissions);
+			}
+			thirdLevelService.update(thirdLevel);
+			message.setMessage("第三层级对象“" + thirdLevel.getName() + "”的权限设置成功。");
+			message.setResult(true);
 			break;
 		case 4:
+			FourthLevel fourthLevel = fourthLevelService.queryEntityById(this.getLid());
+			if (fourthLevel != null && !this.getSelected().isEmpty()) {
+				String[] pids = this.getSelected().split(",");
+				Permission p = null;
+				Set<Permission> permissions = new HashSet<Permission>();
+				for (String pid : pids) {
+					p = permissionService.queryEntityById(pid);
+					permissions.add(p);
+				}
+				fourthLevel.setPermissions(permissions);
+			}
+			fourthLevelService.update(fourthLevel);
+			message.setMessage("第四层级对象“" + fourthLevel.getName() + "”的权限设置成功。");
+			message.setResult(true);
 			break;
 		default:
+			message.setMessage("计划操作的层级对象是" + this.getLevel() + "该层级并不存在于系统中");
+			message.setResult(false);
 			break;
 		}
 		ActionContext.getContext().getValueStack().push(message);
@@ -299,7 +376,7 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	}
 
 	/**
-	 * AJAX 根据从前端提交过来的层级对象的level（-1、0、1、2、3）获知所要设置权限的层级对象属于哪一层级
+	 * AJAX 根据从前端提交过来的层级对象的level（-1、0、1、2、3、4）获知所要设置权限的层级对象属于哪一层级
 	 * 然后根据lid得知所要设置权限的层级对象的ID 那么就能将必要的权限数据连同该层级对象当前的权限设置状态（True/false）一同返回给前端了
 	 * 前端只需要便利返回的JSON，然后然找层级关系在页面上动态生成checkBox等元素就行了。
 	 */
@@ -337,25 +414,144 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 			}
 			break;
 		case 0:
-
+			// 获取需要设置权限的minusFirstLevel层级对象
+			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(this.getLid());
+			// 获取该层级对象拥有的“权限”
+			openedPermissions = zeroLevel.getPermissions();
+			// 获取该层级对象可以设置的全部“权限类型”
+			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
+			permissionTypes = permissionLevel.getPermissionTypes();
+			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
+			for (PermissionType pt : permissionTypes) {
+				ArrayList<Permission> list = new ArrayList<Permission>();
+				Set<Permission> permissions = pt.getPermissions();
+				for (Permission p : permissions) {
+					for (Permission opened : openedPermissions) {
+						if (p.getPid().equals(opened.getPid())) {
+							// 如果两个权限对象相同，则表示当前被进行设置的层级对象已经拥有了该权限，则设置标记isOpen为true
+							p.setOpen(true);
+							break;
+						}
+					}
+					// 切断Permission与PermissionType的联系，防止JSON解析的时候出现死循环
+					p.setPermissionType(null);
+					list.add(p);
+				}
+				pt.setPermissions4Ajax(list);
+			}
 			break;
 		case 1:
-
+			// 获取需要设置权限的minusFirstLevel层级对象
+			FirstLevel firstLevel = firstLevelService.queryEntityById(this.getLid());
+			// 获取该层级对象拥有的“权限”
+			openedPermissions = firstLevel.getPermissions();
+			// 获取该层级对象可以设置的全部“权限类型”
+			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
+			permissionTypes = permissionLevel.getPermissionTypes();
+			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
+			for (PermissionType pt : permissionTypes) {
+				ArrayList<Permission> list = new ArrayList<Permission>();
+				Set<Permission> permissions = pt.getPermissions();
+				for (Permission p : permissions) {
+					for (Permission opened : openedPermissions) {
+						if (p.getPid().equals(opened.getPid())) {
+							// 如果两个权限对象相同，则表示当前被进行设置的层级对象已经拥有了该权限，则设置标记isOpen为true
+							p.setOpen(true);
+							break;
+						}
+					}
+					// 切断Permission与PermissionType的联系，防止JSON解析的时候出现死循环
+					p.setPermissionType(null);
+					list.add(p);
+				}
+				pt.setPermissions4Ajax(list);
+			}
 			break;
 		case 2:
-
+			// 获取需要设置权限的minusFirstLevel层级对象
+			SecondLevel secondLevel = secondLevelService.queryEntityById(this.getLid());
+			// 获取该层级对象拥有的“权限”
+			openedPermissions = secondLevel.getPermissions();
+			// 获取该层级对象可以设置的全部“权限类型”
+			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
+			permissionTypes = permissionLevel.getPermissionTypes();
+			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
+			for (PermissionType pt : permissionTypes) {
+				ArrayList<Permission> list = new ArrayList<Permission>();
+				Set<Permission> permissions = pt.getPermissions();
+				for (Permission p : permissions) {
+					for (Permission opened : openedPermissions) {
+						if (p.getPid().equals(opened.getPid())) {
+							// 如果两个权限对象相同，则表示当前被进行设置的层级对象已经拥有了该权限，则设置标记isOpen为true
+							p.setOpen(true);
+							break;
+						}
+					}
+					// 切断Permission与PermissionType的联系，防止JSON解析的时候出现死循环
+					p.setPermissionType(null);
+					list.add(p);
+				}
+				pt.setPermissions4Ajax(list);
+			}
 			break;
 		case 3:
-
+			// 获取需要设置权限的minusFirstLevel层级对象
+			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(this.getLid());
+			// 获取该层级对象拥有的“权限”
+			openedPermissions = thirdLevel.getPermissions();
+			// 获取该层级对象可以设置的全部“权限类型”
+			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
+			permissionTypes = permissionLevel.getPermissionTypes();
+			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
+			for (PermissionType pt : permissionTypes) {
+				ArrayList<Permission> list = new ArrayList<Permission>();
+				Set<Permission> permissions = pt.getPermissions();
+				for (Permission p : permissions) {
+					for (Permission opened : openedPermissions) {
+						if (p.getPid().equals(opened.getPid())) {
+							// 如果两个权限对象相同，则表示当前被进行设置的层级对象已经拥有了该权限，则设置标记isOpen为true
+							p.setOpen(true);
+							break;
+						}
+					}
+					// 切断Permission与PermissionType的联系，防止JSON解析的时候出现死循环
+					p.setPermissionType(null);
+					list.add(p);
+				}
+				pt.setPermissions4Ajax(list);
+			}
 			break;
 		case 4:
-
+			// 获取需要设置权限的minusFirstLevel层级对象
+			FourthLevel fourthLevel = fourthLevelService.queryEntityById(this.getLid());
+			// 获取该层级对象拥有的“权限”
+			openedPermissions = fourthLevel.getPermissions();
+			// 获取该层级对象可以设置的全部“权限类型”
+			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
+			permissionTypes = permissionLevel.getPermissionTypes();
+			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
+			for (PermissionType pt : permissionTypes) {
+				ArrayList<Permission> list = new ArrayList<Permission>();
+				Set<Permission> permissions = pt.getPermissions();
+				for (Permission p : permissions) {
+					for (Permission opened : openedPermissions) {
+						if (p.getPid().equals(opened.getPid())) {
+							// 如果两个权限对象相同，则表示当前被进行设置的层级对象已经拥有了该权限，则设置标记isOpen为true
+							p.setOpen(true);
+							break;
+						}
+					}
+					// 切断Permission与PermissionType的联系，防止JSON解析的时候出现死循环
+					p.setPermissionType(null);
+					list.add(p);
+				}
+				pt.setPermissions4Ajax(list);
+			}
 			break;
 		default:
-
+			
 			break;
 		}
-
 		ActionContext.getContext().getValueStack().push(permissionTypes);
 		return "json";
 	}

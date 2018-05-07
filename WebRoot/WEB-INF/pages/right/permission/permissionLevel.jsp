@@ -72,7 +72,7 @@
 									<tr>
 										<!-- ● -->
 										<th>权限层级</th>
-										<th>ptid</th>
+										<th>plid</th>
 										<th>描述</th>
 										<th>包含类型数</th>
 										<th>状态</th>

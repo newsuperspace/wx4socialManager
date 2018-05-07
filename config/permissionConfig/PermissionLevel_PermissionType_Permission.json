@@ -1,4 +1,6 @@
 [
+
+
 	{
 		"description":"街道层级",
 		"permissionLevelName": "minus_first",
@@ -6,6 +8,504 @@
 		"enabled": true,
 		"permissionTypes": 
 		[
+			{
+				"description": "活动类型",
+				"permissionTypeName": "activity",
+				"enabled": true,
+				"permissions":
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "人员类型",
+				"permissionTypeName": "user",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "项目类型",
+				"permissionTypeName": "project",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			}
+		]
+	},
+	
+	{
+		"description":"社区层级",
+		"permissionLevelName": "zero",
+		"level": 0,
+		"enabled": true,
+		"permissionTypes": 
+		[
+			{
+				"description": "活动类型",
+				"permissionTypeName": "activity",
+				"enabled": true,
+				"permissions":
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "人员类型",
+				"permissionTypeName": "user",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "项目类型",
+				"permissionTypeName": "project",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			}
+		]
+	},
+	
+	{
+		"description":"第一层级",
+		"permissionLevelName": "first",
+		"level": 1,
+		"enabled": true,
+		"permissionTypes": 
+		[
+			{
+				"description": "活动类型",
+				"permissionTypeName": "activity",
+				"enabled": true,
+				"permissions":
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "人员类型",
+				"permissionTypeName": "user",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "项目类型",
+				"permissionTypeName": "project",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			}
+		]
+	},
+	
+	{
+		"description":"第二层级",
+		"permissionLevelName": "second",
+		"level": 2,
+		"enabled": true,
+		"permissionTypes": 
+		[
+			{
+				"description": "活动类型",
+				"permissionTypeName": "activity",
+				"enabled": true,
+				"permissions":
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "人员类型",
+				"permissionTypeName": "user",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "项目类型",
+				"permissionTypeName": "project",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			}
+		]
+	},
+	
+	{
+		"description":"第三层级",
+		"permissionLevelName": "third",
+		"level": 3,
+		"enabled": true,
+		"permissionTypes": 
+		[
+			{
+				"description": "活动类型",
+				"permissionTypeName": "activity",
+				"enabled": true,
+				"permissions":
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "人员类型",
+				"permissionTypeName": "user",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
+			{
+				"description": "项目类型",
+				"permissionTypeName": "project",
+				"enabled": true,
+				"permissions": 
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			}
+		]
+	},
+	
+	{
+		"description":"第四层级",
+		"permissionLevelName": "fourth",
+		"level": 4,
+		"enabled": true,
+		"permissionTypes": 
+		[
+			{
+				"description": "活动类型",
+				"permissionTypeName": "activity",
+				"enabled": true,
+				"permissions":
+				[
+					{
+						"description": "查询",
+						"permissionName": "retrieve",
+						"enabled": true
+					},
+					{
+						"description": "新建",
+						"permissionName": "create",
+						"enabled": true
+					},
+					{
+						"description": "修改",
+						"permissionName": "update",
+						"enabled": true
+					},
+					{
+						"description": "删除",
+						"permissionName": "delete",
+						"enabled": true
+					}
+				]
+			},
 			{
 				"description": "人员类型",
 				"permissionTypeName": "user",

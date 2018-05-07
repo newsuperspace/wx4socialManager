@@ -524,111 +524,6 @@ var minusFirstLevelModal = {
 	op : {
 
 		/**
-		 * 保存Permission数据到后端
-		 */
-		savePermission: function(level, lid){
-			
-			// 准备AJAX的请求参数
-			var data ={
-				selected:'',
-				level: level,
-				lid: lid
-			};
-			// 获取到所有权限设置的checkbox
-			var $inputs = $("input[data-permission='-1']");
-			console.log($inputs);
-			// 遍历每个input
-			$inputs.each(function(i, element) {
-				if($(this).is(':checked')){
-					data.selected += $(this).val()+",";
-				}
-			});
-			console.log(data.selected);
-			// 将被选中的权限ID字符串发送到后端
-			$.post("permissionAction_permissionSaving.action", data, function(data, textStatus, req) {
-				alert(data.message);
-			});
-		},
-
-		/**
-		 * 显示权限配置的Modal
-		 * 1、获取当前JSP页面对应操作的层级对象的level数值（当前MinusFirst为-1）
-		 * 2、获取被操作的层级对象的ID（当前MinusFirstLevel为mflid）
-		 * 3、通过AJAX与后端通讯，获取当前层级的所有权限类型，以及每个权限的设置状态（是否被当前层级对象所拥有）
-		 * 4、遍历从后端传递来的数据，并使用jQuery重组前端页面的HTML元素，用来构建MODAL中的内容
-		 * 5、显示MODAL
-		 */
-		showPermissionModal : function(level, lid) {
-
-			$("#savePermission").unbind().bind("click", function() {
-				minusFirstLevelModal.op.savePermission(level, lid);
-			});
-			
-			// 准备AJAX的请求参数
-			var data = {
-				level : level,
-				lid : lid
-			};
-			// 执行AJAX的POST请求
-			$.post("permissionAction_permissionSetting.action", data, function(data, textStatus, req) {
-				// 先清空MODAL中负责显示权限内容的DIV中的内容
-				$("#permission-modal-body").empty();
-				// 然后开始分析data中的数据，重建MODAL中的内容
-				for (var i = 0; i < data.length; i++) {
-					// 得到“权限类型”
-					var permissionType = data[i];
-					// 新建外层的collapse的Card部分及其card-Header部分
-					var titleHTML = $("<a></a>");
-					titleHTML.attr("data-toggle", "collapse").attr("data-parent","#permission-modal-body").attr("data-parent", "#accordianId").attr("href", "#"+permissionType.ptid);
-					titleHTML.text(permissionType.description);
-					var h5HTML = $("<h5></h5>").attr("class", "mb-0");
-					h5HTML.append(titleHTML);
-					var cardHeaderHTML =  $("<div></div>").attr("role", "tab").attr("class","card-header").append(h5HTML);
-					var cardHTML = $("<div></div>").attr("class", "card").append(cardHeaderHTML);
-					// 得到该类型下的所有“权限”
-					var permissions = permissionType.permissions4Ajax;
-					var rowHTML = $("<div></div>").attr("class", "row");
-					// 开始创建row中包含权限复选框的的文档结构
-					for (var j = 0; j < permissions.length; j++) {
-						var permission = permissions[j];
-						// 开始组建一个权限复选框的HTML对象
-						var permissionInput = $("<input></input>");
-						permissionInput.attr("class", "form-check-input");
-						permissionInput.attr("type", "checkbox");
-						permissionInput.attr("data-permission", "-1");
-						permissionInput.attr("name", "permission");
-						permissionInput.attr("value",permission.pid);
-						if(permission.open){
-							permissionInput.attr("checked", true);
-						}
-						var permissionLabel = $("<label></label>");
-						permissionLabel.attr("class", "form-check-label").append(permissionInput).append(permission.description);
-						var permissionHTML = $("<div></div>");
-						permissionHTML.attr("class", "col-lg-2  col-md-3 col-sm-6").append(permissionLabel);
-						rowHTML.append(permissionHTML);
-					}
-					// 至此ROW已经完善了，开始组建card-body部分
-					var containerHTML = $("<div></div>").attr("class", "container").append(rowHTML);
-					var cardBodyHTML = $("<div></div>").attr("class","card-body").append(containerHTML);
-					var contentHTML = $("<div></div>").attr("id",permissionType.ptid).attr("class","collapse in").attr("role","tabpanel").append(cardBodyHTML);
-					// 最后将card-body也组装到card之上，至此包含有一个permissionType信息的Card创建完成
-					cardHTML.append(contentHTML);
-					// 最后的最后，将创建完成的card添加到id=permission-modal-body的div下即可完成一个有关permissionType下拉的创建工作
-					$("#permission-modal-body").append(cardHTML);
-				};
-				$("#permissionModal").modal("show");
-			});
-		},
-
-		/**
-		 * 配置某层级对象的权限
-		 * level 为当前JSP页面的层级对象的数字层级，minusFirstLevel默认为-1，用以告诉后台需要从什么PermissionLevel中查找权限（如果是Shiro框架则并不需要这么做）
-		 * lid 为需要设置权限的层级对象的ID，用以从后台查找该层级对象已有权限，用以在前端显示的时候自动设置为选中状态
-		 */
-		updatePermission : function(level, lid) {},
-
-
-		/**
 		 * 新建街道层级
 		 */
 		createMinusFirstLevel : function() {
@@ -694,6 +589,116 @@ var minusFirstLevelModal = {
 		},
 	}
 };
+
+/**
+ *========================层级页面的Modal通用方法========================
+ */
+var commonLevelModal ={
+	init:{},
+	data:{},
+	op:{
+		
+		/**
+		 * 保存Permission数据到后端
+		 */
+		savePermission: function(level, lid){
+			
+			// 准备AJAX的请求参数
+			var data ={
+				selected:'',
+				level: level,
+				lid: lid
+			};
+			// 获取到所有权限设置的checkbox
+			var $inputs = $("input[data-permission='-1']");
+			console.log($inputs);
+			// 遍历每个input
+			$inputs.each(function(i, element) {
+				if($(this).is(':checked')){
+					data.selected += $(this).val()+",";
+				}
+			});
+			console.log(data.selected);
+			// 将被选中的权限ID字符串发送到后端
+			$.post("permissionAction_permissionSaving.action", data, function(data, textStatus, req) {
+				alert(data.message);
+			});
+		},
+
+		/**
+		 * 显示权限配置的Modal
+		 * 1、获取当前JSP页面对应操作的层级对象的level数值（当前MinusFirst为-1）
+		 * 2、获取被操作的层级对象的ID（当前MinusFirstLevel为mflid）
+		 * 3、通过AJAX与后端通讯，获取当前层级的所有权限类型，以及每个权限的设置状态（是否被当前层级对象所拥有）
+		 * 4、遍历从后端传递来的数据，并使用jQuery重组前端页面的HTML元素，用来构建MODAL中的内容
+		 * 5、显示MODAL
+		 */
+		showPermissionModal : function(level, lid) {
+
+			$("#savePermission").unbind().bind("click", function() {
+				commonLevelModal.op.savePermission(level, lid);
+			});
+			
+			// 准备AJAX的请求参数
+			var data = {
+				level : level,
+				lid : lid
+			};
+			// 执行AJAX的POST请求
+			$.post("permissionAction_permissionSetting.action", data, function(data, textStatus, req) {
+				// 先清空MODAL中负责显示权限内容的DIV中的内容
+				$("#permission-modal-body").empty();
+				// 然后开始分析data中的数据，重建MODAL中的内容
+				for (var i = 0; i < data.length; i++) {
+					// 得到“权限类型”
+					var permissionType = data[i];
+					// 新建外层的collapse的Card部分及其card-Header部分
+					var titleHTML = $("<a></a>");
+					titleHTML.attr("data-toggle", "collapse").attr("data-parent","#permission-modal-body").attr("data-parent", "#accordianId").attr("href", "#"+permissionType.ptid);
+					titleHTML.text(permissionType.description);
+					var h5HTML = $("<h5></h5>").attr("class", "mb-0");
+					h5HTML.append(titleHTML);
+					var cardHeaderHTML =  $("<div></div>").attr("role", "tab").attr("class","card-header").append(h5HTML);
+					var cardHTML = $("<div></div>").attr("class", "card").append(cardHeaderHTML);
+					// 得到该类型下的所有“权限”
+					var permissions = permissionType.permissions4Ajax;
+					var rowHTML = $("<div></div>").attr("class", "row");
+					// 开始创建row中包含权限复选框的的文档结构
+					for (var j = 0; j < permissions.length; j++) {
+						var permission = permissions[j];
+						// 开始组建一个权限复选框的HTML对象
+						var permissionInput = $("<input></input>");
+						permissionInput.attr("class", "form-check-input");
+						permissionInput.attr("type", "checkbox");
+						permissionInput.attr("data-permission", "-1");
+						permissionInput.attr("name", "permission");
+						permissionInput.attr("value",permission.pid);
+						if(permission.open){
+							permissionInput.attr("checked", true);
+						}
+						var permissionLabel = $("<label></label>");
+						permissionLabel.attr("class", "form-check-label").append(permissionInput).append(permission.description);
+						var permissionHTML = $("<div></div>");
+						permissionHTML.attr("class", "col-lg-2  col-md-3 col-sm-6").append(permissionLabel);
+						rowHTML.append(permissionHTML);
+					}
+					// 至此ROW已经完善了，开始组建card-body部分
+					var containerHTML = $("<div></div>").attr("class", "container").append(rowHTML);
+					var cardBodyHTML = $("<div></div>").attr("class","card-body").append(containerHTML);
+					var contentHTML = $("<div></div>").attr("id",permissionType.ptid).attr("class","collapse in").attr("role","tabpanel").append(cardBodyHTML);
+					// 最后将card-body也组装到card之上，至此包含有一个permissionType信息的Card创建完成
+					cardHTML.append(contentHTML);
+					// 最后的最后，将创建完成的card添加到id=permission-modal-body的div下即可完成一个有关permissionType下拉的创建工作
+					$("#permission-modal-body").append(cardHTML);
+				};
+				$("#permissionModal").modal("show");
+			});
+		},
+	},
+	
+};
+
+
 
 /**
  *========================用户User========================

@@ -37,7 +37,8 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2">第四层级信息</h1> <!-- ● -->
+							<h1 class="h2">第四层级信息</h1>
+							<!-- ● -->
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 									<button class="btn btn-sm btn-outline-secondary"
@@ -70,17 +71,18 @@
 								<thead class="thead-dark">
 									<tr>
 										<th>名称</th>
-										<th>foid</th>   <!-- ● -->
+										<th>foid</th>
+										<!-- ● -->
 										<th>描述</th>
 										<th>级别</th>
 										<th>管理者</th>
 										<!-- ● -->
 										<th>所属街道</th>
-										<th>所属社区</th>  
+										<th>所属社区</th>
 										<th>第一层级</th>
 										<th>第二层级</th>
 										<th>第三层级</th>
-										<!-- ● -->  
+										<!-- ● -->
 										<th>次层级数量</th>
 										<th>管辖人数</th>
 										<th>操作</th>
@@ -90,12 +92,13 @@
 									<s:iterator value="#levels">
 										<tr>
 											<td><s:a href="#"
-													onclick="fourthLevelModal.op.levelInfo('%{foid}')">  <!-- ● -->
+													onclick="fourthLevelModal.op.levelInfo('%{foid}')">
+													<!-- ● -->
 													<s:property value="name" />
 												</s:a></td>
-												<!-- ● -->
+											<!-- ● -->
 											<td class="text-truncate" data-toggle="tooltip"
-												title=<s:property value="foid" />><s:property 
+												title=<s:property value="foid" />><s:property
 													value="foid" /></td>
 											<td><s:property value="description" /></td>
 											<td><s:property value="level" /></td>
@@ -105,21 +108,13 @@
 													<a href="#"><s:property value="manager.user.username" /></a>
 												</s:else></td>
 											<!-- ● -->
-											<td>
-												<s:property  value="parent.parent.parent.parent.parent.name"/>
+											<td><s:property
+													value="parent.parent.parent.parent.parent.name" /></td>
+											<td><s:property value="parent.parent.parent.parent.name" />
 											</td>
-											<td>
-												<s:property  value="parent.parent.parent.parent.name"/>
-											</td>
-											<td>
-												<s:property  value="parent.parent.parent.name"/>
-											</td>
-											<td>
-												<s:property  value="parent.parent.name"/>
-											</td>
-											<td>
-												<s:property value="parent.name"/>
-											</td>
+											<td><s:property value="parent.parent.parent.name" /></td>
+											<td><s:property value="parent.parent.name" /></td>
+											<td><s:property value="parent.name" /></td>
 											<!-- ● -->
 											<td><s:if test="null==children">0</s:if> <s:else>
 													<a href="#"><s:property value="children.size()" /></a>
@@ -131,8 +126,10 @@
 												<div class="btn-group" role="group">
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">修改</button>
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">群通知</button>
+													<s:a cssClass="btn btn-sm btn-outline-secondary"
+														role="button"
+														onclick="commonLevelModal.op.showPermissionModal(4,'%{foid}');"
+														href="#">权限</s:a>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">其他</button>
 												</div>
@@ -166,6 +163,67 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
+		<!-- 权限设置Modal -->
+		<div class="modal fade" id="permissionModal" tabindex="-1"
+			role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modelTitleId">权限设置</h4>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<!-- Collapse开始 -->
+						<div id="permission-modal-body" role="tablist"
+							aria-multiselectable="true" class="ml-0 mr-0 pl-0 pr-0">
+
+							<!-- 开始迭代PermissionType -->
+							<div class="card">
+								<div class="card-header" role="tab" id="section1HeaderId">
+									<h5 class="mb-0">
+										<a data-toggle="collapse" data-parent="#permission-modal-body"
+											href="#section1ContentId" aria-expanded="true"
+											aria-controls="section1ContentId"> 用户权限 </a>
+									</h5>
+								</div>
+								<div id="section1ContentId" class="collapse in" role="tabpanel"
+									aria-labelledby="section1HeaderId">
+									<div class="card-body">
+										<div class="container">
+											<div class="row">
+
+												<!-- 开始迭代Permission -->
+												<div class="col-lg-2  col-md-3 col-sm-6">
+													<label class="form-check-label"> <input
+														class="form-check-input" type="checkbox"
+														data-permission="1" name="permission" value="aaa">
+														获取用户专属二维码
+													</label>
+												</div>
+												<!-- 结束迭代Permission -->
+
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- 结束迭代PermissionType -->
+
+						</div>
+						<!-- Collapse结束 -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-primary" id="savePermission">保存</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!-- Modal 建立子层级对象 -->
 		<div class="modal fade" id="newSonLevelModal" tabindex="-1"
 			role="dialog" aria-labelledby="newSonLevelModal" aria-hidden="true">
@@ -224,7 +282,7 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary"
 							data-dismiss="modal">关闭</button>
-							<!-- ● -->
+						<!-- ● -->
 						<button type="button" class="btn btn-primary"
 							onclick="fourthLevelModal.op.createSonLevel();">新建</button>
 					</div>
