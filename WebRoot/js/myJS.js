@@ -698,7 +698,42 @@ var commonLevelModal = {
 	},
 };
 
+/**
+ *========================管理者设置========================
+ */
+var managerModal = {
+	init : {},
+	data : {},
+	op : {
+		
+		/*
+		 * 当点击某个管理者的"绑定层级对象"的时候，会跳转到特定的Level的页面，用来显示该层级对象的详细信息。
+		 */
+		jump2LevelPage : function(tag, lid) {
+			switch (tag) {
+			case "minus_first":
+				$(location).attr('href', 'minusFirstLevelAction_getLevelInfo.action?mflid' + lid);
+				break;
+			case "zero":
 
+				break;
+			case "first":
+
+				break;
+			case "second":
+
+				break;
+			case "third":
+
+				break;
+			case "fourth":
+
+				break;
+
+			}
+		},
+	}
+};
 
 /**
  *========================用户User========================
@@ -732,7 +767,7 @@ var userModal = {
 		 */
 		updateUser : function(uid) {
 			var data = {
-				uid: uid,
+				uid : uid,
 				username : $("#username4update").val(),
 				sickname : $("#sickname4update").val(),
 				cardid : $("#cardid4update").val(),
@@ -740,10 +775,10 @@ var userModal = {
 				phone : $("#phone4update").val(),
 				email : $("#email4update").val(),
 				address : $("#address4update").val(),
-				sex: $('#sex4update').val(),
-				tag: $('#tag4update').val(),
+				sex : $('#sex4update').val(),
+				tag : $('#tag4update').val(),
 			};
-			
+
 			$.post("userAction_update.action", data, function(data, textStatus, req) {
 				// 使用这种引导当前页面定位的方式，可以即时性地刷新页面，在列表中显现修改后的结果。
 				//						$(location).attr('href', 'userAction_getUserList.action');
@@ -776,13 +811,13 @@ var userModal = {
 				$("#address4update").val(data.address);
 
 				if ('男' == data.sex) {
-					 $("#sex4update").find("option[value = '1']").attr("selected","selected");
+					$("#sex4update").find("option[value = '1']").attr("selected", "selected");
 				} else {
-					$("#sex4update").find("option[value = '2']").attr("selected","selected");
+					$("#sex4update").find("option[value = '2']").attr("selected", "selected");
 				}
 
-				$('#tag4update').find("option[value='"+data.grouping.tag+"']").attr("selected","selected");
-				
+				$('#tag4update').find("option[value='" + data.grouping.tag + "']").attr("selected", "selected");
+
 				$("#updateUserModal").modal('show');
 			});
 			$("#updateUserModal").modal('show');

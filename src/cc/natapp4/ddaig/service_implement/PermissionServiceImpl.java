@@ -22,14 +22,5 @@ public class PermissionServiceImpl extends BaseServiceImpl<Permission> implement
 	}
 
 	// =========================真正的逻辑开始========================
-	@Override
-	public Permission createPermission(Permission permission) {
-		return permissionDao.createPermission(permission);
-	}
-
-	@Override
-	public void deletePermission(String permissionID) {
-		permissionDao.deletePermission(permissionID);
-	}
 
 }

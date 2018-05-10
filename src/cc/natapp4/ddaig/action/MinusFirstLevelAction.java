@@ -1,5 +1,6 @@
 package cc.natapp4.ddaig.action;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -152,6 +153,18 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 		List<MinusFirstLevel> list = minusFirstLevelService.queryEntities();
 
 		ActionContext.getContext().put("levels", list);
+		return "list";
+	}
+	
+	public String getLevelInfo(){
+		
+		String id = minusFirstLevel.getMflid();
+		MinusFirstLevel m = minusFirstLevelService.queryEntityById(id);
+		
+		List<MinusFirstLevel> list  =  new  ArrayList<MinusFirstLevel>();
+		list.add(m);
+		
+		ActionContext.getContext().getValueStack().push(list);
 		return "list";
 	}
 

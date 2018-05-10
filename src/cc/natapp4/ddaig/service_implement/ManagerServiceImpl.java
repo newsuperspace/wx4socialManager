@@ -1,11 +1,10 @@
 package cc.natapp4.ddaig.service_implement;
 
-import java.io.Serializable;
+
 import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 
 import cc.natapp4.ddaig.dao_interface.BaseDao;
@@ -24,7 +23,10 @@ public class ManagerServiceImpl extends BaseServiceImpl<Manager> implements Mana
 		return this.managerDao;
 	}
 
-	
+	@Override
+	public List<Manager> getManagers(String tag) {
+		return managerDao.getManagers(tag);
+	}
 	
 	
 }

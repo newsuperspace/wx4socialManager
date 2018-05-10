@@ -21,9 +21,11 @@ import com.opensymphony.xwork2.ModelDriven;
 
 import cc.natapp4.ddaig.domain.Exchange;
 import cc.natapp4.ddaig.domain.Grouping;
+import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.GroupingService;
+import cc.natapp4.ddaig.service_interface.ManagerService;
 import cc.natapp4.ddaig.service_interface.RoleService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.utils.ConfigUtils;
@@ -38,6 +40,8 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	// ==========================================================DI注入Aspect
 	@Resource(name = "userService")
 	private UserService userService;
+	@Resource(name = "managerService")
+	private ManagerService managerService;
 	@Resource(name = "groupingService")
 	private GroupingService groupingService;
 	@Resource(name = "weixinService4Setting")
@@ -158,7 +162,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		String phone = this.user.getPhone();
 		String email = this.user.getEmail();
 		String address = this.user.getAddress();
-		String sex = this.user.getSex().equals("1")?"男":"女";
+		String sex = this.user.getSex().equals("1") ? "男" : "女";
 		String tag = this.tag;
 
 		User u = userService.queryEntityById(uid);
@@ -171,7 +175,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		u.setEmail(email);
 		u.setAddress(address);
 		u.setSex(sex);
-		
+
 		List<Grouping> list = groupingService.queryEntities();
 		for (Grouping g : list) {
 			if (g.getTag().equals(tag)) {
@@ -235,7 +239,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	public String create() {
 
 		/**
-		 * TODO 需要权限认证，获取执行当前操作的管理者的所在权限， 然后新建的用户就置于该管理者的层级之下。
+		 * TODO shiro需要权限认证，获取执行当前操作的管理者的所在权限， 然后新建的用户就置于该管理者的层级之下。
 		 */
 
 		ReturnMessage4Common message = new ReturnMessage4Common();
@@ -270,6 +274,21 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 
 		ActionContext.getContext().getValueStack().push(message);
 		return "json";
+	}
+
+	/**
+	 * 在managerList.jsp上显示管理者目录列表
+	 */
+	public String getManagerList() {
+
+		String tag = this.getTag();
+		if(null==tag){
+			tag = "nonono";
+		}
+
+		List<User> users = userService.getManagers(tag);
+		ActionContext.getContext().put("users", users);
+		return "managerList";
 	}
 
 }

@@ -72,7 +72,7 @@
 										<li class="nav-item"><a class="nav-link" href="#"
 											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getUserList.action")'>所辖人员</a></li>
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getXXXXList.action")'>人员任免</a>
+											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getManagerList.action")'>人员任免</a>
 										</li>
 
 									</ul>

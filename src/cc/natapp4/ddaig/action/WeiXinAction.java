@@ -131,11 +131,11 @@ public class WeiXinAction extends ActionSupport implements ModelDriven<SignBean>
 			}
 			break;
 		case "aes":
-			// TODO 处理加密信息
+			// 处理加密信息
 //			mpService4Recall.route(WxMpXmlMessage.fromEncryptedXml(is, wxMpConfigStorage, timestamp, nonce, msgSignature))
 			break;
 		case "unknown":
-			// TODO 处理不知名加密类型信息
+			// 处理不知名加密类型信息
 			logger.warn("接收到来自微信服务器的不知名加密类型信息");
 			try {
 				// 给微信服务器回复空字符串或者"success"，避免它5秒后再重复发送两次请求

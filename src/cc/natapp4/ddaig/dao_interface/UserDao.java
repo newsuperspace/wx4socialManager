@@ -2,6 +2,7 @@ package cc.natapp4.ddaig.dao_interface;
 
 import java.util.List;
 
+import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.User;
 
 public interface UserDao extends BaseDao<User>{
@@ -23,5 +24,13 @@ public interface UserDao extends BaseDao<User>{
 	 */
 	public List<User>  queryByTagName(String tagName);
 	
+	/**
+	 * 不同于Manager类的同名方法只能获取已经分配到层级对象的管理者
+	 * 当前类的getManagers（）方法将会获取到tag为层级对象（minuse_first/zero/first/second/third/fourth）
+	 * 的user，不论T是否已经被委派了层级对象。
+	 * @param tag
+	 * @return
+	 */
+	public List<User> getManagers(String tag);
 	
 }

@@ -8,6 +8,8 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 
 import cc.natapp4.ddaig.dao_interface.UserDao;
+import cc.natapp4.ddaig.domain.Grouping;
+import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.User;
 
 @Repository("userDao")
@@ -48,5 +50,48 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 		}
 	}
 
+	@Override
+	public List<User> getManagers(String tag) {
+		// TODO shiro 先获取当前操作执行者的层级对象，然后再从该层级对象所管辖的人员范围内查找特定tag的manager
+		Grouping g = new Grouping();
+		g.setTag("admin");
+
+		List<User> list = null;
+
+		if (g.getTag().equals("admin")) {
+			// 管理员用户
+			switch (tag) {
+			case "minus_first":
+
+				break;
+			case "zero":
+				list = (List<User>) this.getHibernateTemplate().find(
+						"from User u where " + "u.grouping.tag=?",
+						 "zero");
+				break;
+			case "first":
+
+				break;
+			case "second":
+
+				break;
+			case "third":
+
+				break;
+			case "fourth":
+
+				break;
+			default: // 获得全部
+				list = (List<User>) this.getHibernateTemplate().find(
+						"from User u where " + "u.grouping.tag in(?,?,?,?,?,?)",
+						"minus_first", "zero", "first", "second", "third", "fourth");
+				break;
+			}
+		} else {
+			// 非管理员用户
+		}
+
+		return list;
+	}
 
 }

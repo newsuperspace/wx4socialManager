@@ -17,6 +17,7 @@ import cc.natapp4.ddaig.dao_implement.BaseDaoImpl;
 import cc.natapp4.ddaig.dao_interface.BaseDao;
 import cc.natapp4.ddaig.dao_interface.UserDao;
 import cc.natapp4.ddaig.domain.Grouping;
+import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
 import cc.natapp4.ddaig.service_interface.GroupingService;
@@ -121,6 +122,10 @@ public class TestUserServiceImpl extends BaseServiceImpl<User> implements UserSe
 		return list;
 	}
 
+	@Override
+	public List<Manager> getManagers(String tag) {
+		return dao.getManagers(tag);
+	}
 	
 
 }

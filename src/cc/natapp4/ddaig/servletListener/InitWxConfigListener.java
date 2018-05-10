@@ -1,6 +1,5 @@
 package cc.natapp4.ddaig.servletListener;
 
-import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -8,15 +7,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import cc.natapp4.ddaig.utils.ConfigUtils;
-import me.chanjar.weixin.common.exception.WxErrorException;
-import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.mp.api.WxMpInMemoryConfigStorage;
-import me.chanjar.weixin.mp.api.WxMpMessageHandler;
-import me.chanjar.weixin.mp.api.WxMpService;
-import me.chanjar.weixin.mp.api.impl.WxMpServiceImpl;
-import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
-import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
-import me.chanjar.weixin.mp.bean.message.WxMpXmlOutTextMessage;
 
 
 /**

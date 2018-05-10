@@ -17,6 +17,7 @@ import cc.natapp4.ddaig.dao_implement.BaseDaoImpl;
 import cc.natapp4.ddaig.dao_interface.BaseDao;
 import cc.natapp4.ddaig.dao_interface.UserDao;
 import cc.natapp4.ddaig.domain.Grouping;
+import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Role;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
@@ -220,6 +221,11 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 
 		List<User> list = dao.queryByTagName(tagName);
 		return list;
+	}
+
+	@Override
+	public List<User> getManagers(String tag) {
+		return dao.getManagers(tag);
 	}
 
 
