@@ -1,5 +1,6 @@
 package cc.natapp4.ddaig.action;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -146,9 +147,6 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 		return "json";
 	}
 	
-	
-	
-	
 	public  String  getLevelList(){
 		
 		List<ZeroLevel> list = zeroLevelService.queryEntities();
@@ -157,5 +155,22 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 		return "list";
 	}
 	
-	
+	/**
+	 * managerList.jsp页面中，当点击某个管理者所管理的层级对象的时候
+	 * 会触发managerModal.op.jump2LevelPage()方法
+	 * 从而根据不同的tag（层级）实现跳转到不同层级Level页面中显示详细信息
+	 * 的功能，因此每个层级对象的Action都应该有对应的本方法。
+	 * @return
+	 */
+	public String getLevelInfo() {
+
+		String id = zeroLevel.getZid();
+		ZeroLevel l = zeroLevelService.queryEntityById(id);
+
+		List<ZeroLevel> list = new ArrayList<ZeroLevel>();
+		list.add(l);
+
+		ActionContext.getContext().getValueStack().push(list);
+		return "list";
+	}
 }

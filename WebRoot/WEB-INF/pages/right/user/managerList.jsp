@@ -139,19 +139,15 @@
 															value="grouping.groupName" />
 													</span>
 												</s:elseif></td>
-											<td>
-												<s:if test="null==manager">
-													<s:a href="#"
-													onclick="alert('这里应该触发Modal用来选择可用层级对象，实现\"任命操作\"');">
+											<td><s:if test="null==manager">
+													<s:a href="#" onclick="managerModal.op.showAppointModal('%{uid}');">
 													未匹配</s:a>
-												</s:if>
-												<s:elseif test="null!=manager">
+												</s:if> <s:elseif test="null!=manager">
 													<s:a href="#"
-													onclick="managerModal.op.jump2LevelPage('%{grouping.tag}','%{manager.lid}')">
-													<s:property value="manager.levelName" />
-												</s:a>
-												</s:elseif>
-											</td>
+														onclick="managerModal.op.jump2LevelPage('%{grouping.tag}','%{manager.lid}')">
+														<s:property value="manager.levelName" />
+													</s:a>
+												</s:elseif></td>
 											<td><s:property value="phone" /></td>
 
 											<td>
@@ -193,6 +189,88 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
+		<!-- Modal 4 任命 -->
+		<div class="modal fade" id="appoint" tabindex="-1" role="dialog"
+			aria-labelledby="appoint" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">委任</h4>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+
+							<div class="row mb-3">
+								<div class="col-auto">街道层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm"
+										name="appoint-1" id="appoint-1">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-auto">社区层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm"
+										name="appoint0" id="appoint0">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-auto">第一层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm"
+										name="appoint1" id="appoint1">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-auto">第二层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm"
+										name="appoint2" id="appoint2">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-auto">第三层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm"
+										name="appoint3" id="appoint3">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-auto">第四层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm"
+										name="appoint4" id="appoint4">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-primary" id="button4appoint">确定</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
 		<!-- Modal 4 修改用户 -->
 		<div class="modal fade" id="updateUserModal" tabindex="-1"
 			role="dialog" aria-labelledby="updateUser" aria-hidden="true">
