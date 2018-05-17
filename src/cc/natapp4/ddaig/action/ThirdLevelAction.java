@@ -174,7 +174,7 @@ public class ThirdLevelAction implements ModelDriven<ThirdLevel> {   // <!-- ●
 		List<ThirdLevel> list = new ArrayList<ThirdLevel>();
 		list.add(l);
 
-		ActionContext.getContext().getValueStack().push(list);
+		ActionContext.getContext().put("levels", list);
 		return "list";
 	}
 }

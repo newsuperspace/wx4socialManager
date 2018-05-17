@@ -171,8 +171,8 @@ public class SecondLevelAction implements ModelDriven<SecondLevel> {   // <!-- â
 
 		List<SecondLevel> list = new ArrayList<SecondLevel>();
 		list.add(l);
-
-		ActionContext.getContext().getValueStack().push(list);
+		
+		ActionContext.getContext().put("levels", list);
 		return "list";
 	}
 	

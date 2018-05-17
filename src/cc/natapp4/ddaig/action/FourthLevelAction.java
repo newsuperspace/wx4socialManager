@@ -173,7 +173,7 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> {   // <!-- â
 		List<FourthLevel> list = new ArrayList<FourthLevel>();
 		list.add(l);
 
-		ActionContext.getContext().getValueStack().push(list);
+		ActionContext.getContext().put("levels", list);
 		return "list";
 	}
 	

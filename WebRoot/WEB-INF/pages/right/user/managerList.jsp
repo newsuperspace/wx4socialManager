@@ -140,8 +140,7 @@
 													</span>
 												</s:elseif></td>
 											<td><s:if test="null==manager">
-													<s:a href="#" onclick="managerModal.op.showAppointModal('%{uid}');">
-													未匹配</s:a>
+													未匹配
 												</s:if> <s:elseif test="null!=manager">
 													<s:a href="#"
 														onclick="managerModal.op.jump2LevelPage('%{grouping.tag}','%{manager.lid}')">
@@ -152,10 +151,16 @@
 
 											<td>
 												<div class="btn-group" role="group">
+													<s:if test="null==manager">
+														<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
+														onclick="managerModal.op.showAppointModal('%{uid}');">任命</s:a>
+													</s:if>
+													<s:else>
+														<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
+														onclick="managerModal.op.disappoint('%{uid}');">卸任</s:a>
+													</s:else>
 													<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
 														onclick="userModal.op.showUpdateUserModal('%{uid}')">修改</s:a>
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">推送</button>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">其他</button>
 												</div>
@@ -207,8 +212,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">街道层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm"
-										name="appoint-1" id="appoint-1">
+									<select class="form-control form-control-sm" name="appoint-1"
+										id="appoint-1">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -216,8 +221,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">社区层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm"
-										name="appoint0" id="appoint0">
+									<select class="form-control form-control-sm" name="appoint0"
+										id="appoint0">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -225,8 +230,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">第一层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm"
-										name="appoint1" id="appoint1">
+									<select class="form-control form-control-sm" name="appoint1"
+										id="appoint1">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -234,8 +239,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">第二层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm"
-										name="appoint2" id="appoint2">
+									<select class="form-control form-control-sm" name="appoint2"
+										id="appoint2">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -243,8 +248,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">第三层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm"
-										name="appoint3" id="appoint3">
+									<select class="form-control form-control-sm" name="appoint3"
+										id="appoint3">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -252,8 +257,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">第四层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm"
-										name="appoint4" id="appoint4">
+									<select class="form-control form-control-sm" name="appoint4"
+										id="appoint4">
 										<option>--请选择--</option>
 									</select>
 								</div>

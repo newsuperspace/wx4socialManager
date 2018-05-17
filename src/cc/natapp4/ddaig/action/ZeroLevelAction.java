@@ -170,7 +170,7 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 		List<ZeroLevel> list = new ArrayList<ZeroLevel>();
 		list.add(l);
 
-		ActionContext.getContext().getValueStack().push(list);
+		ActionContext.getContext().put("levels", list);
 		return "list";
 	}
 }

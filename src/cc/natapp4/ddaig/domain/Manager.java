@@ -38,9 +38,9 @@ public class Manager implements Serializable {
 	private Set<FourthLevel> fols;
 	// 当前管理者的具体用户信息
 	private User user;
-	// 供給前端用來获知当前manager所绑定的层级对象的lid（包括六个层级的层级对象的主键，需要通过tag进一步确定）
+	// 仅供給前端用來获知当前manager所绑定的层级对象的lid（包括六个层级的层级对象的主键，需要通过tag进一步确定）
 	public String lid;
-	// 提供给前端用来再managerList.jsp页面上显示所管理的层级对象的名称
+	// 仅提供给前端用来再managerList.jsp页面上显示所管理的层级对象的名称
 	public String levelName;
 	// ===============================功能性的方法========================
 	
@@ -48,6 +48,10 @@ public class Manager implements Serializable {
 		String tag = user.getGrouping().getTag();
 		switch (tag) {
 		case "minus_first":
+			Iterator<MinusFirstLevel> iterator = mfls.iterator();
+			if(iterator.hasNext()){
+				levelName = iterator.next().getName();
+			}
 			break;
 		case "zero":
 			Iterator<ZeroLevel> iterator0 = zls.iterator();

@@ -171,7 +171,7 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 		List<MinusFirstLevel> list = new ArrayList<MinusFirstLevel>();
 		list.add(m);
 
-		ActionContext.getContext().getValueStack().push(list);
+		ActionContext.getContext().put("levels", list);
 		return "list";
 	}
 

@@ -707,28 +707,48 @@ var managerModal = {
 	op : {
 
 		/*
+		 * 卸任 
+		 */
+		disappoint : function(uid) {
+			var answer = confirm("即将解除该同志的任命，是否继续？");
+			if (answer) {
+				// 确定卸任
+				var data = {
+					uid : uid
+				};
+
+				$.post("userAction_doDisappoint.action", data, function(data, textStatus, req) {
+					alert(data.message);
+					window.location.reload();
+				});
+			} else {
+				// 什么也不做
+			}
+		},
+
+		/*
 		 * 向后端发起正式的任命操作
 		 * uid： 待委任的用户uid
 		 * level: 待委任的层级对象的所属层级
 		 * lid： 层级对象的id
 		 */
-		appoint : function(uid,level,lid) {
-			
+		appoint : function(uid, level, lid) {
+
 			var data = {
-				uid: uid,
-				level:level,
-				lid: lid
+				uid : uid,
+				level : level,
+				lid : lid
 			};
-			
+
 			$.post("userAction_doAppoint.action", data, function(data, textStatus, req) {
-				if(data.result){
+				if (data.result) {
 					alert(data.message);
 					window.location.reload();
-				}else{
+				} else {
 					alert(data.message)
 				}
 			});
-			
+
 		},
 
 		/*
@@ -744,14 +764,14 @@ var managerModal = {
 			 *  如果是进一步判断其所选中的option的value是不是！=0 如果的确！=0
 			 *  那就说明可以提交“任命”
 			 */
-			if (level==lowest) {
-				var appointLevelID = $("#appoint"+level).val();
-				if('0'==appointLevelID){
+			if (level == lowest) {
+				var appointLevelID = $("#appoint" + level).val();
+				if ('0' == appointLevelID) {
 					return;
 				}
 				// 变更“提交按钮”的方法绑定，并且回复其disabled状态（可点击/可提交）
-				$("#button4appoint").attr("disabled", false).unbind().bind("click",function(){
-					managerModal.op.appoint(uid,level,appointLevelID);
+				$("#button4appoint").attr("disabled", false).unbind().bind("click", function() {
+					managerModal.op.appoint(uid, level, appointLevelID);
 				});
 			}
 
@@ -765,14 +785,14 @@ var managerModal = {
 					switch (level + 1) {
 					case 0:
 						// 清空-1层级以下的所有select中的内容，并重置初始option，然后设置disabled属性
-						for(var i=0;i<5;i++){
+						for (var i = 0; i < 5; i++) {
 							$("#appoint" + i).attr("disabled", "disabled").empty().append($("<option value='0' selected>--请选择--</option>"));
-							
+
 						}
 						// 重建option
 						$("#appoint0").attr("disabled", false);
 						var option = null;
-						for(var i=0;i<data.minusFirst.children4Ajax.length;i++){
+						for (var i = 0; i < data.minusFirst.children4Ajax.length; i++) {
 							var zero = data.minusFirst.children4Ajax[i];
 							option = $("<option></option>");
 							option.val(zero.zid);
@@ -782,14 +802,14 @@ var managerModal = {
 						break;
 					case 1:
 						// 清0层级以下的所有select中的内容，并重置初始option，然后设置disabled属性
-						for(var i=1;i<5;i++){
+						for (var i = 1; i < 5; i++) {
 							$("#appoint" + i).attr("disabled", "disabled").empty().append($("<option value='0' selected>--请选择--</option>"));
-							
+
 						}
 						// 重建option
 						$("#appoint1").attr("disabled", false);
 						var option = null;
-						for(var i=0;i<data.zero.children4Ajax.length;i++){
+						for (var i = 0; i < data.zero.children4Ajax.length; i++) {
 							var first = data.zero.children4Ajax[i];
 							option = $("<option></option>");
 							option.val(first.flid);
@@ -799,14 +819,14 @@ var managerModal = {
 						break;
 					case 2:
 						// 清空1层级以下的所有select中的内容，并重置初始option，然后设置disabled属性
-						for(var i=2;i<5;i++){
+						for (var i = 2; i < 5; i++) {
 							$("#appoint" + i).attr("disabled", "disabled").empty().append($("<option value='0' selected>--请选择--</option>"));
-							
+
 						}
 						// 重建option
 						$("#appoint2").attr("disabled", false);
 						var option = null;
-						for(var i=0;i<data.first.children4Ajax.length;i++){
+						for (var i = 0; i < data.first.children4Ajax.length; i++) {
 							var second = data.first.children4Ajax[i];
 							option = $("<option></option>");
 							option.val(second.scid);
@@ -816,14 +836,14 @@ var managerModal = {
 						break;
 					case 3:
 						// 清空2层级以下的所有select中的内容，并重置初始option，然后设置disabled属性
-						for(var i=3;i<5;i++){
+						for (var i = 3; i < 5; i++) {
 							$("#appoint" + i).attr("disabled", "disabled").empty().append($("<option value='0' selected>--请选择--</option>"));
-							
+
 						}
 						// 重建option
 						$("#appoint3").attr("disabled", false);
 						var option = null;
-						for(var i=0;i<data.second.children4Ajax.length;i++){
+						for (var i = 0; i < data.second.children4Ajax.length; i++) {
 							var third = data.second.children4Ajax[i];
 							option = $("<option></option>");
 							option.val(third.thid);
@@ -833,14 +853,14 @@ var managerModal = {
 						break;
 					case 4:
 						// 清空3层级以下的所有select中的内容，并重置初始option，然后设置disabled属性
-						for(var i=4;i<5;i++){
+						for (var i = 4; i < 5; i++) {
 							$("#appoint" + i).attr("disabled", "disabled").empty().append($("<option value='0' selected>--请选择--</option>"));
-							
+
 						}
 						// 重建option
 						$("#appoint4").attr("disabled", false);
 						var option = null;
-						for(var i=0;i<data.third.children4Ajax.length;i++){
+						for (var i = 0; i < data.third.children4Ajax.length; i++) {
 							var fourth = data.third.children4Ajax[i];
 							option = $("<option></option>");
 							option.val(fourth.foid);
@@ -861,7 +881,7 @@ var managerModal = {
 		 */
 		showAppointModal : function(uid) {
 			// 先给“提交”按钮绑定上方法
-			$("#button4appoint").attr("disabled","disabled");
+			$("#button4appoint").attr("disabled", "disabled");
 			// 然后，开始通过Ajax从后端获取必要的层级对象的信息，用来组织MODAL的页面显示
 			var data = {
 				uid : uid, // 需要被任命的manager 的uid
@@ -895,7 +915,7 @@ var managerModal = {
 								$("#appoint-1").parent().parent().show();
 								// 设置onchange事件驱动
 								$("#appoint-1").parent().parent().unbind().bind("change", function() {
-									managerModal.op.changeAppointSelect(-1, $("#appoint-1").val(),data.lowest, uid);
+									managerModal.op.changeAppointSelect(-1, $("#appoint-1").val(), data.lowest, uid);
 								});
 							} else {
 								// 其他Select默认只有“--请选择--”
@@ -903,7 +923,7 @@ var managerModal = {
 								// 显示该Select所在的row
 								$("#appoint" + i).attr("disabled", "disabled").parent().parent().show();
 								// 设置onchange事件驱动
-								$("#appoint"+i).parent().parent().unbind().bind("change", function() {
+								$("#appoint" + i).parent().parent().unbind().bind("change", function() {
 									/**
 									 * ★★★★★
 									 * 这里有个大学问，因为我们要向方法中传递参数，而参数我们只希望传递当前时刻的数值
@@ -912,7 +932,7 @@ var managerModal = {
 									 * 如果想以“值传递”的方式传参，则需要变量I为局部变量，因此在for循环头部中使用let
 									 * 关键字来定义变量I。
 									 */
-									managerModal.op.changeAppointSelect(i, $("#appoint"+i).val(),data.lowest, uid);
+									managerModal.op.changeAppointSelect(i, $("#appoint" + i).val(), data.lowest, uid);
 								});
 							}
 						}

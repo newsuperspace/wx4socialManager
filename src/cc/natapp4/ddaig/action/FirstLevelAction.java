@@ -183,7 +183,7 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 		List<FirstLevel> list = new ArrayList<FirstLevel>();
 		list.add(l);
 
-		ActionContext.getContext().getValueStack().push(list);
+		ActionContext.getContext().put("levels", list);
 		return "list";
 	}
 

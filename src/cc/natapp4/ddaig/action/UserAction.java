@@ -499,6 +499,25 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		return "json";
 	}
 	
+
+	/**
+	 * 解除任命
+	 * @return
+	 */
+	public String doDisappoint(){
+		
+		String uid  =  this.user.getUid();
+		User u = userService.queryEntityById(uid);
+		Manager m = u.getManager();
+		u.setManager(null);
+		managerService.delete(m);
+		
+		ReturnMessage4Common   result  =  new  ReturnMessage4Common("解任成功！", true);
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+	
+	
 	/**
 	 * 正式执行用户（manager）与层级对象的绑定（委任）操作
 	 * @return
