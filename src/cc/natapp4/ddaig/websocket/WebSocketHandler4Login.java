@@ -39,21 +39,22 @@ public class WebSocketHandler4Login extends TextWebSocketHandler {
 	}
 
 	/**
-	 * 处理每次桌面前端通过WebSocket连接发来的信息
+	 * 处理每次桌面前端通过WebSocket连接发来的Text信息
 	 */
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		super.handleTextMessage(session, message);
 		/**
 		 * ★★★★★
-		 *  由于当前类 WebSocketEndPoint4ChuanYue是基于SpringMVC框架入口进入的websocket协议请求
+		 *  由于当前WebSocket处理类是基于SpringMVC框架入口进入的websocket协议请求（Struts2不支持WebSocket响应）
 		 *  而不是像我们所写的Utils工具类中所使用ServletActionContext静态类是被基于Struts2框架下的Action所调用的
 		 *  因此才可以使用ServletActionContext静态类获取Servlet相关的对象。
 		 *  
 		 *  因此如果要想在SpringMVC框架下获取到Servlet相关对象（例如四个作用域中的ServletContext）需要通过Spring框架
-		 *  提供的接口而不是使用Struts2框架提供的接口（ServletActionContext）。
+		 *  提供的API接口而不是使用Struts2框架提供的接口（ServletActionContext）。
 		 *  
-		 *  因此这里需要使用SpringMVC的静态类RequestContextHolder提供的接口来获取与servlet相关的对象
+		 *  因此这里需要使用SpringMVC的静态类RequestContextHolder提供的接口来获取与servlet相关的对象.
+		 *  这里需要特别注意一下，我的建议就是以后学学SpringMVC吧，既强大又方便！
 		 */
 		ServletContext context = ContextLoader.getCurrentWebApplicationContext().getServletContext();
 		
@@ -69,7 +70,7 @@ public class WebSocketHandler4Login extends TextWebSocketHandler {
 		case "start":   // 已经建立ws连接，有前段告知咱们服务器等待扫码的uuid是什么
 			context.setAttribute(uuidArr[1], "waiting");
 			System.out.println("WebSocket已开启，已将uuid为"+uuidArr[1]+"放入到了ServletContext域中，等待用户微信扫码认领");
-			// 为了善后需要将必要信息放入WebSocket的session中
+			// 为了善后需要将必要信息放入WebSocket的session中保存起来备用
 			session.getAttributes().put("uuid", uuidArr[1]);
 			session.getAttributes().put("qrcode", contentArr[1]);
 			break;

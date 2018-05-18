@@ -53,7 +53,7 @@ var wsModal = {
 					// 通过Ajax请求
 					var url = "shiroAction_ws4Login.action";
 					var data = {
-						"openid" : openid,
+						"openid" : openid,  // 已经扫码者的微信openID
 					};
 					$.post(url, data, function(re, textStatus, req) {
 						if (re.result) {

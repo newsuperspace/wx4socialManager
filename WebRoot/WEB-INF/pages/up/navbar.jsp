@@ -33,7 +33,7 @@
 						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
 						<div class="dropdown-menu" aria-labelledby="dropdownId">
 							<a class="dropdown-item" href="#">Action 1</a> <a
-								class="dropdown-item" href="#">Action 2</a>
+								class="dropdown-item" href="${pageContext.request.contextPath}/logout">退出</a>
 						</div></li>
 				</ul>
 				<form class="form-inline my-2 my-lg-0">

@@ -33,4 +33,11 @@ public interface UserDao extends BaseDao<User>{
 	 */
 	public List<User> getManagers(String tag);
 	
+	/**
+	 * 根据用户名获取指定对象
+	 * @param username
+	 * @return
+	 */
+	public User getUserByUsername(String username);
+	
 }

@@ -43,11 +43,9 @@ public class ShiroAction extends ActionSupport {
 	 * 后台系统扫码登录所传递过来的扫码着的openid用于身份认证
 	 */
 	private String openid;
-
 	public String getOpenid() {
 		return openid;
 	}
-
 	public void setOpenid(String openid) {
 		this.openid = openid;
 	}
@@ -56,11 +54,9 @@ public class ShiroAction extends ActionSupport {
 	 * 用作 动态结果集 之用
 	 */
 	private String wxURL;
-
 	public String getWxURL() {
 		return wxURL;
 	}
-
 	public void setWxURL(String wxURL) {
 		this.wxURL = wxURL;
 	}
@@ -69,16 +65,80 @@ public class ShiroAction extends ActionSupport {
 	 * 用作 前端JSP页面向用户反馈信息 之用
 	 */
 	private String msg;
-
 	public String getMsg() {
 		return msg;
 	}
-
 	public void setMsg(String msg) {
 		this.msg = msg;
 	}
 
+	/**
+	 * 仅仅用于signin.jsp页面上的表单输入登陆方式获取的请求参数
+	 */
+	private String username;
+	private String password;
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
 	// ===================Action中的方法=====================
+	
+	public String login4Input(){
+		
+		String username  =  this.getUsername();
+		String password  =  this.getPassword();
+		// 基于前端提交的表单数据创建token
+		UsernamePasswordToken  token  =  new  UsernamePasswordToken(username, password);
+		// 获取唯一代表当前用户的subject对象
+		Subject subject = SecurityUtils.getSubject();
+		// 开始验证
+		try {
+			// 至此程序进程就会跳转到MyRealm的doGetAuthenticationInfo()中进行身份认证
+			subject.login(token);
+			// 如果在doGetAuthenticationInfo()方法的逻辑中没有出现任何“身份认证”异常，则说明当前用户身份认证通过
+			return "login4Input";
+		} catch (IncorrectCredentialsException e) {
+			// 该异常由比对器Matcher抛出，不需要哦们自己手动在MyRealm.doGetAuthenticationInfo()中抛出
+			msg = "登录密码错误. Password for account " + token.getPrincipal() + " was incorrect.";
+			System.out.println(msg);
+		} catch (ExcessiveAttemptsException e) {
+			msg = "登录失败次数过多";
+			System.out.println(msg);
+		} catch (LockedAccountException e) {
+			// MyRealm.doGetAuthenticationInfo()中手动抛出
+			msg = "帐号已被锁定. The account for username " + token.getPrincipal() + " was locked.";
+			System.out.println(msg);
+		} catch (DisabledAccountException e) {
+			// MyRealm.doGetAuthenticationInfo()中手动抛出
+			msg = "帐号已被禁用. The account for username " + token.getPrincipal() + " was disabled.";
+			System.out.println(msg);
+		} catch (ExpiredCredentialsException e) {
+			// MyRealm.doGetAuthenticationInfo()中手动抛出
+			msg = "帐号已过期. the account for username " + token.getPrincipal() + "  was expired.";
+			System.out.println(msg);
+		} catch (UnknownAccountException e) {
+			// MyRealm.doGetAuthenticationInfo()中手动抛出
+			msg = "帐号不存在. There is no user with username of " + token.getPrincipal();
+			System.out.println(msg);
+		} catch (UnauthorizedException e) {
+			// MyRealm.doGetAuthenticationInfo()中手动抛出，用以表示当前用户不是临时授权登录的用户，有些时候用户登录需要管理员授权，没有授权就不能登录即便密码正确也不行。
+			msg = "您没有得到相应的授权！" + e.getMessage();
+			System.out.println(msg);
+		}
+		setMsg(msg);
+		return "failure";
+	}
+	
+	
+	
 	/**
 	 * 响应 微信端的用户身份认证（自动登录，不需要填写用户名、密码，也不需要扫码等操作
 	 * 只是通过微信端基于OAUTH2.0的协议访问指定页面的时候，会将访问者openid兑换码以请求参数的形式传递
@@ -96,25 +156,39 @@ public class ShiroAction extends ActionSupport {
 		// 获取由MyShiroFilter过滤器放入到session中的，前端所要请求的URL路径（带请求参数）★
 		String wxURL = (String) session.getAttribute("wxURL");
 
-		// 分析URL中是否带有code请求参数
+		/*
+		 * 分析是否在session中存在目标访问的URL
+		 * 存在——微信端来访者
+		 * 不存在——桌面端来访者
+		 */
 		if (!StringUtils.isEmpty(wxURL)) {
 			// wxURL包含code请求参数。则说明本次请求是从微信平台发来的（oauth2.0认证）
+			// 形如：redirect_uri/?code=CODE&state=STATE
 			String[] split = wxURL.split("=")[1].split("&");
 			String code = split[0];
 			System.out.println("Shiro解析出的code是：" + code);
+			// 使用weixin-java-tools的API功能
 			WxMpOAuth2AccessToken token = null;
 			try {
+				// 由于myService4Recall的类继承了抽象类WeixinServiceAbstract（weixin-java-tools提供）因此具备许多基础功能
+				// 通过基础功能oauth2getAccessToken来向微信服务器换取当前访问者的token，其中封装着包括访问者openID在内的微信数据信息（安全性考量）
 				token = mpService4Recall.oauth2getAccessToken(code);
 			} catch (WxErrorException e) {
 				e.printStackTrace();
 			}
+			// 至此访问页面的用户的openID已获取，我们就能在后端确认其对应的user了
 			String openId = token.getOpenId();
 			System.out.println("本次微信端来访用户的Shiro认证出的OpenID结果是：" + openId);
 
 			// --------------------------------------------------------★开始进行Shiro的身份认证(Authentication)过程★-----------------------------------------------
+			// 使用Shiro的API功能开始进行认证操作，这里我们选择最基本的UsernamePasswordToken
 			UsernamePasswordToken shiroToken = new UsernamePasswordToken(openId, "123"); // credential
 																							// 默认统一设定成“123”
 			// shiroToken.setRememberMe(true);
+			/*
+			 * 先从SecurityUtils中获取唯一对应当前来访者的subject对象，
+			 * 通过该对象可以调用我们自定义的myRealm中的认证\授权方法，完成认证和授权功能
+			 */
 			Subject currentUser = SecurityUtils.getSubject();
 			String msg = "";
 			try {
@@ -174,13 +248,14 @@ public class ShiroAction extends ActionSupport {
 			session.setAttribute("wxURL", "");
 			return "failure";
 		} else {
-			// URL不包含code请求参数，则说明是系统后台登陆→请求转发到带有qrcode的JSP页面，让用户通过微信扫码登录系统后台，从而实现认证
+			// 对于桌面端来访者直接请求转发到带有qrcode的JSP页面，让用户通过微信扫码登录系统后台，从而实现桌面端的认证（基于Websocket，由ws4Login()负责）
 			return "page4login";
 		}
 
 	}
 
 	/**
+	 * AJAX
 	 * 封装有用于扫码登录的QRCODE的图片链接
 	 * 
 	 * ★内部类默认是private，因此为了能够让Struts2插件——JSON，访问该内部类，用来解析生成JSON格式字符串回复给前端，需要显式地写出public
@@ -276,8 +351,8 @@ public class ShiroAction extends ActionSupport {
 		LoginResult4WebSocket result = new LoginResult4WebSocket();
 		result.setResult(false);
 
+		// 密码对于微信扫码登陆无关紧要，默认统一设定成“123”
 		UsernamePasswordToken shiroToken = new UsernamePasswordToken(this.openid, "123"); // credential
-		// 默认统一设定成“123”
 		// shiroToken.setRememberMe(true);
 		Subject currentUser = SecurityUtils.getSubject();
 		String msg = "";

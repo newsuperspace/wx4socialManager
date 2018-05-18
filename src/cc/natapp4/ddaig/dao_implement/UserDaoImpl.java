@@ -94,4 +94,11 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 		return list;
 	}
 
+	@Override
+	public User getUserByUsername(String username) {
+
+		List<?> list = template.find("from User u where username=?", username);
+		return (User) list.get(0);
+	}
+
 }

@@ -6,10 +6,9 @@
 <struts>
 	<package name="directPage" namespace="/" extends="base-package">
 		<action name="directPageAction" class="directPageAction">
-			<!-- <result name="home">/WEB-INF/jsp/frame/home.jsp</result> <result 
-				name="top">/WEB-INF/jsp/frame/top.jsp</result> <result name="left">/WEB-INF/jsp/frame/left.jsp</result> -->
-			<result name="home">/WEB-INF/pages/right/user/userList.jsp</result>
-
+			<result name="home">/WEB-INF/jsp/frame/home.jsp</result>
+			<result name="top">/WEB-INF/jsp/frame/top.jsp</result>
+			<result name="left">/WEB-INF/jsp/frame/left.jsp</result>
 		</action>
 	</package>
 </struts>

@@ -19,7 +19,7 @@ public class MyShiroFilter extends DelegatingFilterProxy {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		// -------------------用来获取当前来访者的OpenID和所要请求的URL，并将其放入到当前来访者的session中保存待用
-		// 注意要从Filter中获取当前web应用的ServletContext，不能直接通过this.getServletContext()，而是要想下面这样从FilterConfig中获取
+		// 注意要从Filter中获取当前web应用的ServletContext，不能直接通过this.getServletContext()，而是要像下面这样从FilterConfig中获取
 		ServletContext context = this.getFilterConfig().getServletContext();
 		// 一定要将请求对象转变成HttpServletRequest类型★
 		HttpServletRequest req = (HttpServletRequest) request;

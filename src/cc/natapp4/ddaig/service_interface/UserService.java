@@ -33,4 +33,11 @@ public interface UserService extends BaseService<User> {
 	 */
 	public List<User> getManagers(String tag);
 	
+	/**
+	 * 通过用户的username获取user对象
+	 * @param username
+	 * @return
+	 */
+	public User getUserByUsername(String username);
+	
 }

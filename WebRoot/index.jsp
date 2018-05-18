@@ -22,7 +22,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   </head>
   
   <body>
-	<!--<c:redirect url="/directPageAction.action?forward=home"></c:redirect> -->
 	<c:redirect url="/userAction_getUserList.action"></c:redirect>
   </body>
 </html>

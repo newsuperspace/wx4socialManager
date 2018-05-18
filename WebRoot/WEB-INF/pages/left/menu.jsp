@@ -151,7 +151,7 @@
 							</div>
 						</div>
 
-
+						<shiro:hasPermission name="admin">
 						<div class="card">
 							<div class="card-header px-0 py-1" role="tab"
 								id="section2HeaderId">
@@ -179,7 +179,7 @@
 								</div>
 							</div>
 						</div>
-						
+						</shiro:hasPermission>
 
 					
 					</div>

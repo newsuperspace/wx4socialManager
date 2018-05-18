@@ -123,8 +123,13 @@ public class TestUserServiceImpl extends BaseServiceImpl<User> implements UserSe
 	}
 
 	@Override
-	public List<Manager> getManagers(String tag) {
+	public List<User> getManagers(String tag) {
 		return dao.getManagers(tag);
+	}
+
+	@Override
+	public User getUserByUsername(String username) {
+		return dao.getUserByUsername(username);
 	}
 	
 

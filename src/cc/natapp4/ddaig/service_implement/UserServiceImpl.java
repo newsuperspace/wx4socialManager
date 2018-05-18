@@ -228,5 +228,10 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		return dao.getManagers(tag);
 	}
 
+	@Override
+	public User getUserByUsername(String username) {
+		return dao.getUserByUsername(username);
+	}
+
 
 }

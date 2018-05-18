@@ -4,11 +4,17 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
 	id="WebApp_ID" version="3.1">
 	<display-name>weixin</display-name>
+
+
+	<!-- 当在浏览器中只输入 “域名/weixin” 时会访问本应用程序，以下列出了负责默认提供相应的可选页面（/WebRoot）目录之下 -->
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 		<welcome-file>index.htm</welcome-file>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
+
+
+	<!-- 自定义的监听，当系统启动时会执行其中的逻辑，负责进行与微信端有关的初始化工作，并将必要信息存放在ServletContext领域中备用 -->
 	<listener>
 		<listener-class>cc.natapp4.ddaig.servletListener.InitWxConfigListener</listener-class>
 	</listener>
@@ -19,6 +25,10 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>classpath:spring/applicationContext.xml</param-value>
 	</context-param>
+
+
+	<!-- 本过滤器是由Spring提供，负责对每次访问的，有关Hibernate的Session进行全局管控。防止出现在获取懒加载数据时由于session被提前关闭（通常在Dao方法调用结束就被自动关闭）而导致no 
+		session异常的产生 -->
 	<filter>
 		<filter-name>OpenSessionInViewFilter</filter-name>
 		<filter-class>org.springframework.orm.hibernate5.support.OpenSessionInViewFilter</filter-class>
@@ -27,8 +37,15 @@
 		<filter-name>OpenSessionInViewFilter</filter-name>
 		<url-pattern>*.action</url-pattern>
 	</filter-mapping>
+
+
 	<!-- 
-		<filter>
+		自定义的filter，作用是为Shiro功能做一些准备，包括：
+		（1）获取并保存从微信端发来的请求的URL路径
+		（2）获取并保存从微信端发来的code的值
+		这些数据将会在shiroAction中被使用到
+	-->
+	<filter>
 		<filter-name>shiroFilter</filter-name>
 		<filter-class>cc.natapp4.ddaig.security.MyShiroFilter</filter-class>
 		<init-param>
@@ -40,7 +57,9 @@
 		<filter-name>shiroFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	 -->
+
+
+	<!-- 这里是Struts2框架的系统功能入口 -->
 	<filter>
 		<filter-name>struts2</filter-name>
 		<filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class>
@@ -49,6 +68,9 @@
 		<filter-name>struts2</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+
+
+	<!-- 这里是SpringMVC框架的系统功能入口,由于当前系统主要建立在Struts2之上，SpringMVC只是负责提供WebSocket功能 -->
 	<servlet>
 		<servlet-name>SpringMVC</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -63,12 +85,8 @@
 		<servlet-name>SpringMVC</servlet-name>
 		<url-pattern>/ws/*</url-pattern>
 	</servlet-mapping>
-	<filter>
-		<filter-name>struts2_1</filter-name>
-		<filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>struts2_1</filter-name>
-		<url-pattern>*.action</url-pattern>
-	</filter-mapping>
+
+	<!-- <filter> <filter-name>struts2_1</filter-name> <filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class> 
+		</filter> <filter-mapping> <filter-name>struts2_1</filter-name> <url-pattern>*.action</url-pattern> 
+		</filter-mapping> -->
 </web-app>
