@@ -130,21 +130,32 @@
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
+										<shiro:hasPermission name="admin">
 										<li class="nav-item active"><a class="nav-link" href="#"
 											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "minusFirstLevelAction_getLevelList.action")'>街道层级
 												<span class="sr-only">(current)</span>
 										</a></li>
+										</shiro:hasPermission>
+										<shiro:hasPermission name="admin,minus_first:user:retrieve">
 										<li class="nav-item"><a class="nav-link" href="#"
 											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "zeroLevelAction_getLevelList.action")'>社区层级</a></li>
+										</shiro:hasPermission>
+										<shiro:hasPermission name="admin,minus_first:user:retrieve,zero:user:retrieve">
 										<li class="nav-item"><a class="nav-link" href="#"
 											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "firstLevelAction_getLevelList.action")'>第一层级</a></li>
+										</shiro:hasPermission>
+										<shiro:hasPermission name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve">
 										<li class="nav-item"><a class="nav-link" href="#"
 											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "secondLevelAction_getLevelList.action")'>第二层级</a></li>
+										</shiro:hasPermission>
+										<shiro:hasPermission name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve,second:user:retrieve">
 										<li class="nav-item"><a class="nav-link" href="#"
 											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "thirdLevelAction_getLevelList.action")'>第三层级</a></li>
+										</shiro:hasPermission>
+										<shiro:hasPermission name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve,second:user:retrieve,third:user:retrieve">
 										<li class="nav-item"><a class="nav-link" href="#"
 											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "fourthLevelAction_getLevelList.action")'>第四层级</a></li>
-
+										</shiro:hasPermission>
 									</ul>
 
 								</div>

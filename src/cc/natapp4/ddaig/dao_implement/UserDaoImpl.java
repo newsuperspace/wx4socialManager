@@ -31,10 +31,10 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 	public User queryByOpenId(String openID) {
 
 		List<User> list = (List<User>) this.getHibernateTemplate().find("from User where openid =?", openID);
-		
-		if(list.size()>0){
+
+		if (list.size() > 0) {
 			return list.get(0);
-		}else{
+		} else {
 			return null;
 		}
 	}
@@ -42,10 +42,11 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 	@Override
 	public List<User> queryByTagName(String tagName) {
 
-		List<User> list = (List<User>) this.getHibernateTemplate().find("from User u inner join fetch u.grouping g where g.tag =? ", tagName);
-		if(list.size()>0){
+		List<User> list = (List<User>) this.getHibernateTemplate()
+				.find("from User u inner join fetch u.grouping g where g.tag =? ", tagName);
+		if (list.size() > 0) {
 			return list;
-		}else{
+		} else {
 			return null;
 		}
 	}
@@ -62,29 +63,32 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 			// 管理员用户
 			switch (tag) {
 			case "minus_first":
-
+				list = (List<User>) this.getHibernateTemplate().find("from User u where " + "u.grouping.tag=?",
+						"minus_first");
 				break;
 			case "zero":
-				list = (List<User>) this.getHibernateTemplate().find(
-						"from User u where " + "u.grouping.tag=?",
-						 "zero");
+				list = (List<User>) this.getHibernateTemplate().find("from User u where " + "u.grouping.tag=?", "zero");
 				break;
 			case "first":
-
+				list = (List<User>) this.getHibernateTemplate().find("from User u where " + "u.grouping.tag=?",
+						"first");
 				break;
 			case "second":
-
+				list = (List<User>) this.getHibernateTemplate().find("from User u where " + "u.grouping.tag=?",
+						"second");
 				break;
 			case "third":
-
+				list = (List<User>) this.getHibernateTemplate().find("from User u where " + "u.grouping.tag=?",
+						"third");
 				break;
 			case "fourth":
-
+				list = (List<User>) this.getHibernateTemplate().find("from User u where " + "u.grouping.tag=?",
+						"fourth");
 				break;
 			default: // 获得全部
 				list = (List<User>) this.getHibernateTemplate().find(
-						"from User u where " + "u.grouping.tag in(?,?,?,?,?,?)",
-						"minus_first", "zero", "first", "second", "third", "fourth");
+						"from User u where " + "u.grouping.tag in(?,?,?,?,?,?)", "minus_first", "zero", "first",
+						"second", "third", "fourth");
 				break;
 			}
 		} else {
@@ -97,8 +101,16 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 	@Override
 	public User getUserByUsername(String username) {
 
-		List<?> list = template.find("from User u where username=?", username);
-		return (User) list.get(0);
+		try {
+			/*
+			 * 如果传入一个在数据库中不存在的username，就会爆出关于ArrayList的异常，这是因为查不到的数据为null
+			 * 然后把null放入到ArrayList而产生的，因此需要一个捕获异常的机制来处理，否则该错误会遗祸到上层中去。
+			 */
+			List<?> list = template.find("from User u where username=?", username);
+			return (User) list.get(0);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 }

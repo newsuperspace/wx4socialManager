@@ -68,7 +68,17 @@ public class MyRealm4Input extends AuthorizingRealm {
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection pc) {
 		// 授权操作
 		String username = (String) pc.getPrimaryPrincipal();
-
+		
+		// Admin用户只有一个通用权限——————admin
+		if(username.equals("admin")){
+			SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+			List<String>  list  =  new  ArrayList<String>();
+			list.add("admin");
+			info.addStringPermissions(list);
+			return info;
+		}
+		
+		// 非Admin用户的权限获取
 		if (StringUtils.isEmpty(username))
 			return null;
 
@@ -157,8 +167,10 @@ public class MyRealm4Input extends AuthorizingRealm {
 		
 		// 根据【PermissionLevel:PermissionType:Permission】规则解析并组装 权限名称，然后放入到list容器中
 		List<String> list = new ArrayList<String>();
-		for (Permission p : permissions) {
-			StringBuffer sb  =  new  StringBuffer();
+		Iterator<Permission> iterator = permissions.iterator();
+		while(iterator.hasNext()){
+			Permission p = iterator.next();
+			StringBuffer  sb  =  new  StringBuffer();
 			sb.append(p.getPermissionType().getPermissionLevel().getPermissionLevelName());
 			sb.append(":");
 			sb.append(p.getPermissionType().getPermissionTypeName());
@@ -166,6 +178,7 @@ public class MyRealm4Input extends AuthorizingRealm {
 			sb.append(p.getPermissionName());
 			list.add(sb.toString());
 		}
+		
 		info.addStringPermissions(list);
 		// 返回AuthorizationInfo，完成权限的获取
 		return info;
@@ -181,10 +194,17 @@ public class MyRealm4Input extends AuthorizingRealm {
 		String username = (String)token.getPrincipal();
 		
 		if (StringUtils.isEmpty(username)) {
-			// 如果openId是null或“” 则直接抛出异常, 向ShiroAction.login() 报告“账号不存在”
+			// 如果username是null或“” 则直接抛出异常, 向ShiroAction.login() 报告“账号不存在”
 			throw new UnknownAccountException();
 		}
 
+		// -----------判断是不是Admin用户————————用户名和密码都是admin------------
+		if(username.equals("admin")){
+			AuthenticationInfo info = new SimpleAuthenticationInfo(username, "admin", getName());
+			return info;
+		}
+		
+		// ----------------------判断非Admin用户--------------------------
 		if (null == userService) {
 			// 从Spring容器中获取Bean——userService，但再此之前需要先获取Spring容器对象
 			ServletContext servletContext = ServletActionContext.getServletContext();

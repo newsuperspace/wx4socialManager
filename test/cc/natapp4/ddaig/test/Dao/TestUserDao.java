@@ -23,12 +23,25 @@ public class TestUserDao {
 	private static final ApplicationContext  context =  new ClassPathXmlApplicationContext("spring/applicationContext.xml");
 
 	@Test
-	public void  testQuery(){
+	public void  testQueryManagerByTag(){
 		UserDao  dao =(UserDao)context.getBean("userDao");
 		List<User> users = dao.getManagers("zero");
 		for(User  u: users){
 			System.out.println(u.getUsername());
 		}
 	}
+	
+	@Test
+	public void testQueryByUsername(){
+		UserDao  dao  =  (UserDao) context.getBean("userDao");
+		User user = dao.getUserByUsername("张三");
+		if(null!=user){
+			System.out.println("查出了数据");
+		}else{
+			System.out.println("没查出数据");
+		}
+	}
+	
+	
 	
 }
