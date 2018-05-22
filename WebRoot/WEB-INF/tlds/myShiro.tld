@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+                        "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+ <tlib-version>1.0</tlib-version>
+ <jsp-version>1.2</jsp-version>
+ <short-name>myShiro</short-name>
+ <uri>/WEB-INF/tlds/myShiro.tld</uri>
+ <description>专门用来补充Shiro的JSP标签功能不足</description>
+ 
+ <tag>
+    <name>hasAnyPermissions</name>
+    <tag-class>cc.natapp4.ddaig.security.MyShiroJspTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+    	name属性中包含多个权限名，权限名之间用逗号分隔。
+    	如果当前用户存在权限名中的任意一个权限，就表示通过权限认证。
+    </description>
+    <attribute>
+      <name>name</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+ 
+ 
+ 
+ 
+ 
+</taglib>

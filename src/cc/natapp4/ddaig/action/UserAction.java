@@ -511,6 +511,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		Manager m = u.getManager();
 		u.setManager(null);
 		managerService.delete(m);
+		userService.update(u);
 		
 		ReturnMessage4Common   result  =  new  ReturnMessage4Common("解任成功！", true);
 		ActionContext.getContext().getValueStack().push(result);

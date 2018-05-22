@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="/struts-tags" prefix="s"%>
 <%@taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
+<%@taglib uri="/WEB-INF/tlds/myShiro.tld" prefix="myShiro" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -130,69 +131,84 @@
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
-										<shiro:hasPermission name="admin">
-										<li class="nav-item active"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "minusFirstLevelAction_getLevelList.action")'>街道层级
-												<span class="sr-only">(current)</span>
-										</a></li>
-										</shiro:hasPermission>
-										<shiro:hasPermission name="admin,minus_first:user:retrieve">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "zeroLevelAction_getLevelList.action")'>社区层级</a></li>
-										</shiro:hasPermission>
-										<shiro:hasPermission name="admin,minus_first:user:retrieve,zero:user:retrieve">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "firstLevelAction_getLevelList.action")'>第一层级</a></li>
-										</shiro:hasPermission>
-										<shiro:hasPermission name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "secondLevelAction_getLevelList.action")'>第二层级</a></li>
-										</shiro:hasPermission>
-										<shiro:hasPermission name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve,second:user:retrieve">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "thirdLevelAction_getLevelList.action")'>第三层级</a></li>
-										</shiro:hasPermission>
-										<shiro:hasPermission name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve,second:user:retrieve,third:user:retrieve">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("levelContent", "fourthLevelAction_getLevelList.action")'>第四层级</a></li>
-										</shiro:hasPermission>
-									</ul>
 
+										<myShiro:hasAnyPermissions name="admin">
+										<li class="nav-item active"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "minusFirstLevelAction_getLevelList.action")'>街道层级
+												<span class="sr-only">(current)</span>
+											</a>
+											</li>
+										</myShiro:hasAnyPermissions>
+
+										<myShiro:hasAnyPermissions
+											name="admin,minus_first:user:retrieve">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "zeroLevelAction_getLevelList.action")'>社区层级</a></li>
+										</myShiro:hasAnyPermissions>
+
+										<myShiro:hasAnyPermissions
+											name="admin,minus_first:user:retrieve,zero:user:retrieve">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "firstLevelAction_getLevelList.action")'>第一层级</a>
+											</li>
+										</myShiro:hasAnyPermissions>
+
+										<myShiro:hasAnyPermissions
+											name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "secondLevelAction_getLevelList.action")'>第二层级</a>
+											</li>
+										</myShiro:hasAnyPermissions>
+
+										<myShiro:hasAnyPermissions
+											name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve,second:user:retrieve">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "thirdLevelAction_getLevelList.action")'>第三层级</a></li>
+										</myShiro:hasAnyPermissions>
+
+
+										<myShiro:hasAnyPermissions
+											name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve,second:user:retrieve,third:user:retrieve">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "fourthLevelAction_getLevelList.action")'>第四层级</a></li>
+										</myShiro:hasAnyPermissions>
+
+									</ul>
 								</div>
 							</div>
 						</div>
 
 						<shiro:hasPermission name="admin">
-						<div class="card">
-							<div class="card-header px-0 py-1" role="tab"
-								id="section2HeaderId">
-								<a class="nav-link" data-toggle="collapse" href="#permissionContent"
-									aria-expanded="false" aria-controls="permissionContent"> 系统权限管理
-								</a>
-							</div>
-							<!--
+							<div class="card">
+								<div class="card-header px-0 py-1" role="tab"
+									id="section2HeaderId">
+									<a class="nav-link" data-toggle="collapse"
+										href="#permissionContent" aria-expanded="false"
+										aria-controls="permissionContent"> 系统权限管理 </a>
+								</div>
+								<!--
                                         注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
                                         并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
                                         因此同一时间只能打开其中一个card
                                     -->
-							<div id="permissionContent" class="collapse in" role="tabpanel"
-								data-parent="#accordianId" aria-labelledby="section2HeaderId">
-								<div class="card-body py-1">
+								<div id="permissionContent" class="collapse in" role="tabpanel"
+									data-parent="#accordianId" aria-labelledby="section2HeaderId">
+									<div class="card-body py-1">
 
-									<ul class="navbar-nav mr-auto mt-0 pt-0">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionLevelAction_getList.action")'>权限层级管理</a></li>
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionTypeAction_getList.action")'>权限类型管理</a></li>
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionAction_getList.action")'>权限管理</a></li>
-									</ul>
+										<ul class="navbar-nav mr-auto mt-0 pt-0">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionLevelAction_getList.action")'>权限层级管理</a></li>
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionTypeAction_getList.action")'>权限类型管理</a></li>
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("permissionContent", "permissionAction_getList.action")'>权限管理</a></li>
+										</ul>
+									</div>
 								</div>
 							</div>
-						</div>
 						</shiro:hasPermission>
 
-					
+
 					</div>
 				</div>
 			</div>

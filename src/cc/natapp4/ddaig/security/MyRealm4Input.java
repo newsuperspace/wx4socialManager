@@ -167,18 +167,29 @@ public class MyRealm4Input extends AuthorizingRealm {
 		
 		// 根据【PermissionLevel:PermissionType:Permission】规则解析并组装 权限名称，然后放入到list容器中
 		List<String> list = new ArrayList<String>();
-		Iterator<Permission> iterator = permissions.iterator();
-		while(iterator.hasNext()){
-			Permission p = iterator.next();
+//		Iterator<Permission> iterator = permissions.iterator();
+//		while(iterator.hasNext()){
+//			Permission p = iterator.next();
+//			StringBuffer  sb  =  new  StringBuffer();
+//			sb.append(p.getPermissionType().getPermissionLevel().getPermissionLevelName());
+//			sb.append(":");
+//			sb.append(p.getPermissionType().getPermissionTypeName());
+//			sb.append(":");
+//			sb.append(p.getPermissionName());
+//			System.out.println("当前用户所拥有的权限："+sb.toString());
+//			list.add(sb.toString());
+//		}
+		for(Permission p:permissions){
 			StringBuffer  sb  =  new  StringBuffer();
 			sb.append(p.getPermissionType().getPermissionLevel().getPermissionLevelName());
 			sb.append(":");
 			sb.append(p.getPermissionType().getPermissionTypeName());
 			sb.append(":");
 			sb.append(p.getPermissionName());
+			System.out.println("当前用户所拥有的权限："+sb.toString());
 			list.add(sb.toString());
 		}
-		
+		System.out.println("当前用户权限数量是："+list.size());
 		info.addStringPermissions(list);
 		// 返回AuthorizationInfo，完成权限的获取
 		return info;
@@ -213,13 +224,13 @@ public class MyRealm4Input extends AuthorizingRealm {
 			userService = (UserService) webApplicationContext.getBean("userService");
 		}
 
-		// 现在根据username从数据库中查找到了对应的用户对象
+		// 现在根据username从数据库中查找到了对应的用户对象,并且判断TA是不是一个管理员（manager是否为null）
 		User user = userService.getUserByUsername(username);
-		if(null==user){
+		System.out.println("当前用户所管理的层级对象是："+user.getManager().getLevelName());
+		if(null==user || null == user.getManager()){
 			// 查找不到该对象
 			throw new UnknownAccountException();
-		}
-		if (user.isLocked()) {
+		}else if (user.isLocked()) {
 			// 用户被锁定
 			throw new LockedAccountException();
 		}
