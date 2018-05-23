@@ -39,6 +39,7 @@
 		<property name="filters">
 			<map>
 				<entry key="logout"  value-ref="logoutFilter"></entry>
+				<entry key="anyPerms"  value-ref="permissionsAuthorizationFilter"></entry>
 			</map>
 		</property>
 		<!-- 配置 外部访问特定URL时，需要经过的过滤器、需要的“角色”或“权限”。这是Shiro进行权限配置的核心点 ★ -->
@@ -83,7 +84,19 @@
 				③localhost/weixin/css/1/2/3/4/5/../n/xxx.css
 				....
 			 -->
-				/**=authc
+			 <!-- 
+			 	在配置perms[] 或者role[] 的时候，如果需要同时匹配2个及以上的权限，那么必须先用""引号括起来，然后
+			 	权限与权限之间使用,逗号分隔开来，例如：
+			 	/**=authc,perms["all:system:access4desk,all:system:access4weixin"]
+			 	注意如此配置时，访问者的权限必须同时都拥有才能认证成功！
+			  -->
+			  <!-- 
+			  	由于Shiro filterChainDefinitions中 roles默认是and，
+				/** = user,roles[system,general]
+				比如：roles[system,general] ，表示同时需要“system”和“general” 2个角色才通过认证
+				所以需要自定义 继承 AuthorizationFilter
+			   -->
+				/**=authc,anyPerms[admin,all:system:access4desk,all:system:access4weixin]
 			</value>
 		</property>
 	</bean>

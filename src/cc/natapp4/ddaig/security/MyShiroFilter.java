@@ -13,6 +13,14 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
+/**
+ * 本Filter并非真正的Shiro的filterChainDefinitions链条中使用的filter，而是Serlvetfilter
+ * 作用是判断从前端发来的访问究竟是“微信端”还是“桌面端”，如果是桌面端不做任何处理可如果是微信端就需要做一些预处理工作，
+ * 以配合微信的一些功能发挥作用。
+ * 
+ * @author Administrator
+ *
+ */
 public class MyShiroFilter extends DelegatingFilterProxy {
 
 	@Override

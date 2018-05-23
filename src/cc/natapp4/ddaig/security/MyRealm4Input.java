@@ -41,10 +41,9 @@ import cc.natapp4.ddaig.service_interface.PermissionTypeService;
 import cc.natapp4.ddaig.service_interface.UserService;
 
 /**
- * MyRealm 继承自 AuthorizingRealm父类 本Realm是自定义的Realm，用来承接Shiro的认证和授权逻辑。
- * 当前类中有两个主要方法，分别是 doGetAuthenticationInfo() 用来进行身份认证； doGetAuthorizationInfo()
- * 用来进行 权限认证 这两个方法的最主要功能就是 与响应的数据库进行交互，也就是从数据库中获取“用户信息”交给Shiro的Matcher匹配其进行匹配、
- * Role角色信息、Permission权限信息.
+ * 本Realm是配合/WEB-INF/openJSP/signin.jsp使用的，主要的功能还是为了开发阶段测试使用
+ * 因为开发阶段不可能接入微信，因此运行阶段是基于微信完成授权登录操作的，因此本Realm是免去使用微信端
+ * 而专门设计的。
  * 
  * @author Administrator
  *
