@@ -382,7 +382,10 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	 */
 	public String permissionSetting() {
 		Set<PermissionType> permissionTypes = null;
+		// 存放指定层级对象所拥有的权限层级
 		PermissionLevel permissionLevel = null;
+		// 存放通过用权限
+		PermissionLevel permissionLevel4All = null;
 		Set<Permission> openedPermissions = null;
 
 		switch (this.getLevel()) {
@@ -394,7 +397,12 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 			// 获取该层级对象可以设置的全部“权限类型”
 			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
 			permissionTypes = permissionLevel.getPermissionTypes();
-			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
+			permissionLevel4All = permissionLevelService.queryEntityByLevel(10086);
+			// 把通用权限类型也放入到permissionTypes中去
+			for(PermissionType pt: permissionLevel4All.getPermissionTypes()){
+				permissionTypes.add(pt);
+			}
+			// 然后开始遍历每一个权限类型，然后将所包含的权限与用户已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
 			for (PermissionType pt : permissionTypes) {
 				ArrayList<Permission> list = new ArrayList<Permission>();
 				Set<Permission> permissions = pt.getPermissions();
@@ -421,6 +429,11 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 			// 获取该层级对象可以设置的全部“权限类型”
 			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
 			permissionTypes = permissionLevel.getPermissionTypes();
+			permissionLevel4All = permissionLevelService.queryEntityByLevel(10086);
+			// 把通用权限类型也放入到permissionTypes中去
+			for(PermissionType pt: permissionLevel4All.getPermissionTypes()){
+				permissionTypes.add(pt);
+			}
 			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
 			for (PermissionType pt : permissionTypes) {
 				ArrayList<Permission> list = new ArrayList<Permission>();
@@ -448,6 +461,11 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 			// 获取该层级对象可以设置的全部“权限类型”
 			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
 			permissionTypes = permissionLevel.getPermissionTypes();
+			permissionLevel4All = permissionLevelService.queryEntityByLevel(10086);
+			// 把通用权限类型也放入到permissionTypes中去
+			for(PermissionType pt: permissionLevel4All.getPermissionTypes()){
+				permissionTypes.add(pt);
+			}
 			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
 			for (PermissionType pt : permissionTypes) {
 				ArrayList<Permission> list = new ArrayList<Permission>();
@@ -475,6 +493,11 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 			// 获取该层级对象可以设置的全部“权限类型”
 			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
 			permissionTypes = permissionLevel.getPermissionTypes();
+			permissionLevel4All = permissionLevelService.queryEntityByLevel(10086);
+			// 把通用权限类型也放入到permissionTypes中去
+			for(PermissionType pt: permissionLevel4All.getPermissionTypes()){
+				permissionTypes.add(pt);
+			}
 			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
 			for (PermissionType pt : permissionTypes) {
 				ArrayList<Permission> list = new ArrayList<Permission>();
@@ -502,6 +525,11 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 			// 获取该层级对象可以设置的全部“权限类型”
 			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
 			permissionTypes = permissionLevel.getPermissionTypes();
+			permissionLevel4All = permissionLevelService.queryEntityByLevel(10086);
+			// 把通用权限类型也放入到permissionTypes中去
+			for(PermissionType pt: permissionLevel4All.getPermissionTypes()){
+				permissionTypes.add(pt);
+			}
 			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
 			for (PermissionType pt : permissionTypes) {
 				ArrayList<Permission> list = new ArrayList<Permission>();
@@ -529,6 +557,11 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 			// 获取该层级对象可以设置的全部“权限类型”
 			permissionLevel = permissionLevelService.queryEntityByLevel(this.getLevel());
 			permissionTypes = permissionLevel.getPermissionTypes();
+			permissionLevel4All = permissionLevelService.queryEntityByLevel(10086);
+			// 把通用权限类型也放入到permissionTypes中去
+			for(PermissionType pt: permissionLevel4All.getPermissionTypes()){
+				permissionTypes.add(pt);
+			}
 			// 遍历权限类型，与已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
 			for (PermissionType pt : permissionTypes) {
 				ArrayList<Permission> list = new ArrayList<Permission>();

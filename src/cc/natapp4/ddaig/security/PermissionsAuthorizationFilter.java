@@ -2,7 +2,10 @@ package cc.natapp4.ddaig.security;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authz.AuthorizationFilter;
 import org.springframework.context.annotation.Lazy;
@@ -30,15 +33,43 @@ public class PermissionsAuthorizationFilter extends AuthorizationFilter {
 	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue)
 			throws Exception {
 		// 返回true通过授权（允许访问），返回false不通过授权（跳转到授权失败页面）
+		
+		// 获取session用来判断本次请求的来源（微信/桌面）
+		HttpServletRequest  hsr  =  (HttpServletRequest)request;
+		HttpSession session = hsr.getSession();
+		// 先获取当前访问者对应的subject（已经完成了myRealm中的认证和授权过程）
 		Subject subject = this.getSubject(request, response);
+		// 将属性转变成权限名数组
 		String[] perms =  (String[]) mappedValue;
+		// 如果在applicationContext.xml中的使用anyPerms[]过滤器处中括号为空，说明并没有权限限制，直接放行
 		if(null==perms || 0==perms.length){
 			return true;
 		}
-		
+		/**
+		 *  剩下的就是要开始验证。
+		 *  需要特别指出的是，如果anyPerms[]中包含的是其他权限，没问题只要subject中存在就放行，只是如果含有的权限是
+		 *  all:system:access4desk
+		 *  all:system:access4weixin
+		 *  需要进一步判断当前访问是来自微信还是桌面，如果是微信则在通过我们自定义的过滤器MyShiroFilter的时候会在session中留下wxURL的变量，
+		 *  可通过查看是否存在该变量来判断访问是来子微信还是桌面。
+		 */
 		for(String p: perms){
 			if(subject.isPermitted(p)){
-				return true;
+				if(p.equals("all:system:access4desk")){
+					// 判断本次访问是否真的来自桌面
+					String wxUrl = (String)session.getAttribute("wxURL");
+					if(StringUtils.isEmpty(wxUrl)){
+						return true;
+					}
+				}else if(p.equals("all:system:access4weixin")){
+					// 判断本次访问是否真的来自微信
+					String wxUrl = (String)session.getAttribute("wxURL");
+					if(!StringUtils.isEmpty(wxUrl)){
+						return true;
+					}
+				}else{
+					return true;
+				}
 			}
 		}
 		
