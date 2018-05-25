@@ -2,6 +2,7 @@ package cc.natapp4.ddaig.action;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
@@ -23,6 +26,7 @@ import com.opensymphony.xwork2.ModelDriven;
 import cc.natapp4.ddaig.domain.Exchange;
 import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.Manager;
+import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
@@ -83,10 +87,11 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		user = new User();
 		return this.user;
 	}
+
 	// ======================================================属性驱动——向前端页面传送经过处理的数据信息
 	private int level;
 	private String lid;
-	
+
 	public int getLevel() {
 		return level;
 	}
@@ -102,6 +107,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	public void setLid(String lid) {
 		this.lid = lid;
 	}
+
 	// ==========================================================Method
 	/*
 	 * 向指定用户发送消息 一下是配套sendMessage2One()方法的属性驱动
@@ -149,18 +155,120 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	}
 
 	/**
-	 * 供给后台用户管理系统使用
+	 * 供给后台用户管理系统使用，获取所辖用户群体
 	 * 
 	 * @return 结果集索引字符串
 	 */
 	public String getUserList() {
-		List<User> users = userService.queryEntities();
 
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		for (User u : users) {
-			u.setRegistrationTimeStr(format.format(new Date(u.getRegistrationTime())));
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
 		}
 
+		// --------------------------开始根据操作人的层级来获取所辖用户（Admin获取所有用户）---------------------------
+		List<User> users = new ArrayList<User>();
+		if (isAdmin) {
+			users = userService.queryEntities();
+		} else {
+			Manager manager = doingMan.getManager();
+			String tagName = doingMan.getGrouping().getTag();
+			switch (tagName) {
+			case "minus_first":
+				// 街道层级管理者执行的创建用户操作
+				MinusFirstLevel level = null;
+				for (MinusFirstLevel mfl : manager.getMfls()) {
+					level = mfl;
+				}
+				Set<Member> members = level.getMembers();
+				for (Member m : members) {
+					users.add(m.getUser());
+				}
+				break;
+			case "zero":
+				// 社区层级管理者执行的创建用户操作
+				ZeroLevel level0 = null;
+				for (ZeroLevel zl : manager.getZls()) {
+					level0 = zl;
+				}
+				Set<Member> members0 = level0.getMembers();
+				for (Member m : members0) {
+					users.add(m.getUser());
+				}
+				break;
+			case "first":
+				// 第一层级管理者执行的创建用户操作
+				FirstLevel level1 = null;
+				for (FirstLevel fl : manager.getFls()) {
+					level1 = fl;
+				}
+				Set<Member> members1 = level1.getMembers();
+				for (Member m : members1) {
+					users.add(m.getUser());
+				}
+				break;
+			case "second":
+				// 第二层级管理者执行的创建用户操作
+				SecondLevel level2 = null;
+				for (SecondLevel scl : manager.getScls()) {
+					level2 = scl;
+				}
+				Set<Member> members2 = level2.getMembers();
+				for (Member m : members2) {
+					users.add(m.getUser());
+				}
+				break;
+			case "third":
+				// 第三层级用户执行的创建用户操作
+				ThirdLevel level3 = null;
+				for (ThirdLevel tl : manager.getTls()) {
+					level3 = tl;
+				}
+				Set<Member> members3 = level3.getMembers();
+				for (Member m : members3) {
+					users.add(m.getUser());
+				}
+				break;
+			case "fourth":
+				// 第四层级用户执行的创建用户操作
+				FourthLevel level4 = null;
+				for (FourthLevel fol : manager.getFols()) {
+					level4 = fol;
+				}
+				Set<Member> members4 = level4.getMembers();
+				for (Member m : members4) {
+					users.add(m.getUser());
+				}
+				break;
+			}
+		}
+
+		// ------------------将数据库中保存的关于注册日期的格里高利里毫秒值偏移量翻译成yyyy-MM-dd HH:mm:ss
+		// 的字符串格式------------------
+		if (null != users) {
+			// 如果当前查看的层级有用户，则修改用户的注册日期显示，否则就没必要了
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			for (User u : users) {
+				u.setRegistrationTimeStr(format.format(new Date(u.getRegistrationTime())));
+			}
+		}
+		// 放入到值栈中的map栈中
 		ActionContext.getContext().put("users", users);
 		return "list";
 	}
@@ -184,6 +292,31 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			// 处理注册时间，根据long类型的格力高丽丽偏移量毫秒值 经过格式转化成前端用户可识别的字符串信息
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			u.setRegistrationTimeStr(format.format(new Date(u.getRegistrationTime())));
+			// 设置manager4Ajax和member4Ajax两个属性
+			if (null != u.getManager()) {
+				Manager m = new Manager();
+				// TODO 如果有Bean拷贝的jar就能一次性全部拷贝了
+				m.setFls(u.getManager().getFls());
+				m.setFols(u.getManager().getFols());
+				m.setMfls(u.getManager().getMfls());
+				m.setScls(u.getManager().getScls());
+				m.setTls(u.getManager().getTls());
+				m.setUid(u.getManager().getUid());
+				m.setZls(u.getManager().getZls());
+				u.setManager4Ajax(m);
+			}
+			if (null != u.getMember()) {
+				Member m = new Member();
+				// TODO 如果有Bean拷贝的jar就能一次性全部拷贝了
+				m.setFirstLevel(u.getMember().getFirstLevel());
+				m.setFourthLevel(u.getMember().getFourthLevel());
+				m.setMinusFirstLevel(u.getMember().getMinusFirstLevel());
+				m.setSecondLevel(u.getMember().getSecondLevel());
+				m.setThirdLevel(u.getMember().getThirdLevel());
+				m.setUid(u.getMember().getUid());
+				m.setZeroLevel(u.getMember().getZeroLevel());
+				u.setMember4Ajax(m);
+			}
 		}
 
 		ActionContext.getContext().getValueStack().push(u);
@@ -280,13 +413,34 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	}
 
 	public String create() {
-
-		/**
-		 * TODO shiro需要权限认证，获取执行当前操作的管理者的所在权限， 然后新建的用户就置于该管理者的层级之下。
-		 */
-
 		ReturnMessage4Common message = new ReturnMessage4Common();
 
+		/**
+		 * shiro需要权限认证，获取执行当前操作的管理者的所在权限， 然后新建的用户就置于该管理者的层级之下。
+		 */
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
+
+		// ---------------------------开始正式新建用户对象---------------------------
+		// （1）处理User对象
 		User u = new User();
 		u.setUsername(user.getUsername());
 		u.setSickname(user.getSickname());
@@ -296,34 +450,113 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		u.setPhone(user.getPhone());
 		u.setAge(user.getAge());
 		u.setRegistrationTime(System.currentTimeMillis());
-
+		// 所有新建用户的tag都是common，如果需要提升到某个管理层需要更高级的管理员手动修改
 		Grouping g = groupingService.queryByTagName("common");
 		u.setGrouping(g);
-
+		// 处理性别
 		if ("1".equals(user.getSex())) {
 			u.setSex("男");
-			userService.save(u);
 			message.setMessage("新建成功！");
 			message.setResult(true);
 		} else if ("2".equals(user.getSex())) {
 			u.setSex("女");
-			userService.save(u);
 			message.setMessage("新建成功！");
 			message.setResult(true);
 		} else {
 			message.setResult(false);
 			message.setMessage("未选择性别，新建失败");
+			ActionContext.getContext().getValueStack().push(message);
+			return "json";
 		}
+		// （2）处理member层级数据，这是用来定位新建用户在层级结构中位置的关键，需要注意的是被新建的用户一定是默认置于当前操作者的层级对象之下的，然后向上不全至MinusFirst层级
+		Member member = new Member();
+		if (isAdmin) {
+			// 如果是admin新建的用户就很简单了，该用户不属于任何一个层级，因此member中的外键都是null
+			member.setUser(u);
+		} else {
+			// 如果是非admin创建的用户那就需要老老实实的给member填入层级对象的外键关联了
+			member.setUser(u);
+			// 获取执行当前创建用户操作的管理者对象，并进一步获取其绑定的层级对象
+			Manager manager = doingMan.getManager();
+			switch (doingMan.getGrouping().getTag()) {
+			case "minus_first":
+				// 街道层级管理者执行的创建用户操作
+				MinusFirstLevel level = null;
+				for (MinusFirstLevel mfl : manager.getMfls()) {
+					level = mfl;
+				}
+				member.setMinusFirstLevel(level);
+				break;
+			case "zero":
+				// 社区层级管理者执行的创建用户操作
+				ZeroLevel level0 = null;
+				for (ZeroLevel zl : manager.getZls()) {
+					level0 = zl;
+				}
+				member.setZeroLevel(level0);
+				member.setMinusFirstLevel(level0.getParent());
+				break;
+			case "first":
+				// 第一层级管理者执行的创建用户操作
+				FirstLevel level1 = null;
+				for (FirstLevel fl : manager.getFls()) {
+					level1 = fl;
+				}
+				member.setFirstLevel(level1);
+				member.setZeroLevel(level1.getParent());
+				member.setMinusFirstLevel(level1.getParent().getParent());
+				break;
+			case "second":
+				// 第二层级管理者执行的创建用户操作
+				SecondLevel level2 = null;
+				for (SecondLevel scl : manager.getScls()) {
+					level2 = scl;
+				}
+				member.setSecondLevel(level2);
+				member.setFirstLevel(level2.getParent());
+				member.setZeroLevel(level2.getParent().getParent());
+				member.setMinusFirstLevel(level2.getParent().getParent().getParent());
+				break;
+			case "third":
+				// 第三层级用户执行的创建用户操作
+				ThirdLevel level3 = null;
+				for (ThirdLevel tl : manager.getTls()) {
+					level3 = tl;
+				}
+				member.setThirdLevel(level3);
+				member.setSecondLevel(level3.getParent());
+				member.setFirstLevel(level3.getParent().getParent());
+				member.setZeroLevel(level3.getParent().getParent().getParent());
+				member.setMinusFirstLevel(level3.getParent().getParent().getParent().getParent());
+				break;
+			case "fourth":
+				// 第四层级用户执行的创建用户操作
+				FourthLevel level4 = null;
+				for (FourthLevel fol : manager.getFols()) {
+					level4 = fol;
+				}
+				member.setFourthLevel(level4);
+				member.setThirdLevel(level4.getParent());
+				member.setSecondLevel(level4.getParent().getParent());
+				member.setFirstLevel(level4.getParent().getParent().getParent());
+				member.setZeroLevel(level4.getParent().getParent().getParent().getParent());
+				member.setMinusFirstLevel(level4.getParent().getParent().getParent().getParent().getParent());
+				break;
+			}
+		}
+		// （3）建立member与user的关联关系（一对一），然后向数据库中保存
+		u.setMember(member);
+		member.setUser(u);
+		userService.save(u);
 
 		ActionContext.getContext().getValueStack().push(message);
 		return "json";
 	}
 
 	/**
-	 * 在managerList.jsp上显示管理者目录列表
+	 * 在managerList.jsp上显示当前操作执行者下辖的管理者目录列表
 	 */
 	public String getManagerList() {
-
 		String tag = this.getTag();
 		if (null == tag) {
 			tag = "nonono";
@@ -340,15 +573,15 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	 * @return
 	 */
 	public String getAppointInfo() {
-		ReturnMessage4Appoint  result = null;
+		ReturnMessage4Appoint result = null;
 		// 获取待任命者的uid
-		String uid  = this.user.getUid();
+		String uid = this.user.getUid();
 		// 得到待任命者的user对象
 		User u = userService.queryEntityById(uid);
 		// 得到待任命者的tag
 		String t = u.getGrouping().getTag();
 		// 进而判断待任命者的级别
-		int lowest = 10086;  // 10086表示超出系统层级范围，应该在前端报错
+		int lowest = 10086; // 10086表示超出系统层级范围，应该在前端报错
 		switch (t) {
 		case "minus_first":
 			lowest = -1;
@@ -374,12 +607,12 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		}
 		// TODO shiro 通过shiro获取subject进而获取到当前操作的管理者信息
 		int controller = 10086; // 未启动shiro前，10086默认代表admin
-			
+
 		result = new ReturnMessage4Appoint();
-		if(10086==lowest){
+		if (10086 == lowest) {
 			result.setMessage("错误：待委任者层级超出系统范围10086");
 			result.setResult(false);
-		}else if(10086==controller){
+		} else if (10086 == controller) {
 			// 当前操作是Admin操作的，应该将所有层级对象数据信息获取出来
 			List<MinusFirstLevel> minusLevels = minusFirstLevelService.queryEntities();
 			result.setMessage("执行当前操作的是Admin");
@@ -387,100 +620,100 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			result.setController(controller);
 			result.setLowest(lowest);
 			result.setMinusLevels(minusLevels);
-		}else{
+		} else {
 			// TODO shiro 当前操作是非Admin操作的，应该根据操作者层级对象来构建返回数据
 			// 为了防止在JSON解析时发生死循环应该切断“下层级对象”与“上层级对象”的联系（null化）
 		}
-		
+
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
-	
+
 	/**
 	 * 本方法对应前端的managerModal.op.changeAppointSelect()中的Ajax请求
-	 * 根据操作者在managerList.jsp的AppointModal中的选择情况（由id=appoint-1~4的Select的onchange事件触发本方法）
-	 * 然后更新下一级的以及后续层级（直到fourthLevel）中的显示内容（option选项） 
-	 * level:int类型  触发onchange事件的select对应的层级（也就是其id=appointX中的X的数字）
-	 * lid： 为操作者选中的层级对象的id
+	 * 根据操作者在managerList.jsp的AppointModal中的选择情况（由id=appoint-1~
+	 * 4的Select的onchange事件触发本方法） 然后更新下一级的以及后续层级（直到fourthLevel）中的显示内容（option选项）
+	 * level:int类型 触发onchange事件的select对应的层级（也就是其id=appointX中的X的数字） lid：
+	 * 为操作者选中的层级对象的id
 	 */
-	public String getAppointSelectInfo(){
-		
+	public String getAppointSelectInfo() {
+
 		int level = this.getLevel();
 		String lid = this.getLid();
-		if(lid.isEmpty()|| level>4 || level<-1){
-			ReturnMessage4Common  result  =  new  ReturnMessage4Common();
+		if (lid.isEmpty() || level > 4 || level < -1) {
+			ReturnMessage4Common result = new ReturnMessage4Common();
 			result.setMessage("必要参数level或lid为NULL，操作不予执行");
 			result.setResult(false);
 			ActionContext.getContext().getValueStack().push(result);
-		}else{
-			ReturnMessage4Appoint  result  =  new  ReturnMessage4Appoint();
+		} else {
+			ReturnMessage4Appoint result = new ReturnMessage4Appoint();
 			switch (level) {
-			case -1:  // 从街道层级中查找
+			case -1: // 从街道层级中查找
 				MinusFirstLevel minusFirst = minusFirstLevelService.queryEntityById(lid);
-				if(null==minusFirst){
-					result.setMessage("不存在id为："+lid+"的层级对象");
+				if (null == minusFirst) {
+					result.setMessage("不存在id为：" + lid + "的层级对象");
 					result.setResult(false);
-				}else{
+				} else {
 					result.setMessage("查询的MinusFirstLevel层级对象已获取");
 					result.setResult(true);
 					result.setMinusFirst(minusFirst);
 				}
 				ActionContext.getContext().getValueStack().push(result);
-				break;  
-			case 0:	// 从社区层级中查找
+				break;
+			case 0: // 从社区层级中查找
 				ZeroLevel zero = zeroLevelService.queryEntityById(lid);
-				if(null==zero){
-					result.setMessage("不存在id为："+lid+"的层级对象");
+				if (null == zero) {
+					result.setMessage("不存在id为：" + lid + "的层级对象");
 					result.setResult(false);
-				}else{
+				} else {
 					result.setMessage("查询的ZeroLevel层级对象已获取");
 					result.setResult(true);
 					result.setZero(zero);
 				}
 				ActionContext.getContext().getValueStack().push(result);
-				break;	
-			case 1:	// 从第一层级中查找
+				break;
+			case 1: // 从第一层级中查找
 				FirstLevel first = firstLevelService.queryEntityById(lid);
-				if(null==first){
-					result.setMessage("不存在id为："+lid+"的层级对象");
+				if (null == first) {
+					result.setMessage("不存在id为：" + lid + "的层级对象");
 					result.setResult(false);
-				}else{
+				} else {
 					result.setMessage("查询的FirstLevel层级对象已获取");
 					result.setResult(true);
 					result.setFirst(first);
 				}
 				ActionContext.getContext().getValueStack().push(result);
 				break;
-			case 2:	// 从第二层级中查找
+			case 2: // 从第二层级中查找
 				SecondLevel second = secondLevelService.queryEntityById(lid);
-				if(null==second){
-					result.setMessage("不存在id为："+lid+"的层级对象");
+				if (null == second) {
+					result.setMessage("不存在id为：" + lid + "的层级对象");
 					result.setResult(false);
-				}else{
+				} else {
 					result.setMessage("查询的SecondLevel层级对象已获取");
 					result.setResult(true);
 					result.setSecond(second);
 				}
 				ActionContext.getContext().getValueStack().push(result);
 				break;
-			case 3:	// 从第三层级中查找
+			case 3: // 从第三层级中查找
 				ThirdLevel third = thirdLevelService.queryEntityById(lid);
-				if(null==third){
-					result.setMessage("不存在id为："+lid+"的层级对象");
+				if (null == third) {
+					result.setMessage("不存在id为：" + lid + "的层级对象");
 					result.setResult(false);
-				}else{
+				} else {
 					result.setMessage("查询的ThirdLevel层级对象已获取");
 					result.setResult(true);
 					result.setThird(third);
 				}
 				ActionContext.getContext().getValueStack().push(result);
 				break;
-			case 4:	// 从第四层级中查找
+			case 4: // 从第四层级中查找
 				FourthLevel fourth = fourthLevelService.queryEntityById(lid);
-				if(null==fourth){
-					result.setMessage("不存在id为："+lid+"的层级对象");
+				if (null == fourth) {
+					result.setMessage("不存在id为：" + lid + "的层级对象");
 					result.setResult(false);
-				}else{
+				} else {
 					result.setMessage("查询的FourthLevel层级对象已获取");
 					result.setResult(true);
 					result.setFourth(fourth);
@@ -488,48 +721,48 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				ActionContext.getContext().getValueStack().push(result);
 				break;
 			default:
-				ReturnMessage4Common  result2  =  new  ReturnMessage4Common();
+				ReturnMessage4Common result2 = new ReturnMessage4Common();
 				result.setMessage("level的数值超出系统层级范围");
 				result.setResult(false);
 				ActionContext.getContext().getValueStack().push(result2);
 				break;
 			}
 		}
-		
+
 		return "json";
 	}
-	
 
 	/**
 	 * 解除任命
+	 * 
 	 * @return
 	 */
-	public String doDisappoint(){
-		
-		String uid  =  this.user.getUid();
+	public String doDisappoint() {
+
+		String uid = this.user.getUid();
 		User u = userService.queryEntityById(uid);
 		Manager m = u.getManager();
 		u.setManager(null);
-		managerService.delete(m);
 		userService.update(u);
-		
-		ReturnMessage4Common   result  =  new  ReturnMessage4Common("解任成功！", true);
+		managerService.delete(m);
+
+		ReturnMessage4Common result = new ReturnMessage4Common("解任成功！", true);
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
-	
-	
+
 	/**
 	 * 正式执行用户（manager）与层级对象的绑定（委任）操作
+	 * 
 	 * @return
 	 */
-	public String doAppoint(){
+	public String doAppoint() {
 		// 层级对象的所属层级（-1、0、1、2、3、4）
-		int level  = this.getLevel();
+		int level = this.getLevel();
 		// 待委任的管理者的uid
-		String uid  = this.user.getUid();
+		String uid = this.user.getUid();
 		// 待委任的层级对象的id
-		String lid  =  this.getLid();
+		String lid = this.getLid();
 		// 开始执行
 		User u = null;
 		Manager m = null;
@@ -537,61 +770,61 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		case -1:
 			MinusFirstLevel minusFirst = minusFirstLevelService.queryEntityById(lid);
 			u = userService.queryEntityById(uid);
-			m  =   new  Manager();
+			m = new Manager();
 			m.setUser(u);
-			Set<MinusFirstLevel>  mfls  =  new  HashSet<MinusFirstLevel>();
+			Set<MinusFirstLevel> mfls = new HashSet<MinusFirstLevel>();
 			mfls.add(minusFirst);
 			m.setMfls(mfls);
 			break;
 		case 0:
 			ZeroLevel zero = zeroLevelService.queryEntityById(lid);
 			u = userService.queryEntityById(uid);
-			m  =   new  Manager();
+			m = new Manager();
 			m.setUser(u);
-			Set<ZeroLevel>  zls  =  new  HashSet<ZeroLevel>();
+			Set<ZeroLevel> zls = new HashSet<ZeroLevel>();
 			zls.add(zero);
 			m.setZls(zls);
 			break;
 		case 1:
 			FirstLevel first = firstLevelService.queryEntityById(lid);
 			u = userService.queryEntityById(uid);
-			m  =   new  Manager();
+			m = new Manager();
 			m.setUser(u);
-			Set<FirstLevel>  fls  =  new  HashSet<FirstLevel>();
+			Set<FirstLevel> fls = new HashSet<FirstLevel>();
 			fls.add(first);
 			m.setFls(fls);
 			break;
 		case 2:
 			SecondLevel second = secondLevelService.queryEntityById(lid);
 			u = userService.queryEntityById(uid);
-			m  =   new  Manager();
+			m = new Manager();
 			m.setUser(u);
-			Set<SecondLevel>  scls  =  new  HashSet<SecondLevel>();
+			Set<SecondLevel> scls = new HashSet<SecondLevel>();
 			scls.add(second);
 			m.setScls(scls);
 			break;
 		case 3:
 			ThirdLevel third = thirdLevelService.queryEntityById(lid);
 			u = userService.queryEntityById(uid);
-			m  =   new  Manager();
+			m = new Manager();
 			m.setUser(u);
-			Set<ThirdLevel>  tls  =  new  HashSet<ThirdLevel>();
+			Set<ThirdLevel> tls = new HashSet<ThirdLevel>();
 			tls.add(third);
 			m.setTls(tls);
 			break;
 		case 4:
 			FourthLevel fourth = fourthLevelService.queryEntityById(lid);
 			u = userService.queryEntityById(uid);
-			m  =   new  Manager();
+			m = new Manager();
 			m.setUser(u);
-			Set<FourthLevel>  fols  =  new  HashSet<FourthLevel>();
+			Set<FourthLevel> fols = new HashSet<FourthLevel>();
 			fols.add(fourth);
 			m.setFols(fols);
 			break;
 		}
 		managerService.save(m);
-		
-		ReturnMessage4Common  result =  new  ReturnMessage4Common("委任成功", true);
+
+		ReturnMessage4Common result = new ReturnMessage4Common("委任成功", true);
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}

@@ -28,7 +28,7 @@ public interface UserDao extends BaseDao<User>{
 	 * 不同于Manager类的同名方法只能获取已经分配到层级对象的管理者
 	 * 当前类的getManagers（）方法将会获取到tag为层级对象（minuse_first/zero/first/second/third/fourth）
 	 * 的user，不论T是否已经被委派了层级对象。
-	 * @param tag
+	 * @param tag    希望查找的tagName
 	 * @return
 	 */
 	public List<User> getManagers(String tag);
@@ -39,5 +39,6 @@ public interface UserDao extends BaseDao<User>{
 	 * @return
 	 */
 	public User getUserByUsername(String username);
+	
 	
 }

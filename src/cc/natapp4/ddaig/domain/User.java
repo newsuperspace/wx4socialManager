@@ -8,6 +8,24 @@ import org.apache.struts2.json.annotations.JSON;
 
 public class User implements Serializable {
 	
+	//=====================通过Ajax向前端返回数据信息时使用属性============================
+	// 一下两个属性是在userAction.getUserInfo()中用来给前端myJS.userModal.op.userInfo()返回信息之用
+	private Member member4Ajax;
+	private Manager manager4Ajax;
+	
+	public Member getMember4Ajax() {
+		return member4Ajax;
+	}
+	public void setMember4Ajax(Member member4Ajax) {
+		this.member4Ajax = member4Ajax;
+	}
+	public Manager getManager4Ajax() {
+		return manager4Ajax;
+	}
+	public void setManager4Ajax(Manager manager4Ajax) {
+		this.manager4Ajax = manager4Ajax;
+	}
+
 	//====================================字段==================================
 	// ---------------------------------------普通字段-------------------------------------
 	private String uid;  // 【主键】
@@ -204,6 +222,9 @@ public class User implements Serializable {
 	 * 想要详细了解某个管理员的详细信息，因此manager需要携带一些user信息，但是如果我们从
 	 * user用户列表中想要了解某一用户身为管理者的详细内容（比如他管理的是哪些团体）大可
 	 * 直接向manager对象放到栈顶后组织成JSON字符串发送过去也来得及。
+	 * 
+	 * 在这更重要的是防止JSON解析时出现死循环，毕竟manager中也有user字段，user中又有
+	 * manager字段，你中有我我中有你，如此反复解析何时是头？
 	 */
 	@JSON(serialize=false)
 	public Manager getManager() {

@@ -1108,7 +1108,7 @@ var userModal = {
 				$("#detialsModal_uid").text(data.uid);
 				$("#detialsModal_openid").text(data.openid);
 				$("#detialsModal_registrationTime").text(data.registrationTimeStr);
-				if (null == data.member) {
+				if (null == data.member4Ajax) {
 					$("#detialsModal_minusFirst").text("无");
 					$("#detialsModal_zero").text("无");
 					$("#detialsModal_first").text("无");
@@ -1116,35 +1116,35 @@ var userModal = {
 					$("#detialsModal_third").text("无");
 					$("#detialsModal_fourth").text("无");
 				} else {
-					if (null == data.member.minusFirstLevel) {
+					if (null == data.member4Ajax.minusFirstLevel) {
 						$("#detialsModal_minusFirst").text("无");
 					} else {
-						$("#detialsModal_minusFirst").text(data.member.minusFirstLevel.name);
+						$("#detialsModal_minusFirst").text(data.member4Ajax.minusFirstLevel.name);
 					}
-					if (null == data.member.zeroLevel) {
+					if (null == data.member4Ajax.zeroLevel) {
 						$("#detialsModal_zero").text("无");
 					} else {
-						$("#detialsModal_zero").text(data.member.zeroLevel.name);
+						$("#detialsModal_zero").text(data.member4Ajax.zeroLevel.name);
 					}
-					if (null == data.member.firstLevel) {
+					if (null == data.member4Ajax.firstLevel) {
 						$("#detialsModal_first").text("无");
 					} else {
-						$("#detialsModal_first").text(data.member.firstLevel.name);
+						$("#detialsModal_first").text(data.member4Ajax.firstLevel.name);
 					}
-					if (null == data.member.secondLevel) {
+					if (null == data.member4Ajax.secondLevel) {
 						$("#detialsModal_second").text("无");
 					} else {
-						$("#detialsModal_second").text(data.member.secondLevel.name);
+						$("#detialsModal_second").text(data.member4Ajax.secondLevel.name);
 					}
-					if (null == data.member.thirdLevel) {
+					if (null == data.member4Ajax.thirdLevel) {
 						$("#detialsModal_third").text("无");
 					} else {
-						$("#detialsModal_third").text(data.member.thirdLevel.name);
+						$("#detialsModal_third").text(data.member4Ajax.thirdLevel.name);
 					}
-					if (null == data.member.fourthLevel) {
+					if (null == data.member4Ajax.fourthLevel) {
 						$("#detialsModal_fourth").text("无");
 					} else {
-						$("#detialsModal_fourth").text(data.member.fourthLevel.name);
+						$("#detialsModal_fourth").text(data.member4Ajax.fourthLevel.name);
 					}
 				}
 				$("#detialsModal").modal('show');
