@@ -79,50 +79,43 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 				doingMan = this.getUserByUsername(principal);
 			}
 		}
-		
+
 		// 开始查询
 		List<User> list = null;
-		if(isAdmin){
+		if (isAdmin) {
 			// admin用户，在最大范围内查找目标tag的用户
 			switch (tag) {
 			case "minus_first":
-				list = (List<User>) this.getHibernateTemplate().find(
-						"from User u where u.grouping.tag=?","minus_first");
+				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?",
+						"minus_first");
 				break;
 			case "zero":
-				list = (List<User>) this.getHibernateTemplate().find(
-						"from User u where u.grouping.tag=?","zero");
+				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?", "zero");
 				break;
 			case "first":
-				list = (List<User>) this.getHibernateTemplate().find(
-						"from User u where u.grouping.tag=?","first");
+				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?", "first");
 				break;
 			case "second":
-				list = (List<User>) this.getHibernateTemplate().find(
-						"from User u where u.grouping.tag=?","second");
+				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?", "second");
 				break;
 			case "third":
-				list = (List<User>) this.getHibernateTemplate().find(
-						"from User u where u.grouping.tag=?","third");
+				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?", "third");
 				break;
 			case "fourth":
-				list = (List<User>) this.getHibernateTemplate().find(
-						"from User u where u.grouping.tag=?","fourth");
+				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?", "fourth");
 				break;
-
-			case "admin":
-				list = (List<User>) this.getHibernateTemplate().find(
-						"from User u where u.grouping.tag in(?,?,?,?,?,?)", "minus_first", "zero", "first",
-						"second", "third", "fourth");
+			default:
+				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag in(?,?,?,?,?,?)",
+						"minus_first", "zero", "first", "second", "third", "fourth");
 				break;
 			}
-		}else{
+		} else {
 			// 非admin用户，根据其lid在有限范围内查找目标tag的用户
-			if("minus_first".equals(doingMan.getGrouping().getTag())){
+			if ("minus_first".equals(doingMan.getGrouping().getTag())) {
 				// 执行人是街道层级管理者
 				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
-				MinusFirstLevel  l = null;
-				for(MinusFirstLevel mfl: mfls){
+				MinusFirstLevel l = null;
+				for (MinusFirstLevel mfl : mfls) {
 					l = mfl;
 				}
 				switch (tag) {
@@ -152,17 +145,17 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 							"fourth", l.getMflid());
 					break;
 
-				default:   // 查询所有tag
+				default: // 查询所有tag
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag in(?,?,?,?,?) and mfl.mflid=?", "zero", "first",
-							"second", "third", "fourth",l.getMflid());
+							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag in(?,?,?,?,?) and mfl.mflid=?",
+							"zero", "first", "second", "third", "fourth", l.getMflid());
 					break;
 				}
-			}else if("zero".equals(doingMan.getGrouping().getTag())){
+			} else if ("zero".equals(doingMan.getGrouping().getTag())) {
 				// 执行人是社区层级管理者
 				Set<ZeroLevel> zls = doingMan.getManager().getZls();
-				ZeroLevel  l = null;
-				for(ZeroLevel zl: zls){
+				ZeroLevel l = null;
+				for (ZeroLevel zl : zls) {
 					l = zl;
 				}
 				switch (tag) {
@@ -184,20 +177,20 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 				case "fourth":
 					list = (List<User>) this.getHibernateTemplate().find(
 							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag=? and zl.zid=?",
-							"fourth",l.getZid());
+							"fourth", l.getZid());
 					break;
 
-				default:   // 查询所有tag
+				default: // 查询所有tag
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag in(?,?,?,?) and zl.zid=?", "first",
-							"second", "third", "fourth",l.getZid());
+							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag in(?,?,?,?) and zl.zid=?",
+							"first", "second", "third", "fourth", l.getZid());
 					break;
 				}
-			}else if("first".equals(doingMan.getGrouping().getTag())){
+			} else if ("first".equals(doingMan.getGrouping().getTag())) {
 				// 执行人是第一层级管理者
 				Set<FirstLevel> fls = doingMan.getManager().getFls();
-				FirstLevel  l = null;
-				for(FirstLevel fl: fls){
+				FirstLevel l = null;
+				for (FirstLevel fl : fls) {
 					l = fl;
 				}
 				switch (tag) {
@@ -209,25 +202,25 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 				case "third":
 					list = (List<User>) this.getHibernateTemplate().find(
 							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag=? and fl.flid=?",
-							"third",l.getFlid());
+							"third", l.getFlid());
 					break;
 				case "fourth":
 					list = (List<User>) this.getHibernateTemplate().find(
 							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag=? and fl.flid=?",
-							"fourth",l.getFlid());
+							"fourth", l.getFlid());
 					break;
 
-				default:   // 查询所有tag
+				default: // 查询所有tag
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag in(?,?,?) and zl.zid=?",
-							"second", "third", "fourth",l.getFlid());
+							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag in(?,?,?) and fl.flid=?",
+							"second", "third", "fourth", l.getFlid());
 					break;
 				}
-			}else if("second".equals(doingMan.getGrouping().getTag())){
+			} else if ("second".equals(doingMan.getGrouping().getTag())) {
 				// 执行人是第二层级管理者
 				Set<SecondLevel> scls = doingMan.getManager().getScls();
-				SecondLevel  l = null;
-				for(SecondLevel scl: scls){
+				SecondLevel l = null;
+				for (SecondLevel scl : scls) {
 					l = scl;
 				}
 				switch (tag) {
@@ -242,32 +235,32 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 							"fourth", l.getScid());
 					break;
 
-				default:   // 查询所有tag
+				default: // 查询所有tag
 					list = (List<User>) this.getHibernateTemplate().find(
 							"from User u inner join fetch u.member m inner join fetch m.secondLevel scl where u.grouping.tag in(?,?) and scl.scid=?",
 							"third", "fourth", l.getScid());
 					break;
 				}
-			}else if("third".equals(doingMan.getGrouping().getTag())){
+			} else if ("third".equals(doingMan.getGrouping().getTag())) {
 				// 执行人是第三层级管理者
 				Set<ThirdLevel> tls = doingMan.getManager().getTls();
-				ThirdLevel  l = null;
-				for(ThirdLevel tl: tls){
+				ThirdLevel l = null;
+				for (ThirdLevel tl : tls) {
 					l = tl;
 				}
 				switch (tag) {
 				case "fourth":
 					list = (List<User>) this.getHibernateTemplate().find(
 							"from User u inner join fetch u.member m inner join fetch m.thirdLevel tl where u.grouping.tag=? and tl.thid=?",
-							"fourth",  l.getThid());
+							"fourth", l.getThid());
 					break;
 				default:
 					list = (List<User>) this.getHibernateTemplate().find(
 							"from User u inner join fetch u.member m inner join fetch m.thirdLevel tl where u.grouping.tag=? and tl.thid=?",
-							"fourth",  l.getThid());
+							"fourth", l.getThid());
 					break;
 				}
-			}else{
+			} else {
 				// 执行人是其他层级（例如第四层级等）的管理者
 			}
 		}

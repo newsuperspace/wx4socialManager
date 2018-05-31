@@ -45,46 +45,59 @@ public class Manager implements Serializable {
 	// ===============================功能性的方法========================
 	
 	public String getLevelName() {
+		if(null==user){
+			/*
+			 * 需要使用到levelName属性的是通过Struts2值栈组建的managerList.jsp页面，而ajax通讯并不需要用到本属性
+			 * 而Ajax通讯是是通过user.manager4Ajax来浅拷贝user.manager（因为manager的GETTER被@JSON掉了）
+			 * 而manager4Ajax.user与user.manager4Ajax是一对一的关系，因此为了防止在JSON解析时出现死循环，我们不得
+			 * 不切断user.manager4Ajax.user = null 的联系，从而导致getLevelName()方法中的
+			 * String tag = user.getGrouping.getTag(); 无法使用而出现
+			 * java.lang.reflect.InvocationTargetException 异常
+			 * 因此这里判断一下user属性是否为null是十分必要的。
+			 */
+			return null;
+		}
 		String tag = user.getGrouping().getTag();
+		String level = "";
 		switch (tag) {
 		case "minus_first":
 			Iterator<MinusFirstLevel> iterator = mfls.iterator();
 			if(iterator.hasNext()){
-				levelName = iterator.next().getName();
+				level = iterator.next().getName();
 			}
 			break;
 		case "zero":
 			Iterator<ZeroLevel> iterator0 = zls.iterator();
 			if(iterator0.hasNext()){
-				levelName = iterator0.next().getName();
+				level = iterator0.next().getName();
 			}
 			break;
 		case "first":
 			Iterator<FirstLevel> iterator1 = fls.iterator();
 			if(iterator1.hasNext()){
-				levelName = iterator1.next().getName();
+				level = iterator1.next().getName();
 			}
 			break;
 		case "second":
 			Iterator<SecondLevel> iterator2 = scls.iterator();
 			if(iterator2.hasNext()){
-				levelName = iterator2.next().getName();
+				level = iterator2.next().getName();
 			}
 			break;
 		case "third":
 			Iterator<ThirdLevel> iterator3 = tls.iterator();
 			if(iterator3.hasNext()){
-				levelName = iterator3.next().getName();
+				level = iterator3.next().getName();
 			}
 			break;
 		case "fourth":
 			Iterator<FourthLevel> iterator4 = fols.iterator();
 			if(iterator4.hasNext()){
-				levelName = iterator4.next().getName();
+				level = iterator4.next().getName();
 			}
 			break;
 		}
-		return levelName;
+		return level;
 	}
 	
 	
@@ -95,6 +108,18 @@ public class Manager implements Serializable {
 	 * @return
 	 */
 	public String getLid() {
+		if(null==user){
+			/*
+			 * 需要使用到levelName属性的是通过Struts2值栈组建的managerList.jsp页面，而ajax通讯并不需要用到本属性
+			 * 而Ajax通讯是是通过user.manager4Ajax来浅拷贝user.manager（因为manager的GETTER被@JSON掉了）
+			 * 而manager4Ajax.user与user.manager4Ajax是一对一的关系，因此为了防止在JSON解析时出现死循环，我们不得
+			 * 不切断user.manager4Ajax.user = null 的联系，从而导致getLevelName()方法中的
+			 * String tag = user.getGrouping.getTag(); 无法使用而出现
+			 * java.lang.reflect.InvocationTargetException 异常
+			 * 因此这里判断一下user属性是否为null是十分必要的。
+			 */
+			return null;
+		}
 		String tag = user.getGrouping().getTag();
 		switch (tag) {
 		case "minus_first":

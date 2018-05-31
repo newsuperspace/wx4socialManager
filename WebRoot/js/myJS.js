@@ -1059,7 +1059,71 @@ var userModal = {
 					$("#sex4update").find("option[value = '2']").attr("selected", "selected");
 				}
 
-				$('#tag4update').find("option[value='" + data.grouping.tag + "']").attr("selected", "selected");
+				// 根据从后端发来的tags字段，处理设置用户分组的select中的显示内容
+				// 清空select
+				$('#tag4update').empty();
+				// 根据被操作对象是否已经被委任 data.manager==null? 来确定select是否可以被设置
+				if(null!=data.manager4Ajax){
+					// 已被委任，不能选动select
+					let op  =  $("<option></option>");
+					switch (data.grouping.tag) {
+					case "minus_first":
+						op.attr("value", data.grouping.tag).text("街道管理者");
+						break;
+					case "zero":
+						op.attr("value", data.grouping.tag).text("社区管理者");
+						break;
+					case "first":
+						op.attr("value", data.grouping.tag).text("第一层级管理者");
+						break;
+					case "second":
+						op.attr("value", data.grouping.tag).text("第二层级管理者");
+						break;
+					case "third":
+						op.attr("value", data.grouping.tag).text("第三层级管理者");
+						break;
+					case "fourth":
+						op.attr("value", data.grouping.tag).text("第四层级管理者");
+						break;
+					}
+					$('#tag4update').append(op).find("option[value='" + data.grouping.tag + "']").attr("selected", "selected");
+					$("#tag4update").attr("disabled", true);
+				}else{
+					// 没有被委任，则可以选动select
+					// 分析tags中所包含的tag名称，并重新组建option
+					for (var i = 0; i < data.tags.length; i++) {
+						let op = $("<option></option>");
+						switch (data.tags[i]) {
+						case "minus_first":
+							op.attr("value", data.tags[i]).text("街道管理者");
+							break;
+						case "zero":
+							op.attr("value", data.tags[i]).text("社区管理者");
+							break;
+						case "first":
+							op.attr("value", data.tags[i]).text("第一层级管理者");
+							break;
+						case "second":
+							op.attr("value", data.tags[i]).text("第二层级管理者");
+							break;
+						case "third":
+							op.attr("value", data.tags[i]).text("第三层级管理者");
+							break;
+						case "fourth":
+							op.attr("value", data.tags[i]).text("第四层级管理者");
+							break;
+						case "unreal":
+							op.attr("value", data.tags[i]).text("未实名认证");
+							break;
+						case "common":
+							op.attr("value", data.tags[i]).text("普通认证用户");
+							break;
+						}
+						$('#tag4update').append(op);
+						$("#tag4update").attr("disabled", false);
+					}
+					$('#tag4update').find("option[value='" + data.grouping.tag + "']").attr("selected", "selected");
+				}
 
 				$("#updateUserModal").modal('show');
 			});

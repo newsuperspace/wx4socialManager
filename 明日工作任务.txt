@@ -1,3 +1,29 @@
+// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = this.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = this.getUserByUsername(principal);
+			}
+		}
+
+
+
+
+
+
 总计划：
 1、完成MinusFirstLevel展示详情Modal的功能
 2、层级对象创建的时候生成具有特定格式的二维码，初步设计结构是
@@ -32,3 +58,12 @@
 ③增加在新建用户的Action中，首先通过Shiro获取当前操作者所管理的层级对象，然后在层级对象之下新建一个用户。
 ④增加用户管理-待分配人员 的基本分配功能（可以在这里看到自己直接父层级对象所管理的人员，且这部分人员不属于任何自己兄弟层级对象，然后可以将其中人员纳入到自己管辖内）
 ⑤在admin、MinusFirst、Zero、First、Second、Third、Fourth层级对象之间断进行登录切换，查看权限JSP标签是否部署正常（该某个层级管理者能见到的东西就应该能看到，其他不该他看到的东西应该看不到）
+
+
+Bug修正：
+3、人员任免的Modal需要根据shiro的权限层次来特性化显示。
+4、增加permissionType= level的权限，并部署到 menu.jsp上的”组织层级化管理“上
+5、
+6、
+7、
+8、

@@ -292,19 +292,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			// 处理注册时间，根据long类型的格力高丽丽偏移量毫秒值 经过格式转化成前端用户可识别的字符串信息
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			u.setRegistrationTimeStr(format.format(new Date(u.getRegistrationTime())));
-			// 设置manager4Ajax和member4Ajax两个属性
-			if (null != u.getManager()) {
-				Manager m = new Manager();
-				// TODO 如果有Bean拷贝的jar就能一次性全部拷贝了
-				m.setFls(u.getManager().getFls());
-				m.setFols(u.getManager().getFols());
-				m.setMfls(u.getManager().getMfls());
-				m.setScls(u.getManager().getScls());
-				m.setTls(u.getManager().getTls());
-				m.setUid(u.getManager().getUid());
-				m.setZls(u.getManager().getZls());
-				u.setManager4Ajax(m);
-			}
+
 			if (null != u.getMember()) {
 				Member m = new Member();
 				// TODO 如果有Bean拷贝的jar就能一次性全部拷贝了
@@ -313,12 +301,106 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				m.setMinusFirstLevel(u.getMember().getMinusFirstLevel());
 				m.setSecondLevel(u.getMember().getSecondLevel());
 				m.setThirdLevel(u.getMember().getThirdLevel());
-				m.setUid(u.getMember().getUid());
+				m.setUser(u);
 				m.setZeroLevel(u.getMember().getZeroLevel());
 				u.setMember4Ajax(m);
 			}
+			if(null!=u.getManager()){
+				// TODO 这里是否应该进行浅拷贝？？防止我们在切断manager与user的一对一关系的时候会影响到数据库（即便我们没有显示调用update方法）？
+				Manager manager = u.getManager();
+				// 由于user与manager是一对一提关系，两者内都有彼此引用从而在JSON解析时出现系循环嵌套，因此我们需要先切断manager与user的关系
+				manager.setUser(null);  
+				// 由于user中的manager的GETTER属性上设置了@JSON（serializable=false）因此不会被解析到JSON中传输给前端
+				// 我们需要使用替代属性manager4Ajax向前端传输必要的manager数据
+				u.setManager4Ajax(u.getManager());
+			}
 		}
 
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
+		
+		ArrayList<String> tagsList =  new ArrayList<String>();
+		if(isAdmin){
+			// admin 用户有权分配所有tag，但不建议admin修改用户的grouping.tag，防止出现混乱♥
+			tagsList.add("unreal");
+			tagsList.add("common");
+			tagsList.add("minus_first");
+			tagsList.add("zero");
+			tagsList.add("first");
+			tagsList.add("second");
+			tagsList.add("third");
+			tagsList.add("fourth");
+		}else{
+			// 非admin，则根据实际情况来设置tags（只能设置低于当前操作者层次的tag）
+			String t = doingMan.getGrouping().getTag();
+			switch (t) {
+			case "minus_first":
+				tagsList.add("zero");
+				tagsList.add("first");
+				tagsList.add("second");
+				tagsList.add("third");
+				tagsList.add("fourth");
+				tagsList.add("common");
+				tagsList.add("unreal");
+				break;
+			case "zero":
+				tagsList.add("first");
+				tagsList.add("second");
+				tagsList.add("third");
+				tagsList.add("fourth");
+				tagsList.add("common");
+				tagsList.add("unreal");
+				break;
+			case "first":
+				tagsList.add("second");
+				tagsList.add("third");
+				tagsList.add("fourth");
+				tagsList.add("common");
+				tagsList.add("unreal");
+				break;
+			case "second":
+				tagsList.add("third");
+				tagsList.add("fourth");
+				tagsList.add("common");
+				tagsList.add("unreal");
+				break;
+			case "third":
+				tagsList.add("fourth");
+				tagsList.add("common");
+				tagsList.add("unreal");
+				break;
+			case "fourth":
+				tagsList.add("common");
+				tagsList.add("unreal");
+				break;
+			}
+		}
+		
+		/*
+		 * 当需要将List转化成数组Array的时候是需要像如下方式实现的，
+		 * 给ArrayList.toArray()传递一个数组实例作为参数。★ 
+		 */
+		String[] tags = (String[])tagsList.toArray(new String[0]);
+		u.setTags(tags);
+		
 		ActionContext.getContext().getValueStack().push(u);
 		return "json";
 	}

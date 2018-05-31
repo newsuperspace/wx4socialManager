@@ -25,7 +25,14 @@ public class User implements Serializable {
 	public void setManager4Ajax(Manager manager4Ajax) {
 		this.manager4Ajax = manager4Ajax;
 	}
-
+	// 以下属性用于在userList.jsp - showUpdateUserModal中展示被修改用户可选用的tag（取决于操作者的等级，等级越高可用的tag越多）
+	private String[] tags; 
+	public String[] getTags() {
+		return tags;
+	}
+	public void setTags(String[] tags) {
+		this.tags = tags;
+	}
 	//====================================字段==================================
 	// ---------------------------------------普通字段-------------------------------------
 	private String uid;  // 【主键】
