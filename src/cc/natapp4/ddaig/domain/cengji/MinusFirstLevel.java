@@ -65,8 +65,12 @@ public class MinusFirstLevel implements LevelInterface {
 		Iterator<ZeroLevel> iterator = ch.iterator();
 		while(iterator.hasNext()){
 			ZeroLevel zero = iterator.next();
-			zero.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
-			list.add(zero);
+			// 只选择没有被“委任”的层级对象，来向前端返回⭐
+			if(null==zero.getManager()){
+				// 切断父子关系，防止@JSON解析的时候出现死循环⭐
+				zero.setParent(null); 
+				list.add(zero);
+			}
 		}
 		return list;
 	}

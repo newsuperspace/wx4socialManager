@@ -757,6 +757,7 @@ var managerModal = {
 		 * level: INT类型  触发onchange事件的select对应的层级（也就是其id=appointX中的X的数字）
 		 * lid： 为操作者选中的层级对象的id
 		 * lowest: 标记当前被任命的管理对象的对应层级
+		 * uid： 被任命的管理者的uid
 		 */
 		changeAppointSelect : function(level, lid, lowest, uid) {
 			/*
@@ -774,105 +775,6 @@ var managerModal = {
 					managerModal.op.appoint(uid, level, appointLevelID);
 				});
 			}
-
-			var data = {
-				level : level,
-				lid : lid
-			};
-
-			$.post("userAction_getAppointSelectInfo.action", data, function(data, textStatus, req) {
-				if (data.result) {
-					switch (level + 1) {
-					case 0:
-						// 清空-1层级以下的所有select中的内容，并重置初始option，然后设置disabled属性
-						for (var i = 0; i < 5; i++) {
-							$("#appoint" + i).attr("disabled", "disabled").empty().append($("<option value='0' selected>--请选择--</option>"));
-
-						}
-						// 重建option
-						$("#appoint0").attr("disabled", false);
-						var option = null;
-						for (var i = 0; i < data.minusFirst.children4Ajax.length; i++) {
-							var zero = data.minusFirst.children4Ajax[i];
-							option = $("<option></option>");
-							option.val(zero.zid);
-							option.text(zero.name);
-							$("#appoint0").append(option);
-						}
-						break;
-					case 1:
-						// 清0层级以下的所有select中的内容，并重置初始option，然后设置disabled属性
-						for (var i = 1; i < 5; i++) {
-							$("#appoint" + i).attr("disabled", "disabled").empty().append($("<option value='0' selected>--请选择--</option>"));
-
-						}
-						// 重建option
-						$("#appoint1").attr("disabled", false);
-						var option = null;
-						for (var i = 0; i < data.zero.children4Ajax.length; i++) {
-							var first = data.zero.children4Ajax[i];
-							option = $("<option></option>");
-							option.val(first.flid);
-							option.text(first.name);
-							$("#appoint1").append(option);
-						}
-						break;
-					case 2:
-						// 清空1层级以下的所有select中的内容，并重置初始option，然后设置disabled属性
-						for (var i = 2; i < 5; i++) {
-							$("#appoint" + i).attr("disabled", "disabled").empty().append($("<option value='0' selected>--请选择--</option>"));
-
-						}
-						// 重建option
-						$("#appoint2").attr("disabled", false);
-						var option = null;
-						for (var i = 0; i < data.first.children4Ajax.length; i++) {
-							var second = data.first.children4Ajax[i];
-							option = $("<option></option>");
-							option.val(second.scid);
-							option.text(second.name);
-							$("#appoint2").append(option);
-						}
-						break;
-					case 3:
-						// 清空2层级以下的所有select中的内容，并重置初始option，然后设置disabled属性
-						for (var i = 3; i < 5; i++) {
-							$("#appoint" + i).attr("disabled", "disabled").empty().append($("<option value='0' selected>--请选择--</option>"));
-
-						}
-						// 重建option
-						$("#appoint3").attr("disabled", false);
-						var option = null;
-						for (var i = 0; i < data.second.children4Ajax.length; i++) {
-							var third = data.second.children4Ajax[i];
-							option = $("<option></option>");
-							option.val(third.thid);
-							option.text(third.name);
-							$("#appoint3").append(option);
-						}
-						break;
-					case 4:
-						// 清空3层级以下的所有select中的内容，并重置初始option，然后设置disabled属性
-						for (var i = 4; i < 5; i++) {
-							$("#appoint" + i).attr("disabled", "disabled").empty().append($("<option value='0' selected>--请选择--</option>"));
-
-						}
-						// 重建option
-						$("#appoint4").attr("disabled", false);
-						var option = null;
-						for (var i = 0; i < data.third.children4Ajax.length; i++) {
-							var fourth = data.third.children4Ajax[i];
-							option = $("<option></option>");
-							option.val(fourth.foid);
-							option.text(fourth.name);
-							$("#appoint4").append(option);
-						}
-						break;
-					}
-				} else {
-					alert(data.message);
-				}
-			});
 		},
 
 		/*
@@ -880,7 +782,7 @@ var managerModal = {
 		 * uid： 被任命的管理者的uid
 		 */
 		showAppointModal : function(uid) {
-			// 先给“提交”按钮绑定上方法
+			// 先取消“提交”按钮的可用性
 			$("#button4appoint").attr("disabled", "disabled");
 			// 然后，开始通过Ajax从后端获取必要的层级对象的信息，用来组织MODAL的页面显示
 			var data = {
@@ -893,52 +795,117 @@ var managerModal = {
 					$("#appoint div.row").hide();
 
 					// 开始分析JSON数据然后组织Modal页面呈现
-					var controller = data.controller;
-					if (10086 == controller) {
-						// ADMIN
+					var controllerNum = data.controllerNum;
+					if (10086 == controllerNum) {
+						// Admin用户
+						// 待分配者的层级信息（-1/0/1/2/3/4），根据该层级可以知道应该显示哪个select以供选择任命的层级对象
 						var lowest = data.lowest;
-
-						for (let i = lowest; i >= -1; i--) {
-							if (-1 == i) {
-								// 创建MinusFirstLevel的Select
-								$("#appoint-1").empty();
-								var option = $("<option value='0' selected>--请选择--</option>");
-								$("#appoint-1").append(option);
-								for (var j = 0; j < data.minusLevels.length; j++) {
-									var minusLevel = data.minusLevels[j];
-									option = $("<option></option>");
-									option.attr("value", minusLevel.mflid);
-									option.text(minusLevel.name);
-									$("#appoint-1").append(option);
-								}
-								// 显示该Select所在的row
-								$("#appoint-1").parent().parent().show();
-								// 设置onchange事件驱动
-								$("#appoint-1").parent().parent().unbind().bind("change", function() {
-									managerModal.op.changeAppointSelect(-1, $("#appoint-1").val(), data.lowest, uid);
-								});
-							} else {
-								// 其他Select默认只有“--请选择--”
-								$("#appoint" + i).empty().append($("<option value='0' selected>--请选择--</option>"));
-								// 显示该Select所在的row
-								$("#appoint" + i).attr("disabled", "disabled").parent().parent().show();
-								// 设置onchange事件驱动
-								$("#appoint" + i).parent().parent().unbind().bind("change", function() {
-									/**
-									 * ★★★★★
-									 * 这里有个大学问，因为我们要向方法中传递参数，而参数我们只希望传递当前时刻的数值
-									 * 由于这里传递进去的是变量值，如果变量 I 是全局变量（使用var关键字声明），则会以
-									 * 类似“址传递”的方式传递进去，则变量会随着I的实时状态而改变，这不是我们想看到的。
-									 * 如果想以“值传递”的方式传参，则需要变量I为局部变量，因此在for循环头部中使用let
-									 * 关键字来定义变量I。
-									 */
-									managerModal.op.changeAppointSelect(i, $("#appoint" + i).val(), data.lowest, uid);
-								});
-							}
+						// 先找到并清空用来显示可委任层级对象的select，以便重建option
+						var $select = $("#appoint" + lowest).empty();
+						// 先创建一个默认的option
+						$select.append($("<option value='0' selected>--请选择--</option>"));
+						// 开始遍历子层级数据，并创建对应的option
+						for (let i = 0; i < data.minusLevels.length; i++) {
+							var minusLevel = data.minusLevels[i];
+							var option = $("<option></option>");
+							option.attr("value", minusLevel.mflid);
+							option.text(minusLevel.name);
+							$select.append(option);
 						}
+						// 显示该Select所在的row
+						$select.attr("disabled", false).parent().parent().show();
+						// 设置onchange事件驱动
+						$select.unbind().bind("change", function() {
+							/**
+							 * ★★★★★
+							 * 这里有个大学问，因为我们要向方法中传递参数，而参数我们只希望传递当前时刻的数值
+							 * 由于这里传递进去的是变量值，如果变量 I 是全局变量（使用var关键字声明），则会以
+							 * 类似“址传递”的方式传递进去，则变量会随着I的实时状态而改变，这不是我们想看到的。
+							 * 如果想以“值传递”的方式传参，则需要变量I为局部变量，因此在for循环头部中使用let
+							 * 关键字来定义变量I。
+							 */
+							managerModal.op.changeAppointSelect(-1, $select.val(), data.lowest, uid);
+						});
 					} else {
-						// 非ADMIN
-						// TODO shiro重启后再编写
+						// 非Admin用户
+						// // 待分配者的层级信息（-1/0/1/2/3/4），根据该层级可以知道应该显示哪个select以供选择任命的层级对象
+						var lowest = data.lowest;
+						// 先找到并清空用来显示可委任层级对象的select，以便重建option
+						var $select = $("#appoint" + lowest).empty();
+						// 先创建一个默认的option
+						$select.append($("<option value='0' selected>--请选择--</option>"));
+						// 分析操作者的层级
+						switch (controllerNum) {
+						case -1:
+							// 操作者是街道，则操作者的层级对象是data.minusFirst
+							var level  =  data.minusFirst;
+							for(let i=0;i<level.children4Ajax.length;i++){
+								// 获取次层级zeroLevel对象
+								var child = level.children4Ajax[i];
+								var option = $("<option></option>");
+								option.attr("value",child.zid).text(child.name);
+								$select.append(option);
+							}
+							break;
+						case 0:
+							// 操作者是社区，则操作者的层级对象是data.zero
+							var level = data.zero;
+							for(let i=0;i<level.children4Ajax.length;i++){
+								// 获取次层级firstLevel对象
+								var child = level.children4Ajax[i];
+								var option = $("<option></option>");
+								option.attr("value",child.flid).text(child.name);
+								$select.append(option);
+							}
+							break;
+						case 1:
+							// 操作者是第一级，则操作者的层级对象是data.first
+							var level = data.first;
+							for(let i=0;i<level.children4Ajax.length;i++){
+								// 获取次层级secondLevel对象
+								var child = level.children4Ajax[i];
+								var option = $("<option></option>");
+								option.attr("value",child.scid).text(child.name);
+								$select.append(option);
+							}
+							break;
+						case 2:
+							// 操作者是第二级，则操作者的层级对象是data.second
+							var level = data.second;
+							for(let i=0;i<level.children4Ajax.length;i++){
+								// 获取次层级thirdLevel对象
+								var child = level.children4Ajax[i];
+								var option = $("<option></option>");
+								option.attr("value",child.thid).text(child.name);
+								$select.append(option);
+							}
+							break;
+						case 3:
+							// 操作者是第三级，则操作者的层级对象是data.third
+							var level = data.third;
+							for(let i=0;i<level.children4Ajax.length;i++){
+								// 获取次层级fourthLevel对象
+								var child = level.children4Ajax[i];
+								var option = $("<option></option>");
+								option.attr("value",child.foid).text(child.name);
+								$select.append(option);
+							}
+							break;
+						}
+						// 显示该Select所在的row
+						$select.attr("disabled", false).parent().parent().show();
+						// 设置onchange事件驱动
+						$select.unbind().bind("change", function() {
+							/**
+							 * ★★★★★
+							 * 这里有个大学问，因为我们要向方法中传递参数，而参数我们只希望传递当前时刻的数值
+							 * 由于这里传递进去的是变量值，如果变量 I 是全局变量（使用var关键字声明），则会以
+							 * 类似“址传递”的方式传递进去，则变量会随着I的实时状态而改变，这不是我们想看到的。
+							 * 如果想以“值传递”的方式传参，则需要变量I为局部变量，因此在for循环头部中使用let
+							 * 关键字来定义变量I。
+							 */
+							managerModal.op.changeAppointSelect(data.lowest, $select.val(), data.lowest, uid);
+						});
 					}
 					$("#appoint").modal("show");
 				} else {
@@ -1063,9 +1030,9 @@ var userModal = {
 				// 清空select
 				$('#tag4update').empty();
 				// 根据被操作对象是否已经被委任 data.manager==null? 来确定select是否可以被设置
-				if(null!=data.manager4Ajax){
+				if (null != data.manager4Ajax) {
 					// 已被委任，不能选动select
-					let op  =  $("<option></option>");
+					let op = $("<option></option>");
 					switch (data.grouping.tag) {
 					case "minus_first":
 						op.attr("value", data.grouping.tag).text("街道管理者");
@@ -1088,7 +1055,7 @@ var userModal = {
 					}
 					$('#tag4update').append(op).find("option[value='" + data.grouping.tag + "']").attr("selected", "selected");
 					$("#tag4update").attr("disabled", true);
-				}else{
+				} else {
 					// 没有被委任，则可以选动select
 					// 分析tags中所包含的tag名称，并重新组建option
 					for (var i = 0; i < data.tags.length; i++) {

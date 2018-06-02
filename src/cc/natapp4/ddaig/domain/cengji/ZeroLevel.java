@@ -65,8 +65,10 @@ public class ZeroLevel implements LevelInterface {
 		Iterator<FirstLevel> iterator = ch.iterator();
 		while (iterator.hasNext()) {
 			FirstLevel first = iterator.next();
-			first.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
-			list.add(first);
+			if(null==first.getManager()){
+				first.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
+				list.add(first);
+			}
 		}
 		return list;
 	}

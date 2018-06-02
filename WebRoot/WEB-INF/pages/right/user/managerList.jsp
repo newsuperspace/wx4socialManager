@@ -100,7 +100,7 @@
 													value="openid" /></td>
 											<td><s:if test="grouping.tag=='common'">
 													<span class="badge badge-success"> <s:property
-															value="user.grouping.groupName" />
+															value="grouping.groupName" />
 													</span>
 												</s:if> <s:elseif test="grouping.tag=='unreal'">
 													<span class="badge badge-success"> <s:property

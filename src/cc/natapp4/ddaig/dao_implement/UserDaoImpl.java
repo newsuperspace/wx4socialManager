@@ -85,28 +85,26 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 		if (isAdmin) {
 			// admin用户，在最大范围内查找目标tag的用户
 			switch (tag) {
+			// 根据“不在其位，不谋其政”的管理原则，admin只能看到 街道/unreal/common 这三个tag或者是三个tag的总和
 			case "minus_first":
-				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?",
-						"minus_first");
+				list = (List<User>) this.getHibernateTemplate().find(
+						"from User u inner join fetch u.member m where u.grouping.tag=? and m.minusFirstLevel=?",
+						"minus_first", null);
 				break;
-			case "zero":
-				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?", "zero");
+			case "common":
+				list = (List<User>) this.getHibernateTemplate().find(
+						"from User u inner join fetch u.member m where u.grouping.tag=? and m.minusFirstLevel=?",
+						"common", null);
 				break;
-			case "first":
-				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?", "first");
-				break;
-			case "second":
-				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?", "second");
-				break;
-			case "third":
-				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?", "third");
-				break;
-			case "fourth":
-				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag=?", "fourth");
+			case "unreal":
+				list = (List<User>) this.getHibernateTemplate().find(
+						"from User u inner join fetch u.member m where u.grouping.tag=? and m.minusFirstLevel=?",
+						"unreal", null);
 				break;
 			default:
-				list = (List<User>) this.getHibernateTemplate().find("from User u where u.grouping.tag in(?,?,?,?,?,?)",
-						"minus_first", "zero", "first", "second", "third", "fourth");
+				list = (List<User>) this.getHibernateTemplate().find(
+						"from User u inner join fetch u.member m where u.grouping.tag in(?,?,?) and m.minusFirstLevel=null",
+						"minus_first", "common", "unreal");
 				break;
 			}
 		} else {
@@ -119,36 +117,26 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 					l = mfl;
 				}
 				switch (tag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它） 社区/unreal/common 这三个tag或者是三个tag的总和
 				case "zero":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag=? and mfl.mflid=?",
-							"zero", l.getMflid());
+							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag=? and mfl.mflid=? and m.zeroLevel=?",
+							"zero", l.getMflid(),null);
 					break;
-				case "first":
+				case "common":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag=? and mfl.mflid=?",
-							"first", l.getMflid());
+							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag=? and mfl.mflid=? and m.zeroLevel=?",
+							"common", l.getMflid(),null);
 					break;
-				case "second":
+				case "unreal":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag=? and mfl.mflid=?",
-							"second", l.getMflid());
+							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag=? and mfl.mflid=? and m.zeroLevel=?",
+							"unreal", l.getMflid(),null);
 					break;
-				case "third":
-					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag=? and mfl.mflid=?",
-							"third", l.getMflid());
-					break;
-				case "fourth":
-					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag=? and mfl.mflid=?",
-							"fourth", l.getMflid());
-					break;
-
 				default: // 查询所有tag
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag in(?,?,?,?,?) and mfl.mflid=?",
-							"zero", "first", "second", "third", "fourth", l.getMflid());
+							"from User u inner join fetch u.member m inner join fetch m.minusFirstLevel mfl where u.grouping.tag in(?,?,?) and mfl.mflid=? and m.zeroLevel=null",
+							"zero", "common", "unreal", l.getMflid());
 					break;
 				}
 			} else if ("zero".equals(doingMan.getGrouping().getTag())) {
@@ -159,31 +147,27 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 					l = zl;
 				}
 				switch (tag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它） 第一/unreal/common 这三个tag或者是三个tag的总和
 				case "first":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag=? and zl.zid=?",
-							"first", l.getZid());
+							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag=? and zl.zid=? and m.firstLevel=?",
+							"first", l.getZid(),null);
 					break;
-				case "second":
+				case "common":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag=? and zl.zid=?",
-							"second", l.getZid());
+							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag=? and zl.zid=? and m.firstLevel=?",
+							"common", l.getZid(),null);
 					break;
-				case "third":
+				case "unreal":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag=? and zl.zid=?",
-							"third", l.getZid());
-					break;
-				case "fourth":
-					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag=? and zl.zid=?",
-							"fourth", l.getZid());
+							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag=? and zl.zid=? and m.firstLevel=?",
+							"unreal", l.getZid(),null);
 					break;
 
 				default: // 查询所有tag
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag in(?,?,?,?) and zl.zid=?",
-							"first", "second", "third", "fourth", l.getZid());
+							"from User u inner join fetch u.member m inner join fetch m.zeroLevel zl where u.grouping.tag in(?,?,?) and zl.zid=? and m.firstLevel=?",
+							"first", "common", "unreal", l.getZid(),null);
 					break;
 				}
 			} else if ("first".equals(doingMan.getGrouping().getTag())) {
@@ -194,26 +178,27 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 					l = fl;
 				}
 				switch (tag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它） 第二/unreal/common 这三个tag或者是三个tag的总和
 				case "second":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag=? and fl.flid=?",
-							"second", l.getFlid());
+							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag=? and fl.flid=? and m.secondLevel=?",
+							"second", l.getFlid(),null);
 					break;
-				case "third":
+				case "common":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag=? and fl.flid=?",
-							"third", l.getFlid());
+							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag=? and fl.flid=? and m.secondLevel=?",
+							"common", l.getFlid(),null);
 					break;
-				case "fourth":
+				case "unreal":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag=? and fl.flid=?",
-							"fourth", l.getFlid());
+							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag=? and fl.flid=? and m.secondLevel=?",
+							"unreal", l.getFlid(),null);
 					break;
-
+				
 				default: // 查询所有tag
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag in(?,?,?) and fl.flid=?",
-							"second", "third", "fourth", l.getFlid());
+							"from User u inner join fetch u.member m inner join fetch m.firstLevel fl where u.grouping.tag in(?,?,?) and fl.flid=? and m.secondLevel=?",
+							"second", "common", "unreal", l.getFlid(),null);
 					break;
 				}
 			} else if ("second".equals(doingMan.getGrouping().getTag())) {
@@ -224,21 +209,27 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 					l = scl;
 				}
 				switch (tag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它） 第三/unreal/common 这三个tag或者是三个tag的总和
 				case "third":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.secondLevel scl where u.grouping.tag=? and scl.scid=?",
-							"third", l.getScid());
+							"from User u inner join fetch u.member m inner join fetch m.secondLevel scl where u.grouping.tag=? and scl.scid=? and m.thirdLevel=?",
+							"third", l.getScid(),null);
 					break;
-				case "fourth":
+				case "common":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.secondLevel scl where u.grouping.tag=? and scl.scid=?",
-							"fourth", l.getScid());
+							"from User u inner join fetch u.member m inner join fetch m.secondLevel scl where u.grouping.tag=? and scl.scid=? and m.thirdLevel=?",
+							"common", l.getScid(),null);
+					break;
+				case "unreal":
+					list = (List<User>) this.getHibernateTemplate().find(
+							"from User u inner join fetch u.member m inner join fetch m.secondLevel scl where u.grouping.tag=? and scl.scid=? and m.thirdLevel=?",
+							"unreal", l.getScid(),null);
 					break;
 
 				default: // 查询所有tag
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.secondLevel scl where u.grouping.tag in(?,?) and scl.scid=?",
-							"third", "fourth", l.getScid());
+							"from User u inner join fetch u.member m inner join fetch m.secondLevel scl where u.grouping.tag in(?,?,?) and scl.scid=? and m.thirdLevel=?",
+							"third", "common", "unreal", l.getScid(),null);
 					break;
 				}
 			} else if ("third".equals(doingMan.getGrouping().getTag())) {
@@ -249,19 +240,31 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 					l = tl;
 				}
 				switch (tag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它） 第四/unreal/common 这三个tag或者是三个tag的总和
 				case "fourth":
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.thirdLevel tl where u.grouping.tag=? and tl.thid=?",
-							"fourth", l.getThid());
+							"from User u inner join fetch u.member m inner join fetch m.thirdLevel tl where u.grouping.tag=? and tl.thid=? and m.fourthLevel=?",
+							"fourth", l.getThid(),null);
 					break;
+				case "common":
+					list = (List<User>) this.getHibernateTemplate().find(
+							"from User u inner join fetch u.member m inner join fetch m.thirdLevel tl where u.grouping.tag=? and tl.thid=? and m.fourthLevel=?",
+							"common", l.getThid(),null);
+					break;
+				case "unreal":
+					list = (List<User>) this.getHibernateTemplate().find(
+							"from User u inner join fetch u.member m inner join fetch m.thirdLevel tl where u.grouping.tag=? and tl.thid=? and m.fourthLevel=?",
+							"unreal", l.getThid());
+					break;
+					
 				default:
 					list = (List<User>) this.getHibernateTemplate().find(
-							"from User u inner join fetch u.member m inner join fetch m.thirdLevel tl where u.grouping.tag=? and tl.thid=?",
-							"fourth", l.getThid());
+							"from User u inner join fetch u.member m inner join fetch m.thirdLevel tl where u.grouping.tag in(?,?,?) and tl.thid=? and m.fourthLevel=?",
+							"fourth","common","unreal", l.getThid(),null);
 					break;
 				}
 			} else {
-				// 执行人是其他层级（例如第四层级等）的管理者
+				// 执行人是其他层级（例如第四层级等）的管理者,但是第四层级管理者是看不到menu.jsp页面上“人员派任”入口的，所以不可能调用到这里
 			}
 		}
 		return list;

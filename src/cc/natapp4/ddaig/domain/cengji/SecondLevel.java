@@ -63,8 +63,10 @@ public class SecondLevel implements LevelInterface {
 		Iterator<ThirdLevel> iterator = ch.iterator();
 		while (iterator.hasNext()) {
 			ThirdLevel third = iterator.next();
-			third.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
-			list.add(third);
+			if(null==third.getManager()){
+				third.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
+				list.add(third);
+			}
 		}
 		return list;
 	}

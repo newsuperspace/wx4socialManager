@@ -29,21 +29,17 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 public class ReturnMessage4Appoint implements Serializable {
 
 	private String message;   // 包含回复信息
-	private boolean result;   // 处理结果True为成功；false为失败
-
-	private int lowest;   // 被任命的管理者级别（也就是最低层级-1、0、1、2、3、4）
-	private int controller;   // 执行任命操作的管理者的级别（-1、0、1、2、3、4）
+	private boolean result;   // 处理结果True为成功;false为失败
 	
-	// 对于Admin来说，他需要获取系统中的所有层级对象
+	private int lowest;   // 被任命的管理者级别（controllerNum+1,遵循“不在其位，不谋其政”原则使得当前层次管理者只能委任次一级的层次，不能越级委任）
+	private int controllerNum;   // 执行任命操作的管理者的级别（-1、0、1、2、3、4、10086）
+	
+	// 对于Admin来说，系统中所有 街道层级对象（未绑定管理者的）都在这个容器里
 	List<MinusFirstLevel>  minusLevels;
-	List<ZeroLevel>  zeroLevels;
-	List<FirstLevel> firstLevels;
-	List<SecondLevel> secondLevels;
-	List<ThirdLevel> thirdLevels;
-	List<FourthLevel> fourthLevels;
 	
 	/*
-	 * 功能1： 对于非Admin来说，他的层级对象会保存在下列属性中的一个力，根据controller确定操作者的层级对象
+	 * 功能1： 对于非Admin来说，他绑定的层级对象会保存在下列属性中的一个里，根据controllerNum确定操作者的层级对象
+	 * 		进而通过children4Ajax（）就能获取到可供任命的次一级层级对象了。
 	 * 功能2： 供给userAction.getAppointSelectInfo()中存放被查找的层级对象
 	 */
 	MinusFirstLevel  minusFirst;
@@ -54,42 +50,6 @@ public class ReturnMessage4Appoint implements Serializable {
 	FourthLevel fourth;
 	
 	
-	public List<MinusFirstLevel> getMinusLevels() {
-		return minusLevels;
-	}
-	public void setMinusLevels(List<MinusFirstLevel> minusLevels) {
-		this.minusLevels = minusLevels;
-	}
-	public List<ZeroLevel> getZeroLevels() {
-		return zeroLevels;
-	}
-	public void setZeroLevels(List<ZeroLevel> zeroLevels) {
-		this.zeroLevels = zeroLevels;
-	}
-	public List<FirstLevel> getFirstLevels() {
-		return firstLevels;
-	}
-	public void setFirstLevels(List<FirstLevel> firstLevels) {
-		this.firstLevels = firstLevels;
-	}
-	public List<SecondLevel> getSecondLevels() {
-		return secondLevels;
-	}
-	public void setSecondLevels(List<SecondLevel> secondLevels) {
-		this.secondLevels = secondLevels;
-	}
-	public List<ThirdLevel> getThirdLevels() {
-		return thirdLevels;
-	}
-	public void setThirdLevels(List<ThirdLevel> thirdLevels) {
-		this.thirdLevels = thirdLevels;
-	}
-	public List<FourthLevel> getFourthLevels() {
-		return fourthLevels;
-	}
-	public void setFourthLevels(List<FourthLevel> fourthLevel) {
-		this.fourthLevels = fourthLevel;
-	}
 	public String getMessage() {
 		return message;
 	}
@@ -108,11 +68,17 @@ public class ReturnMessage4Appoint implements Serializable {
 	public void setLowest(int lowest) {
 		this.lowest = lowest;
 	}
-	public int getController() {
-		return controller;
+	public int getControllerNum() {
+		return controllerNum;
 	}
-	public void setController(int controller) {
-		this.controller = controller;
+	public void setControllerNum(int controllerNum) {
+		this.controllerNum = controllerNum;
+	}
+	public List<MinusFirstLevel> getMinusLevels() {
+		return minusLevels;
+	}
+	public void setMinusLevels(List<MinusFirstLevel> minusLevels) {
+		this.minusLevels = minusLevels;
 	}
 	public MinusFirstLevel getMinusFirst() {
 		return minusFirst;

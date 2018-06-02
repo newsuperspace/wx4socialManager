@@ -65,8 +65,10 @@ public class ThirdLevel implements LevelInterface {
 		Iterator<FourthLevel> iterator = ch.iterator();
 		while (iterator.hasNext()) {
 			FourthLevel fourth = iterator.next();
-			fourth.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
-			list.add(fourth);
+			if(null==fourth.getManager()){
+				fourth.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
+				list.add(fourth);
+			}
 		}
 		return list;
 	}

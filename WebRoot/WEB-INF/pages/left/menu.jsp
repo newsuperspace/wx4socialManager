@@ -66,14 +66,10 @@
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
-										<li class="nav-item active"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getXXXXList.action")'>待分配人员
-												<span class="sr-only">(current)</span>
-										</a></li>
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getUserList.action")'>所辖人员</a></li>
+											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getUserList.action")'>总人员信息</a></li>
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getManagerList.action")'>人员任免</a>
+											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getManagerList.action")'>直辖人员管理</a>
 										</li>
 
 									</ul>
