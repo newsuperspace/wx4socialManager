@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ModelDriven;
 
+import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
@@ -20,6 +23,7 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.SecondLevelService;
+import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 
@@ -27,6 +31,11 @@ import cc.natapp4.ddaig.utils.QRCodeUtils;
 @Scope("prototype")
 @Lazy(true)
 public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -->
+
+	// =================DI注入=================
+	@Resource(name = "userService")
+	private UserService userService;
+
 	// =================模型驱动================= <!-- ● -->
 	private FirstLevel firstLevel;
 
@@ -79,7 +88,33 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 	 * @return
 	 */
 	public String createLevel() { // <!-- ● -->
-		// TODO 通过Shiro获取执行新建操作的管理者对象，并进一步获取与其绑定的层级对象
+
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
+		ZeroLevel parent = null;
+		for (ZeroLevel l : doingMan.getManager().getZls()) {
+			parent = l;
+			break;
+		}
+
 		ReturnMessage4Common r = new ReturnMessage4Common();
 
 		if ("".equals(firstLevel.getDescription()) || "".equals(firstLevel.getName())) {
@@ -103,7 +138,8 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 
 			l.setDescription(firstLevel.getDescription());
 			l.setName(firstLevel.getName());
-
+			l.setParent(parent);
+			
 			firstLevelService.save(l);
 
 			r.setMessage("新建成功");
@@ -171,8 +207,8 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 	/**
 	 * managerList.jsp页面中，当点击某个管理者所管理的层级对象的时候
 	 * 会触发managerModal.op.jump2LevelPage()方法
-	 * 从而根据不同的tag（层级）实现跳转到不同层级Level页面中显示详细信息
-	 * 的功能，因此每个层级对象的Action都应该有对应的本方法。
+	 * 从而根据不同的tag（层级）实现跳转到不同层级Level页面中显示详细信息 的功能，因此每个层级对象的Action都应该有对应的本方法。
+	 * 
 	 * @return
 	 */
 	public String getLevelInfo() {

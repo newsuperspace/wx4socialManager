@@ -96,13 +96,25 @@
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>执行中项目</a>
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>我的项目</a>
 										</li>
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>待审核项目</a>
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>街道级项目</a>
 										</li>
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>申请中项目</a>
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>社区级项目</a>
+										</li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>第一级项目</a>
+										</li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>第二级项目</a>
+										</li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>第三级项目</a>
+										</li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "xxxxAction_getXXXXList.action")'>第四级项目</a>
 										</li>
 
 									</ul>
@@ -137,34 +149,34 @@
 										</myShiro:hasAnyPermissions>
 
 										<myShiro:hasAnyPermissions
-											name="admin,minus_first:user:retrieve">
+											name="admin,minus_first:level:retrieve">
 											<li class="nav-item"><a class="nav-link" href="#"
 												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "zeroLevelAction_getLevelList.action")'>社区层级</a></li>
 										</myShiro:hasAnyPermissions>
 
 										<myShiro:hasAnyPermissions
-											name="admin,minus_first:user:retrieve,zero:user:retrieve">
+											name="admin,minus_first:level:retrieve,zero:level:retrieve">
 											<li class="nav-item"><a class="nav-link" href="#"
 												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "firstLevelAction_getLevelList.action")'>第一层级</a>
 											</li>
 										</myShiro:hasAnyPermissions>
 
 										<myShiro:hasAnyPermissions
-											name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve">
+											name="admin,minus_first:level:retrieve,zero:level:retrieve,first:level:retrieve">
 											<li class="nav-item"><a class="nav-link" href="#"
 												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "secondLevelAction_getLevelList.action")'>第二层级</a>
 											</li>
 										</myShiro:hasAnyPermissions>
 
 										<myShiro:hasAnyPermissions
-											name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve,second:user:retrieve">
+											name="admin,minus_first:level:retrieve,zero:level:retrieve,first:level:retrieve,second:level:retrieve">
 											<li class="nav-item"><a class="nav-link" href="#"
 												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "thirdLevelAction_getLevelList.action")'>第三层级</a></li>
 										</myShiro:hasAnyPermissions>
 
 
 										<myShiro:hasAnyPermissions
-											name="admin,minus_first:user:retrieve,zero:user:retrieve,first:user:retrieve,second:user:retrieve,third:user:retrieve">
+											name="admin,minus_first:level:retrieve,zero:level:retrieve,first:level:retrieve,second:level:retrieve,third:level:retrieve">
 											<li class="nav-item"><a class="nav-link" href="#"
 												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "fourthLevelAction_getLevelList.action")'>第四层级</a></li>
 										</myShiro:hasAnyPermissions>

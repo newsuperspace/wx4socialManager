@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="/struts-tags" prefix="s"%>
 <%@taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
+<%@taglib uri="/WEB-INF/tlds/myShiro.tld" prefix="myShiro"%>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -40,10 +41,12 @@
 							<h1 class="h2">街道信息</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
-									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#newMinusFirstLevelModal">
-										<span class="glyphicon glyphicon-plus"></span> 新建
-									</button>
+									<shiro:hasPermission name="admin">
+										<button class="btn btn-sm btn-outline-secondary"
+											data-toggle="modal" data-target="#newMinusFirstLevelModal">
+											<span class="glyphicon glyphicon-plus"></span> 新建
+										</button>
+									</shiro:hasPermission>
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#selectMinusFirstLevelModal">
 										<span class="glyphicon glyphicon-search"></span> 筛选
@@ -148,8 +151,8 @@
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
 		<!-- 权限设置Modal -->
-		<div class="modal fade" id="permissionModal" tabindex="-1" role="dialog"
-			aria-labelledby="modelTitleId" aria-hidden="true">
+		<div class="modal fade" id="permissionModal" tabindex="-1"
+			role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
 			<div class="modal-dialog modal-lg" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -161,8 +164,8 @@
 					</div>
 					<div class="modal-body">
 						<!-- Collapse开始 -->
-						<div id="permission-modal-body" role="tablist" aria-multiselectable="true"
-							class="ml-0 mr-0 pl-0 pr-0">
+						<div id="permission-modal-body" role="tablist"
+							aria-multiselectable="true" class="ml-0 mr-0 pl-0 pr-0">
 
 							<!-- 开始迭代PermissionType -->
 							<div class="card">
@@ -182,8 +185,9 @@
 												<!-- 开始迭代Permission -->
 												<div class="col-lg-2  col-md-3 col-sm-6">
 													<label class="form-check-label"> <input
-														class="form-check-input" type="checkbox" data-permission="1" name="permission"
-														 value="aaa"> 获取用户专属二维码
+														class="form-check-input" type="checkbox"
+														data-permission="1" name="permission" value="aaa">
+														获取用户专属二维码
 													</label>
 												</div>
 												<!-- 结束迭代Permission -->

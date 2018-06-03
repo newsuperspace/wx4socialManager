@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -13,10 +15,12 @@ import org.springframework.stereotype.Controller;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ModelDriven;
 
+import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
+import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 
@@ -24,6 +28,11 @@ import cc.natapp4.ddaig.utils.QRCodeUtils;
 @Scope("prototype")
 @Lazy(true)
 public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
+
+	// =================DI注入=================
+	@Resource(name = "userService")
+	private UserService userService;
+
 	// =================模型驱动=================
 	private MinusFirstLevel minusFirstLevel;
 
@@ -67,16 +76,15 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 	 * @return
 	 */
 	public String createLevel() {
-		// TODO 通过Shiro获取执行新建操作的管理者对象，并进一步获取与其绑定的层级对象
 
 		ReturnMessage4Common r = new ReturnMessage4Common();
-		
-		if("".equals(minusFirstLevel.getDescription())||"".equals(minusFirstLevel.getName())){
+
+		if ("".equals(minusFirstLevel.getDescription()) || "".equals(minusFirstLevel.getName())) {
 			r.setMessage("关键信息为null，街道创建失败");
 			r.setResult(false);
-		}else{
+		} else {
 			MinusFirstLevel m = new MinusFirstLevel();
-			
+
 			StringBuffer sb = new StringBuffer();
 			sb.append("level_");
 			sb.append(MinusFirstLevel.LEVEL_MINUS_FIRST);
@@ -84,15 +92,15 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 			sb.append("id_");
 			String id = UUID.randomUUID().toString();
 			sb.append(id);
-			
+
 			m.setMflid(id);
-			
+
 			String qrcode = QRCodeUtils.createLevelQR(sb.toString());
 			m.setQrcode(qrcode);
-			
+
 			m.setDescription(minusFirstLevel.getDescription());
 			m.setName(minusFirstLevel.getName());
-			
+
 			minusFirstLevelService.save(m);
 			r.setMessage("创建成功");
 			r.setResult(true);
@@ -155,12 +163,12 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 		ActionContext.getContext().put("levels", list);
 		return "list";
 	}
-	
+
 	/**
 	 * managerList.jsp页面中，当点击某个管理者所管理的层级对象的时候
 	 * 会触发managerModal.op.jump2LevelPage()方法
-	 * 从而根据不同的tag（层级）实现跳转到不同层级Level页面中显示详细信息
-	 * 的功能，因此每个层级对象的Action都应该有对应的本方法。
+	 * 从而根据不同的tag（层级）实现跳转到不同层级Level页面中显示详细信息 的功能，因此每个层级对象的Action都应该有对应的本方法。
+	 * 
 	 * @return
 	 */
 	public String getLevelInfo() {

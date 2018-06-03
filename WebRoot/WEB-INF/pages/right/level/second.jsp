@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="/struts-tags" prefix="s"%>
 <%@taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
+<%@taglib uri="/WEB-INF/tlds/myShiro.tld" prefix="myShiro"%>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -41,10 +42,12 @@
 							<!-- ● -->
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
-									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#newModal">
-										<span class="glyphicon glyphicon-plus"></span> 新建
-									</button>
+									<shiro:hasPermission name="first:level:create">
+										<button class="btn btn-sm btn-outline-secondary"
+											data-toggle="modal" data-target="#newModal">
+											<span class="glyphicon glyphicon-plus"></span> 新建
+										</button>
+									</shiro:hasPermission>
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#selectModal">
 										<span class="glyphicon glyphicon-search"></span> 筛选
