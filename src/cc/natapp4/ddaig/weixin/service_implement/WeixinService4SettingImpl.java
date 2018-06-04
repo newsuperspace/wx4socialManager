@@ -63,6 +63,12 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 
 	@PostConstruct
 	public void init() {
+		/**
+		 * TODO  当进入Weixin开发层次的时候一定要处理这里
+		 * 这里的这个写法非常的垃圾，极高的耦合性，使得在Spring初始化当前类————名叫weixinService4Settring的Bean的时候，严重与Servlet环境耦合
+		 * 导致频繁出现异常。
+		 * 我觉得如果是保存重要的数据可以放在properties文件等位置，并非一定需要ServletContext域来存储有关weixin公众号的数据信息。
+		 */
 		WxMpInMemoryConfigStorage config = (WxMpInMemoryConfigStorage) ServletActionContext.getServletContext()
 				.getAttribute("config");
 		super.setWxMpConfigStorage(config);
