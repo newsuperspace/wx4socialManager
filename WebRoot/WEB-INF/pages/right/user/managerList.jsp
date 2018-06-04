@@ -33,9 +33,14 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2">管理员信息</h1>
+							<h1 class="h2">直辖人员管理</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
+
+									<button class="btn btn-sm btn-outline-secondary"
+										data-toggle="modal" data-target="#newUserModal">
+										<span class="glyphicon glyphicon-plus"></span> 新建
+									</button>
 
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#selectUsers">
@@ -194,6 +199,126 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
+		
+		<!-- Modal 4 新建用户 -->
+		<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog"
+			aria-labelledby="createUser" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">新建用户</h4>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-user"></span></span>
+								</div>
+								<input type="text" class="form-control" name="username"
+									id="username">
+								<div class="input-group-prepend">
+									<span class="input-group-text">用户名</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-glass"></span></span>
+								</div>
+								<input type="text" class="form-control" name="sickname"
+									id="sickname">
+								<div class="input-group-prepend">
+									<span class="input-group-text">昵称</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text">ID</span>
+								</div>
+								<input type="text" class="form-control" name="cardid"
+									id="cardid">
+								<div class="input-group-prepend">
+									<span class="input-group-text">身份证</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-tint"></span></span>
+								</div>
+								<select class="custom-select" id="sex" name="sex">
+									<option value="0" selected>请选择...</option>
+									<option value="1">男</option>
+									<option value="2">女</option>
+								</select>
+								<div class="input-group-append">
+									<label class="input-group-text">性别</label>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-text-background"></span></span>
+								</div>
+								<input type="text" class="form-control" name="age" id="age">
+								<div class="input-group-prepend">
+									<span class="input-group-text">年龄</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-phone-alt"></span></span>
+								</div>
+								<input type="text" class="form-control" name="phone" id="phone">
+								<div class="input-group-prepend">
+									<span class="input-group-text">电话</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text">@</span>
+								</div>
+								<input type="text" class="form-control" name="email" id="email">
+								<div class="input-group-prepend">
+									<span class="input-group-text">E-mail</span>
+								</div>
+							</div>
+
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-font"></span></span>
+								</div>
+								<input type="text" class="form-control" name="address"
+									id="address">
+								<div class="input-group-prepend">
+									<span class="input-group-text">地址</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-primary"
+							onclick="userModal.op.createUser();">新建</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
 		<!-- Modal 4 任命 -->
 		<div class="modal fade" id="appoint" tabindex="-1" role="dialog"
 			aria-labelledby="appoint" aria-hidden="true">

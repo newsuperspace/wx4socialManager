@@ -2,7 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="/struts-tags" prefix="s"%>
 <%@taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
-<%@taglib uri="/WEB-INF/tlds/myShiro.tld" prefix="myShiro" %>
+<%@taglib uri="/WEB-INF/tlds/myShiro.tld" prefix="myShiro"%>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -71,7 +71,6 @@
 										<li class="nav-item"><a class="nav-link" href="#"
 											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getManagerList.action")'>直辖人员管理</a>
 										</li>
-
 									</ul>
 
 								</div>
@@ -141,11 +140,10 @@
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
 
 										<myShiro:hasAnyPermissions name="admin">
-										<li class="nav-item active"><a class="nav-link" href="#"
+											<li class="nav-item active"><a class="nav-link" href="#"
 												onclick='overAll.op.saveCollapseContentID2LS("levelContent", "minusFirstLevelAction_getLevelList.action")'>街道层级
-												<span class="sr-only">(current)</span>
-											</a>
-											</li>
+													<span class="sr-only">(current)</span>
+											</a></li>
 										</myShiro:hasAnyPermissions>
 
 										<myShiro:hasAnyPermissions

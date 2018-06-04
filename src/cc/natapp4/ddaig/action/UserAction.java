@@ -340,46 +340,39 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 
 		ArrayList<String> tagsList = new ArrayList<String>();
 		if (isAdmin) {
-			// admin 用户有权分配所有tag，但不建议admin修改用户的grouping.tag，防止出现混乱♥
+			/*
+			 * adming管理员用户有权分配街道层级用户，而不能越级分配，防止出现人员在层级结构中的混乱（明明是某个第四层及的member，却被分配了社区层级的tag，这是不合理的）
+			 * 因此一切涉及有关权限/层级/安全的事务，都遵循“就近原则”——不在其位，不谋其政。
+			 */
 			tagsList.add("unreal");
 			tagsList.add("common");
 			tagsList.add("minus_first");
-			tagsList.add("zero");
-			tagsList.add("first");
-			tagsList.add("second");
-			tagsList.add("third");
-			tagsList.add("fourth");
 		} else {
-			// 非admin，则根据实际情况来设置tags（只能设置低于当前操作者层次的tag）
+			/*
+			 * 同理
+			 * 非admin，则根据实际情况来设置tags（只能设置低于当前操作者层次的tag）
+			 * ，而不能越级分配，防止出现人员在层级结构中的混乱（明明是某个第四层及的member，却被分配了社区层级的tag，这是不合理的）
+			 * 因此一切涉及有关权限/层级/安全的事务，都遵循“就近原则”——不在其位，不谋其政。
+			 */
 			String t = doingMan.getGrouping().getTag();
 			switch (t) {
 			case "minus_first":
 				tagsList.add("zero");
-				tagsList.add("first");
-				tagsList.add("second");
-				tagsList.add("third");
-				tagsList.add("fourth");
 				tagsList.add("common");
 				tagsList.add("unreal");
 				break;
 			case "zero":
 				tagsList.add("first");
-				tagsList.add("second");
-				tagsList.add("third");
-				tagsList.add("fourth");
 				tagsList.add("common");
 				tagsList.add("unreal");
 				break;
 			case "first":
 				tagsList.add("second");
-				tagsList.add("third");
-				tagsList.add("fourth");
 				tagsList.add("common");
 				tagsList.add("unreal");
 				break;
 			case "second":
 				tagsList.add("third");
-				tagsList.add("fourth");
 				tagsList.add("common");
 				tagsList.add("unreal");
 				break;

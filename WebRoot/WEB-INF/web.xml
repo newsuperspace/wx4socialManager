@@ -8,8 +8,6 @@
 
 	<!-- 当在浏览器中只输入 “域名/weixin” 时会访问本应用程序，以下列出了负责默认提供相应的可选页面（/WebRoot）目录之下 -->
 	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-		<welcome-file>index.htm</welcome-file>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 
@@ -62,7 +60,7 @@
 	<!-- 这里是Struts2框架的系统功能入口 -->
 	<filter>
 		<filter-name>struts2</filter-name>
-		<filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class>
+		<filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>struts2</filter-name>

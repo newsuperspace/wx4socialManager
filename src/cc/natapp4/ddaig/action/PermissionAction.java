@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.struts2.json.annotations.JSON;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -72,6 +73,7 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	private Permission permission = new Permission();
 
 	@Override
+	@JSON(serialize=false)
 	public Permission getModel() {
 		return this.permission;
 	}
@@ -83,56 +85,54 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	private String lid;
 	private String selected; // 包含有所有被选中的权限ID的字符串，彼此之间以逗号分隔
 
+	@JSON(serialize=false)
 	public String getSelected() {
 		return selected;
 	}
-
 	public void setSelected(String selected) {
 		this.selected = selected;
 	}
-
+	
+	@JSON(serialize=false)
 	public int getLevel() {
 		return level;
 	}
-
 	public void setLevel(int level) {
 		this.level = level;
 	}
 
+	@JSON(serialize=false)
 	public String getLid() {
 		return lid;
 	}
-
 	public void setLid(String lid) {
 		this.lid = lid;
 	}
 
+	@JSON(serialize=false)
 	public String getState() {
 		return state;
 	}
-
 	public void setState(String state) {
 		this.state = state;
 	}
 
 	// 新建权限的时候，从前端确认权限所属层级的plid
 	private String plid;
-
+	@JSON(serialize=false)
 	public String getPlid() {
 		return plid;
 	}
-
 	public void setPlid(String plid) {
 		this.plid = plid;
 	}
 
 	// 新建权限的时候，从前端确认权限所属类型ptid
 	private String ptid;
-
+	@JSON(serialize=false)
 	public String getPtid() {
 		return ptid;
 	}
-
 	public void setPtid(String ptid) {
 		this.ptid = ptid;
 	}
@@ -200,6 +200,7 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	 * 
 	 * @return
 	 */
+	@JSON(serialize=false)
 	public String getPermissionTypeList() {
 
 		PermissionLevel permissionLevel = permissionLevelService.queryEntityById(this.getPlid());
@@ -381,11 +382,13 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 	 * 前端只需要便利返回的JSON，然后然找层级关系在页面上动态生成checkBox等元素就行了。
 	 */
 	public String permissionSetting() {
+		// 用以返回给前端的某一层级的权限类型数据
 		Set<PermissionType> permissionTypes = null;
 		// 存放指定层级对象所拥有的权限层级
 		PermissionLevel permissionLevel = null;
-		// 存放通过用权限
+		// 存放通用权限（通用权限是所有层级公用的权限，例如登陆微信后台或登陆桌面后台等）
 		PermissionLevel permissionLevel4All = null;
+		// 存放当前层级对象已拥有的权限
 		Set<Permission> openedPermissions = null;
 
 		switch (this.getLevel()) {
@@ -400,9 +403,10 @@ public class PermissionAction extends ActionSupport implements ModelDriven<Permi
 			permissionLevel4All = permissionLevelService.queryEntityByLevel(10086);
 			// 把通用权限类型也放入到permissionTypes中去
 			for(PermissionType pt: permissionLevel4All.getPermissionTypes()){
+				// 层级权限类型+通用权限类型
 				permissionTypes.add(pt);
 			}
-			// 然后开始遍历每一个权限类型，然后将所包含的权限与用户已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
+			// 然后开始遍历每一个可供设置的权限类型，然后将所包含的权限与用户已拥有权限进行比对，将已经拥有的权限的isOpen标记设置成true；
 			for (PermissionType pt : permissionTypes) {
 				ArrayList<Permission> list = new ArrayList<Permission>();
 				Set<Permission> permissions = pt.getPermissions();
