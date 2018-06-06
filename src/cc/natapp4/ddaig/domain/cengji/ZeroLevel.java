@@ -54,8 +54,24 @@ public class ZeroLevel implements LevelInterface {
 
 	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
 	private List<FirstLevel> children4Ajax;
+	private List<FirstLevel> allChildren4Ajax;
 
 	// ==================================SETTERs/GETTERs=====================================
+	// AJAX
+	public List<FirstLevel> getAllChildren4Ajax() {
+
+		List<FirstLevel> list = new ArrayList<FirstLevel>();
+
+		Set<FirstLevel> ch = this.getChildren();
+		Iterator<FirstLevel> iterator = ch.iterator();
+		while (iterator.hasNext()) {
+			FirstLevel first = iterator.next();
+			first.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
+			list.add(first);
+		}
+		return list;
+	}
+
 	// AJAX
 	public List<FirstLevel> getChildren4Ajax() {
 
@@ -65,7 +81,7 @@ public class ZeroLevel implements LevelInterface {
 		Iterator<FirstLevel> iterator = ch.iterator();
 		while (iterator.hasNext()) {
 			FirstLevel first = iterator.next();
-			if(null==first.getManager()){
+			if (null == first.getManager()) {
 				first.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
 				list.add(first);
 			}

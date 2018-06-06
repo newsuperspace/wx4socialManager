@@ -55,8 +55,23 @@ public class FirstLevel implements LevelInterface {
 
 	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
 	private List<SecondLevel> children4Ajax;
+	private List<SecondLevel> allChildren4Ajax;
 
 	// ==================================SETTERs/GETTERs=====================================
+	// AJAX
+	public List<SecondLevel> getAllChildren4Ajax() {
+		List<SecondLevel> list = new ArrayList<SecondLevel>();
+
+		Set<SecondLevel> ch = this.getChildren();
+		Iterator<SecondLevel> iterator = ch.iterator();
+		while (iterator.hasNext()) {
+			SecondLevel second = iterator.next();
+			second.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
+			list.add(second);
+		}
+		return list;
+	}
+
 	// AJAX
 	public List<SecondLevel> getChildren4Ajax() {
 
@@ -66,7 +81,7 @@ public class FirstLevel implements LevelInterface {
 		Iterator<SecondLevel> iterator = ch.iterator();
 		while (iterator.hasNext()) {
 			SecondLevel second = iterator.next();
-			if(null==second.getManager()){
+			if (null == second.getManager()) {
 				second.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
 				list.add(second);
 			}

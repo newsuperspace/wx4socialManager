@@ -54,31 +54,47 @@ public class MinusFirstLevel implements LevelInterface {
 
 	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
 	private List<ZeroLevel> children4Ajax;
+	private List<ZeroLevel> allChildren4Ajax;
 
 	// ==================================SETTERs/GETTERs=====================================
 	// AJAX
-	public List<ZeroLevel> getChildren4Ajax() {
-		
-		List<ZeroLevel>  list =  new  ArrayList<ZeroLevel>();
-		
+	public List<ZeroLevel> getAllChildren4Ajax() {
+
+		List<ZeroLevel> list = new ArrayList<ZeroLevel>();
+
 		Set<ZeroLevel> ch = this.getChildren();
 		Iterator<ZeroLevel> iterator = ch.iterator();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
+			ZeroLevel zero = iterator.next();
+			// 切断父子关系，防止@JSON解析的时候出现死循环⭐
+			zero.setParent(null);
+			list.add(zero);
+		}
+		return list;
+	}
+
+	// AJAX
+	public List<ZeroLevel> getChildren4Ajax() {
+
+		List<ZeroLevel> list = new ArrayList<ZeroLevel>();
+
+		Set<ZeroLevel> ch = this.getChildren();
+		Iterator<ZeroLevel> iterator = ch.iterator();
+		while (iterator.hasNext()) {
 			ZeroLevel zero = iterator.next();
 			// 只选择没有被“委任”的层级对象，来向前端返回⭐
-			if(null==zero.getManager()){
+			if (null == zero.getManager()) {
 				// 切断父子关系，防止@JSON解析的时候出现死循环⭐
-				zero.setParent(null); 
+				zero.setParent(null);
 				list.add(zero);
 			}
 		}
 		return list;
 	}
-	
+
 	public String getMflid() {
 		return mflid;
 	}
-
 
 	public void setMflid(String mflid) {
 		this.mflid = mflid;

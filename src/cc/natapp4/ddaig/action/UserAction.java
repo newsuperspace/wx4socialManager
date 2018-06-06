@@ -341,16 +341,15 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		ArrayList<String> tagsList = new ArrayList<String>();
 		if (isAdmin) {
 			/*
-			 * adming管理员用户有权分配街道层级用户，而不能越级分配，防止出现人员在层级结构中的混乱（明明是某个第四层及的member，却被分配了社区层级的tag，这是不合理的）
-			 * 因此一切涉及有关权限/层级/安全的事务，都遵循“就近原则”——不在其位，不谋其政。
+			 * adming管理员用户有权分配街道层级用户，而不能越级分配，防止出现人员在层级结构中的混乱（明明是某个第四层及的member，
+			 * 却被分配了社区层级的tag，这是不合理的） 因此一切涉及有关权限/层级/安全的事务，都遵循“就近原则”——不在其位，不谋其政。
 			 */
 			tagsList.add("unreal");
 			tagsList.add("common");
 			tagsList.add("minus_first");
 		} else {
 			/*
-			 * 同理
-			 * 非admin，则根据实际情况来设置tags（只能设置低于当前操作者层次的tag）
+			 * 同理 非admin，则根据实际情况来设置tags（只能设置低于当前操作者层次的tag）
 			 * ，而不能越级分配，防止出现人员在层级结构中的混乱（明明是某个第四层及的member，却被分配了社区层级的tag，这是不合理的）
 			 * 因此一切涉及有关权限/层级/安全的事务，都遵循“就近原则”——不在其位，不谋其政。
 			 */
@@ -395,6 +394,162 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		u.setTags(tags);
 
 		ActionContext.getContext().getValueStack().push(u);
+		return "json";
+	}
+
+
+	/**
+	 * Ajax
+	 * 从前端接收uid（被指派的人员uid）, level（被指派到的层级对象的层级）, lid（被指派到的层级对象的id）
+	 * 实现用户到该层级的派遣功能
+	 * @return
+	 */
+	public String assignedUser(){
+		
+		String uid = user.getUid();
+		int level = this.getLevel();
+		String lid =  this.getLid();
+		
+		ReturnMessage4Common  result =  new  ReturnMessage4Common("人员派遣成功！",true);
+		User u = null;
+		
+		switch (level) {
+		case -1:
+			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
+			if(minusFirstLevel==null){
+				result.setMessage("不存在lid为"+lid+"的层级对象，指派失败");
+				result.setResult(false);
+			}
+			u = userService.queryEntityById(uid);
+			u.getMember().setMinusFirstLevel(minusFirstLevel);
+			userService.update(u);
+			break;
+		case 0:
+			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
+			if(zeroLevel==null){
+				result.setMessage("不存在lid为"+lid+"的层级对象，指派失败");
+				result.setResult(false);
+			}
+			u = userService.queryEntityById(uid);
+			u.getMember().setZeroLevel(zeroLevel);
+			userService.update(u);
+			break;
+		case 1:
+			FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
+			if(firstLevel==null){
+				result.setMessage("不存在lid为"+lid+"的层级对象，指派失败");
+				result.setResult(false);
+			}
+			u = userService.queryEntityById(uid);
+			u.getMember().setFirstLevel(firstLevel);
+			userService.update(u);
+			break;
+		case 2:
+			SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
+			if(secondLevel==null){
+				result.setMessage("不存在lid为"+lid+"的层级对象，指派失败");
+				result.setResult(false);
+			}
+			u = userService.queryEntityById(uid);
+			u.getMember().setSecondLevel(secondLevel);
+			userService.update(u);
+			break;
+		case 3:
+			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
+			if(thirdLevel==null){
+				result.setMessage("不存在lid为"+lid+"的层级对象，指派失败");
+				result.setResult(false);
+			}
+			u = userService.queryEntityById(uid);
+			u.getMember().setThirdLevel(thirdLevel);
+			userService.update(u);
+			break;
+		default:
+			result.setMessage("不存在指定层级为"+level+"的层级对象，人员派遣失败");
+			result.setResult(false);
+			break;
+		}
+		
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+	
+	/**
+	 * AJAX 
+	 * 向前端返回当前操作者层级对象,以便于前端从中通过children4Ajax获取可以指派人员的直接子层级
+	 * @return
+	 */
+	public String showUserAssignedModal() {
+
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
+
+		// 分析出当前操作者掌管的层级对象，进而获取其全部子层级
+		switch (doingMan.getGrouping().getTag()) {
+		case "minus_first":
+			Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
+			MinusFirstLevel  level_1 = null;
+			for(MinusFirstLevel l: mfls){
+				level_1 = l;
+				break;
+			}
+			ActionContext.getContext().getValueStack().push(level_1);
+			break;
+		case "zero":
+			Set<ZeroLevel> zls = doingMan.getManager().getZls();
+			ZeroLevel level0 = null;
+			for(ZeroLevel l: zls){
+				level0 = l;
+				break;
+			}
+			ActionContext.getContext().getValueStack().push(level0);
+			break;
+		case "first":
+			Set<FirstLevel> fls = doingMan.getManager().getFls();
+			FirstLevel level1 = null;
+			for(FirstLevel l: fls){
+				level1 = l;
+				break;
+			}
+			ActionContext.getContext().getValueStack().push(level1);
+			break;
+		case "second":
+			Set<SecondLevel> scls = doingMan.getManager().getScls();
+			SecondLevel level2 = null;
+			for(SecondLevel l:scls){
+				level2 = l;
+				break;
+			}
+			ActionContext.getContext().getValueStack().push(level2);
+			break;
+		case "third":
+			Set<ThirdLevel> tls = doingMan.getManager().getTls();
+			ThirdLevel level3 = null;
+			for(ThirdLevel l: tls){
+				level3 = l;
+				break;
+			}
+			ActionContext.getContext().getValueStack().push(level3);
+			break;
+		}
 		return "json";
 	}
 
@@ -634,22 +789,18 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	}
 
 	/**
-	 * 在managerList.jsp上显示当前操作执行者“直辖”的
-	 * “中间层”人员，包括
+	 * 在managerList.jsp上显示当前操作执行者“直辖”的 “中间层”人员，包括
 	 */
 	public String getManagerList() {
 		/*
-		 * TODO
-		 * 如果前端发来的是带tag的请求参数，
-		 * 可以根据参数值是unreal、common和当前操作者层级次一级的tag
-		 * 来进一步筛选前端所要获取的人员数据
-		 * 不过如果tag为null，则说明前端所要的是所有“中间层的人员”
+		 * TODO 如果前端发来的是带tag的请求参数， 可以根据参数值是unreal、common和当前操作者层级次一级的tag
+		 * 来进一步筛选前端所要获取的人员数据 不过如果tag为null，则说明前端所要的是所有“中间层的人员”
 		 */
 		String tag = this.getTag();
 		if (null == tag) {
 			tag = "nonono";
 		}
-		
+
 		List<User> users = userService.getManagers(tag);
 		ActionContext.getContext().put("users", users);
 		return "managerList";
@@ -693,7 +844,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			lowest = 10086;
 			break;
 		}
-		
+
 		// ---------------------------Shiro认证操作者身份--------------------------
 		// controller用來标记当前操作者的层级（10086表示admin）
 		int controllerNum = 10086;
@@ -718,52 +869,52 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		}
 
 		result = new ReturnMessage4Appoint();
-		if(isAdmin){
+		if (isAdmin) {
 			// Admin操作者
 			controllerNum = 10086;
-		}else{
+		} else {
 			// 非Admin操作者
-			switch(doingMan.getGrouping().getTag()){
+			switch (doingMan.getGrouping().getTag()) {
 			// 将当前操作执行者绑定的层级对象，放入到result中返回给前端，方便前端获取通过children4Ajax获取次一级层级对象，来补充select的option选项
 			case "minus_first":
 				controllerNum = -1;
 				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
-				for(MinusFirstLevel l:mfls){
+				for (MinusFirstLevel l : mfls) {
 					result.setMinusFirst(l);
 				}
 				break;
 			case "zero":
 				controllerNum = 0;
 				Set<ZeroLevel> zls = doingMan.getManager().getZls();
-				for(ZeroLevel zl: zls ){
+				for (ZeroLevel zl : zls) {
 					result.setZero(zl);
 				}
 				break;
 			case "first":
 				controllerNum = 1;
 				Set<FirstLevel> fls = doingMan.getManager().getFls();
-				for(FirstLevel fl: fls){
+				for (FirstLevel fl : fls) {
 					result.setFirst(fl);
 				}
 				break;
 			case "second":
 				controllerNum = 2;
 				Set<SecondLevel> scls = doingMan.getManager().getScls();
-				for(SecondLevel sc: scls){
+				for (SecondLevel sc : scls) {
 					result.setSecond(sc);
 				}
 				break;
 			case "third":
 				controllerNum = 3;
 				Set<ThirdLevel> tls = doingMan.getManager().getTls();
-				for(ThirdLevel tl: tls){
+				for (ThirdLevel tl : tls) {
 					result.setThird(tl);
 				}
 				break;
 			}
 		}
 
-		//-----------------------开始准备向前端发送的数据---------------------------
+		// -----------------------开始准备向前端发送的数据---------------------------
 		if (10086 == lowest) {
 			result.setMessage("错误：待委任者的层级不在系统支持的管理层级可选范围内");
 			result.setResult(false);
@@ -771,10 +922,10 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			// 当前操作是Admin操作的，应该将所有层级对象数据信息获取出来
 			List<MinusFirstLevel> minusLevels = minusFirstLevelService.queryEntities();
 			// 需要剔除已经有委任的层级对象
-			List<MinusFirstLevel>  levels =  new ArrayList<MinusFirstLevel>();
-			for(MinusFirstLevel l: minusLevels){
+			List<MinusFirstLevel> levels = new ArrayList<MinusFirstLevel>();
+			for (MinusFirstLevel l : minusLevels) {
 				// 只返回没有被“委任”的层级对象
-				if(l.getManager()==null){
+				if (l.getManager() == null) {
 					levels.add(l);
 				}
 			}
@@ -784,7 +935,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			result.setControllerNum(controllerNum);
 			result.setLowest(lowest);
 			result.setMinusLevels(levels);
-		} else{
+		} else {
 			// 非admin操作者
 			result.setMessage("执行当前操作的是非Admin管理者");
 			result.setResult(true);

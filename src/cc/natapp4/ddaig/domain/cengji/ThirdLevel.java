@@ -51,11 +51,27 @@ public class ThirdLevel implements LevelInterface {
 	private Set<DoingProject> doingProjects;
 	// 当前层级之下等待审核的项目列表
 	private Set<BesureProject> besureProjects;
-	
+
 	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
-	private List<SecondLevel> children4Ajax;
+	private List<FourthLevel> children4Ajax;
+	private List<FourthLevel> allChildren4Ajax;
 
 	// ==================================SETTERs/GETTERs=====================================
+	// AJAX
+	public List<FourthLevel> getAllChildren4Ajax() {
+
+		List<FourthLevel> list = new ArrayList<FourthLevel>();
+
+		Set<FourthLevel> ch = this.getChildren();
+		Iterator<FourthLevel> iterator = ch.iterator();
+		while (iterator.hasNext()) {
+			FourthLevel fourth = iterator.next();
+			fourth.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
+			list.add(fourth);
+		}
+		return list;
+	}
+
 	// AJAX
 	public List<FourthLevel> getChildren4Ajax() {
 
@@ -65,7 +81,7 @@ public class ThirdLevel implements LevelInterface {
 		Iterator<FourthLevel> iterator = ch.iterator();
 		while (iterator.hasNext()) {
 			FourthLevel fourth = iterator.next();
-			if(null==fourth.getManager()){
+			if (null == fourth.getManager()) {
 				fourth.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
 				list.add(fourth);
 			}

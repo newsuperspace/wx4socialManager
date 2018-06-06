@@ -166,6 +166,8 @@
 													</s:else>
 													<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
 														onclick="userModal.op.showUpdateUserModal('%{uid}')">修改</s:a>
+													<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
+														onclick="managerModal.op.showAssignedUserModal('%{uid}')">分配</s:a>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">其他</button>
 												</div>
@@ -199,6 +201,89 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
+		
+		<!-- 人员分配 -->
+		<div class="modal fade" id="userAssignedModal" tabindex="-1" role="dialog"
+			aria-labelledby="userAssigned" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">派遣人员到</h4>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+
+							<div class="row mb-3">
+								<div class="col-auto">街道层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm" name="userAssigned-1"
+										id="userAssigned-1">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-auto">社区层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm" name="userAssigned0"
+										id="userAssigned0">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-auto">第一层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm" name="userAssigned1"
+										id="userAssigned1">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-auto">第二层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm" name="userAssigned2"
+										id="userAssigned2">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-auto">第三层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm" name="userAssigned3"
+										id="userAssigned3">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-auto">第四层级:</div>
+								<div class="col-auto">
+									<select class="form-control form-control-sm" name="userAssigned4"
+										id="userAssigned4">
+										<option>--请选择--</option>
+									</select>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-primary" id="button4UserAssigned">确定</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
 		
 		<!-- Modal 4 新建用户 -->
 		<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog"
