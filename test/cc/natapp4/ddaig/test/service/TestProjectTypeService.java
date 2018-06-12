@@ -1,24 +1,16 @@
 package cc.natapp4.ddaig.test.service;
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.Enumeration;
+import java.util.Properties;
 
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import cc.natapp4.ddaig.domain.DoingProject;
-import cc.natapp4.ddaig.domain.Permission;
-import cc.natapp4.ddaig.domain.PermissionType;
 import cc.natapp4.ddaig.domain.ProjectType;
-import cc.natapp4.ddaig.domain.cengji.FirstLevel;
-import cc.natapp4.ddaig.domain.cengji.SecondLevel;
-import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
-import cc.natapp4.ddaig.service_interface.DoingProjectService;
-import cc.natapp4.ddaig.service_interface.PermissionTypeService;
 import cc.natapp4.ddaig.service_interface.ProjectTypeService;
+import cc.natapp4.ddaig.utils.ConfigUtils;
 
 public class TestProjectTypeService {
 
@@ -50,5 +42,28 @@ public class TestProjectTypeService {
 	}
 	
 
+	/**
+	 * 用于在项目的构建阶段，根据projectTypes.properties中的内容批量向数据ProjectType创建数据。
+	 * 类似于grouping的作用
+	 */
+	@Test   // pass
+	public void batchCreateProjectType(){
+		
+		Properties p = ConfigUtils.getProperties("wxConfig/projectTypes.properties");
+		Enumeration<String> keys = (Enumeration<String>)p.propertyNames();
+		
+		ProjectType pt  =  null;
+		
+		while(keys.hasMoreElements()){
+			String key = keys.nextElement();
+			pt =  new  ProjectType();
+			pt.setDescription(p.getProperty(key));
+			pt.setName(key);
+			ProjectTypeService service = (ProjectTypeService) context.getBean("projectTypeService");
+			service.save(pt);
+		}
+		
+	}
+	
 	
 }

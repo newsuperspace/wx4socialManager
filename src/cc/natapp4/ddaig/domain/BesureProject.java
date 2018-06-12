@@ -13,7 +13,8 @@ import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 
 /**
- *
+ * besureProjectList.jsp中列出的信息
+ * 
  * 待审核的项目列表
  * @author Administrator
  * 外键排序形态与实际业务情况对照（基于此对照可以在Dao层建立起满足特定查询需要的查询方法）：

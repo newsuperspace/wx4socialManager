@@ -33,6 +33,7 @@
 	<include file="struts/struts-secondLevel.xml"></include>	
 	<include file="struts/struts-thirdLevel.xml"></include>		
 	<include file="struts/struts-fourthLevel.xml"></include>		
+	<include file="struts/struts-project.xml"></include>		
 		
 		
 	<!-- 

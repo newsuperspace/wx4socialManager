@@ -18,6 +18,12 @@ public class TestGroupService {
 	private Properties  p  =  ConfigUtils.getProperties("wxConfig/initTags.properties");
 	private  GroupingService  groupingService   =   (GroupingService) context.getBean("groupingService");
 	
+	
+	/**
+	 * 用于在工程阶段，根据initTags.properties中记录的tag内容来构建数据库中grouping表中的数据信心
+	 * 而在实际环境中，关于系统tag的初始化操作是由weixinService4SettingImpl 中的initLocalTag()完成的
+	 * 也就是在初始化微信（在微信的后台管理页面接入本应用程序的时候）自动完成，无需我们手动准备。
+	 */
 	@Test
 	public void testSave(){
 		Iterator iterator = p.entrySet().iterator();

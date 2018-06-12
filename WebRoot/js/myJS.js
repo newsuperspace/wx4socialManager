@@ -1418,6 +1418,35 @@ var overAll = {
 
 
 
+var projectModal  =  {
+	
+	init:{},
+	
+	data:{},
+	
+	op:{
+		/*
+		 * 点击项目名称————弹出projectInfoModal，显示项目的详细信息。
+		 */
+		projectInfo: function(dpid){
+			alert(dpid);
+		},
+		
+		/*
+		 * 点击已开展活动的数字，可以跳转到Activity页面，显示当前项目所开展过的活动信息列表
+		 */
+		getActivities: function(dpid){
+			alert(dpid);
+		},
+		
+		
+		
+	}
+		
+	
+};
+
+
 
 
 /**

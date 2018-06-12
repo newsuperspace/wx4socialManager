@@ -13,6 +13,8 @@ import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 
 /**
+ * projectList.jsp中列出的信息
+ * 
  * 正在进行中的项目列表
  * @author Administrator
  * 

@@ -4,5 +4,4 @@ import cc.natapp4.ddaig.domain.DoingProject;
 
 public interface DoingProjectService extends BaseService<DoingProject> {
 
-	
 }
