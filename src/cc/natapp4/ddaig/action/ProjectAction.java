@@ -24,6 +24,7 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
+import cc.natapp4.ddaig.service_interface.DoingProjectService;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.FourthLevelService;
 import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
@@ -39,6 +40,8 @@ import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
 public class ProjectAction extends ActionSupport implements ModelDriven<DoingProject> {
 
 	// ==========================================================DI注入Aspect
+	@Resource(name = "doingProjectService")
+	private DoingProjectService doingProjectService;
 	@Resource(name = "userService")
 	private UserService userService;
 	@Resource(name = "minusFirstLevelService")
@@ -77,6 +80,17 @@ public class ProjectAction extends ActionSupport implements ModelDriven<DoingPro
 		this.description = description;
 	}
 
+	// level = minusFirst/zero/first/second/third
+	private String level;
+
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
+	}
+
 	// ==========================================================Method
 
 	/*
@@ -88,11 +102,11 @@ public class ProjectAction extends ActionSupport implements ModelDriven<DoingPro
 	}
 
 	/*
-	 * 得到当前操作执行者自己直接管辖的项目列表数据
+	 * 得到当前操作执行者自己直接管辖的项目列表数据 以及 操作者下辖的子层级对象所辖的项目
 	 * 所谓直接管辖就是DoingProject中的对应操作者的层级的外键是操作者层级的id但是次一级的id是null 则说明该项目是当前操作者的直管项目
 	 */
-	public String getMyProjects() {
-		System.out.println("getMyProjects接受到了请求");
+	public String getProjects() {
+
 		// ---------------------------Shiro认证操作者身份---------------------------
 		Subject subject = SecurityUtils.getSubject();
 		String principal = (String) subject.getPrincipal();
@@ -114,130 +128,299 @@ public class ProjectAction extends ActionSupport implements ModelDriven<DoingPro
 			}
 		}
 
-		if (isAdmin) {
-			// 前端通过Shiro进行了控制，Amin用户是不可能看到“我的项目”的选项的，也就不可能访问本方法
-			// 如果身为Admin用户能够访问到本方法说明是通过了不正常的渠道进入的，直接返回空内容给请求者即可
-			return SUCCESS;
-		}
-
-		switch (doingMan.getGrouping().getTag()) {
-		case "minus_first":
-			// 当前操作者是街道层级管理者
-			Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
-			MinusFirstLevel level = null;
-			for (MinusFirstLevel l : mfls) {
-				level = l;
-			}
-			// 这里获取到的是当前层级及所有子层级的管理项目
-			Set<DoingProject> allProjects = level.getDoingProjects();
-			List<DoingProject> projects = new ArrayList<DoingProject>();
-			for (DoingProject dp : allProjects) {
-				if (dp.getZeroLevel() == null) {
-					projects.add(dp);
+		// 判断前端请求的是那个层级的项目
+		List<DoingProject> list = doingProjectService.queryEntities();
+		List<DoingProject> projects = new ArrayList<DoingProject>();
+		Set<DoingProject> allProjects = null;
+		switch (level) {
+		case "minusFirst":
+			// 获取街道层级的项目,通常是Admin才能获取到街道项目
+			if (isAdmin) {
+				// 前端通过Shiro进行了控制，Amin用户是不可能看到“我的项目”的选项的，也就不可能访问本方法
+				// 如果身为Admin用户能够访问到本方法说明是通过了不正常的渠道进入的，直接返回空内容给请求者即可
+				for (DoingProject dp : list) {
+					// MinusFirstLevel存在层级对象，而次一级的ZeroLevel不存在层级对象，则说明该项目是只属于街道层级的
+					if (dp.getMinusFirstLevel() != null && dp.getZeroLevel() == null) {
+						projects.add(dp);
+					}
 				}
+			} else {
+				// TODO 没有比街道层级更高的层级了
+				return SUCCESS;
 			}
-			ActionContext.getContext().put("projects", projects);
 			break;
 		case "zero":
-			// 当前操作者是社区层级管理者
-			Set<ZeroLevel> zls = doingMan.getManager().getZls();
-			ZeroLevel level0 = null;
-			for (ZeroLevel l : zls) {
-				level0 = l;
-			}
-			// 这里获取到的是当前层级及所有子层级的管理项目
-			Set<DoingProject> allProjects0 = level0.getDoingProjects();
-			List<DoingProject> projects0 = new ArrayList<DoingProject>();
-			for (DoingProject dp : allProjects0) {
-				if (dp.getFirstLevel() == null) {
-					projects0.add(dp);
+			// 获取社区层级的项目
+			if (isAdmin) {
+				// 操作者是Admin，需要得到数据库中获取所有社区层级的项目
+				for (DoingProject dp : list) {
+					if (null != dp.getZeroLevel() && null == dp.getThirdLevel()) {
+						projects.add(dp);
+					}
+				}
+			} else {
+				// 操作者是街道层级，需要得到数据库中在该街道层级之下的社区层级的项目
+				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
+				MinusFirstLevel level = null;
+				for (MinusFirstLevel l : mfls) {
+					level = l;
+				}
+				// 这里获取到的是当前层级及所有子层级的管理项目
+				allProjects = level.getDoingProjects();
+				for (DoingProject dp : allProjects) {
+					if (dp.getZeroLevel() != null && dp.getThirdLevel() == null) {
+						projects.add(dp);
+					}
 				}
 			}
-			ActionContext.getContext().put("projects", projects0);
 			break;
 		case "first":
-			// 当前操作者是第一层级管理者
-			Set<FirstLevel> fls = doingMan.getManager().getFls();
-			FirstLevel level1 = null;
-			for (FirstLevel l : fls) {
-				level1 = l;
-			}
-			// 这里获取到的是当前层级及所有子层级的管理项目
-			Set<DoingProject> allProjects1 = level1.getDoingProjects();
-			List<DoingProject> projects1 = new ArrayList<DoingProject>();
-			for (DoingProject dp : allProjects1) {
-				if (dp.getFirstLevel() == null) {
-					projects1.add(dp);
+			// 获取第一层级的项目
+			if (isAdmin) {
+				// 操作者是Admin，需要得到数据库中获取所有社区层级的项目
+				for (DoingProject dp : list) {
+					if (null != dp.getFirstLevel() && null == dp.getSecondLevel()) {
+						projects.add(dp);
+					}
+				}
+			} else {
+				switch (doingMan.getGrouping().getTag()) {
+				case "minus_first":
+					// 操作者可能是街道层级
+					Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
+					MinusFirstLevel level = null;
+					for (MinusFirstLevel l : mfls) {
+						level = l;
+					}
+					allProjects = level.getDoingProjects();
+					for (DoingProject dp : allProjects) {
+						if (dp.getFirstLevel() != null && dp.getSecondLevel() == null) {
+							projects.add(dp);
+						}
+					}
+					break;
+				case "zero":
+					// 操作者可能是社区层级
+					Set<ZeroLevel> zls = doingMan.getManager().getZls();
+					ZeroLevel level2 = null;
+					for (ZeroLevel l : zls) {
+						level2 = l;
+					}
+					allProjects = level2.getDoingProjects();
+					for (DoingProject dp : allProjects) {
+						if (dp.getFirstLevel() != null && dp.getSecondLevel() == null) {
+							projects.add(dp);
+						}
+					}
+					break;
 				}
 			}
-			ActionContext.getContext().put("projects", projects1);
 			break;
 		case "second":
-			// 当前操作者是第二层级管理者
-			Set<SecondLevel> scls = doingMan.getManager().getScls();
-			SecondLevel level2 = null;
-			for (SecondLevel l : scls) {
-				level2 = l;
-			}
-			// 这里获取到的是当前层级及所有子层级的管理项目
-			Set<DoingProject> allProjects2 = level2.getDoingProjects();
-			List<DoingProject> projects2 = new ArrayList<DoingProject>();
-			for (DoingProject dp : allProjects2) {
-				if (dp.getFirstLevel() == null) {
-					projects2.add(dp);
+			// 获取第二层级的项目
+			if (isAdmin) {
+				// 操作者是Admin，需要得到数据库中获取所有社区层级的项目
+				for (DoingProject dp : list) {
+					if (null != dp.getSecondLevel() && null == dp.getThirdLevel()) {
+						projects.add(dp);
+					}
+				}
+			} else {
+				switch (doingMan.getGrouping().getTag()) {
+				case "minus_first":
+					// 操作者可能是街道层级
+					Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
+					MinusFirstLevel level = null;
+					for (MinusFirstLevel l : mfls) {
+						level = l;
+					}
+					allProjects = level.getDoingProjects();
+					for (DoingProject dp : allProjects) {
+						if (dp.getSecondLevel() != null && dp.getThirdLevel() == null) {
+							projects.add(dp);
+						}
+					}
+					break;
+				case "zero":
+					// 操作者可能是社区层级
+					Set<ZeroLevel> zls = doingMan.getManager().getZls();
+					ZeroLevel level2 = null;
+					for (ZeroLevel l : zls) {
+						level2 = l;
+					}
+					allProjects = level2.getDoingProjects();
+					for (DoingProject dp : allProjects) {
+						if (dp.getSecondLevel() != null && dp.getThirdLevel() == null) {
+							projects.add(dp);
+						}
+					}
+					break;
+				case "first":
+					Set<FirstLevel> fls = doingMan.getManager().getFls();
+					FirstLevel level3 = null;
+					for (FirstLevel l : fls) {
+						level3 = l;
+					}
+					allProjects = level3.getDoingProjects();
+					for (DoingProject dp : allProjects) {
+						if (dp.getSecondLevel() != null && dp.getThirdLevel() == null) {
+							projects.add(dp);
+						}
+					}
+					break;
 				}
 			}
-			ActionContext.getContext().put("projects", projects2);
 			break;
 		case "third":
-			// 当前操作者是第三层级管理者
-			Set<ThirdLevel> tls = doingMan.getManager().getTls();
-			ThirdLevel level3 = null;
-			for (ThirdLevel l : tls) {
-				level3 = l;
-			}
-			// 这里获取到的是当前层级及所有子层级的管理项目
-			Set<DoingProject> allProjects3 = level3.getDoingProjects();
-			List<DoingProject> projects3 = new ArrayList<DoingProject>();
-			for (DoingProject dp : allProjects3) {
-				if (dp.getFirstLevel() == null) {
-					projects3.add(dp);
+			// 获取第三层级的项目
+			if (isAdmin) {
+				// 操作者是Admin，需要得到数据库中获取所有社区层级的项目
+				for (DoingProject dp : list) {
+					if (null != dp.getThirdLevel()) {
+						projects.add(dp);
+					}
+				}
+			} else {
+				switch (doingMan.getGrouping().getTag()) {
+				case "minus_first":
+					// 操作者可能是街道层级
+					Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
+					MinusFirstLevel level = null;
+					for (MinusFirstLevel l : mfls) {
+						level = l;
+					}
+					allProjects = level.getDoingProjects();
+					for (DoingProject dp : allProjects) {
+						if (null != dp.getThirdLevel()) {
+							projects.add(dp);
+						}
+					}
+					break;
+				case "zero":
+					// 操作者可能是社区层级
+					Set<ZeroLevel> zls = doingMan.getManager().getZls();
+					ZeroLevel level2 = null;
+					for (ZeroLevel l : zls) {
+						level2 = l;
+					}
+					allProjects = level2.getDoingProjects();
+					for (DoingProject dp : allProjects) {
+						if (null != dp.getThirdLevel()) {
+							projects.add(dp);
+						}
+					}
+					break;
+				case "first":
+					Set<FirstLevel> fls = doingMan.getManager().getFls();
+					FirstLevel level3 = null;
+					for (FirstLevel l : fls) {
+						level3 = l;
+					}
+					allProjects = level3.getDoingProjects();
+					for (DoingProject dp : allProjects) {
+						if (null != dp.getThirdLevel()) {
+							projects.add(dp);
+						}
+					}
+					break;
+				case "second":
+					Set<SecondLevel> scls = doingMan.getManager().getScls();
+					SecondLevel level4 = null;
+					for (SecondLevel l : scls) {
+						level4 = l;
+					}
+					allProjects = level4.getDoingProjects();
+					for (DoingProject dp : allProjects) {
+						if (null != dp.getThirdLevel()) {
+							projects.add(dp);
+						}
+					}
+					break;
 				}
 			}
-			ActionContext.getContext().put("projects", projects3);
+			break;
+		default:
+			// level == null 表示的是请求操作者自己运作的项目
+			switch (doingMan.getGrouping().getTag()) {
+			case "minus_first":
+				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
+				MinusFirstLevel  level =null;
+				for (MinusFirstLevel l : mfls) {
+					level = l;
+				}
+				// 这里获取到的是当前层级及所有子层级的管理项目
+				allProjects = level.getDoingProjects();
+				for (DoingProject dp : allProjects) {
+					if (dp.getZeroLevel() == null) {
+						projects.add(dp);
+					}
+				}
+				break;
+			case "zero":
+				Set<ZeroLevel> zls = doingMan.getManager().getZls();
+				ZeroLevel level0 = null;
+				for (ZeroLevel l : zls) {
+					level0 = l;
+				}
+				// 这里获取到的是当前层级及所有子层级的管理项目
+				allProjects = level0.getDoingProjects();
+				for (DoingProject dp : allProjects) {
+					if (dp.getFirstLevel() == null) {
+						projects.add(dp);
+					}
+				}
+				break;
+			case "first":
+				// 当前操作者是第一层级管理者
+				Set<FirstLevel> fls = doingMan.getManager().getFls();
+				FirstLevel level1 = null;
+				for (FirstLevel l : fls) {
+					level1 = l;
+				}
+				// 这里获取到的是当前层级及所有子层级的管理项目
+				allProjects = level1.getDoingProjects();
+				for (DoingProject dp : allProjects) {
+					if (dp.getSecondLevel() == null) {
+						projects.add(dp);
+					}
+				}
+				break;
+			case "second":
+				// 当前操作者是第二层级管理者
+				Set<SecondLevel> scls = doingMan.getManager().getScls();
+				SecondLevel level2 = null;
+				for (SecondLevel l : scls) {
+					level2 = l;
+				}
+				// 这里获取到的是当前层级及所有子层级的管理项目
+				allProjects = level2.getDoingProjects();
+				for (DoingProject dp : allProjects) {
+					if (dp.getThirdLevel() == null) {
+						projects.add(dp);
+					}
+				}
+				break;
+			case "third":
+				// 当前操作者是第三层级管理者
+				Set<ThirdLevel> tls = doingMan.getManager().getTls();
+				ThirdLevel level3 = null;
+				for (ThirdLevel l : tls) {
+					level3 = l;
+				}
+				// 这里获取到的是当前层级及所有子层级的管理项目
+				allProjects = level3.getDoingProjects();
+				projects = new ArrayList<DoingProject>(allProjects);
+				break;
+			}
 			break;
 		}
+
+		ActionContext.getContext().put("projects", projects);
 		return SUCCESS;
 	}
 
-	public String getMinusFirstLevelProjects() {
 
-		return "minusFirst";
-	}
-
-	public String getZeroLevelProjects() {
-
-		return "zero";
-	}
-
-	public String getFirstLevelProjects() {
-
-		return "first";
-	}
-
-	public String getSecondLevelProjects() {
-
-		return "second";
-	}
-
-	public String getThirdLevelProjects() {
-
-		return "third";
-	}
-
-	public String getFourthLevelProjects() {
-
-		return "fourth";
-	}
-
+	
+	
+	
 }

@@ -1,13 +1,13 @@
 package cc.natapp4.ddaig.action;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -15,11 +15,14 @@ import org.springframework.stereotype.Controller;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ModelDriven;
 
-import cc.natapp4.ddaig.domain.User;
+import cc.natapp4.ddaig.domain.BesureProject;
+import cc.natapp4.ddaig.domain.DoingProject;
+import cc.natapp4.ddaig.domain.ProjectType;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
+import cc.natapp4.ddaig.service_interface.ProjectTypeService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
@@ -32,6 +35,8 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 	// =================DI注入=================
 	@Resource(name = "userService")
 	private UserService userService;
+	@Resource(name = "projectTypeService")
+	private ProjectTypeService projectTypeService;
 
 	// =================模型驱动=================
 	private MinusFirstLevel minusFirstLevel;
@@ -83,6 +88,7 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 			r.setMessage("关键信息为null，街道创建失败");
 			r.setResult(false);
 		} else {
+			// 准备新建的层级对象
 			MinusFirstLevel m = new MinusFirstLevel();
 
 			StringBuffer sb = new StringBuffer();
@@ -101,6 +107,29 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 			m.setDescription(minusFirstLevel.getDescription());
 			m.setName(minusFirstLevel.getName());
 
+			// 准备层级对象的“默认项目”，用来该层级对象创建默认活动
+			List<ProjectType> projectTypes = projectTypeService.queryEntities();
+			BesureProject bp = new BesureProject();
+			DoingProject dp = new DoingProject();
+
+			dp.setBesureProject(bp);
+			dp.setMinusFirstLevel(m);
+
+			bp.setDescription("用作" + m.getName() + "层级对象默认使用的确认项目对象");
+			bp.setDoingProject(dp);
+			bp.setMinusFirstLevel(m);
+			bp.setName("默认项目");
+			bp.setCommitTime(System.currentTimeMillis());
+			for (ProjectType pt : projectTypes) {
+				if (pt.getName().equals("common")) {
+					bp.setProjectType(pt);
+				}
+			}
+			Set<DoingProject> doingProjects = new HashSet<DoingProject>();
+			doingProjects.add(dp);
+			m.setDoingProjects(doingProjects);
+
+			// 像数据库保存新建的层级对象，并级联地存储BesureProject/DoingProject等项目对象
 			minusFirstLevelService.save(m);
 			r.setMessage("创建成功");
 			r.setResult(true);
@@ -146,6 +175,30 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 
 			sonLevel.setParent(parentLevel);
 
+			// 准备层级对象的“默认项目”，用来该层级对象创建默认活动
+			List<ProjectType> projectTypes = projectTypeService.queryEntities();
+			BesureProject bp = new BesureProject();
+			DoingProject dp = new DoingProject();
+
+			dp.setBesureProject(bp);
+			dp.setMinusFirstLevel(parentLevel);
+			dp.setZeroLevel(sonLevel);
+
+			bp.setDescription("用作" + sonLevel.getName() + "层级对象默认使用的确认项目对象");
+			bp.setDoingProject(dp);
+			bp.setMinusFirstLevel(parentLevel);
+			bp.setName("默认项目");
+			bp.setCommitTime(System.currentTimeMillis());
+			for (ProjectType pt : projectTypes) {
+				if (pt.getName().equals("common")) {
+					bp.setProjectType(pt);
+				}
+			}
+			Set<DoingProject> doingProjects = new HashSet<DoingProject>();
+			doingProjects.add(dp);
+			sonLevel.setDoingProjects(doingProjects);
+
+			// 像数据库保存新建的层级对象，并级联地存储BesureProject/DoingProject等项目对象
 			zeroLevelService.save(sonLevel);
 
 			r.setMessage("新建成功");

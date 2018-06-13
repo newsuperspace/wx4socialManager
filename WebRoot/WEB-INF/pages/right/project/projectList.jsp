@@ -76,16 +76,34 @@
 								class="table table-striped table-sm table-bordered table-hover text-center">
 								<thead class="thead-dark">
 									<tr>
+										<th>所属层级对象</th>
 										<th>项目名</th>
 										<th>DPID</th>
 										<th>项目类型</th>
-										<th>已开展活动</th>
+										<th>已开展活动数</th>
 										<th>操作</th>
 									</tr>
 								</thead>
 								<tbody>
 									<s:iterator value="#projects">
 										<tr>
+											<td>
+												<s:if test="%{thirdLevel!=null}">
+													<s:property value="thirdLevel.name"/>
+												</s:if>
+												<s:elseif test="%{secondLevel!=null&&thirdLevel==null}">
+													<s:property value="secondLevel.name"/>
+												</s:elseif>
+												<s:elseif test="%{firstLevel!=null&&secondLevel==null}">
+													<s:property value="firstLevel.name"/>
+												</s:elseif>
+												<s:elseif test="%{zeroLevel!=null&&firstLevel==null}">
+													<s:property value="zeroLevel.name"/>
+												</s:elseif>
+												<s:elseif test="%{minusFirstLevel!=null&&zeroLevel==null}">
+													<s:property value="minusFirstLevel.name"/>
+												</s:elseif>
+											</td>
 											<td><s:a href="#"
 													onclick="projectModal.op.projectInfo('%{dpid}')">
 													<s:property value="besureProject.name" />

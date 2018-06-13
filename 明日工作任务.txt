@@ -51,7 +51,10 @@ Bug修正：
 	
 
 
+但是新发现一个bug，在操作有关userDao的时候，会逐步加长user表中qrcode字段的长度，从而到处 too long的SQL异常，接下来我要弄明白为什么会出现这种情况
+//weixin//weixin//weixin//weixin/qrcode/4/9/ba9c4b18-57eb-46ea-8465-634ffc95679b.gif
 
+原本应该只是qrcode/4/9/ba9c4b18-57eb-46ea-8465-634ffc95679b.gif的
 
 
 

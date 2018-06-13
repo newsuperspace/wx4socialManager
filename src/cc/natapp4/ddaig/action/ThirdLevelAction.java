@@ -1,7 +1,9 @@
 package cc.natapp4.ddaig.action;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -15,6 +17,9 @@ import org.springframework.stereotype.Controller;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ModelDriven;
 
+import cc.natapp4.ddaig.domain.BesureProject;
+import cc.natapp4.ddaig.domain.DoingProject;
+import cc.natapp4.ddaig.domain.ProjectType;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
@@ -25,6 +30,7 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.FourthLevelService;
+import cc.natapp4.ddaig.service_interface.ProjectTypeService;
 import cc.natapp4.ddaig.service_interface.SecondLevelService;
 import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
@@ -39,6 +45,8 @@ public class ThirdLevelAction implements ModelDriven<ThirdLevel> { // <!-- ● -
 	// =================DI注入=================
 	@Resource(name = "userService")
 	private UserService userService;
+	@Resource(name = "projectTypeService")
+	private ProjectTypeService projectTypeService;
 
 	// =================模型驱动================= <!-- ● -->
 	private ThirdLevel thirdLevel;
@@ -143,7 +151,38 @@ public class ThirdLevelAction implements ModelDriven<ThirdLevel> { // <!-- ● -
 			l.setDescription(thirdLevel.getDescription());
 			l.setName(thirdLevel.getName());
 			l.setParent(parent);
+
+			// 准备层级对象的“默认项目”，用来该层级对象创建默认活动
+			List<ProjectType> projectTypes = projectTypeService.queryEntities();
+			BesureProject bp = new BesureProject();
+			DoingProject dp = new DoingProject();
+
+			dp.setBesureProject(bp);
+			dp.setMinusFirstLevel(parent.getParent().getParent().getParent());
+			dp.setZeroLevel(parent.getParent().getParent());
+			dp.setFirstLevel(parent.getParent());
+			dp.setSecondLevel(parent);
+			dp.setThirdLevel(l);
 			
+			bp.setDescription("用作" + l.getName() + "层级对象默认使用的确认项目对象");
+			bp.setDoingProject(dp);
+			bp.setMinusFirstLevel(parent.getParent().getParent().getParent());
+			bp.setZeroLevel(parent.getParent().getParent());
+			bp.setFirstLevel(parent.getParent());
+			bp.setSecondLevel(parent);
+			bp.setThirdLevel(l);
+			bp.setName("默认项目");
+			bp.setCommitTime(System.currentTimeMillis());
+			for (ProjectType pt : projectTypes) {
+				if (pt.getName().equals("common")) {
+					bp.setProjectType(pt);
+				}
+			}
+			Set<DoingProject> doingProjects = new HashSet<DoingProject>();
+			doingProjects.add(dp);
+			l.setDoingProjects(doingProjects);
+
+			// 像数据库保存新建的层级对象，并级联地存储BesureProject/DoingProject等项目对象
 			thirdLevelService.save(l);
 
 			r.setMessage("新建成功");

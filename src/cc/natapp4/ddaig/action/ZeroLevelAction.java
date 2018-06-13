@@ -1,7 +1,9 @@
 package cc.natapp4.ddaig.action;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -15,12 +17,16 @@ import org.springframework.stereotype.Controller;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ModelDriven;
 
+import cc.natapp4.ddaig.domain.BesureProject;
+import cc.natapp4.ddaig.domain.DoingProject;
+import cc.natapp4.ddaig.domain.ProjectType;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
+import cc.natapp4.ddaig.service_interface.ProjectTypeService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
@@ -29,12 +35,13 @@ import cc.natapp4.ddaig.utils.QRCodeUtils;
 @Scope("prototype")
 @Lazy(true)
 public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
-	
+
 	// =================DI注入=================
-	@Resource(name="userService")
-	private UserService  userService;
-	
-	
+	@Resource(name = "userService")
+	private UserService userService;
+	@Resource(name = "projectTypeService")
+	private ProjectTypeService projectTypeService;
+
 	// =================模型驱动=================
 	private ZeroLevel zeroLevel;
 
@@ -108,8 +115,8 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 				doingMan = userService.getUserByUsername(principal);
 			}
 		}
-		MinusFirstLevel  parent =  null;
-		for(MinusFirstLevel l: doingMan.getManager().getMfls()){
+		MinusFirstLevel parent = null;
+		for (MinusFirstLevel l : doingMan.getManager().getMfls()) {
 			parent = l;
 			break;
 		}
@@ -138,7 +145,32 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 			l.setDescription(zeroLevel.getDescription());
 			l.setName(zeroLevel.getName());
 			l.setParent(parent);
-			
+
+			// 准备层级对象的“默认项目”，用来该层级对象创建默认活动
+			List<ProjectType> projectTypes = projectTypeService.queryEntities();
+			BesureProject bp = new BesureProject();
+			DoingProject dp = new DoingProject();
+
+			dp.setBesureProject(bp);
+			dp.setMinusFirstLevel(parent);
+			dp.setZeroLevel(l);
+
+			bp.setDescription("用作" + l.getName() + "层级对象默认使用的确认项目对象");
+			bp.setDoingProject(dp);
+			bp.setMinusFirstLevel(parent);
+			bp.setZeroLevel(l);
+			bp.setName("默认项目");
+			bp.setCommitTime(System.currentTimeMillis());
+			for (ProjectType pt : projectTypes) {
+				if (pt.getName().equals("common")) {
+					bp.setProjectType(pt);
+				}
+			}
+			Set<DoingProject> doingProjects = new HashSet<DoingProject>();
+			doingProjects.add(dp);
+			l.setDoingProjects(doingProjects);
+
+			// 像数据库保存新建的层级对象，并级联地存储BesureProject/DoingProject等项目对象
 			zeroLevelService.save(l);
 
 			r.setMessage("新建成功");
@@ -184,6 +216,32 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 
 			sonLevel.setParent(parentLevel);
 
+			// 准备层级对象的“默认项目”，用来该层级对象创建默认活动
+			List<ProjectType> projectTypes = projectTypeService.queryEntities();
+			BesureProject bp = new BesureProject();
+			DoingProject dp = new DoingProject();
+
+			dp.setBesureProject(bp);
+			dp.setMinusFirstLevel(parentLevel.getParent());
+			dp.setZeroLevel(parentLevel);
+			dp.setFirstLevel(sonLevel);
+			
+			bp.setDescription("用作" + sonLevel.getName() + "层级对象默认使用的确认项目对象");
+			bp.setDoingProject(dp);
+			bp.setMinusFirstLevel(parentLevel.getParent());
+			bp.setZeroLevel(parentLevel);
+			bp.setName("默认项目");
+			bp.setCommitTime(System.currentTimeMillis());
+			for (ProjectType pt : projectTypes) {
+				if (pt.getName().equals("common")) {
+					bp.setProjectType(pt);
+				}
+			}
+			Set<DoingProject> doingProjects = new HashSet<DoingProject>();
+			doingProjects.add(dp);
+			sonLevel.setDoingProjects(doingProjects);
+
+			// 像数据库保存新建的层级对象，并级联地存储BesureProject/DoingProject等项目对象
 			firstLevelService.save(sonLevel);
 
 			r.setMessage("新建成功");
