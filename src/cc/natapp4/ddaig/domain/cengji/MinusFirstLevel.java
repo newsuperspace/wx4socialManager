@@ -53,8 +53,8 @@ public class MinusFirstLevel implements LevelInterface {
 	private Set<BesureProject> besureProjects;
 
 	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
-	private List<ZeroLevel> children4Ajax;
-	private List<ZeroLevel> allChildren4Ajax;
+	private List<ZeroLevel> children4Ajax;    // 承装没有被委任的子层级对象
+	private List<ZeroLevel> allChildren4Ajax; // 承装全部子层级对象
 
 	// ==================================SETTERs/GETTERs=====================================
 	// AJAX

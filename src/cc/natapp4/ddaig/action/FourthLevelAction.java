@@ -2,6 +2,7 @@ package cc.natapp4.ddaig.action;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -142,7 +143,7 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 			l.setDescription(fourthLevel.getDescription());
 			l.setName(fourthLevel.getName());
 			l.setParent(parent);
-			
+
 			fourthLevelService.save(l);
 
 			r.setMessage("新建成功");
@@ -202,7 +203,114 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 
 	public String getLevelList() { // <!-- ● -->
 
-		List<FourthLevel> list = fourthLevelService.queryEntities();
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
+
+		List<FourthLevel> list = null;
+		// 分辨当前操作者是Admin还是非Admin
+		if (isAdmin) {
+			// 当前查访者是Admin,获取数据库中的所有ThirdLevel对象
+			list = fourthLevelService.queryEntities();
+		} else {
+			list = new  ArrayList<FourthLevel>();
+			// 当前查访者是非Admin管理者，进一步分析当前操作者执行者的层级位置，然后从children属性结构中获取当前操作者下属的层级对象
+			switch (doingMan.getGrouping().getTag()) {
+			// 对于非Admin用户来说，能够获取到Fourth层级对象信息的只可能是街道/社区层级/第一层级/第二层级/第三层级的管理者
+			case "minus_first":
+				// 当前操作者是街道层级对象，要获取它下属的所有第一层级对象
+				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
+				MinusFirstLevel level = null;
+				for (MinusFirstLevel l : mfls) {
+					level = l;
+				}
+				// 然后获取到该街道层级下属的所有社区层级
+				Set<ZeroLevel> children = level.getChildren();
+				// 从下属的社区层级中遍历出来的第一层级对象，就是当前操作者（街道层级）所管辖的全部第一层级对象
+				for (ZeroLevel l : children) {
+					Set<FirstLevel> children2 = l.getChildren();
+					for (FirstLevel l2 : children2) {
+						for (SecondLevel l3 : l2.getChildren()) {
+							for (ThirdLevel l4 : l3.getChildren()) {
+								for(FourthLevel l5: l4.getChildren()){
+									list.add(l5);
+								}
+							}
+						}
+					}
+				}
+				break;
+			case "zero":
+				// 当前操作者是社区测功机对象，要获取它下属的所有第一层级对象
+				Set<ZeroLevel> zls = doingMan.getManager().getZls();
+				ZeroLevel level2 = null;
+				for (ZeroLevel l : zls) {
+					level2 = l;
+				}
+				Set<FirstLevel> children2 = level2.getChildren();
+				for (FirstLevel l : children2) {
+					for (SecondLevel l2 : l.getChildren()) {
+						for (ThirdLevel l3 : l2.getChildren()) {
+							for(FourthLevel l4:l3.getChildren()){
+								list.add(l4);
+							}
+						}
+					}
+				}
+				break;
+			case "first":
+				Set<FirstLevel> fls = doingMan.getManager().getFls();
+				FirstLevel level3 = null;
+				for (FirstLevel l : fls) {
+					level3 = l;
+				}
+
+				for (SecondLevel l : level3.getChildren()) {
+					for (ThirdLevel l2 : l.getChildren()) {
+						for(FourthLevel l3: l2.getChildren()){
+							list.add(l3);
+						}
+					}
+				}
+				break;
+			case "second":
+				Set<SecondLevel> scls = doingMan.getManager().getScls();
+				SecondLevel level4 = null;
+				for (ThirdLevel l : level4.getChildren()) {
+					for(FourthLevel l2: l.getChildren()){
+						list.add(l2);
+					}
+				}
+				break;
+			case "third":
+				Set<ThirdLevel> tls = doingMan.getManager().getTls();
+				ThirdLevel level5 = null;
+				for(ThirdLevel l: tls){
+					level5 = l;
+				}
+				for(FourthLevel l: level5.getChildren()){
+					list.add(l);
+				}
+				break;
+			}
+		}
 
 		ActionContext.getContext().put("levels", list);
 		return "list";

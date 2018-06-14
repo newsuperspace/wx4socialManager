@@ -132,6 +132,10 @@ public class ProjectAction extends ActionSupport implements ModelDriven<DoingPro
 		List<DoingProject> list = doingProjectService.queryEntities();
 		List<DoingProject> projects = new ArrayList<DoingProject>();
 		Set<DoingProject> allProjects = null;
+		if(null==level){
+			// 如果从前端发来的请求参数level是null，说明前端请求的是“我的项目”
+			level="";
+		}
 		switch (level) {
 		case "minusFirst":
 			// 获取街道层级的项目,通常是Admin才能获取到街道项目
@@ -168,7 +172,7 @@ public class ProjectAction extends ActionSupport implements ModelDriven<DoingPro
 				// 这里获取到的是当前层级及所有子层级的管理项目
 				allProjects = level.getDoingProjects();
 				for (DoingProject dp : allProjects) {
-					if (dp.getZeroLevel() != null && dp.getThirdLevel() == null) {
+					if (dp.getZeroLevel() != null && dp.getFirstLevel() == null) {
 						projects.add(dp);
 					}
 				}

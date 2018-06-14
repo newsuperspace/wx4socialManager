@@ -737,17 +737,30 @@ var managerModal = {
 				uid : uid
 			}
 
+			// 需要先等待下面的post请求从服务器获得返回的结果并判断后才能决定是否执行下面弹出Modal的操作，因此需要手动设置Ajax为同步执行（默认是异步执行）
+			$.ajaxSetup({
+				async : false // 全局设置Ajax为同步执行
+			});
+			var weContinue = true;
 			$.post("userAction_getUserInfo.action", data, function(data, textStatus, req) {
 				if (data.manager4Ajax != null) {
 					alert("该用户当前正在任职，请先将其卸任");
-					return;
+					weContinue = false;
 				}
 				if (data.grouping.tag != "common" && data.grouping.tag != "unreal") {
 					alert("该用户当前的分组为管理者分组,请修改后再试");
-					return;
+					weContinue = false;
 				}
 			});
-
+			// 重新设置Ajax为异步执行
+			$.ajaxSetup({
+				async:true
+			});
+			// 判断是否继续
+			if(!weContinue){
+				return;
+			}
+			
 			/*
 			 * 通过Ajax可以从后端返回当前操作者的层级对象，
 			 * 从中我们可以通过 data.grouping.tag 分析出操作者的层级分组,进而得知在userAssignedModal中应该显示的是那个select
@@ -762,9 +775,6 @@ var managerModal = {
 				
 				let level = data.level;
 				switch (level) {
-				case 10086:
-					// TODO admin操作者会将用户分派到街道层级（-1），这里暂时不写了
-					break;
 				case -1:
 					// 操作者是街道层级，将直属人员分配到社区
 					var $select = $("#userAssigned0").empty();
@@ -838,6 +848,21 @@ var managerModal = {
 						var $option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].foid);
 						$option.text(data.allChildren4Ajax[i].name);
+						$select.append($option);
+					}
+					break;
+				default:
+					// admin操作者会将用户分派到街道层级（-1）
+					var $select = $("#userAssigned-1").empty();
+					var $option = $("<option value='0' selected>--请选择--</option>");
+					$select.append($option);
+					$select.unbind().bind("change", function() {
+						managerModal.op.showAssignedUserModalCanBeCommit(uid, -1);
+					});
+					for(let i=0;i<data.length;i++){
+						$option = $("<option></option>");
+						$option.attr("value", data[i].mflid);
+						$option.text(data[i].name);
 						$select.append($option);
 					}
 					break;

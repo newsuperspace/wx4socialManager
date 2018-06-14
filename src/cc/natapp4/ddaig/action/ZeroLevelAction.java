@@ -225,7 +225,7 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 			dp.setMinusFirstLevel(parentLevel.getParent());
 			dp.setZeroLevel(parentLevel);
 			dp.setFirstLevel(sonLevel);
-			
+
 			bp.setDescription("用作" + sonLevel.getName() + "层级对象默认使用的确认项目对象");
 			bp.setDoingProject(dp);
 			bp.setMinusFirstLevel(parentLevel.getParent());
@@ -254,7 +254,53 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 
 	public String getLevelList() {
 
-		List<ZeroLevel> list = zeroLevelService.queryEntities();
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
+
+		List<ZeroLevel> list = null;
+		// 分辨当前操作者是Admin还是非Admin
+		if (isAdmin) {
+			// 当前查访者是Admin,获取数据库中的所有FirstLevel对象
+			list = zeroLevelService.queryEntities();
+		} else {
+			list = new  ArrayList<ZeroLevel>();
+			// 当前查访者是非Admin管理者，进一步分析当前操作者执行者的层级位置，然后从children属性结构中获取当前操作者下属的层级对象
+			switch (doingMan.getGrouping().getTag()) {
+			// 对于非Admin用户来说，能够获取到Zeroleve层级对象信息的只可能是街道管理者
+			case "minus_first":
+				// 当前操作者是街道层级对象，要获取它下属的所有第一层级对象
+				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
+				MinusFirstLevel level = null;
+				for (MinusFirstLevel l : mfls) {
+					level = l;
+				}
+				// 然后获取到该街道层级下属的所有社区层级
+				Set<ZeroLevel> children = level.getChildren();
+				// 从下属的社区层级中遍历出来的第一层级对象，就是当前操作者（街道层级）所管辖的全部第一层级对象
+				for(ZeroLevel l:children){
+					list.add(l);
+				}
+				break;
+			}
+		}
 
 		ActionContext.getContext().put("levels", list);
 		return "list";

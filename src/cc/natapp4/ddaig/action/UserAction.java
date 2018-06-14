@@ -502,53 +502,60 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			}
 		}
 
-		// 分析出当前操作者掌管的层级对象，进而获取其全部子层级
-		switch (doingMan.getGrouping().getTag()) {
-		case "minus_first":
-			Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
-			MinusFirstLevel  level_1 = null;
-			for(MinusFirstLevel l: mfls){
-				level_1 = l;
+		if(isAdmin){
+			// 管理员，则将系统中的所有MinusFirstLevel层级对象返回给前端
+			List<MinusFirstLevel> queryEntities = minusFirstLevelService.queryEntities();
+			ActionContext.getContext().getValueStack().push(queryEntities);
+		}else{
+			// 非管理员
+			// 分析出当前操作者掌管的层级对象，进而获取其全部子层级
+			switch (doingMan.getGrouping().getTag()) {
+			case "minus_first":
+				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
+				MinusFirstLevel  level_1 = null;
+				for(MinusFirstLevel l: mfls){
+					level_1 = l;
+					break;
+				}
+				ActionContext.getContext().getValueStack().push(level_1);
+				break;
+			case "zero":
+				Set<ZeroLevel> zls = doingMan.getManager().getZls();
+				ZeroLevel level0 = null;
+				for(ZeroLevel l: zls){
+					level0 = l;
+					break;
+				}
+				ActionContext.getContext().getValueStack().push(level0);
+				break;
+			case "first":
+				Set<FirstLevel> fls = doingMan.getManager().getFls();
+				FirstLevel level1 = null;
+				for(FirstLevel l: fls){
+					level1 = l;
+					break;
+				}
+				ActionContext.getContext().getValueStack().push(level1);
+				break;
+			case "second":
+				Set<SecondLevel> scls = doingMan.getManager().getScls();
+				SecondLevel level2 = null;
+				for(SecondLevel l:scls){
+					level2 = l;
+					break;
+				}
+				ActionContext.getContext().getValueStack().push(level2);
+				break;
+			case "third":
+				Set<ThirdLevel> tls = doingMan.getManager().getTls();
+				ThirdLevel level3 = null;
+				for(ThirdLevel l: tls){
+					level3 = l;
+					break;
+				}
+				ActionContext.getContext().getValueStack().push(level3);
 				break;
 			}
-			ActionContext.getContext().getValueStack().push(level_1);
-			break;
-		case "zero":
-			Set<ZeroLevel> zls = doingMan.getManager().getZls();
-			ZeroLevel level0 = null;
-			for(ZeroLevel l: zls){
-				level0 = l;
-				break;
-			}
-			ActionContext.getContext().getValueStack().push(level0);
-			break;
-		case "first":
-			Set<FirstLevel> fls = doingMan.getManager().getFls();
-			FirstLevel level1 = null;
-			for(FirstLevel l: fls){
-				level1 = l;
-				break;
-			}
-			ActionContext.getContext().getValueStack().push(level1);
-			break;
-		case "second":
-			Set<SecondLevel> scls = doingMan.getManager().getScls();
-			SecondLevel level2 = null;
-			for(SecondLevel l:scls){
-				level2 = l;
-				break;
-			}
-			ActionContext.getContext().getValueStack().push(level2);
-			break;
-		case "third":
-			Set<ThirdLevel> tls = doingMan.getManager().getTls();
-			ThirdLevel level3 = null;
-			for(ThirdLevel l: tls){
-				level3 = l;
-				break;
-			}
-			ActionContext.getContext().getValueStack().push(level3);
-			break;
 		}
 		return "json";
 	}

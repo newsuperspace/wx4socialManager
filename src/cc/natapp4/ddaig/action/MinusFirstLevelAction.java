@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -18,6 +20,8 @@ import com.opensymphony.xwork2.ModelDriven;
 import cc.natapp4.ddaig.domain.BesureProject;
 import cc.natapp4.ddaig.domain.DoingProject;
 import cc.natapp4.ddaig.domain.ProjectType;
+import cc.natapp4.ddaig.domain.User;
+import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
@@ -211,7 +215,32 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 
 	public String getLevelList() {
 
-		List<MinusFirstLevel> list = minusFirstLevelService.queryEntities();
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
+
+		List<MinusFirstLevel> list = null;
+		if(isAdmin){
+			// 要获取到街道层级的数据信息，只能是Admin管理员，如果不是就是非法访问，应该直接返回空数据
+			list = minusFirstLevelService.queryEntities();
+		}
 
 		ActionContext.getContext().put("levels", list);
 		return "list";
