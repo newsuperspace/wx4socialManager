@@ -57,6 +57,9 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 		this.delete(t);
 	}
 	
-	
+	@Override
+	public void clearSession() {
+		this.getBaseDao().clearSession();
+	}
 	
 }

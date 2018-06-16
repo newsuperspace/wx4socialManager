@@ -17,6 +17,7 @@ import cc.natapp4.ddaig.dao_interface.BaseDao;
 //@Transactional  
 public abstract class BaseDaoImpl<T> implements BaseDao<T> {
 
+
 	/**
 	 * 该方法由各个个性化Dao个性化接口实现，从而让父类Dao（就是当前类的实现类）可以调用到HibernateTemplate，从而实现数据库的通用操作部分的逻辑
 	 * @return
@@ -65,5 +66,10 @@ public abstract class BaseDaoImpl<T> implements BaseDao<T> {
 	@Override
 	public void delete(T t) {
 		this.getHibernateTemplate().delete(t);
+	}
+	
+	@Override
+	public void clearSession() {
+		this.getHibernateTemplate().clear();
 	}
 }

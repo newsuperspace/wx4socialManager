@@ -278,8 +278,44 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	 */
 	public String getUserInfo() {
 
-		String uid = this.user.getUid();
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				/*
+				 * ★★★★
+				 * 这里出现一个BUG，由于Hibernate的二级缓存机制，导致即便我们在修改（通过SETTER方法）持久化状态对象中的数据信息
+				 * 后不显示地调用update()方法向数据库更新，由于在二级缓存中保存了一份持久化状态对象"原始"状态的拷贝，如果此时我们再次调用
+				 * 查询方法，则Hiberante会先比对二级缓存中的拷贝与持久化状态对象，如果发现字段数据被改动则会自动向数据库commit提交数据
+				 * 之后在进行查询操作。 
+				 * 也就是说Hibernate为了防止出现脏数据等问题，会优先将session的二级缓存中保存的持久化状态对象的最新状态保存到数据库中后
+				 * 再进行新的CRUD操作。
+				 * 
+				 * 具体到本例题来说，如果先对持久化状态对象u进行数据操作（我们加工了qrcode数据，为了方便前端能够显示出二维码），注意我们并没有update这个U
+				 * 而只希望将U通过Ajax返回到前端，而此时如果我们再次通过相同session对同一个数据库表（User）进行CRUD操作，则Hiberante会优先将session的
+				 * 二级缓存中保存的状态更新到User数据库后再执行操作，所以才出现即便我们没有显示地执行update更新持久化状态对象U的数据，但是其中的qrcode也被更新到
+				 * 数据库了。 解决办法就是在对持久化状态对象执行修改操作之前，将所有涉及持久化状态对象所属数据库表的查询操作先操作完成。
+				 * 
+				 */
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
 
+		// 从User中查询出被操作者索取的用户对象，前端操作者所需要的该用户的信息数据大部分都保存在这里，但有些数据信息仍需加工一下 
+		String uid = this.user.getUid();
 		User u = userService.queryEntityById(uid);
 
 		if (null == u) {
@@ -317,27 +353,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			}
 		}
 
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
-
+		// -----------根据操作者的层级对象不同，来设置被索取的用户的tag数据信息----------
 		ArrayList<String> tagsList = new ArrayList<String>();
 		if (isAdmin) {
 			/*
@@ -393,31 +409,31 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		String[] tags = (String[]) tagsList.toArray(new String[0]);
 		u.setTags(tags);
 
+		// userService.clearSession();
 		ActionContext.getContext().getValueStack().push(u);
 		return "json";
 	}
 
-
 	/**
-	 * Ajax
-	 * 从前端接收uid（被指派的人员uid）, level（被指派到的层级对象的层级）, lid（被指派到的层级对象的id）
+	 * Ajax 从前端接收uid（被指派的人员uid）, level（被指派到的层级对象的层级）, lid（被指派到的层级对象的id）
 	 * 实现用户到该层级的派遣功能
+	 * 
 	 * @return
 	 */
-	public String assignedUser(){
-		
+	public String assignedUser() {
+
 		String uid = user.getUid();
 		int level = this.getLevel();
-		String lid =  this.getLid();
-		
-		ReturnMessage4Common  result =  new  ReturnMessage4Common("人员派遣成功！",true);
+		String lid = this.getLid();
+
+		ReturnMessage4Common result = new ReturnMessage4Common("人员派遣成功！", true);
 		User u = null;
-		
+
 		switch (level) {
 		case -1:
 			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
-			if(minusFirstLevel==null){
-				result.setMessage("不存在lid为"+lid+"的层级对象，指派失败");
+			if (minusFirstLevel == null) {
+				result.setMessage("不存在lid为" + lid + "的层级对象，指派失败");
 				result.setResult(false);
 			}
 			u = userService.queryEntityById(uid);
@@ -426,8 +442,8 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			break;
 		case 0:
 			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
-			if(zeroLevel==null){
-				result.setMessage("不存在lid为"+lid+"的层级对象，指派失败");
+			if (zeroLevel == null) {
+				result.setMessage("不存在lid为" + lid + "的层级对象，指派失败");
 				result.setResult(false);
 			}
 			u = userService.queryEntityById(uid);
@@ -436,8 +452,8 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			break;
 		case 1:
 			FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
-			if(firstLevel==null){
-				result.setMessage("不存在lid为"+lid+"的层级对象，指派失败");
+			if (firstLevel == null) {
+				result.setMessage("不存在lid为" + lid + "的层级对象，指派失败");
 				result.setResult(false);
 			}
 			u = userService.queryEntityById(uid);
@@ -446,8 +462,8 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			break;
 		case 2:
 			SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
-			if(secondLevel==null){
-				result.setMessage("不存在lid为"+lid+"的层级对象，指派失败");
+			if (secondLevel == null) {
+				result.setMessage("不存在lid为" + lid + "的层级对象，指派失败");
 				result.setResult(false);
 			}
 			u = userService.queryEntityById(uid);
@@ -456,8 +472,8 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			break;
 		case 3:
 			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
-			if(thirdLevel==null){
-				result.setMessage("不存在lid为"+lid+"的层级对象，指派失败");
+			if (thirdLevel == null) {
+				result.setMessage("不存在lid为" + lid + "的层级对象，指派失败");
 				result.setResult(false);
 			}
 			u = userService.queryEntityById(uid);
@@ -465,18 +481,18 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			userService.update(u);
 			break;
 		default:
-			result.setMessage("不存在指定层级为"+level+"的层级对象，人员派遣失败");
+			result.setMessage("不存在指定层级为" + level + "的层级对象，人员派遣失败");
 			result.setResult(false);
 			break;
 		}
-		
+
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
-	
+
 	/**
-	 * AJAX 
-	 * 向前端返回当前操作者层级对象,以便于前端从中通过children4Ajax获取可以指派人员的直接子层级
+	 * AJAX 向前端返回当前操作者层级对象,以便于前端从中通过children4Ajax获取可以指派人员的直接子层级
+	 * 
 	 * @return
 	 */
 	public String showUserAssignedModal() {
@@ -502,18 +518,18 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			}
 		}
 
-		if(isAdmin){
+		if (isAdmin) {
 			// 管理员，则将系统中的所有MinusFirstLevel层级对象返回给前端
 			List<MinusFirstLevel> queryEntities = minusFirstLevelService.queryEntities();
 			ActionContext.getContext().getValueStack().push(queryEntities);
-		}else{
+		} else {
 			// 非管理员
 			// 分析出当前操作者掌管的层级对象，进而获取其全部子层级
 			switch (doingMan.getGrouping().getTag()) {
 			case "minus_first":
 				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
-				MinusFirstLevel  level_1 = null;
-				for(MinusFirstLevel l: mfls){
+				MinusFirstLevel level_1 = null;
+				for (MinusFirstLevel l : mfls) {
 					level_1 = l;
 					break;
 				}
@@ -522,7 +538,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			case "zero":
 				Set<ZeroLevel> zls = doingMan.getManager().getZls();
 				ZeroLevel level0 = null;
-				for(ZeroLevel l: zls){
+				for (ZeroLevel l : zls) {
 					level0 = l;
 					break;
 				}
@@ -531,7 +547,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			case "first":
 				Set<FirstLevel> fls = doingMan.getManager().getFls();
 				FirstLevel level1 = null;
-				for(FirstLevel l: fls){
+				for (FirstLevel l : fls) {
 					level1 = l;
 					break;
 				}
@@ -540,7 +556,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			case "second":
 				Set<SecondLevel> scls = doingMan.getManager().getScls();
 				SecondLevel level2 = null;
-				for(SecondLevel l:scls){
+				for (SecondLevel l : scls) {
 					level2 = l;
 					break;
 				}
@@ -549,7 +565,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			case "third":
 				Set<ThirdLevel> tls = doingMan.getManager().getTls();
 				ThirdLevel level3 = null;
-				for(ThirdLevel l: tls){
+				for (ThirdLevel l : tls) {
 					level3 = l;
 					break;
 				}
