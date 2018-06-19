@@ -16,10 +16,12 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import cc.natapp4.ddaig.domain.Grouping;
+import cc.natapp4.ddaig.domain.ProjectType;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCreatingTag;
 import cc.natapp4.ddaig.service_implement.UserServiceImpl;
 import cc.natapp4.ddaig.service_interface.GroupingService;
+import cc.natapp4.ddaig.service_interface.ProjectTypeService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.utils.ConfigUtils;
 import cc.natapp4.ddaig.weixin.builder.TextBuilder;
@@ -48,6 +50,8 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 	private GroupingService groupingService;
 	@Resource(name = "userService")
 	private UserService userService;
+	@Resource(name="projectTypeService")
+	private ProjectTypeService projectTypeService;
 
 	// ============================Builder=============================
 	@Resource(name = "textBuilder")
@@ -124,15 +128,23 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 	@Override
 	public void InitPlatform() {
 
+		/*
+		 * TODO 关于本地数据库中的基础信息的初始化全在这里完成，其中包括
+		 * grouping数据库 --- wxConfig/initTags.properties
+		 * projecttypes数据库---projectTypes.properties
+		 * 
+		 */
 		// 根据本地配置file，创建Grouping
 		this.initLocalTag();
-
+		this.initProjectTypes();
+		
 		// 本地标签数据（grouping）与公众号tag数据同步更新 // 与公众号交互次数少，可能不会出现“45011
 		// API调用太频繁,请稍候再试”的异常
 		this.synchronizeTagInfo();
 
 		// 同步用户数据 // 需要与公众号进行大量交互，可能会在一天中的不同时间段出现 “45011 API调用太频繁,请稍候再试”的异常
-		this.synchronizeUserInfo();
+		// TODO 目前新工程中我不希望增加交互时间影响系统稳定性，并且最好全部用户都是用默认Menu，因此这里先暂时性地隐藏初始化人员的操作，有需要再打开
+//		this.synchronizeUserInfo();
 
 		// 设置个性化菜单
 		this.createMenu();
@@ -149,6 +161,51 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		return url;
 	}
 
+
+	/**
+	 * STEP1 在本地数据库创建projectTypes信息
+	 */
+	private void initProjectTypes(){
+		Properties p = ConfigUtils.getProperties("wxConfig/projectTypes.properties");
+		Enumeration<String> keys = (Enumeration<String>)p.propertyNames();
+		
+		ProjectType pt  =  null;
+		List<ProjectType> projectTypes = this.projectTypeService.queryEntities();
+		if(null==projectTypes || 0==projectTypes.size()){
+			// 数据库projecttype中没有任何数据，则直接重新创建
+			while(keys.hasMoreElements()){
+				String key = keys.nextElement();
+				pt =  new  ProjectType();
+				pt.setDescription(p.getProperty(key));
+				pt.setName(key);
+				projectTypeService.save(pt);
+			}
+		}else{
+			// 数据库中存在旧projectType数据信息，需要经过比对修复
+			while(keys.hasMoreElements()){
+				boolean ishere = false;
+				// 先获取到待比对的projectType的name字段值
+				String name = keys.nextElement();
+				for(ProjectType proT: projectTypes){
+					// 与数据库中已有projectType的name字段值进行比较，相同则说明已经存在无需再在数据库中创建了
+					if(name.equals(proT.getName())){
+						// 以防万一更新一下该projectType的description
+						proT.setDescription(p.getProperty(name));
+						projectTypeService.update(proT);
+						ishere = true;
+						break;
+					}
+				}
+				if(!ishere){
+					pt =  new  ProjectType();
+					pt.setDescription(p.getProperty(name));
+					pt.setName(name);
+					projectTypeService.save(pt);
+				}
+			}
+		}
+	}
+	
 	/**
 	 * STEP1 根据本地配置file来想grouping中初始化本地tag标签
 	 */
@@ -215,109 +272,113 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 
 		// 创建三个菜单对象，每个菜单对象对应一种用户标签的用户权限
 		WxMenu selfmenu = new WxMenu(); // 默认菜单，其他没有标签的用户都将看到这个菜单，但当前项目是没有用的，因为每个新加入的用户都会被默认设定成no_real_name这个标签，只不过在创建菜单的时候必须有这么一个默认菜单
-		WxMenu firstMenu = new WxMenu(); // 没有认证的用户的个性化菜单
-		WxMenu secondMenu = new WxMenu(); // 普通用户的个性化菜单
-		WxMenu thirdMenu = new WxMenu(); // 社区用户的个性化菜单
-		// 创建三个个性化菜单规则对象
-		WxMenuRule firstRule = new WxMenuRule();
-		WxMenuRule secondRule = new WxMenuRule();
-		WxMenuRule thirdRule = new WxMenuRule();
-		// 配置规则，用以区分不同标签下的用户使用哪个个性化菜单
-		List<Grouping> list = groupingService.queryEntities();
-		for (Grouping g : list) {
-			String tag = g.getTag();
-			switch (tag) {
-			case "no_real_name_user":
-				firstRule.setTagId(String.valueOf(g.getTagid()));
-				break;
-			case "common_user":
-				secondRule.setTagId(String.valueOf(g.getTagid()));
-				break;
-			case "community_user":
-				thirdRule.setTagId(String.valueOf(g.getTagid()));
-				break;
-			}
-		}
-		// 将规则设置到menu对象上
-		firstMenu.setMatchRule(firstRule);
-		secondMenu.setMatchRule(secondRule);
-		thirdMenu.setMatchRule(thirdRule);
-		// 开始设置菜单项目,一级菜单最多只能有三个，切记！
+//		WxMenu firstMenu = new WxMenu(); // 没有认证的用户的个性化菜单
+//		WxMenu secondMenu = new WxMenu(); // 普通用户的个性化菜单
+//		WxMenu thirdMenu = new WxMenu(); // 社区用户的个性化菜单
+//		// 创建三个个性化菜单规则对象
+//		WxMenuRule firstRule = new WxMenuRule();
+//		WxMenuRule secondRule = new WxMenuRule();
+//		WxMenuRule thirdRule = new WxMenuRule();
+//		// 配置规则，用以区分不同标签下的用户使用哪个个性化菜单
+//		List<Grouping> list = groupingService.queryEntities();
+//		for (Grouping g : list) {
+//			String tag = g.getTag();
+//			switch (tag) {
+//			case "no_real_name_user":
+//				firstRule.setTagId(String.valueOf(g.getTagid()));
+//				break;
+//			case "common_user":
+//				secondRule.setTagId(String.valueOf(g.getTagid()));
+//				break;
+//			case "community_user":
+//				thirdRule.setTagId(String.valueOf(g.getTagid()));
+//				break;
+//			}
+//		}
+//		// 将规则设置到menu对象上
+//		firstMenu.setMatchRule(firstRule);
+//		secondMenu.setMatchRule(secondRule);
+//		thirdMenu.setMatchRule(thirdRule);
+//		// 开始设置菜单项目,一级菜单最多只能有三个，切记！
 		// 设计默认菜单
 		WxMenuButton button4SelfMenu1 = new WxMenuButton();
-		button4SelfMenu1.setType(WxConsts.BUTTON_CLICK);
-		button4SelfMenu1.setName("初始化中");
+		Properties p = ConfigUtils.getProperties("wxConfig/weixin.properties");
+		String url = p.getProperty("webroot") + "/" + "openJSP/realName.jsp";
+		String oauth2buildAuthorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
+		button4SelfMenu1.setType(WxConsts.BUTTON_VIEW);
+		button4SelfMenu1.setName("实名认证");
 		button4SelfMenu1.setKey("self_1_1");
+		button4SelfMenu1.setUrl(oauth2buildAuthorizationUrl);
 		selfmenu.getButtons().add(button4SelfMenu1);
 
-		// 设计第一个个性化菜单(实名认证功能)
-		WxMenuButton button4FirstMenu1 = new WxMenuButton();
-		firstMenu.getButtons().add(button4FirstMenu1);
-
-		Properties p = ConfigUtils.getProperties("wxConfig/weixin.properties");
-		String url = p.getProperty("webroot") + "/" + "www/index.html";
-		String authorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
-		System.out.println("oauth2授权的实名认证页面的url是：" + authorizationUrl);
-
-		button4FirstMenu1.setType(WxConsts.BUTTON_VIEW);
-		button4FirstMenu1.setName("实名认证");
-		button4FirstMenu1.setUrl(authorizationUrl);
-		// 设计第二个个性化菜单（普通用户）
-		WxMenuButton button4SecondMenu1 = new WxMenuButton();
-		WxMenuButton button4SecondMenu2 = new WxMenuButton();
-
-		secondMenu.getButtons().add(button4SecondMenu1);
-		secondMenu.getButtons().add(button4SecondMenu2);
-
-		// ★★这里的按键类型一定要选择BUTTON_SCANCODE_WAITMSG才能将扫码结果传到咱们的服务器执行后续处理，
-		// 如果选择的是BUTTON_SCANCODE_PUSH则在扫码的时候只会弹出扫码结果（一个字符串的页面）
-		button4SecondMenu1.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
-		button4SecondMenu1.setName("扫码签到");
-		// ★★★ 除了click，扫码推等按钮功能也要佩戴Key，用以在同类按钮中进行区分，切记！不然会爆出invalid button
-		// key的异常
-		button4SecondMenu1.setKey("second_1");
-		// 创建子菜单项
-		WxMenuButton button4SecondMenu2_1 = new WxMenuButton();
-		// WxMenuButton button4SecondMenu2_2 = new WxMenuButton();
-		// WxMenuButton button4SecondMenu2_3 = new WxMenuButton();
-		WxMenuButton button4SecondMenu2_4 = new WxMenuButton();
-		// 设置子菜单项
-		button4SecondMenu2_1.setType(WxConsts.BUTTON_CLICK);
-		button4SecondMenu2_1.setName("当前积分");
-		button4SecondMenu2_1.setKey("second_2_1");
-		// button4SecondMenu2_2.setType(WxConsts.BUTTON_VIEW);
-		// button4SecondMenu2_2.setName("公益商城");
-		// button4SecondMenu2_2.setUrl("http://www.baidu.com");
-		// button4SecondMenu2_3.setType(WxConsts.BUTTON_CLICK);
-		// button4SecondMenu2_3.setName("用户中心");
-		// button4SecondMenu2_3.setKey("second_2_3");
-		button4SecondMenu2_4.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
-		button4SecondMenu2_4.setKey("second_2_4");
-		button4SecondMenu2_4.setName("积分兑换");
-		// 向一级菜单项中添加添加子菜单项
-		button4SecondMenu2.setName("功能列表");
-		button4SecondMenu2.getSubButtons().add(button4SecondMenu2_1);
-		// button4SecondMenu2.getSubButtons().add(button4SecondMenu2_2);
-		// button4SecondMenu2.getSubButtons().add(button4SecondMenu2_3);
-		button4SecondMenu2.getSubButtons().add(button4SecondMenu2_4);
-
-		// 设计第三个个性化菜单
-		WxMenuButton button4ThirdMenu1 = new WxMenuButton();
-		WxMenuButton button4ThirdMenu2 = new WxMenuButton();
-		
-		thirdMenu.getButtons().add(button4ThirdMenu1);
-		thirdMenu.getButtons().add(button4ThirdMenu2);
-		
-		url = p.getProperty("webroot") + "/" + "list/index.html";
-		authorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
-		System.out.println("oauth2授权的发起活动页面的url是：" + authorizationUrl);
-		button4ThirdMenu1.setType(WxConsts.BUTTON_VIEW);
-		button4ThirdMenu1.setName("发起活动");
-		button4ThirdMenu1.setUrl(authorizationUrl);
-		
-		button4ThirdMenu2.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
-		button4ThirdMenu2.setName("登录后台");
-		button4ThirdMenu2.setKey("third_2");
+//		// 设计第一个个性化菜单(实名认证功能)
+//		WxMenuButton button4FirstMenu1 = new WxMenuButton();
+//		firstMenu.getButtons().add(button4FirstMenu1);
+//
+//		Properties p = ConfigUtils.getProperties("wxConfig/weixin.properties");
+//		String url = p.getProperty("webroot") + "/" + "www/index.html";
+//		String authorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
+//		System.out.println("oauth2授权的实名认证页面的url是：" + authorizationUrl);
+//
+//		button4FirstMenu1.setType(WxConsts.BUTTON_VIEW);
+//		button4FirstMenu1.setName("实名认证");
+//		button4FirstMenu1.setUrl(authorizationUrl);
+//		// 设计第二个个性化菜单（普通用户）
+//		WxMenuButton button4SecondMenu1 = new WxMenuButton();
+//		WxMenuButton button4SecondMenu2 = new WxMenuButton();
+//
+//		secondMenu.getButtons().add(button4SecondMenu1);
+//		secondMenu.getButtons().add(button4SecondMenu2);
+//
+//		// ★★这里的按键类型一定要选择BUTTON_SCANCODE_WAITMSG才能将扫码结果传到咱们的服务器执行后续处理，
+//		// 如果选择的是BUTTON_SCANCODE_PUSH则在扫码的时候只会弹出扫码结果（一个字符串的页面）
+//		button4SecondMenu1.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
+//		button4SecondMenu1.setName("扫码签到");
+//		// ★★★ 除了click，扫码推等按钮功能也要佩戴Key，用以在同类按钮中进行区分，切记！不然会爆出invalid button
+//		// key的异常
+//		button4SecondMenu1.setKey("second_1");
+//		// 创建子菜单项
+//		WxMenuButton button4SecondMenu2_1 = new WxMenuButton();
+//		// WxMenuButton button4SecondMenu2_2 = new WxMenuButton();
+//		// WxMenuButton button4SecondMenu2_3 = new WxMenuButton();
+//		WxMenuButton button4SecondMenu2_4 = new WxMenuButton();
+//		// 设置子菜单项
+//		button4SecondMenu2_1.setType(WxConsts.BUTTON_CLICK);
+//		button4SecondMenu2_1.setName("当前积分");
+//		button4SecondMenu2_1.setKey("second_2_1");
+//		// button4SecondMenu2_2.setType(WxConsts.BUTTON_VIEW);
+//		// button4SecondMenu2_2.setName("公益商城");
+//		// button4SecondMenu2_2.setUrl("http://www.baidu.com");
+//		// button4SecondMenu2_3.setType(WxConsts.BUTTON_CLICK);
+//		// button4SecondMenu2_3.setName("用户中心");
+//		// button4SecondMenu2_3.setKey("second_2_3");
+//		button4SecondMenu2_4.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
+//		button4SecondMenu2_4.setKey("second_2_4");
+//		button4SecondMenu2_4.setName("积分兑换");
+//		// 向一级菜单项中添加添加子菜单项
+//		button4SecondMenu2.setName("功能列表");
+//		button4SecondMenu2.getSubButtons().add(button4SecondMenu2_1);
+//		// button4SecondMenu2.getSubButtons().add(button4SecondMenu2_2);
+//		// button4SecondMenu2.getSubButtons().add(button4SecondMenu2_3);
+//		button4SecondMenu2.getSubButtons().add(button4SecondMenu2_4);
+//
+//		// 设计第三个个性化菜单
+//		WxMenuButton button4ThirdMenu1 = new WxMenuButton();
+//		WxMenuButton button4ThirdMenu2 = new WxMenuButton();
+//		
+//		thirdMenu.getButtons().add(button4ThirdMenu1);
+//		thirdMenu.getButtons().add(button4ThirdMenu2);
+//		
+//		url = p.getProperty("webroot") + "/" + "list/index.html";
+//		authorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
+//		System.out.println("oauth2授权的发起活动页面的url是：" + authorizationUrl);
+//		button4ThirdMenu1.setType(WxConsts.BUTTON_VIEW);
+//		button4ThirdMenu1.setName("发起活动");
+//		button4ThirdMenu1.setUrl(authorizationUrl);
+//		
+//		button4ThirdMenu2.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
+//		button4ThirdMenu2.setName("登录后台");
+//		button4ThirdMenu2.setKey("third_2");
 
 		// 至此三个个性化菜单都准备好了，可以向公众号中创建了
 		boolean b  =  false;
@@ -337,54 +398,54 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 				}
 			}
 		} while (b);
-		// 第一个菜单（实名认证）
-		do {
-			b = true;
-			try {
-				this.getMenuService().menuCreate(firstMenu); 
-				b = false;
-				System.out.println("第一个菜单创建成功！");
-			} catch (WxErrorException e) {
-				try {
-					// 等待3秒
-					Thread.sleep(3*1000);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-			}
-		} while (b);
-		// 第二个菜单（普通用户）
-		do {
-			b = true;
-			try {
-				this.getMenuService().menuCreate(secondMenu); 
-				b = false;
-				System.out.println("第二个菜单创建成功！");
-			} catch (WxErrorException e) {
-				try {
-					// 等待3秒
-					Thread.sleep(3*1000);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-			}
-		} while (b);
-		// 第三个菜单（社区用户）
-		do {
-			b = true;
-			try {
-				this.getMenuService().menuCreate(thirdMenu); 
-				b = false;
-				System.out.println("第三个菜单创建成功！");
-			} catch (WxErrorException e) {
-				try {
-					// 等待3秒
-					Thread.sleep(3*1000);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-			}
-		} while (b);
+//		// 第一个菜单（实名认证）
+//		do {
+//			b = true;
+//			try {
+//				this.getMenuService().menuCreate(firstMenu); 
+//				b = false;
+//				System.out.println("第一个菜单创建成功！");
+//			} catch (WxErrorException e) {
+//				try {
+//					// 等待3秒
+//					Thread.sleep(3*1000);
+//				} catch (InterruptedException e1) {
+//					e1.printStackTrace();
+//				}
+//			}
+//		} while (b);
+//		// 第二个菜单（普通用户）
+//		do {
+//			b = true;
+//			try {
+//				this.getMenuService().menuCreate(secondMenu); 
+//				b = false;
+//				System.out.println("第二个菜单创建成功！");
+//			} catch (WxErrorException e) {
+//				try {
+//					// 等待3秒
+//					Thread.sleep(3*1000);
+//				} catch (InterruptedException e1) {
+//					e1.printStackTrace();
+//				}
+//			}
+//		} while (b);
+//		// 第三个菜单（社区用户）
+//		do {
+//			b = true;
+//			try {
+//				this.getMenuService().menuCreate(thirdMenu); 
+//				b = false;
+//				System.out.println("第三个菜单创建成功！");
+//			} catch (WxErrorException e) {
+//				try {
+//					// 等待3秒
+//					Thread.sleep(3*1000);
+//				} catch (InterruptedException e1) {
+//					e1.printStackTrace();
+//				}
+//			}
+//		} while (b);
 		System.out.println("全部菜单初始化成功！");
 	}
 

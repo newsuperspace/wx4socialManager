@@ -19,8 +19,11 @@ import me.chanjar.weixin.mp.api.WxMpInMemoryConfigStorage;
 public class InitWxConfigListener implements ServletContextListener {
 
 	// 微信相关对象
-	protected WxMpInMemoryConfigStorage config; // 有关微信公众号的参数信息（这些信息你应该从自己的微信平台账户后台获取）
-
+	/*
+	 * 有关微信公众号的参数信息（这些信息你应该从自己的微信平台账户后台
+	 * https://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index获取）
+	 */
+	protected WxMpInMemoryConfigStorage config; 
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {	}
 

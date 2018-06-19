@@ -64,6 +64,16 @@ import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
  * 
  */
 @Lazy(true)
+/**
+ * AjaxAction4weixin 这个Action的作用是负责处理，前端中的JS文件与服务器的交互，并且这些交互与微信公众号有关
+ * 例如当前端通过微信官方提供的JS-API调用手机设备的物理硬件的时候，需要预先进行安全检测，这就需要服务器端的配合将校验数据信息
+ * 通过Ajax返回给前端，这就是本Action的作用
+ * 
+ * 与WeiXinAction直接负责接收微信端相应的功能定位是不同的。
+ * 
+ * @author Administrator
+ *
+ */
 public class AjaxAction4weixin extends ActionSupport {
 
 	@Resource(name = "weixinService4Recall")
@@ -178,6 +188,10 @@ public class AjaxAction4weixin extends ActionSupport {
 	 */
 	public String getOpenIdthroughCode() {
 		WxMpOAuth2AccessToken token = null;
+		if(null==code || "".equals(code)){
+			// 如果来访连接没有带着code参数，说明不是从微信端来访的页面，直接PASS即可
+			return null;
+		}
 		try {
 			token = mpService4Recall.oauth2getAccessToken(this.code);
 		} catch (WxErrorException e) {
@@ -185,7 +199,7 @@ public class AjaxAction4weixin extends ActionSupport {
 		}
 		String openId = token.getOpenId();
 
-		System.out.println("本次来访的用户hi：" + openId);
+		System.out.println("本次来访的用户的openID是：" + openId);
 
 		Result4GetOpenIdthouroughCode result = new Result4GetOpenIdthouroughCode(openId);
 		ActionContext.getContext().getValueStack().push(result);
@@ -233,6 +247,39 @@ public class AjaxAction4weixin extends ActionSupport {
 	}
 
 	// ==============================实名制认证=============================
+	// 确定当前微信端用户是否之前已经完成过实名认证
+	public String preCheckRealName(){
+		ReturnMessage4Common  result = new  ReturnMessage4Common();
+		
+		User user = userService.queryByOpenId(openid);
+		
+		if(null==user){
+			result.setMessage("openid为null或不存在该用户");
+			result.setResult(true);
+		}else{
+			if(!user.getGrouping().getTag().equals("unreal")){
+				// 已经实名认证过了
+				result.setResult(true);
+				result.setMessage("该openid已经使命认证过");
+				// 通过微信向该用户发送消息(单独启动一个线程来做发送消息的事儿)
+				new Runnable() {
+					
+					@Override
+					public void run() {
+						mpService4Setting.sendTextMessage2One(openid, "您已完成实名认证，无需重复认证。");
+					}
+				}.run();
+			}else{
+				// 未实名认证
+				result.setResult(false);
+				result.setMessage("没有实名认证，请认证");
+			}
+		}
+		
+		ActionContext.getContext().getValueStack().push(result);
+		return SUCCESS;
+	}
+	
 	// 响应从微信前端 实名认证页面提交过来的 用户实名信息表单
 	public String checkRealName() {
 		// 这里调用UserService，来完成实名制认证，并将结果返回
@@ -240,8 +287,8 @@ public class AjaxAction4weixin extends ActionSupport {
 
 		System.out.println("提交实名制认证请求的用户的openID是:" + openid);
 		System.out.println("提交的username是：" + username);
-		System.out.println("提交的cardid是：" + cardid);
-		System.out.println("提交的address是：" + address);
+		System.out.println("提交的sex是：" + sex);
+		System.out.println("提交的age是：" + age);
 		System.out.println("提交的phone是：" + phone);
 
 		/*
@@ -252,17 +299,17 @@ public class AjaxAction4weixin extends ActionSupport {
 		User user = userService.queryByOpenId(openid);
 		Grouping grouping = user.getGrouping();
 		String tag = grouping.getTag();
-		if (!tag.equals("no_real_name_user")) {
+		if (!tag.equals("unreal")) {
 			// 已经实名认证的用户
 			result.setMessage("您已通过实名认证，请耐心等待微信缓存刷新。");
 			result.setResult(true);
 			// 主动向该用户发送信息
 			mpService4Setting.sendTextMessage2One(openid,
-					"您已通过实名认证，请耐心等待微信缓存刷新后菜单栏出现改变，您也可以尝试主动清空微信或关闭微信后重新打开等方式加快缓存更新。");
+					"您已完成实名认证，无需重复认证。");
 		} else {
 			// 非实名认证用户
 			try {
-				userService.checkRealName(openid, username, cardid, address, phone);
+				userService.checkRealName(openid, username, sex, age, phone);
 				result.setMessage("实名制认证成功！");
 				result.setResult(true);
 				// 主动向该用户发送信息
@@ -319,10 +366,10 @@ public class AjaxAction4weixin extends ActionSupport {
 	 * 属性驱动 前端通过ajax方式调用checkRealName()方法的时候，传递过来的请求参数
 	 */
 	private String openid;
-	private String cardid;
 	private String username;
-	private String address;
 	private String phone;
+	private int age;
+	private String sex;
 
 	public String getOpenid() {
 		return openid;
@@ -330,14 +377,6 @@ public class AjaxAction4weixin extends ActionSupport {
 
 	public void setOpenid(String openid) {
 		this.openid = openid;
-	}
-
-	public String getCardid() {
-		return cardid;
-	}
-
-	public void setCardid(String cardid) {
-		this.cardid = cardid;
 	}
 
 	public String getUsername() {
@@ -348,20 +387,28 @@ public class AjaxAction4weixin extends ActionSupport {
 		this.username = username;
 	}
 
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
 	public String getPhone() {
 		return phone;
 	}
 
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+	public String getSex() {
+		return sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
 	}
 
 	// ==============================新建活动=============================

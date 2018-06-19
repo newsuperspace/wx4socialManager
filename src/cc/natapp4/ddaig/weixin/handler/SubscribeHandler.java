@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -62,37 +63,46 @@ public class SubscribeHandler extends AbstractHandler {
 		
 		WxMpXmlOutMessage outMessage=null;
 		
-		// 检查该用户是否之前加入过公众号
+		// 检查该用户是否之前加入过公众号,如果之前加入过公众号又退出了，那么他在本地数据库一定留有信息（不会随着退出而销毁）并且openid始终一致
 		User user = userService.queryByOpenId(userInfo.getOpenId());
 		if(null!=user){
 			// 修改该用户的ishere字段为true，表明该用户重新回到了公众号
 			user.setIshere(true);
 			userService.update(user);
 			// 向该用户回复TEXT类型消息——“欢迎回来，xxx”
-			outMessage = textBuilder.build("欢迎回来，"+userInfo.getNickname(), mpMessage, service);
-			// 然后按照该用户之前的tag来设置该用户的公众平台tag
-			long tagid = user.getGrouping().getTagid();
-			service.getUserTagService().batchTagging(tagid, new String[]{user.getOpenid()});
+			String username = user.getUsername();
+			if(StringUtils.isEmpty(username)){
+				outMessage = textBuilder.build("欢迎回来，"+userInfo.getNickname(), mpMessage, service);
+			}else{
+				outMessage = textBuilder.build("欢迎回来，"+username, mpMessage, service);
+			}
+			// TODO weixin.tag
+//			// 然后按照该用户之前的tag来设置该用户的公众平台tag
+//			long tagid = user.getGrouping().getTagid();
+//			service.getUserTagService().batchTagging(tagid, new String[]{user.getOpenid()});
 		}else{
 			// 在本地新建用户，然后再公众平台设置该用户的tag，以显示功能入口——个性化菜单
 			user =  new  User();
 			user.setOpenid(userInfo.getOpenId());
 			user.setIshere(true);
+			user.setSickname(userInfo.getNickname());
+			user.setAddress(userInfo.getCountry()+","+userInfo.getProvince()+","+userInfo.getCity());
+			user.setRegistrationTime(System.currentTimeMillis());
+			
 			List<Grouping> list = this.groupingService.queryEntities();
 			for(Grouping g: list){
-				if(g.getTag().equals("no_real_name_user")){
-					
+				if(g.getTag().equals("unreal")){
 					// 新建User对象到本地数据库保存
 					user.setGrouping(g);  // 新建User一定要与Grouping进行绑定
 					this.userService.save(user);
 					
-					// 最后在公众号中设置"非认证用户"的tag就可以了
-					String[] ids = {userInfo.getOpenId()};
-					try {
-						service.getUserTagService().batchTagging(g.getTagid(), ids);
-					} catch (WxErrorException e) {
-						e.printStackTrace();
-					}
+					// TODO weixin.tag 如果公众号中的用户需要根据grouping的tag设置不同的标签，从而实现个性化菜单，那么可以激活下面的逻辑
+//					String[] ids = {userInfo.getOpenId()};
+//					try {
+//						service.getUserTagService().batchTagging(g.getTagid(), ids);
+//					} catch (WxErrorException e) {
+//						e.printStackTrace();
+//					}
 				}
 			}
 			// 向该用户回复TEXT类型消息——“欢迎新成员，xxx”

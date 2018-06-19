@@ -64,16 +64,15 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	@Resource(name = "groupingService")
 	private GroupingService groupingService;
 	/*
-	 * TODO 
-	 * 下方涉及负责与微信公众号交互的weixinService4Setting等Service由于需要在Servlet环境的支持
+	 * TODO 下方涉及负责与微信公众号交互的weixinService4Setting等Service由于需要在Servlet环境的支持
 	 * 因此在JUnit测试有关User/Manager/Member的Service→Dao层的时候请先注解掉这部分内容
 	 */
 	@Resource(name = "weixinService4Setting")
 	private WeixinService4SettingImpl wxService4Setting;
 
 	// TODO 一下这些DI注入式专门给 isAdmin()这个测试方法使用的，正式部署程序的使用应该弃用
-	@Resource(name="roleService")
-	private RoleService  roleService;
+	@Resource(name = "roleService")
+	private RoleService roleService;
 
 	@Override
 	protected BaseDao<User> getBaseDao() {
@@ -86,84 +85,80 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	}
 
 	/**
+	 * 【TODO 测试用】 实名认证的后门程序，如果在测试环境中我的手机上不了网，或者全部admin用户都消失了，则也就没人能拥有最高权限了
+	 * 这个时候只要 String username, String cardID, String address, String phone
+	 * 这四个从前端提交来的字段都是admin 那么就可以将该用户自动设置成admin角色用户
+	 * 
+	 * return true表示已经将该用户设定成admin并且也绑定成了community_user
+	 * ，一切都做妥当了，不需要checkRealName()多管闲事了 false
+	 * 表示本方法没有发挥什么作用，将新建用户的工作交还给checkRealName()的剩余代码。
+	 */
+//	private boolean isAdmin(User user, String username, String cardID, String address, String phone) {
+//
+//		if ("admin".equals(username) && "admin".equals(cardID) && "admin".equals(address) && "admin".equals(phone)) {
+//			List<Grouping> list = this.groupingService.queryEntities();
+//			for (Grouping g : list) {
+//				if (g.getTag().equals("community_user")) {
+//
+//					// 新建User对象到本地数据库保存
+//					user.setGrouping(g); // 新建User一定要与Grouping进行绑定
+//					// 直接升级成admin角色
+//					Role role = roleService.queryEntityById("402881eb6086931701608693244c0000");
+//					user.setRole(role);
+//					this.update(user);
+//
+//					// 最后在公众号中设置"非认证用户"的tag就可以了
+//					String[] ids = { user.getOpenid() };
+//					try {
+//						wxService4Setting.getUserTagService().batchTagging(g.getTagid(), ids);
+//						return true;
+//					} catch (WxErrorException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		}
+//		return false;
+//	}
+
+	/**
 	 * 实名认证
 	 */
 	@Override
-	public void checkRealName(String openID, String username, String cardID, String address, String phone)
+	public void checkRealName(String openID, String username, String sex, int age, String phone)
 			throws WeixinExceptionWhenCheckRealName {
 
 		// TODO 这里还是有问题的，因为必须要先检测是否有后台添加用户，这里为了尽快检测系统可用性而选择只有微信公众号添加用户这一种方式
 		// TODO 因此这里需要在UserDao中添加根据cardid查找用户的方法，然后确认实名认证是否是相同用户
 		User user = dao.queryByOpenId(openID);
-		user.setCardid(cardID);
-		user.setAddress(address);
 		user.setPhone(phone);
 		user.setUsername(username);
-
-		// TODO[测试用]  正式发布时请删除此处调用
-		if(isAdmin(user, username, cardID, address, phone)){
-			return;
+		if("1".equals(sex)){
+			user.setSex("男");
+		}else{
+			user.setSex("女");
 		}
-		
+		user.setAge(age);
+		// 变更该用户的标签
 		List<Grouping> list = this.groupingService.queryEntities();
 		for (Grouping g : list) {
-			if (g.getTag().equals("common_user")) {
+			if (g.getTag().equals("common")) {
 
 				// 新建User对象到本地数据库保存
 				user.setGrouping(g); // 新建User一定要与Grouping进行绑定
 				this.update(user);
-
-				// 最后在公众号中设置"非认证用户"的tag就可以了
-				String[] ids = { openID };
-				try {
-					wxService4Setting.getUserTagService().batchTagging(g.getTagid(), ids);
-				} catch (WxErrorException e) {
-					e.printStackTrace();
-					throw new WeixinExceptionWhenCheckRealName();
-				}
+				// TODO 如果需要在公众号中配合设置tag从而实现个性化菜单，则还需要下面向公众号进行设置的逻辑
+//				String[] ids = { openID };
+//				try {
+//					wxService4Setting.getUserTagService().batchTagging(g.getTagid(), ids);
+//				} catch (WxErrorException e) {
+//					e.printStackTrace();
+//					throw new WeixinExceptionWhenCheckRealName();
+//				}
 			}
 		}
 	}
 
-	/**
-	 * 【TODO 测试用】
-	 * 实名认证的后门程序，如果在测试环境中我的手机上不了网，或者全部admin用户都消失了，则也就没人能拥有最高权限了
-	 * 这个时候只要 String username, String cardID, String address, String phone  这四个从前端提交来的字段都是admin
-	 * 那么就可以将该用户自动设置成admin角色用户
-	 * 
-	 * return  true表示已经将该用户设定成admin并且也绑定成了community_user ，一切都做妥当了，不需要checkRealName()多管闲事了
-	 *   false 表示本方法没有发挥什么作用，将新建用户的工作交还给checkRealName()的剩余代码。
-	 */
-	private boolean isAdmin(User user,String username, String cardID, String address, String phone){
-		
-		if("admin".equals(username)&&"admin".equals(cardID)&&"admin".equals(address)&&"admin".equals(phone)){
-			List<Grouping> list = this.groupingService.queryEntities();
-			for (Grouping g : list) {
-				if (g.getTag().equals("community_user")) {
-
-					// 新建User对象到本地数据库保存
-					user.setGrouping(g); // 新建User一定要与Grouping进行绑定
-					// 直接升级成admin角色
-					Role role = roleService.queryEntityById("402881eb6086931701608693244c0000");
-					user.setRole(role);
-					this.update(user);
-
-					// 最后在公众号中设置"非认证用户"的tag就可以了
-					String[] ids = { user.getOpenid() };
-					try {
-						wxService4Setting.getUserTagService().batchTagging(g.getTagid(), ids);
-						return true;
-					} catch (WxErrorException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
-	
-	
 	/**
 	 * 类洗浴新鲜活动Activity的子类个性化方法，bacause需要自动生成用来分别各个用户的unique的QRCODE
 	 * 因此这里需要一个覆盖父类的子类方法
@@ -184,12 +179,16 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	}
 
 	/**
-	 * 在公众号初始化阶段(WeiXinAction类中的recall()中调用mpService4Setting.InitPlatform()实现公众号初始化)
-	 * 调用的新建用户的方法，它不会生成qrcode图片
-	 * 之所以不在初始化阶段直接使用UserServiceImpl的save()方法,是由于save()方法中调用QRCodeUtils中的createUserQR()方法的时候会根据用户的uid生成个人专属qrcode
-	 * 但是在创建保存qrcode的图片路径的时候需要用到ServletActionContext.getServletContext() 是依据TLS（线程局部存储技术）实现的，需要线程ID，但是公众号初始化是创建的新线程
-	 * 因此通过ServletActionContext.getServletContext()根据新线程的ID（该线程不是servlet线程）自然也就找不到ServletContext对象，从而爆出NullPointerException。
-	 * 所以对于初始化平台时，新建用户的需求，只能向数据库新建除QRCODE的数据，等之后平台初始化成功后，在通过一个方法（batchCreateUserQR()）批量根据数据库中的每个用户的uid补创建qrcode
+	 * 在公众号初始化阶段(WeiXinAction类中的recall()中调用mpService4Setting.InitPlatform()
+	 * 实现公众号初始化) 调用的新建用户的方法，它不会生成qrcode图片
+	 * 之所以不在初始化阶段直接使用UserServiceImpl的save()方法,是由于save()
+	 * 方法中调用QRCodeUtils中的createUserQR()方法的时候会根据用户的uid生成个人专属qrcode
+	 * 但是在创建保存qrcode的图片路径的时候需要用到ServletActionContext.getServletContext()
+	 * 是依据TLS（线程局部存储技术）实现的，需要线程ID，但是公众号初始化是创建的新线程
+	 * 因此通过ServletActionContext.getServletContext()根据新线程的ID（该线程不是servlet线程）
+	 * 自然也就找不到ServletContext对象，从而爆出NullPointerException。
+	 * 所以对于初始化平台时，新建用户的需求，只能向数据库新建除QRCODE的数据，等之后平台初始化成功后，在通过一个方法（
+	 * batchCreateUserQR()）批量根据数据库中的每个用户的uid补创建qrcode
 	 */
 	public void saveInInit(User t) {
 		// 由于需要使用uid来创建qrcode，所以这里手动uid并传入到bean中
@@ -198,20 +197,19 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		// 至此后台新建用户所需要的数据都已经放入到bean中了，最后再提交父类，调用UserDao保存到数据库
 		super.save(t);
 	}
-	
+
 	/**
-	 * 批处理：批量生成用户数据库中所有用户的QRCODE 图片
-	 * 适合初始化公众号后，或者应用新部署到服务器，旧的用户QRCODE已经丢失的时候
+	 * 批处理：批量生成用户数据库中所有用户的QRCODE 图片 适合初始化公众号后，或者应用新部署到服务器，旧的用户QRCODE已经丢失的时候
 	 * 由在后台调用该方法，这样就可以根据每个用户的uid重新生成对应的QRCODE图片
 	 */
-	public void batchCreateUserQR(){
+	public void batchCreateUserQR() {
 		List<User> list = this.queryEntities();
-		for(User u: list){
+		for (User u : list) {
 			String uid = u.getUid();
 			String qr = QRCodeUtils.createUserQR(uid);
 			u.setQrcode(qr);
 			// 由于Hibernate的二级缓存机制，使得哦们根本不需要显式调用update()方法，就能自动向数据库保存修改了 ★
-//			this.update(u);
+			// this.update(u);
 		}
 		System.out.println("全部用户的uid已重新生成！");
 	}
@@ -232,6 +230,5 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	public User getUserByUsername(String username) {
 		return dao.getUserByUsername(username);
 	}
-
 
 }

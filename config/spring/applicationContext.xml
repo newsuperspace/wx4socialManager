@@ -68,6 +68,8 @@
 				/js/**=anon
 				/qrcode/**=anon
 				/openJSP/**=anon
+				/weixinAction_*.action = anon
+				/ajaxAction4weixin_*.action = anon
 			<!-- 
 				/logout 对应于 filters中声明好的 key="logout"的过滤器，该过滤器的具体配置引用自
 				id="logoutFilter"的过滤器配置，其中的redirectUrl所配置的就是系统退出后跳转的页面。

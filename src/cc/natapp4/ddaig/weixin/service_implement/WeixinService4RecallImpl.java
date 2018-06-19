@@ -42,12 +42,16 @@ public class WeixinService4RecallImpl extends WeixinServiceAbstract implements W
 	// 注入service层的其他service（如果有需要的话）
 
 	// =============================================DI 注入当前Service所需要的Handler
+	// 用户订阅
 	@Resource(name="subscribeHandler")
 	private SubscribeHandler  subscribeHandler;
+	// 用户退订
 	@Resource(name="unsubscribeHandler")
 	private UnsubscribeHandler unsubscribeHandler;
+	// 扫码推
 	@Resource(name="scaneHandler")
 	private ScaneHandler  scaneHandler;
+	// 菜单点击
 	@Resource(name="menuClickHandler")
 	private MenuClickHandler  menuClickHandler;
 

@@ -88,7 +88,7 @@ public abstract class WeixinServiceAbstract extends WxMpServiceImpl {
 			}
 			return "first";
 		} else {
-			// 不存在echostr，但是请求也的确来自官方服务器，则返回false告知外部等待Action执行"消息路由器"配套的handler业务逻辑
+			// 不存在echostr，但是请求也的确来自官方服务器，则返回normal告知外部等待Action执行"消息路由器"配套的handler业务逻辑
 			return "normal";
 		}
 	}

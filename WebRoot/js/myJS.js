@@ -709,23 +709,23 @@ var managerModal = {
 		/*
 		 * 判断指派人员的modal是否可以提交了（是否在select中选择了正确的option，value非0）
 		 */
-		showAssignedUserModalCanBeCommit: function(uid,level){
-			
-			var $select = $("#userAssigned"+level)
-			
-			if($select.val()==0){
+		showAssignedUserModalCanBeCommit : function(uid, level) {
+
+			var $select = $("#userAssigned" + level)
+
+			if ($select.val() == 0) {
 				// 用户没有选中正确的option，不予提交
 				// 设置按钮为不可用状态，并直接返回
-				$("#button4UserAssigned").attr("disabled",true);
+				$("#button4UserAssigned").attr("disabled", true);
 				return;
 			}
 			// 用户选择了 某个层级对象的option，可以执行指派操作了
-			$("#button4UserAssigned").unbind().bind("click", function(){
+			$("#button4UserAssigned").unbind().bind("click", function() {
 				managerModal.op.assignedUser(uid, level, $select.val());
-			}).attr("disabled",false);
+			}).attr("disabled", false);
 		},
-		
-		
+
+
 		/*
 		 * 分配用户到子层级的“中间层&直属层”中
 		 * uid： 被分配的人员的uid
@@ -754,13 +754,13 @@ var managerModal = {
 			});
 			// 重新设置Ajax为异步执行
 			$.ajaxSetup({
-				async:true
+				async : true
 			});
 			// 判断是否继续
-			if(!weContinue){
+			if (!weContinue) {
 				return;
 			}
-			
+
 			/*
 			 * 通过Ajax可以从后端返回当前操作者的层级对象，
 			 * 从中我们可以通过 data.grouping.tag 分析出操作者的层级分组,进而得知在userAssignedModal中应该显示的是那个select
@@ -772,7 +772,7 @@ var managerModal = {
 				$("#userAssignedModal div.row").hide();
 				// 将提交按钮预制成“不可用状态”
 				$("#button4UserAssigned").attr("disabled", true)
-				
+
 				let level = data.level;
 				switch (level) {
 				case -1:
@@ -781,10 +781,10 @@ var managerModal = {
 					console.log($select.attr("id"));
 					var $option = $("<option value='0' selected>--请选择--</option>");
 					$select.append($option);
-					$select.unbind().bind("change", function(){
+					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, 0)
 					});
-					for(let i=0;i<data.allChildren4Ajax.length;i++){
+					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
 						$option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].zid);
 						$option.text(data.allChildren4Ajax[i].name);
@@ -796,10 +796,10 @@ var managerModal = {
 					var $select = $("#userAssigned1").empty();
 					var $option = $("<option value='0' selected>--请选择--</option>");
 					$select.append($option);
-					$select.unbind().bind("change", function(){
+					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, 1);
 					});
-					for(let i=0;i<data.allChildren4Ajax.length;i++){
+					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
 						var $option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].flid);
 						$option.text(data.allChildren4Ajax[i].name);
@@ -811,10 +811,10 @@ var managerModal = {
 					var $select = $("#userAssigned2").empty();
 					var $option = $("<option value='0' selected>--请选择--</option>");
 					$select.append($option);
-					$select.unbind().bind("change", function(){
+					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, 2);
 					});
-					for(let i=0;i<data.allChildren4Ajax.length;i++){
+					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
 						var $option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].scid);
 						$option.text(data.allChildren4Ajax[i].name);
@@ -826,10 +826,10 @@ var managerModal = {
 					var $select = $("#userAssigned3").empty();
 					var $option = $("<option value='0' selected>--请选择--</option>");
 					$select.append($option);
-					$select.unbind().bind("change", function(){
+					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, 3);
 					});
-					for(let i=0;i<data.allChildren4Ajax.length;i++){
+					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
 						var $option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].thid);
 						$option.text(data.allChildren4Ajax[i].name);
@@ -841,10 +841,10 @@ var managerModal = {
 					var $select = $("#userAssigned4").empty();
 					var $option = $("<option value='0' selected>--请选择--</option>");
 					$select.append($option);
-					$select.unbind().bind("change", function(){
+					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, 4);
 					});
-					for(let i=0;i<data.allChildren4Ajax.length;i++){
+					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
 						var $option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].foid);
 						$option.text(data.allChildren4Ajax[i].name);
@@ -859,7 +859,7 @@ var managerModal = {
 					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, -1);
 					});
-					for(let i=0;i<data.length;i++){
+					for (let i = 0; i < data.length; i++) {
 						$option = $("<option></option>");
 						$option.attr("value", data[i].mflid);
 						$option.text(data[i].name);
@@ -879,24 +879,24 @@ var managerModal = {
 		 * lid: 被分配到的层级对象的lid
 		 */
 		assignedUser : function(uid, level, lid) {
-			
+
 			var data = {
-				uid: uid,
-				level: level,
-				lid: lid
+				uid : uid,
+				level : level,
+				lid : lid
 			}
-			
+
 			$.post("userAction_assignedUser.action", data, function(data, textStatus, req) {
-				if(data.result){
+				if (data.result) {
 					// 人员派遣成功
 					alert(data.message);
 					window.location.reload();
-				}else{
+				} else {
 					alert(data.message);
 					$("#userAssignedModal").modal("hide");
 				}
 			});
-			
+
 		},
 
 		/*
@@ -1443,33 +1443,210 @@ var overAll = {
 
 
 
-var projectModal  =  {
-	
-	init:{},
-	
-	data:{},
-	
-	op:{
+var projectModal = {
+	init : {},
+
+	data : {},
+
+	op : {
 		/*
 		 * 点击项目名称————弹出projectInfoModal，显示项目的详细信息。
 		 */
-		projectInfo: function(dpid){
+		projectInfo : function(dpid) {
 			alert(dpid);
 		},
-		
+
 		/*
 		 * 点击已开展活动的数字，可以跳转到Activity页面，显示当前项目所开展过的活动信息列表
 		 */
-		getActivities: function(dpid){
+		getActivities : function(dpid) {
 			alert(dpid);
 		},
-		
-		
-		
 	}
-		
-	
 };
+
+
+var aboutWeixin = {
+	init : {
+		op : {
+			/*
+			 * 负责Weixin公众号端访问的页面的所有必要前提操作
+			 * （1）微信网页认证授权
+			 * （2）JS-SDK使用授权认证
+			 */
+			getOpenIdAndConfigJSSDK : function() {
+				console.log("Hello world!");
+
+				// 设置ajax请求成同步请求
+				$.ajaxSetup({
+					async : false // 全局设置Ajax为同步执行
+				});
+				
+				// ===============================微信网页认证授权===========================
+				// 由于当前页面是用来实名制认证的，因此通过OAthure2.0认证后会将用来获取access_token的票据code以请求参数的形式传递过来
+				// 因此这里就需要预先获取到请求参数code的值，并且进行Ajax通讯让服务器从微信官方得到该用户真正的openID，并且保存到数据组件中备用
+				var code = aboutWeixin.op.getAccess_Token("code");
+				// 准备进行Ajax通讯获取来访用户的OpenID
+				var url = "ajaxAction4weixin_getOpenIdthroughCode.action";
+				var param = {
+					"code" : code,
+				};
+				$.post(url, param, function(data) {
+					if (!jQuery.isEmptyObject(data)) {
+						// 将当前操作的用户的openid保存到localStorage中
+						localStorage.setItem("openid", data.openid);
+					} else {
+						console.log("以Code换取用户OpenID时出现异常");
+					}
+				});
+
+				// =============================JS-SDK使用权限签名=============================
+				// 因为当前页面需要在"实名制认证成功"后就让微信浏览器关闭此页面，因此需要使用微信提供的JS-SDK来调用微信的功能
+				// 在正式调用JS-SDK中的api之前需要做到
+				// （1）加载微信JS-SDK的模块【已通过在页面上使用<script></script>标签完成】
+				// （2）加载JS-SDK模块后可以直接通过"wx"或"jWeixin"这个全局变量实现对微信web功能的API调用，但再此之前还需要config配置过程
+				url = "ajaxAction4weixin_getJsapiSignature.action"
+				// 得到需要调用JS-SDK的页面的URL，但不能包括"#"号及其后面的部分，因此需要通过JS原生的split()函数切割一下  ★
+				var paramUrl = window.location.href.split("#")[0];
+				console.log(paramUrl);
+				param = {
+					"url" : paramUrl
+				};
+				$.post(url, param, function(data) {
+
+					// 当从哦们自己的服务器返回后，这个data中就包含这已经通过微信服务器认证的signature、timestamp、nonceStr、appId
+					// 这四个关键认证信息了，之后就可以通过JS-SDK脚本模块中的config()方法来按照下列方式再次向微信服务器请求所要使用
+					// 的微信JS-SDK功能后，就可以在当前页面接下来的脚本中通过wx.xxx() 实现JS-SDK功能的调用了。
+					wx.config({
+						debug : false,
+						appId : data.appId,
+						timestamp : data.timestamp,
+						nonceStr : data.nonceStr,
+						signature : data.signature,
+						jsApiList : [ 'checkJsApi', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone', 'hideMenuItems', 'showMenuItems',
+							'hideAllNonBaseMenuItem', 'showAllNonBaseMenuItem', 'translateVoice', 'startRecord', 'stopRecord', 'onVoiceRecordEnd', 'playVoice', 'onVoicePlayEnd', 'pauseVoice',
+							'stopVoice', 'uploadVoice', 'downloadVoice', 'chooseImage', 'previewImage', 'uploadImage', 'downloadImage', 'getNetworkType', 'openLocation', 'getLocation', 'hideOptionMenu',
+							'showOptionMenu', 'closeWindow', 'scanQRCode', 'chooseWXPay', 'openProductSpecificView', 'addCard', 'chooseCard', 'openCard' ]
+					});
+					console.log("JS-SDK准备完毕");
+				});
+
+				// 记得要重新恢复异步请求
+				$.ajaxSetup({
+					async : true
+				});
+
+				// 由于通过ajax通讯，让哦们自己的服务器与微信服务器交互后获得JS-SDK认证的signature等信息的过程
+				// 默认是异步执行的，也就是当发起ajax通讯后没有必要等待哦们自己服务器返回响应就可以继续执行$.post()之后的语句
+				// 但当设置了同步ajax请求后，在$.post()之后的语句就必须等待ajax的回调函数执行结束后才能继续执行
+				// 因此在执行下面的wx.ready()对JS-SDK进行初始化配置之前，已经预先执行了位于$.post()回调中的wx.config()的设置步骤
+				// 因此可以放心的将wx.ready()代码放在ajax请求的后面，就是因为此次ajax请求（也急速$.post()）是一次同步操作。
+				// 在微信web的JS-SDK的config配置执行完毕后，就可以通过下面的方法进行当前页面所需的JS-SDK功能的初始化配置。
+				// 在ready()方法执行完毕前，如果你率先异步执行了wx中的其他API，则这些提前执行的API是不能发挥作用的，因此如果有初始化逻辑应该放在ready()中而不是在外部执行。⭐⭐⭐切记
+				wx.ready(function() {
+
+					// 这里包含了对当前页面上所使用的JS-SDK功能的初始化设置操作，例如绑定某个按钮的点击事件触发对应的JS-SDK的功能调用
+					// 具体且详细的API的使用方法可以通过   微信官方的web开发者工具
+					// 打开 http://203.195.235.76/jssdk/页面，然后再Source选线卡下选择demo.js脚本，然后查看该脚本上具体的API使用示例代码
+					// 有详细的注释说明，应该很容易看懂。
+
+					// （1）隐藏右上角的弹出式菜单，防止当前页面被分享出去
+					wx.hideOptionMenu();
+					// TODO 调用其他需要使用JS-SKD的初始化工作.......
+					// （2）判断当前操作者是否已经实名认证过了，如果已经实名认证过就直接关闭页面
+					aboutWeixin.init.op.preCheckRealName();
+
+				});
+			},
+			/*
+			 * 当用户打开realName.jsp页面时，预先通过Ajax将用户的openid传递到服务器进行校验
+			 * 如果发现该用户已经完成实名认证（grouping.tag!=unreal）才会正常显示表达页面，
+			 * 否则调用JS-SDK直接关闭页面，并向用户的微信发送“您已完成实名认证无需重复认证”
+			 * 的消息。
+			 */
+			preCheckRealName : function() {
+
+				var url = "ajaxAction4weixin_preCheckRealName.action";
+				var param = {
+					openid : localStorage.getItem("openid"),
+				};
+
+				var isClose = false;
+				$.post(url, param, function(data, textStatus, req) {
+					if (data.result) {
+						// 已经实名认证过了
+						alert("您已完成实名认证，请勿重复操作");
+						wx.closeWindow();
+					} 
+				});
+			},
+			
+		}
+	},
+	data : {},
+
+	op : {
+		/*
+		 * 获得指定请求参数名的请求参数值。
+		 * 该方法主要是用来获取OAuth2.0页面认证授权后，微信服务器通过请求转发方式跳转到当前真正业务页面时通常
+		 * 会以redirect_uri/?code=CODE&state=STATE形式将进一步获取access_token的code票据以请求参数的形式
+		 * 传递过来，此方法就是专门用来获取该请求参数值而建立的
+		 * 
+		 * 方法调用的参数名就是 "code"
+		 * 方法调用返回的结果就是code的值或者是null
+		 */
+		getAccess_Token : function(code) {
+			// 构造一个含有目标参数名的正则表达式对象，当前工程就是code这个请求参数名
+			var reg = new RegExp("(^|&)" + code + "=([^&]*)(&|$)");
+			var r = window.location.search.substr(1).match(reg); // 匹配目标参数
+			if (r != null)
+				return unescape(r[2]);
+			return null; // 返回参数值
+		},
+
+		/*
+		 * 对于realName.jsp页面上提交表单时进行实名认证的Ajax操作
+		 */
+		checkRealName : function() {
+			var url = "ajaxAction4weixin_checkRealName.action";
+			var username = $("#username").val();
+			var sex = $("#sex").val();
+			var age = $("#age").val();
+			var phone = $("#phone").val();
+			if ("" == username || null == username) {
+				$("#helpId4Username").text("姓名为必填项");
+				return;
+			} else if ("" == sex || null == sex) {
+				$("#helpId4Sex").text("性别为必填项");
+				return;
+			} else if ("" == age || null == age) {
+				$("#helpId4Age").text("年龄为必填项");
+				return;
+			} else if ("" == phone || null == phone) {
+				$("#helpId4Phone").text("电话为必填项");
+				return;
+			}
+
+			var param = {
+				openid : localStorage.getItem("openid"),
+				username : username,
+				sex : sex,
+				age : age,
+				phone : phone
+			};
+			$.post(url, param, function(data) {
+				if (data.result) {
+					// 实名制认证通过,则直接关闭微信浏览器，返回公众号平台
+					wx.closeWindow();
+				} else {
+					// 实名制认证未通过
+					alert(data.message);
+				}
+			});
+		}
+	}
+};
+
 
 
 
@@ -1478,6 +1655,9 @@ var projectModal  =  {
  * 通过Jquery调用通用方法中的初始化方法完成一些页面初始化工作
  */
 $(function() {
+	// 微信端访问的页面所需要的初始化工作
+	aboutWeixin.init.op.getOpenIdAndConfigJSSDK();
+	// 通用初始化工作
 	overAll.init.op.startToolTip();
 	overAll.init.op.screenIsBigOrSmall();
 	overAll.init.op.prepareCollapse();

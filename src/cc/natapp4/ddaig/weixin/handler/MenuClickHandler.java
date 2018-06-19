@@ -68,7 +68,7 @@ public class MenuClickHandler extends AbstractHandler {
 				 outMessage = textBuilder.build("您的账号并不存在，请联系管理员。", wxMessage, service);
 			 }else{
 				 // 用户存在
-				 String score = user.getScore();
+				 int score = user.getScore();
 				 String username =  user.getUsername();
 				 
 				 StringBuffer  sb  =  new  StringBuffer();

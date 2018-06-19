@@ -16,7 +16,7 @@ public interface UserService extends BaseService<User> {
 	 */
 	public User queryByOpenId(String openID);
 	
-	public void checkRealName(String openID, String username, String cardID,String address, String phone) throws WeixinExceptionWhenCheckRealName  ;
+	public void checkRealName(String openID, String username, String sex, int age, String phone) throws WeixinExceptionWhenCheckRealName  ;
 
 	public void saveInInit(User t);
 	

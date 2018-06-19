@@ -12,7 +12,15 @@ public class SignBean implements Serializable {
     public String nonce;
     // 随机字符串
     public String echostr;
+    // 来访用户的openid
+    public String openid;
     
+	public String getOpenid() {
+		return openid;
+	}
+	public void setOpenid(String openid) {
+		this.openid = openid;
+	}
 	public String getSignature() {
 		return signature;
 	}

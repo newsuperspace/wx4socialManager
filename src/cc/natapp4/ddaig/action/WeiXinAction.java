@@ -53,7 +53,7 @@ public class WeiXinAction extends ActionSupport implements ModelDriven<SignBean>
 
 	// ============================================Action方法
 	/**
-	 * 浏览器访入，用以验证当前应用是否开启
+	 * 浏览器访入，用以验证当前服务器端应用是否运行正常
 	 * 
 	 * @return  Struts结果集识别字符串
 	 */
@@ -63,6 +63,12 @@ public class WeiXinAction extends ActionSupport implements ModelDriven<SignBean>
 	
 	/**
 	 * 负责响应从微信官方服务器发来的请求，是公众号与当前服务器的入口点
+	 * 
+	 * http://ddaig.nat200.top/weixin/weixinAction_recall.action  这个连接会设置在
+	 * https://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index的
+	 * 接口配置信息一栏中的URL中，微信公众号服务器会通过访问我们自己的服务器来建立公众号与我们自己服务器的连接
+	 * 这样当微信端用户通过微信执行某种操作的时候，微信服务器就会知道将用户的操作数据传递到我们这里，我们的服务器处理完成后再通过微信服务器返回给用户展示
+	 * 
 	 * @return  必须是null
 	 */
 	public String recall(){
@@ -70,6 +76,7 @@ public class WeiXinAction extends ActionSupport implements ModelDriven<SignBean>
 		String signResult = mpService4Recall.sign(this);
 		switch (signResult) {
 		case "first":
+			System.out.println("本地服务器与微信服务器握手成功");
 			/*
 			 *  首次哦手 应该立刻返回给微信服务器，并且创建一个线程——睡眠5秒后,
 			 *  确保微信服务器已经接收到回复的确认哦手信息并与当前第三方服务器建立开发关系后
@@ -105,9 +112,11 @@ public class WeiXinAction extends ActionSupport implements ModelDriven<SignBean>
 			return null;  // 用来与微信服务器进行握手的“signature”加密签名已经写入到了HttpServletResponse中了，可以通过返回null告知Struts2的结果集不用处理该响应，直接向请求方返回即可。
 		case "normal":
 			// 确认是来自微信官方服务器的常态化消息，直接放行到STEP2中去处理即可
+			System.out.println("本地服务器与微信服务器交互成功，将开始处理微信端发来的消息");
 			break;
 		case "error":
 			// 直接ruturn null 即可，Error信息已经在调用sign()方法的时候就写入到了HttpServletResponse的字节输出流中了
+			System.out.println("本地服务器与微信服务器握手失败");
 			return null;
 		}
 
@@ -117,6 +126,14 @@ public class WeiXinAction extends ActionSupport implements ModelDriven<SignBean>
 		case "raw":
 			// STEP 3 真正的业务逻辑都在这里 ★
 			try {
+				/*
+				 * 从微信服务器发来的格式化（Xml字符串格式）数据都在HttpServletRequst的输入流中呢
+				 * 通过WxMpXmlMessage.fromXml()方法对输入流的处理，会解析其中的Xml格式字符串并自动生成WxMpXmlMessage类型对象方便实用
+				 * 然后通过调用mpService4Recal.route()方法会根据在mypServiceRecall初始化时就准备好的router来实现对包含微信端意图消息的
+				 * WxMapXmlMessage对象参数进行解析，并根据router中设置的handler来执行预定的处理逻辑。
+				 * handler在处理完微信端发来的请求后会返回包含有回复信息的WxMapXmlOutMessage对象，剩下的就是将对象通过toXml()转化为Xml字符串
+				 * 并放入到HttpServletResponse的输出流中返回给微信服务器就完成了"应答"。
+				 */
 				WxMpXmlOutMessage outMessage = mpService4Recall.route(WxMpXmlMessage.fromXml(ServletActionContext.getRequest().getInputStream()));
 				if(null!=outMessage){
 					// 向包含回复信息的XML格式字符串写入到HttpResponse响应实体部分后，完成全部被动回复消息的处理过程
