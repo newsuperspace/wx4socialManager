@@ -1475,7 +1475,6 @@ var aboutWeixin = {
 			 * （2）JS-SDK使用授权认证
 			 */
 			getOpenIdAndConfigJSSDK : function() {
-				console.log("Hello world!");
 
 				// 设置ajax请求成同步请求
 				$.ajaxSetup({
@@ -1655,10 +1654,16 @@ var aboutWeixin = {
  * 通过Jquery调用通用方法中的初始化方法完成一些页面初始化工作
  */
 $(function() {
-	// 微信端访问的页面所需要的初始化工作
-	aboutWeixin.init.op.getOpenIdAndConfigJSSDK();
 	// 通用初始化工作
 	overAll.init.op.startToolTip();
 	overAll.init.op.screenIsBigOrSmall();
 	overAll.init.op.prepareCollapse();
+	/*
+	 * 微信端访问的页面所需要的初始化工作
+	 * 涉及微信的初始化操作要放在所有通用初始化工作之后，因为
+	 * 当前myJS文件是微信端浏览页面和桌面端浏览页面都要加载的，
+	 * 而当桌面端浏览页面时由于缺少必要的weixin票据请求参数，则在执行微信初始化的时候就会爆出错误
+	 * 一旦报错就会终止后续的初始化代码运行，因此要将微信初始化放在所有通用初始化工作的最后执行。
+	 */
+	aboutWeixin.init.op.getOpenIdAndConfigJSSDK();
 });

@@ -1,5 +1,11 @@
 package cc.natapp4.ddaig.action;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -7,9 +13,14 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.servlet.ServletContext;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.apache.struts2.ServletActionContext;
+import org.nutz.qrcode.QRCode;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -30,6 +41,9 @@ import cc.natapp4.ddaig.service_interface.ProjectTypeService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
+import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 
 @Controller("zeroLevelAction")
 @Scope("prototype")
@@ -41,6 +55,9 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 	private UserService userService;
 	@Resource(name = "projectTypeService")
 	private ProjectTypeService projectTypeService;
+	// 因为需要通过微信公众号服务器生成带参数二维码，这里需要DI注入WeixinService4Setting用来与微信服务器交互
+	@Resource(name = "weixinService4Setting")
+	private WeixinService4SettingImpl mpService;
 
 	// =================模型驱动=================
 	private ZeroLevel zeroLevel;
@@ -129,6 +146,12 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 		} else {
 			ZeroLevel l = new ZeroLevel();
 
+			/*
+			 * 带参数二维码应该是形如 "level_-1$lid_c7ca3c4c-c084-41bc-babb-33c60f28fc30"
+			 * 当微信端用户扫描该二维码后，微信服务器就会将该参数传递回来，此时只需要 先通过
+			 * split("$")分割出level和lid两个部分 每一部分在通过
+			 * split("_")分割出具体层级数值（-1/0/1/2/3/4）和具体层级的id 就能轻松定位出用户扫描的加入的是那个层级对象。
+			 */
 			StringBuffer sb = new StringBuffer();
 			sb.append("level_");
 			sb.append(ZeroLevel.LEVEL_ZERO);
@@ -136,12 +159,80 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 			sb.append("id_");
 			String id = UUID.randomUUID().toString();
 			sb.append(id);
-
+			// 添加层级对象的id
 			l.setZid(id);
 
-			String qrcode = QRCodeUtils.createLevelQR(sb.toString());
-			l.setQrcode(qrcode);
+			// 与微信服务器进行交互
+			WxMpQrCodeTicket qrTicket = null;
+			File inFile = null;
+			try {
+				qrTicket = mpService.getQrcodeService().qrCodeCreateLastTicket(sb.toString());
+				inFile = mpService.getQrcodeService().qrCodePicture(qrTicket);
+				if (null == inFile) {
+					System.out.println("从微信端获取的带参数二维码的File是null");
+					throw new WxErrorException(null);
+				}
+			} catch (WxErrorException e1) {
+				e1.printStackTrace();
+				String message = "从微信端获取带参数二维码时出现异常,层级对象创建失败";
+				System.out.println(message);
+				r.setMessage(message);
+				r.setResult(false);
+				ActionContext.getContext().getValueStack().push(r);
+				return "json";
+			}
 
+			String codePath = "";
+			codePath = "qrcode";
+			int hashCode = id.hashCode();
+			int first = hashCode & 0xf;
+			int second = (hashCode & 0xf0) >> 4;
+			codePath = codePath + File.separator + first + File.separator + second;
+			ServletContext context = ServletActionContext.getServletContext();
+			String realPath = context.getRealPath(File.separator + codePath); // C:\Android\apache-tomcat-9.0.0.M8\webapps\library\qrcode\12\2
+			// 接下来我们通过File来逐层创建该文件目录结构，保证生成二维码图片的时候，该路径确实存在
+			File outFile = new File(realPath);
+			if (!outFile.exists()) {
+				outFile.mkdirs();
+			}
+			// 然后我们创建二维码图片的文件对象，文件名仍然以层级对象的id值为名字，然后拓展名为jpg
+			codePath = codePath + File.separator + id + ".jpg";
+			System.out.println("最终的codePath：" + codePath);
+			realPath = realPath + File.separator + id + ".jpg";
+			System.out.println("最终的realPath:" + realPath);
+			outFile = new File(realPath);
+			// 创建输入流和输出流
+			FileOutputStream fos = null;
+			FileInputStream fis = null;
+			try {
+				fos = new FileOutputStream(outFile);
+				fis = new FileInputStream(inFile);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				String message = "在将从微信服务器获取的存有二维码jpq图片的File保存到本次磁盘时，创建输入或输出流出现异常,层级对象创建失败";
+				System.out.println(message);
+				r.setMessage(message);
+				r.setResult(false);
+				ActionContext.getContext().getValueStack().push(r);
+				return "json";
+			}
+			// 开始流对接，temp为字节缓冲（1KB）
+			byte[] temp = new byte[1024];
+			int len = 0;
+
+			try {
+				while ((len = fis.read(temp)) != -1) {
+					// 边读边写
+					fos.write(temp, 0, len);
+				}
+				fis.close();
+				fos.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
+			// 数据库要保存层级对象二维码的图片位置
+			l.setQrcode(codePath);
 			l.setDescription(zeroLevel.getDescription());
 			l.setName(zeroLevel.getName());
 			l.setParent(parent);
@@ -281,7 +372,7 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 			// 当前查访者是Admin,获取数据库中的所有FirstLevel对象
 			list = zeroLevelService.queryEntities();
 		} else {
-			list = new  ArrayList<ZeroLevel>();
+			list = new ArrayList<ZeroLevel>();
 			// 当前查访者是非Admin管理者，进一步分析当前操作者执行者的层级位置，然后从children属性结构中获取当前操作者下属的层级对象
 			switch (doingMan.getGrouping().getTag()) {
 			// 对于非Admin用户来说，能够获取到Zeroleve层级对象信息的只可能是街道管理者
@@ -295,7 +386,7 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 				// 然后获取到该街道层级下属的所有社区层级
 				Set<ZeroLevel> children = level.getChildren();
 				// 从下属的社区层级中遍历出来的第一层级对象，就是当前操作者（街道层级）所管辖的全部第一层级对象
-				for(ZeroLevel l:children){
+				for (ZeroLevel l : children) {
 					list.add(l);
 				}
 				break;
