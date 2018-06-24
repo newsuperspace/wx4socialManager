@@ -142,6 +142,7 @@ public class WeixinService4RecallImpl extends WeixinServiceAbstract implements W
 	    // 事件类型——EVT_SCANCODE_PUSH 当用户打开QRCODE扫描后得到的信息会回传给哦们的服务器后就会触发该类型的事件，此时哦们就可以在handler中获知用户扫描的QRCODE的字符串内容了
 	    newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
 	        .event(WxConsts.EVT_SCANCODE_WAITMSG).handler(this.scaneHandler).end();
+	    
 
 //	    // 默认（不属于以上任何一种消息类型处理的剩余消息都会被这个handler所处理）★★★★ 细粒度最“粗，所以放在最后设置”
 //	    newRouter.rule().async(false).handler(this.getMsgHandler()).end();
@@ -158,6 +159,7 @@ public class WeixinService4RecallImpl extends WeixinServiceAbstract implements W
 		try{
 			return this.router.route(message);
 		}catch(Exception e){
+			e.printStackTrace();
 			logger.error("WeixinService4RecallImpl的route出现异常："+e.getMessage());
 		}
 		return null;

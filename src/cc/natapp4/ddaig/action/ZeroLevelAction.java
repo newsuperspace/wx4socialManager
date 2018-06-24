@@ -147,16 +147,16 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 			ZeroLevel l = new ZeroLevel();
 
 			/*
-			 * 带参数二维码应该是形如 "level_-1$lid_c7ca3c4c-c084-41bc-babb-33c60f28fc30"
+			 * 带参数二维码应该是形如 ""level$-1_id$c7ca3c4c-c084-41bc-babb-33c60f28fc30""
 			 * 当微信端用户扫描该二维码后，微信服务器就会将该参数传递回来，此时只需要 先通过
-			 * split("$")分割出level和lid两个部分 每一部分在通过
-			 * split("_")分割出具体层级数值（-1/0/1/2/3/4）和具体层级的id 就能轻松定位出用户扫描的加入的是那个层级对象。
+			 * split("_")分割出level和lid两个部分 每一部分在通过
+			 * split("$")分割出具体层级数值（-1/0/1/2/3/4）和具体层级的id 就能轻松定位出用户扫描的加入的是那个层级对象。
 			 */
 			StringBuffer sb = new StringBuffer();
-			sb.append("level_");
+			sb.append("level$");
 			sb.append(ZeroLevel.LEVEL_ZERO);
-			sb.append("$");
-			sb.append("id_");
+			sb.append("_");
+			sb.append("id$");
 			String id = UUID.randomUUID().toString();
 			sb.append(id);
 			// 添加层级对象的id
