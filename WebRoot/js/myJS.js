@@ -1647,6 +1647,41 @@ var aboutWeixin = {
 };
 
 
+var navbarModal = {
+	
+	data:{},
+	init:{},
+	op:{
+		
+		/*
+		 * 向后端请求获取当前操作者的层级信息
+		 * 层级QRCODE
+		 * 层级名
+		 * 层级描述
+		 * 层级所有者
+		 */
+		preMyselfLevelInfo: function(){
+			
+			var url = "userAction_preMyselfLevelInfo.action";
+			
+			$.post(url, null, function(data, textStatus, req) {
+				var levelName = data.levelName;
+				var levelDescription = data.levelDescription;
+				var qrcode = data.qrcode;
+				var levelManager = data.levelManager;
+				$("#levelQrcode").attr("src", qrcode);
+				$("#levelName").text(levelName);
+				$("#levelDescription").text(levelDescription);
+				$("#levelManager").text(levelManager);
+				
+				$("#levelInfoModal").modal("show");
+			});
+			
+			
+		}
+		
+	}
+};
 
 
 

@@ -36,6 +36,7 @@ import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Appoint;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
+import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4NavbarGetLevelInfo;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.FourthLevelService;
 import cc.natapp4.ddaig.service_interface.GroupingService;
@@ -150,6 +151,104 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			}
 		}
 		// 一定要将用来回复前端Ajax请求的JavaBean对象放入到栈顶后再返回json结果集索引字符串，才能让JSO插件进行解析
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+
+	/**
+	 * 向前端navbar.jsp标题栏页面上出发的levelInfoModal 返回包括当前操作者管理的层级的名称/描述/二维码和操作者姓名等信息
+	 * 
+	 * @return
+	 */
+	public String preMyselfLevelInfo() {
+
+		ReturnMessage4NavbarGetLevelInfo result = new ReturnMessage4NavbarGetLevelInfo();
+
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
+
+		String levelName = "";
+		String levelDescription = "";
+		String qrcode = "";
+
+		String t = doingMan.getGrouping().getTag();
+
+		switch (t) {
+		case "minus_first":
+			Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
+			for (MinusFirstLevel minusFirstLevel : mfls) {
+				levelName = minusFirstLevel.getName();
+				levelDescription = minusFirstLevel.getDescription();
+				qrcode = minusFirstLevel.getQrcode();
+			}
+			break;
+		case "zero":
+			Set<ZeroLevel> zls = doingMan.getManager().getZls();
+			for (ZeroLevel zeroLevel : zls) {
+				levelName = zeroLevel.getName();
+				levelDescription = zeroLevel.getDescription();
+				qrcode = zeroLevel.getQrcode();
+			}
+			break;
+		case "first":
+			Set<FirstLevel> fls = doingMan.getManager().getFls();
+			for (FirstLevel firstLevel : fls) {
+				levelName = firstLevel.getName();
+				levelDescription = firstLevel.getDescription();
+				qrcode = firstLevel.getQrcode();
+			}
+			break;
+		case "second":
+			Set<SecondLevel> scls = doingMan.getManager().getScls();
+			for (SecondLevel secondLevel : scls) {
+				levelName = secondLevel.getName();
+				levelDescription = secondLevel.getDescription();
+				qrcode = secondLevel.getQrcode();
+			}
+			break;
+		case "third":
+			Set<ThirdLevel> tls = doingMan.getManager().getTls();
+			for (ThirdLevel thirdLevel : tls) {
+				levelName = thirdLevel.getName();
+				levelDescription = thirdLevel.getDescription();
+				qrcode = thirdLevel.getQrcode();
+			}
+			break;
+		case "fourth":
+			Set<FourthLevel> fols = doingMan.getManager().getFols();
+			for (FourthLevel fourthLevel : fols) {
+				levelName = fourthLevel.getName();
+				levelDescription = fourthLevel.getDescription();
+				qrcode = fourthLevel.getQrcode();
+			}
+			break;
+		}
+
+		result.setLevelManager(doingMan.getUsername());
+		result.setLevelName(levelName);
+		result.setLevelDescription(levelDescription);
+		result.setQrcode(qrcode);
+		result.setResult(true);
+		result.setMessage("获取成功");
+
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
@@ -296,25 +395,27 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			} else {
 				// 非admin用户登录
 				/*
-				 * ★★★★
-				 * 这里出现一个BUG，由于Hibernate的二级缓存机制，导致即便我们在修改（通过SETTER方法）持久化状态对象中的数据信息
-				 * 后不显示地调用update()方法向数据库更新，由于在二级缓存中保存了一份持久化状态对象"原始"状态的拷贝，如果此时我们再次调用
-				 * 查询方法，则Hiberante会先比对二级缓存中的拷贝与持久化状态对象，如果发现字段数据被改动则会自动向数据库commit提交数据
-				 * 之后在进行查询操作。 
-				 * 也就是说Hibernate为了防止出现脏数据等问题，会优先将session的二级缓存中保存的持久化状态对象的最新状态保存到数据库中后
-				 * 再进行新的CRUD操作。
+				 * ★★★★ 这里出现一个BUG，由于Hibernate的二级缓存机制，导致即便我们在修改（通过SETTER方法）
+				 * 持久化状态对象中的数据信息
+				 * 后不显示地调用update()方法向数据库更新，由于在二级缓存中保存了一份持久化状态对象"原始"状态的拷贝，
+				 * 如果此时我们再次调用 查询方法，则Hiberante会先比对二级缓存中的拷贝与持久化状态对象，
+				 * 如果发现字段数据被改动则会自动向数据库commit提交数据 之后在进行查询操作。
+				 * 也就是说Hibernate为了防止出现脏数据等问题，
+				 * 会优先将session的二级缓存中保存的持久化状态对象的最新状态保存到数据库中后 再进行新的CRUD操作。
 				 * 
-				 * 具体到本例题来说，如果先对持久化状态对象u进行数据操作（我们加工了qrcode数据，为了方便前端能够显示出二维码），注意我们并没有update这个U
-				 * 而只希望将U通过Ajax返回到前端，而此时如果我们再次通过相同session对同一个数据库表（User）进行CRUD操作，则Hiberante会优先将session的
-				 * 二级缓存中保存的状态更新到User数据库后再执行操作，所以才出现即便我们没有显示地执行update更新持久化状态对象U的数据，但是其中的qrcode也被更新到
-				 * 数据库了。 解决办法就是在对持久化状态对象执行修改操作之前，将所有涉及持久化状态对象所属数据库表的查询操作先操作完成。
+				 * 具体到本例题来说，如果先对持久化状态对象u进行数据操作（我们加工了qrcode数据，为了方便前端能够显示出二维码），
+				 * 注意我们并没有update这个U
+				 * 而只希望将U通过Ajax返回到前端，而此时如果我们再次通过相同session对同一个数据库表（User）进行CRUD操作，
+				 * 则Hiberante会优先将session的 二级缓存中保存的状态更新到User数据库后再执行操作，
+				 * 所以才出现即便我们没有显示地执行update更新持久化状态对象U的数据，但是其中的qrcode也被更新到 数据库了。
+				 * 解决办法就是在对持久化状态对象执行修改操作之前，将所有涉及持久化状态对象所属数据库表的查询操作先操作完成。
 				 * 
 				 */
 				doingMan = userService.getUserByUsername(principal);
 			}
 		}
 
-		// 从User中查询出被操作者索取的用户对象，前端操作者所需要的该用户的信息数据大部分都保存在这里，但有些数据信息仍需加工一下 
+		// 从User中查询出被操作者索取的用户对象，前端操作者所需要的该用户的信息数据大部分都保存在这里，但有些数据信息仍需加工一下
 		String uid = this.user.getUid();
 		User u = userService.queryEntityById(uid);
 

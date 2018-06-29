@@ -15,7 +15,7 @@
 
 	<div class="d-none d-md-block d-lg-block">
 		<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-			<a class="navbar-brand" href="#">Navbar</a>
+			<a class="navbar-brand" href="#" onclick="navbarModal.op.preMyselfLevelInfo();">你好，<shiro:principal></shiro:principal></a>
 			<button class="navbar-toggler hidden-lg-up" type="button"
 				data-toggle="collapse" data-target="#collapsibleNavId"
 				aria-controls="collapsibleNavId" aria-expanded="false"
@@ -29,11 +29,12 @@
 					</a></li>
 					<li class="nav-item"><a class="nav-link" href="#">Link</a></li>
 					<li class="nav-item dropdown"><a
-						class="nav-link dropdown-toggle" href="#" id="dropdownId"
-						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-						<div class="dropdown-menu" aria-labelledby="dropdownId">
+						class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">其他</a>
+						<div class="dropdown-menu" aria-labelledby="navbarDropdown">
 							<a class="dropdown-item" href="#">Action 1</a> <a
-								class="dropdown-item" href="${pageContext.request.contextPath}/logout">退出</a>
+								class="dropdown-item"
+								href="${pageContext.request.contextPath}/logout">退出</a>
 						</div></li>
 				</ul>
 				<form class="form-inline my-2 my-lg-0">
@@ -44,5 +45,60 @@
 			</div>
 		</nav>
 	</div>
+
+	<!-- ===================================模态对话框===================================== -->
+	<!-- 显示当前层级对象的信息  -->
+	<div class="modal fade font-" id="levelInfoModal" tabindex="-1"
+		role="dialog" aria-labelledby="levelInfo" aria-hidden="true">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title" id="levelInfo">层级信息</h4>
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body mb-5">
+					<div class="container" style="font-size: 12px">
+
+						<div class="row">
+							<div class="col-2"></div>
+							<div class="col-8">
+								<img src="img/levelqr.jpg" class="img-thumbnail rounded-top"
+									id="levelQrcode" alt="层级二维码">
+							</div>
+							<div class="col-2"></div>
+						</div>
+
+						<div class="mt-3 ml-3">
+							<div class="row">
+								<div class="col-3 font-weight-bold p-0">层级名：</div>
+								<div class="col-auto p-0" id="levelName">呼家楼</div>
+							</div>
+							<div class="row">
+								<div class="col-3 font-weight-bold p-0">
+									描&nbsp;&nbsp;&nbsp;&nbsp;述：</div>
+								<div class="col-auto p-0" id="levelDescription">
+									北京市朝阳区呼家楼街道办事处</div>
+							</div>
+							<div class="row">
+								<div class="col-3 font-weight-bold p-0">管理员：</div>
+								<div class="col-auto p-0" id="levelManager">欧阳靖海</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
 </body>
+<script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
+<script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
+<script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
+<script type="text/javascript"
+	src="${pageContext.request.contextPath}/js/myJS.js"></script>
 </html>
