@@ -65,7 +65,7 @@
 						<div class="row">
 							<div class="col-2"></div>
 							<div class="col-8">
-								<img src="img/levelqr.jpg" class="img-thumbnail rounded-top"
+								<img src="#" class="img-thumbnail rounded-top"
 									id="levelQrcode" alt="层级二维码">
 							</div>
 							<div class="col-2"></div>
@@ -95,10 +95,5 @@
 
 
 </body>
-<script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
-<script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
-<script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
-<script type="text/javascript"
-	src="${pageContext.request.contextPath}/js/myJS.js"></script>
+<!-- 由于当前navbar.jsp是被动态include到其他页面的，因此不能在这里过早提早引入js脚本（js脚本应该在所有页面都加载完成后再在最后运行） -->
 </html>

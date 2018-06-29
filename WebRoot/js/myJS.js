@@ -1400,9 +1400,11 @@ var overAll = {
 					$('#contentId').collapse({
 						toggle : true
 					});
+					overAll.init.data.isWeixin = false;
+				}else{
+					overAll.init.data.isWeixin = true;
 				}
-				;
-				console.log("屏幕像素分辨完成");
+				console.log("当前屏幕像素分辨为"+window.screen.availWidth+",功能菜单样式设置完成");
 			},
 			/*
 			 * 页面被加载的时候通过localStorage确定左侧边栏应该打开的是哪个content
@@ -1418,12 +1420,8 @@ var overAll = {
 		},
 
 		data : {
-
+			isWeixin: false,
 		},
-	},
-
-	data : {
-
 	},
 
 	op : {
@@ -1465,6 +1463,36 @@ var projectModal = {
 	}
 };
 
+var navbarModal = {
+		
+		data:{},
+		init:{},
+		op:{
+			/*
+			 * 向后端请求获取当前操作者的层级信息
+			 * 层级QRCODE
+			 * 层级名
+			 * 层级描述
+			 * 层级所有者
+			 */
+			preMyselfLevelInfo: function(){
+				var url = "userAction_preMyselfLevelInfo.action";
+				
+				$.post(url, null, function(data, textStatus, req) {
+					var levelName = data.levelName;
+					var levelDescription = data.levelDescription;
+					var qrcode = data.qrcode;
+					var levelManager = data.levelManager;
+					$("#levelQrcode").attr("src", qrcode);
+					$("#levelName").text(levelName);
+					$("#levelDescription").text(levelDescription);
+					$("#levelManager").text(levelManager);
+					
+					$("#levelInfoModal").modal("show");
+				});
+			}
+		}
+	};
 
 var aboutWeixin = {
 	init : {
@@ -1647,44 +1675,6 @@ var aboutWeixin = {
 };
 
 
-var navbarModal = {
-	
-	data:{},
-	init:{},
-	op:{
-		
-		/*
-		 * 向后端请求获取当前操作者的层级信息
-		 * 层级QRCODE
-		 * 层级名
-		 * 层级描述
-		 * 层级所有者
-		 */
-		preMyselfLevelInfo: function(){
-			
-			var url = "userAction_preMyselfLevelInfo.action";
-			
-			$.post(url, null, function(data, textStatus, req) {
-				var levelName = data.levelName;
-				var levelDescription = data.levelDescription;
-				var qrcode = data.qrcode;
-				var levelManager = data.levelManager;
-				$("#levelQrcode").attr("src", qrcode);
-				$("#levelName").text(levelName);
-				$("#levelDescription").text(levelDescription);
-				$("#levelManager").text(levelManager);
-				
-				$("#levelInfoModal").modal("show");
-			});
-			
-			
-		}
-		
-	}
-};
-
-
-
 /**
  * 通过Jquery调用通用方法中的初始化方法完成一些页面初始化工作
  */
@@ -1700,5 +1690,9 @@ $(function() {
 	 * 而当桌面端浏览页面时由于缺少必要的weixin票据请求参数，则在执行微信初始化的时候就会爆出错误
 	 * 一旦报错就会终止后续的初始化代码运行，因此要将微信初始化放在所有通用初始化工作的最后执行。
 	 */
-	aboutWeixin.init.op.getOpenIdAndConfigJSSDK();
+	if(overAll.init.data.isWeixin){
+		// 只有屏幕分辨率小到一定程度才能被认定为是微信端在访问页面，因此才执行与weixin有关的初始化操作。
+		// 否则认定是桌面在访问页面，不需要设计微信的初始化操作
+		aboutWeixin.init.op.getOpenIdAndConfigJSSDK();
+	}
 });
