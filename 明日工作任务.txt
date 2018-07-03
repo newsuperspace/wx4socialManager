@@ -1,3 +1,9 @@
+// ------------------------------系统需要初始化的内容--------------------------
+（1）grouping表中的tag标签————initTag.properties  通过WeiXinAction.recall()在接受到与微信端的初次握手时在case "first":分支中通过调用WeixinService4Setting.InitPlatform() 实现
+（2）projectType表中的项目类型数据————projectTypes.properties  通过方式，同上
+（3）层级类型-权限类型-权限的初始化————permissionConfig/PermissionLevel_PermissionType_Permission.json 通过Admin权限登陆系统后，在权限页面下拉列表中批量创建。
+
+
 // ---------------------------Shiro认证操作者身份---------------------------
 		Subject subject = SecurityUtils.getSubject();
 		String principal = (String) subject.getPrincipal();

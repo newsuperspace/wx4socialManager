@@ -1,6 +1,5 @@
 package cc.natapp4.ddaig.action;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,14 +12,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
 import javax.servlet.ServletContext;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.struts2.ServletActionContext;
-import org.nutz.qrcode.QRCode;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -147,10 +143,13 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 			ZeroLevel l = new ZeroLevel();
 
 			/*
-			 * 带参数二维码应该是形如 ""level$-1_id$c7ca3c4c-c084-41bc-babb-33c60f28fc30""
-			 * 当微信端用户扫描该二维码后，微信服务器就会将该参数传递回来，此时只需要 先通过
-			 * split("_")分割出level和lid两个部分 每一部分在通过
-			 * split("$")分割出具体层级数值（-1/0/1/2/3/4）和具体层级的id 就能轻松定位出用户扫描的加入的是那个层级对象。
+			 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
+			 * 将该参数提交给微信端后会生成“带参数二维码”，
+			 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
+			 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
+			 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
+			 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
+			 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
 			 */
 			StringBuffer sb = new StringBuffer();
 			sb.append("level$");
@@ -162,75 +161,88 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 			// 添加层级对象的id
 			l.setZid(id);
 
-			// 与微信服务器进行交互
-			WxMpQrCodeTicket qrTicket = null;
-			File inFile = null;
-			try {
-				qrTicket = mpService.getQrcodeService().qrCodeCreateLastTicket(sb.toString());
-				inFile = mpService.getQrcodeService().qrCodePicture(qrTicket);
-				if (null == inFile) {
-					System.out.println("从微信端获取的带参数二维码的File是null");
-					throw new WxErrorException(null);
-				}
-			} catch (WxErrorException e1) {
-				e1.printStackTrace();
-				String message = "从微信端获取带参数二维码时出现异常,层级对象创建失败";
-				System.out.println(message);
-				r.setMessage(message);
-				r.setResult(false);
+			String codePath = this.getQrcodeFromWeixin(id, sb.toString(), r);
+			if("".equals(codePath)){
 				ActionContext.getContext().getValueStack().push(r);
 				return "json";
 			}
-
-			String codePath = "";
-			codePath = "qrcode";
-			int hashCode = id.hashCode();
-			int first = hashCode & 0xf;
-			int second = (hashCode & 0xf0) >> 4;
-			codePath = codePath + File.separator + first + File.separator + second;
-			ServletContext context = ServletActionContext.getServletContext();
-			String realPath = context.getRealPath(File.separator + codePath); // C:\Android\apache-tomcat-9.0.0.M8\webapps\library\qrcode\12\2
-			// 接下来我们通过File来逐层创建该文件目录结构，保证生成二维码图片的时候，该路径确实存在
-			File outFile = new File(realPath);
-			if (!outFile.exists()) {
-				outFile.mkdirs();
-			}
-			// 然后我们创建二维码图片的文件对象，文件名仍然以层级对象的id值为名字，然后拓展名为jpg
-			codePath = codePath + File.separator + id + ".jpg";
-			System.out.println("最终的codePath：" + codePath);
-			realPath = realPath + File.separator + id + ".jpg";
-			System.out.println("最终的realPath:" + realPath);
-			outFile = new File(realPath);
-			// 创建输入流和输出流
-			FileOutputStream fos = null;
-			FileInputStream fis = null;
-			try {
-				fos = new FileOutputStream(outFile);
-				fis = new FileInputStream(inFile);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				String message = "在将从微信服务器获取的存有二维码jpq图片的File保存到本次磁盘时，创建输入或输出流出现异常,层级对象创建失败";
-				System.out.println(message);
-				r.setMessage(message);
-				r.setResult(false);
-				ActionContext.getContext().getValueStack().push(r);
-				return "json";
-			}
-			// 开始流对接，temp为字节缓冲（1KB）
-			byte[] temp = new byte[1024];
-			int len = 0;
-
-			try {
-				while ((len = fis.read(temp)) != -1) {
-					// 边读边写
-					fos.write(temp, 0, len);
-				}
-				fis.close();
-				fos.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
+			// -------------------------START-----------------------
+//			// 与微信服务器进行交互
+//			WxMpQrCodeTicket qrTicket = null;
+//			File inFile = null;
+//			try {
+//				// 将参数文本提交给微信服务器，微信会生成带参数二维码
+//				qrTicket = mpService.getQrcodeService().qrCodeCreateLastTicket(sb.toString());
+//				// 通过票据换取指定带参数二维码的File
+//				inFile = mpService.getQrcodeService().qrCodePicture(qrTicket);
+//				if (null == inFile) {
+//					System.out.println("从微信端获取的带参数二维码的File是null");
+//					throw new WxErrorException(null);
+//				}
+//			} catch (WxErrorException e1) {
+//				e1.printStackTrace();
+//				String message = "从微信端获取带参数二维码时出现异常,层级对象创建失败";
+//				System.out.println(message);
+//				r.setMessage(message);
+//				r.setResult(false);
+//				ActionContext.getContext().getValueStack().push(r);
+//				return "json";
+//			}
+//			// 将带参数二维码图片的File保存到本地，备用
+//			String codePath = "";
+//			codePath = "qrcode";
+//			int hashCode = id.hashCode();
+//			int first = hashCode & 0xf;
+//			int second = (hashCode & 0xf0) >> 4;
+//			// 由于不同文件系统的层级分隔符不一样（/正斜线或\反斜线），可以通过File.separator来自动适配分隔符，保证当前应用在任何操作系统中都能使用
+//			codePath = codePath + File.separator + first + File.separator + second;
+//			ServletContext context = ServletActionContext.getServletContext();
+//			// realPath就是服务器本地的真实路径，形如：C:\Android\apache-tomcat-9.0.0.M8\webapps\library\qrcode\12\2
+//			String realPath = context.getRealPath(File.separator + codePath);
+//			// 接下来我们通过File来逐层创建该文件目录结构，保证生成二维码图片的时候，该路径确实存在
+//			File outFile = new File(realPath); // 路径，而非文件
+//			if (!outFile.exists()) {
+//				// 如果该路径不存在，则逐层创建路径
+//				outFile.mkdirs();
+//			}
+//			// 然后我们创建二维码图片的文件对象，文件名仍然以层级对象的id值为名字，然后拓展名为jpg
+//			codePath = codePath + File.separator + id + ".jpg";
+//			System.out.println("最终的codePath：" + codePath);
+//			realPath = realPath + File.separator + id + ".jpg";
+//			System.out.println("最终的realPath:" + realPath);
+//			outFile = new File(realPath); // 文件，而非路径
+//			// 创建输入流和输出流，准备开始流对接
+//			FileOutputStream fos = null;
+//			FileInputStream fis = null;
+//			try {
+//				fos = new FileOutputStream(outFile);
+//				fis = new FileInputStream(inFile);
+//			} catch (FileNotFoundException e) {
+//				e.printStackTrace();
+//				String message = "在将从微信服务器获取的存有二维码jpq图片的File保存到本次磁盘时，创建输入或输出流出现异常,层级对象创建失败";
+//				System.out.println(message);
+//				r.setMessage(message);
+//				r.setResult(false);
+//				ActionContext.getContext().getValueStack().push(r);
+//				return "json";
+//			}
+//			// 开始流对接，temp为字节缓冲（1024B=1KB）————字节数组就是缓冲区，8位（bit）=1字节（B），因此字节是仅次于位的最小信息单位，用它存放二进制数据最合适
+//			byte[] temp = new byte[1024];
+//			// 记录每次从输入流转入到输出流中的字节数
+//			int len = 0;
+//			// 开始流对接
+//			try {
+//				while ((len = fis.read(temp)) != -1) {
+//					// 边读边写，一旦len=-1表明输入流中的数据全都读入了，没有额外数据可供读入了
+//					fos.write(temp, 0, len);
+//				}
+//				fis.close();
+//				fos.close();
+//			} catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
+			// ---------------------------END---------------------------
+			
 			// 数据库要保存层级对象二维码的图片位置
 			l.setQrcode(codePath);
 			l.setDescription(zeroLevel.getDescription());
@@ -270,6 +282,82 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 
 		ActionContext.getContext().getValueStack().push(r);
 		return "json";
+	}
+
+	private String getQrcodeFromWeixin(String lid,String param,ReturnMessage4Common r) {
+		
+		// 与微信服务器进行交互
+		WxMpQrCodeTicket qrTicket = null;
+		File inFile = null;
+		try {
+			// 将参数文本提交给微信服务器，微信会生成带参数二维码
+			qrTicket = mpService.getQrcodeService().qrCodeCreateLastTicket(param);
+			// 通过票据换取指定带参数二维码的File
+			inFile = mpService.getQrcodeService().qrCodePicture(qrTicket);
+			if (null == inFile) {
+				throw new RuntimeException("从微信端获取的带参数二维码的File是null");
+			}
+		} catch (WxErrorException e1) {
+			e1.printStackTrace();
+			String message = "从微信端获取带参数二维码时出现异常,层级对象创建失败";
+			System.out.println(message);
+			r.setMessage(message);
+			r.setResult(false);
+			return "";
+		}
+		// 将带参数二维码图片的File保存到本地，备用
+		String codePath = "";
+		codePath = "qrcode";
+		int hashCode = lid.hashCode();
+		int first = hashCode & 0xf;
+		int second = (hashCode & 0xf0) >> 4;
+		// 由于不同文件系统的层级分隔符不一样（/正斜线或\反斜线），可以通过File.separator来自动适配分隔符，保证当前应用在任何操作系统中都能使用
+		codePath = codePath + File.separator + first + File.separator + second;
+		ServletContext context = ServletActionContext.getServletContext();
+		// realPath就是服务器本地的真实路径，形如：C:\Android\apache-tomcat-9.0.0.M8\webapps\library\qrcode\12\2
+		String realPath = context.getRealPath(File.separator + codePath);
+		// 接下来我们通过File来逐层创建该文件目录结构，保证生成二维码图片的时候，该路径确实存在
+		File outFile = new File(realPath); // 路径，而非文件
+		if (!outFile.exists()) {
+			// 如果该路径不存在，则逐层创建路径
+			outFile.mkdirs();
+		}
+		// 然后我们创建二维码图片的文件对象，文件名仍然以层级对象的id值为名字，然后拓展名为jpg
+		codePath = codePath + File.separator + lid + ".jpg";
+		System.out.println("最终的codePath：" + codePath);
+		realPath = realPath + File.separator + lid + ".jpg";
+		System.out.println("最终的realPath:" + realPath);
+		outFile = new File(realPath); // 文件，而非路径
+		// 创建输入流和输出流，准备开始流对接
+		FileOutputStream fos = null;
+		FileInputStream fis = null;
+		try {
+			fos = new FileOutputStream(outFile);
+			fis = new FileInputStream(inFile);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			String message = "在将从微信服务器获取的存有二维码jpq图片的File保存到本次磁盘时，创建输入或输出流出现异常,层级对象创建失败";
+			System.out.println(message);
+			r.setMessage(message);
+			r.setResult(false);
+			return "";
+		}
+		// 开始流对接，temp为字节缓冲（1024B=1KB）————字节数组就是缓冲区，8位（bit）=1字节（B），因此字节是仅次于位的最小信息单位，用它存放二进制数据最合适
+		byte[] temp = new byte[1024];
+		// 记录每次从输入流转入到输出流中的字节数
+		int len = 0;
+		// 开始流对接
+		try {
+			while ((len = fis.read(temp)) != -1) {
+				// 边读边写，一旦len=-1表明输入流中的数据全都读入了，没有额外数据可供读入了
+				fos.write(temp, 0, len);
+			}
+			fis.close();
+			fos.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		return codePath;
 	}
 
 	/**
