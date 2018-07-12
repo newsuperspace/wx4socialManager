@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -140,13 +141,13 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		
 		// 本地标签数据（grouping）与公众号tag数据同步更新 // 与公众号交互次数少，可能不会出现“45011
 		// API调用太频繁,请稍候再试”的异常
-		this.synchronizeTagInfo();
+//		this.synchronizeTagInfo();
 
 		// 同步用户数据 // 需要与公众号进行大量交互，可能会在一天中的不同时间段出现 “45011 API调用太频繁,请稍候再试”的异常
 		// TODO 目前新工程中我不希望增加交互时间影响系统稳定性，并且最好全部用户都是用默认Menu，因此这里先暂时性地隐藏初始化人员的操作，有需要再打开
 //		this.synchronizeUserInfo();
 
-		// 设置个性化菜单
+		// 设置微信公众号的菜单（默认菜单——用户没有设置tag或所设置的tag没有对应绑定的个性化菜单时可见；个性化菜单——菜单与某个tag匹配，则所有拥有该tag的用户都能见到该个性化菜单）
 		this.createMenu();
 
 		// TODO 其他公众号初始化设置（根据业务需求不断添加）
@@ -207,48 +208,49 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 	}
 	
 	/**
-	 * STEP1 根据本地配置file来想grouping中初始化本地tag标签
+	 * STEP2 根据本地配置file来向grouping数据库表中初始化本地tag标签
 	 */
 	private void initLocalTag() {
 		// （必须，没有与公众号产生交互） 初始化Grouping
 		List<Grouping> groupings = this.groupingService.queryEntities(); // 获取本地数据库中存放的Grouping对象，每个对象代表一个标签
 		Properties p = ConfigUtils.getProperties("wxConfig/initTags.properties"); // 这里存放着系统初始化需要的标签
+		Iterator it = null;
 		if (null != groupings) {
 			// 如果本地数据库中存在Grouping，那么需要比对现有grouping数量与initTag.properties记录的应有数量
-			// 如果现有标签比应有标签数量少，则因该找出缺少哪个标签并进行创建；如果多或相同的话那就不用处理了
-			if (groupings.size() < p.size()) {
-				// 将本地数据库中已有的标签名放入到一个map容器中
-				Map<String, String> m = new HashMap<String, String>();
-				for (Grouping g : groupings) {
-					String key = g.getTag();
-					String value = "";
-					m.put(key, value);
-				}
-				// 遍历initTags.properties,获取到应有标签并放到list容器中备用
-				Enumeration<String> propertyNames = (Enumeration<String>) p.propertyNames();
-				List<String> tagInitNames = new ArrayList<String>();
-				while (propertyNames.hasMoreElements()) {
-					String key = propertyNames.nextElement();
-					tagInitNames.add(key);
-				}
-				// 最后遍历list容器，并比对map容器，如果存在则pass，如果不存在则在本地的Grouping中新建
-				for (String tag : tagInitNames) {
-					if (!m.containsKey(tag)) {
-						Grouping g = new Grouping();
-						g.setTag(tag);
-						this.groupingService.save(g);
+			
+			it = p.entrySet().iterator();
+			while(it.hasNext()){
+				// 标记属性——用来表示当前tag是否已经存在于数据库了，默认为false
+				boolean isExist = false;
+				Map.Entry<String, String> entry = (Entry<String, String>) it.next();
+				String key = entry.getKey();
+				String value = entry.getValue();
+				for(Grouping g: groupings){
+					// 循环遍历数据库grouping表中已有的tag数据，目标是检测该tag是否已经存在于数据库中了，存在则pass不存在则向数据库新建
+					if(g.getTag().equals(key)){
+						// 数据库中存在该tag，直接结束循环
+						isExist = true;
+						break;
 					}
+				}
+				if(!isExist){
+					// 如果标签不存在，则向数据库中新建一个grouping数据
+					Grouping grouping = new  Grouping();
+					grouping.setTag(key);
+					grouping.setGroupName(value);
+					this.groupingService.save(grouping);
 				}
 			}
 		} else {
 			// 如果得到groupings容器是null，则说明grouping数据库还没有任何一个标签数据，则彻底按照iniTags.properties的标准创新Grouping数据
-			Iterator it = p.entrySet().iterator();
+			it = p.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry<String, String> entry = (Map.Entry<String, String>) it.next();
 				String key = entry.getKey();
 				String value = entry.getValue();
 				Grouping g = new Grouping();
 				g.setTag(key);
+				g.setGroupName(value);
 				this.groupingService.save(g);
 			}
 		}

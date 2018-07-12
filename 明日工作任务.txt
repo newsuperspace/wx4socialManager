@@ -3,6 +3,7 @@
 （2）projectType表中的项目类型数据————projectTypes.properties  通过方式，同上
 （3）层级类型-权限类型-权限的初始化————permissionConfig/PermissionLevel_PermissionType_Permission.json 通过Admin权限登陆系统后，在权限页面下拉列表中批量创建。
 
+（4）如果希望清空系统中的所有数据库数据，只需要放心大胆的通过HeidiSQL，依次将每个数据库表中的所有数据删除就可以了
 
 // ---------------------------Shiro认证操作者身份---------------------------
 		Subject subject = SecurityUtils.getSubject();
