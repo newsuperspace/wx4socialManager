@@ -46,6 +46,8 @@ public class ThirdLevel implements LevelInterface {
 	// qrcode 的相對路徑
 	// ,包含形如："level:-1;id:293jjf8239832jf8j298ufd987sfh28923"的字符串的二維碼被放置在形如"qrcode/1/12/xxxx.gif"之下
 	private String qrcode;
+	// 层级对象的qrcode是从微信端换取的临时带参数二维码，有效期是30天，这里记录的就是换取二维码时的时间戳（格里高利历偏毫秒值偏移量）
+		private long qrcodeTime;
 	// ---------------------项目管理------------------
 	// 当前层级之下正在进行的项目列表（一对多）
 	private Set<DoingProject> doingProjects;
@@ -87,6 +89,15 @@ public class ThirdLevel implements LevelInterface {
 			}
 		}
 		return list;
+	}
+
+	
+	public long getQrcodeTime() {
+		return qrcodeTime;
+	}
+
+	public void setQrcodeTime(long qrcodeTime) {
+		this.qrcodeTime = qrcodeTime;
 	}
 
 	public String getThid() {

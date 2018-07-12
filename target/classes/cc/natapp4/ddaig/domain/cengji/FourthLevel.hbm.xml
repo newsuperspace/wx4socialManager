@@ -12,6 +12,7 @@
 		<property name="description" length="200"></property>
 		<property name="level" type="integer"></property>
 		<property name="qrcode" length="100"></property>
+		<property name="qrcodeTime" type="long"></property>
 
 		<many-to-one name="parent" column="thid" lazy="false"
 			class="cc.natapp4.ddaig.domain.cengji.ThirdLevel" cascade="save-update"></many-to-one>

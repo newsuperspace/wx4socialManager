@@ -47,6 +47,8 @@ public class ThirdLevelAction implements ModelDriven<ThirdLevel> { // <!-- ● -
 	private UserService userService;
 	@Resource(name = "projectTypeService")
 	private ProjectTypeService projectTypeService;
+	@Resource(name="zeroLevelAction")
+	private ZeroLevelAction zeroLevelAction;
 
 	// =================模型驱动================= <!-- ● -->
 	private ThirdLevel thirdLevel;
@@ -135,19 +137,40 @@ public class ThirdLevelAction implements ModelDriven<ThirdLevel> { // <!-- ● -
 		} else {
 			ThirdLevel l = new ThirdLevel();
 
+			/*
+			 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
+			 * 将该参数提交给微信端后会生成“带参数二维码”，
+			 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
+			 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
+			 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
+			 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
+			 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
+			 */
 			StringBuffer sb = new StringBuffer();
-			sb.append("level_");
+			sb.append("level$");
 			sb.append(ThirdLevel.LEVEL_THREE);
-			sb.append("$");
-			sb.append("id_");
+			sb.append("_");
+			sb.append("id$");
 			String id = UUID.randomUUID().toString();
 			sb.append(id);
-
+			// 添加层级对象的id
 			l.setThid(id);
 
-			String qrcode = QRCodeUtils.createLevelQR(sb.toString());
-			l.setQrcode(qrcode);
-
+			/*
+			 * 通过调用getQrcodeFromWeixin方法获取带参数二维码，并将二维码图片保存到本地磁盘，在数据库保存函数
+			 * 所返回的形如："qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
+			 */
+			String codePath = zeroLevelAction.getQrcodeFromWeixin(id, sb.toString(), r);
+			if("".equals(codePath)){
+				ActionContext.getContext().getValueStack().push(r);
+				return "json";
+			}else{
+				// 数据库要保存层级对象二维码的图片位置
+				l.setQrcode(codePath);
+				// 保存当前时刻的时间戳，用来记录临时带参数二维码的有效期
+				l.setQrcodeTime(System.currentTimeMillis());
+			}
+			
 			l.setDescription(thirdLevel.getDescription());
 			l.setName(thirdLevel.getName());
 			l.setParent(parent);
@@ -214,19 +237,40 @@ public class ThirdLevelAction implements ModelDriven<ThirdLevel> { // <!-- ● -
 			sonLevel.setDescription(getSonDescription());
 			sonLevel.setName(getSonName());
 
+			/*
+			 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
+			 * 将该参数提交给微信端后会生成“带参数二维码”，
+			 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
+			 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
+			 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
+			 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
+			 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
+			 */
 			StringBuffer sb = new StringBuffer();
-			sb.append("level_");
+			sb.append("level$");
 			sb.append(FourthLevel.LEVEL_FOUR);
-			sb.append("$");
-			sb.append("id_");
-			String sid = UUID.randomUUID().toString();
-			sb.append(sid);
+			sb.append("_");
+			sb.append("id$");
+			String id = UUID.randomUUID().toString();
+			sb.append(id);
+			// 添加层级对象的id
+			sonLevel.setFoid(id);
 
-			sonLevel.setFoid(sid);
-
-			String qrcode = QRCodeUtils.createLevelQR(sb.toString());
-			sonLevel.setQrcode(qrcode);
-
+			/*
+			 * 通过调用getQrcodeFromWeixin方法获取带参数二维码，并将二维码图片保存到本地磁盘，在数据库保存函数
+			 * 所返回的形如："qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
+			 */
+			String codePath = zeroLevelAction.getQrcodeFromWeixin(id, sb.toString(), r);
+			if("".equals(codePath)){
+				ActionContext.getContext().getValueStack().push(r);
+				return "json";
+			}else{
+				// 数据库要保存层级对象二维码的图片位置
+				sonLevel.setQrcode(codePath);
+				// 保存当前时刻的时间戳，用来记录临时带参数二维码的有效期
+				sonLevel.setQrcodeTime(System.currentTimeMillis());
+			}
+			
 			sonLevel.setParent(parentLevel);
 
 			fourthLevelService.save(sonLevel);

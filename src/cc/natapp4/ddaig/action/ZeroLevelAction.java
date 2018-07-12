@@ -223,7 +223,7 @@ public class ZeroLevelAction implements ModelDriven<ZeroLevel> {
 	 * @param r		用来保存通过AJAX向前端返回JSON信息的RetrunMessage4Common类型对象
 	 * @return		形如："qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"本地带参数二维码图片相对路径
 	 */
-	private String getQrcodeFromWeixin(String lid,String param,ReturnMessage4Common r) {
+	public String getQrcodeFromWeixin(String lid,String param,ReturnMessage4Common r) {
 		
 		// 与微信服务器进行交互
 		WxMpQrCodeTicket qrTicket = null;

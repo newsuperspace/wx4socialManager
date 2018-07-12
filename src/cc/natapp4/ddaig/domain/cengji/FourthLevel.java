@@ -1,8 +1,5 @@
 package cc.natapp4.ddaig.domain.cengji;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.struts2.json.annotations.JSON;
@@ -42,6 +39,8 @@ public class FourthLevel implements LevelInterface {
 	// qrcode 的相對路徑
 	// ,包含形如："level:-1;id:293jjf8239832jf8j298ufd987sfh28923"的字符串的二維碼被放置在形如"qrcode/1/12/xxxx.gif"之下
 	private String qrcode;
+	// 层级对象的qrcode是从微信端换取的临时带参数二维码，有效期是30天，这里记录的就是换取二维码时的时间戳（格里高利历偏毫秒值偏移量）
+		private long qrcodeTime;
 	// ---------------------项目管理(Fourth层级不具有项目管理权限)------------------
 	// 当前层级之下正在进行的项目列表（一对多）
 	// private Set<DoingProject> doingProjects;
@@ -51,8 +50,17 @@ public class FourthLevel implements LevelInterface {
 
 	// ==================================SETTERs/GETTERs=====================================
 
+		
 	public String getFoid() {
 		return foid;
+	}
+
+	public long getQrcodeTime() {
+		return qrcodeTime;
+	}
+
+	public void setQrcodeTime(long qrcodeTime) {
+		this.qrcodeTime = qrcodeTime;
 	}
 
 	public void setFoid(String foid) {
