@@ -1479,16 +1479,19 @@ var navbarModal = {
 				var url = "userAction_preMyselfLevelInfo.action";
 				
 				$.post(url, null, function(data, textStatus, req) {
-					var levelName = data.levelName;
-					var levelDescription = data.levelDescription;
-					var qrcode = data.qrcode;
-					var levelManager = data.levelManager;
-					$("#levelQrcode").attr("src", qrcode);
-					$("#levelName").text(levelName);
-					$("#levelDescription").text(levelDescription);
-					$("#levelManager").text(levelManager);
-					
-					$("#levelInfoModal").modal("show");
+					if(data.result){
+						var levelName = data.levelName;
+						var levelDescription = data.levelDescription;
+						var qrcode = data.qrcode;
+						var levelManager = data.levelManager;
+						$("#levelQrcode").attr("src", qrcode);
+						$("#levelName").text(levelName);
+						$("#levelDescription").text(levelDescription);
+						$("#levelManager").text(levelManager);
+						$("#levelInfoModal").modal("show");
+					}else{
+						alert(data.message);
+					}
 				});
 			}
 		}
