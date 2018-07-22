@@ -50,7 +50,7 @@
 								<div class="col-md-1"></div>
 								<div class="col-md-10">
 									<div class="form-group">
-										<label for="name">活动名称:</label> <input type="text"
+										<label for="name">活动名称:</label> <input type="text" onchange="activityModal.op.checkInput();"
 											class="form-control" name="name" id="name"> <small
 											id="info4name" class="form-text text-muted" hidden="true">必填</small>
 									</div>
@@ -62,7 +62,7 @@
 								<div class="col-md-1"></div>
 								<div class="col-md-10">
 									<div class="form-group">
-										<label for="description">活动内容:</label> <input type="text"
+										<label for="description">活动内容:</label> <input type="text" onchange="activityModal.op.checkInput();"
 											class="form-control" name="description" id="description">
 										<small id="info4description" class="form-text text-muted"
 											hidden="true">必填</small>
@@ -76,7 +76,7 @@
 								<div class="col-md-10">
 									<div class="form-group">
 										<label for="type">名额限制:</label> <select class="custom-select"
-											id="type" name="type" onchange="activityModal.op.typeChangeListener();">
+											id="type" name="type" onchange="activityModal.op.typeChangeListener();activityModal.op.checkInput();">
 											<option value="1" selected>开放报名</option>
 											<option value="2">限定人数</option>
 										</select> <small id="info4type" class="form-text text-muted"
@@ -89,7 +89,7 @@
 								<div class="col-md-1"></div>
 								<div class="col-md-10">
 									<div class="form-group">
-										<label for="baoMingUplimit">设置人数:</label> <input type="number"
+										<label for="baoMingUplimit">设置人数:</label> <input type="number" onchange="activityModal.op.checkInput();"
 											class="form-control" min="1" value="1" name="baoMingUplimit"
 											id="baoMingUplimit"> <small id="info4baoMingUplimit"
 											class="form-text text-muted" hidden="true">每次活动人数不得少于1</small>
@@ -107,7 +107,7 @@
 								<div class="col-md-1"></div>
 								<div class="col-md-10">
 									<div class="form-group">
-										<label for="date">选择日期:</label> <input type="text"
+										<label for="date">选择日期:</label> <input type="text" onchange="activityModal.op.checkInput();"
 											class="form-control" name="date" id="date"
 											aria-describedby="info4date" placeholder="选择日期"> <small
 											id="info4date" class="form-text text-muted" hidden="true">必填，单击输入框选择日期和时间</small>
@@ -127,7 +127,7 @@
 								<div class="col-md-10">
 									<div class="form-group">
 										<label for="hour">活动时长(小时): <input type="text"
-											value="1" id="hour" onchange="activityModal.op.checkHour(this);"
+											value="1" id="hour" onchange="activityModal.op.checkHour(this);activityModal.op.checkInput();"
 											style="border:0; color:#f6931f; font-weight:bold; font-size: 17px">
 										</label>
 										<div id="hourBar" name="hourBar"></div>
@@ -142,7 +142,7 @@
 								<div class="col-md-1"></div>
 								<div class="col-md-10">
 									<div class="form-group">
-										<label for="score">积分值:</label> <input type="number" min="0"
+										<label for="score">积分值:</label> <input type="number" min="0" onchange="activityModal.op.checkInput();"
 											class="form-control" name="score" id="score" value="0">
 										<small id="info4score" class="form-text text-muted"
 											hidden="true">签到后获取的积分</small>
@@ -154,7 +154,7 @@
 							<div class="row mb-5">
 								<div class="col-md-1"></div>
 								<div class="col-md-10">
-									<button type="button " name="commit" id="commit"
+									<button type="button " name="commit" id="commit" disabled="true" onclick="activityModal.op.createActivity();"
 										class="btn btn-primary btn-lg btn-block">发起活动</button>
 								</div>
 								<div class="col-md-1"></div>

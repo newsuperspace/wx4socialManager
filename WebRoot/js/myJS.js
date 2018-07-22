@@ -1789,7 +1789,47 @@ var activityModal = {
             $("#hourBar").slider("value",hour);
 		},
 		
+		// 检查id=name/descrpition/date 这三个input是否为空，为空则commit提交按钮为disabled
+		checkInput: function(){
+			let aflag = true;
+            $("input").each(function(){
+                if($(this).val()==""){
+                    aflag=false;
+                }
+            });
+            if(aflag){
+                $("#commit").attr("disabled",false);
+            }else{
+                $("#commit").attr("disabled",true);
+            }
+		},
 		
+		// AJAX 创建活动
+		createActivity: function(){
+			
+			var url = "activityAction_createActivity.action";
+			var param = {
+				name: $("#name").val(),
+				dpid: $("#dpid").val(),
+				description: $("#description").val(),
+				type: $("#type").val(),
+				baoMingUplimit: $("#baoMingUplimit").val(),
+				date: $("#date").val(),
+				hour: $("#hour").val(),
+				score: $("#score").val(),
+			}
+			$.post(url, param, function(data, textStatus, req) {
+				if(data.result){
+					// 创建成功
+					alert(data.message);
+					// TODO 这里应该跳转到活动列表——activityList.jsp 不过现在还没创建
+//					$(location).attr("href","");
+				}else{
+					// 创建失败
+					alert(data.message);
+				}
+			});
+		},
 	}
 }
 

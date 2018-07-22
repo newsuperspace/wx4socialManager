@@ -97,37 +97,37 @@
 									
 										<myShiro:hasAnyPermissions name="minus_first:project:retrieve,zero:project:retrieve,first:project:retrieve,second:project:retrieve,third:project:retrieve">
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "projectAction_getProjects.action")'>我的项目</a>
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action")'>我的项目</a>
 										</li>
 										</myShiro:hasAnyPermissions>
 										
 										<myShiro:hasAnyPermissions name="admin">
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "projectAction_getProjects.action?level=minusFirst")'>街道级项目</a>
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=minusFirst")'>街道级项目</a>
 										</li>
 										</myShiro:hasAnyPermissions>
 										
 										<myShiro:hasAnyPermissions name="admin,minus_first:project:retrieve">
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "projectAction_getProjects.action?level=zero")'>社区级项目</a>
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=zero")'>社区级项目</a>
 										</li>
 										</myShiro:hasAnyPermissions>
 										
 										<myShiro:hasAnyPermissions name="admin,minus_first:project:retrieve,zero:project:retrieve">
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "projectAction_getProjects.action?level=first")'>第一级项目</a>
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=first")'>第一级项目</a>
 										</li>
 										</myShiro:hasAnyPermissions>
 										
 										<myShiro:hasAnyPermissions name="admin,minus_first:project:retrieve,zero:project:retrieve,first:project:retrieve">
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "projectAction_getProjects.action?level=second")'>第二级项目</a>
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=second")'>第二级项目</a>
 										</li>
 										</myShiro:hasAnyPermissions>
 										
 										<myShiro:hasAnyPermissions name="admin,minus_first:project:retrieve,zero:project:retrieve,first:project:retrieve,second:project:retrieve">
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "projectAction_getProjects.action?level=third")'>第三级项目</a>
+											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=third")'>第三级项目</a>
 										</li>
 										</myShiro:hasAnyPermissions>
 										

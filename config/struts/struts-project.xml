@@ -17,7 +17,7 @@
 
 <struts>
 	<package name="project" namespace="/" extends="base-package" strict-method-invocation="false">
-		<action name="projectAction_*"  method="{1}"   class="projectAction">
+		<action name="doingProjectAction_*"  method="{1}"   class="doingProjectAction">
 				<result>/WEB-INF/pages/right/project/projectList.jsp</result>
 				<result  name="json"  type="json"></result>
 		</action>

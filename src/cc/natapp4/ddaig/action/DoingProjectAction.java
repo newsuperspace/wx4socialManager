@@ -36,10 +36,10 @@ import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
 
-@Controller("projectAction")
+@Controller("doingProjectAction")
 @Scope("prototype")
 @Lazy(true)
-public class ProjectAction extends ActionSupport implements ModelDriven<DoingProject> {
+public class DoingProjectAction extends ActionSupport implements ModelDriven<DoingProject> {
 
 	// ==========================================================DI注入Aspect
 	@Resource(name = "doingProjectService")
