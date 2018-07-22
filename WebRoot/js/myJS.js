@@ -1727,14 +1727,24 @@ var activityModal = {
             });
 
             // 设置活动时间的滚动条
-            $("#hour").slider({
-                range: true,
+            $("#hourBar").slider({
+                range: false,   // 如果设置成true就会出现前后两个滑块
                 min: 1, // 最小值为1（小时）
                 max: 12, // 最大值为12（小时）
                 change: function (event) {
+                    // 获取滑块儿的jQuery对象，因为event.target是出发当前回调方法的DOM对象（一个div），因此需要先转化成jQuery对象，才能调用jQuery的API
+                    var $hourBar = $(event.target);
                     // 当滚动条被波动时，出发本回调，设置显示的数值
-                    var hour = $(event.target).slider("values")[1];
-                    $("#hourInput").val(hour);
+                    /*
+                     * 如果设置的range为true，则此处虎丘两个滑块儿的值的时候应该使用values， 
+                     * 返回一个数组index=0为第一个滑块儿的数值；index=1为第二个滑块儿的数值
+                     */
+                    // var hour = $(event.target).slider("values")[1];
+                    /* 
+                     * 而如果range为false，则只有一个滑块儿，因此直接使用value就能获取到这个滑块儿的数值了。
+                     */
+                   var hour = $hourBar.slider("value");
+                    $("#hour").val(hour);
                 },
 
             });
@@ -1756,6 +1766,30 @@ var activityModal = {
                 $("#baoMingUplimit").parent().attr("hidden", false);
             }
 		},
+		
+		// 校验函数——校验id=hour的input的值是否在1~12之间
+		checkHour: function(self){
+			var $hourInput = $(self);
+			/*
+			 * 然后再将数字字符串转变为真正的Number类型的数值
+			 * 需要注意的是，如果hour.val()不是数字字符串而是字符，则转化后的是NaN
+			 * 因此为了保险起见，我们通过 "parseInt(hour.val())||1"的形式来获取数值
+			 * 因为如果parseInt(hour.val()) 是 NaN/Null/undefined 则就会默认为1
+			 * 否则才是parseInt(hour.val())的本值，这是一个JS中的常用技巧★★
+			 */ 
+			var hour =  parseInt($hourInput.val()) || 1;
+			// 然后判断hour是否在1~12之间
+			if(hour<1){
+				hour = 1;
+			}else if(hour>12){
+				hour = 12;
+            }
+            console.log("当前hour的值被修正成："+hour);
+            $hourInput.val(hour);
+            $("#hourBar").slider("value",hour);
+		},
+		
+		
 	}
 }
 

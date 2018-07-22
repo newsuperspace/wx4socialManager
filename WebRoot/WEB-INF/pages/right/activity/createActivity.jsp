@@ -42,56 +42,25 @@
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
 							<h1 class="h2">创建新活动</h1>
-							<div class="btn-toolbar mb-2 mb-md-0">
-								<div class="btn-group mr-2">
-
-									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#selectProjects">
-										<span class="glyphicon glyphicon-search"></span> 筛选
-									</button>
-									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#orderProjects">
-										<span class="glyphicon glyphicon-sort-by-order"></span> 排序
-									</button>
-									<div class="dropdown ml-1">
-										<button
-											class="btn btn-sm btn-outline-secondary dropdown-toggle"
-											type="button" id="others" data-toggle="dropdown"
-											aria-haspopup="true" aria-expanded="false">
-											<span class="glyphicon glyphicon-cog"></span> 其他
-										</button>
-										<div class="dropdown-menu dropdown-menu-right"
-											aria-labelledby="others">
-											<a class="dropdown-item" href="#"
-												onclick="userModal.op.batchCreateQR();">批量重建二维码</a> <a
-												class="dropdown-item disabled" href="#">Disabled action</a>
-											<h6 class="dropdown-header">Section header</h6>
-											<a class="dropdown-item" href="#">Action</a>
-											<div class="dropdown-divider"></div>
-											<a class="dropdown-item" href="#">After divider action</a>
-										</div>
-									</div>
-								</div>
-							</div>
 						</div>
 						<!-- =============正文=========== -->
 						<div class="container">
 							<input type="hidden" id="dpid" value='<s:property value="%('#dpid')"/>'/>
-							<div class="row mt-5">
-								<div class="col-md-3"></div>
-								<div class="col-md-6">
+							<div class="row mt-3">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
 									<div class="form-group">
 										<label for="name">活动名称:</label> <input type="text"
 											class="form-control" name="name" id="name"> <small
 											id="info4name" class="form-text text-muted" hidden="true">必填</small>
 									</div>
 								</div>
-								<div class="col-md-3"></div>
+								<div class="col-md-1"></div>
 							</div>
 
 							<div class="row">
-								<div class="col-md-3"></div>
-								<div class="col-md-6">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
 									<div class="form-group">
 										<label for="description">活动内容:</label> <input type="text"
 											class="form-control" name="description" id="description">
@@ -99,12 +68,12 @@
 											hidden="true">必填</small>
 									</div>
 								</div>
-								<div class="col-md-3"></div>
+								<div class="col-md-1"></div>
 							</div>
 
 							<div class="row">
-								<div class="col-md-3"></div>
-								<div class="col-md-6">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
 									<div class="form-group">
 										<label for="type">名额限制:</label> <select class="custom-select"
 											id="type" name="type" onchange="activityModal.op.typeChangeListener();">
@@ -114,11 +83,11 @@
 											hidden="true">请选择人数限制类型，默认不设限</small>
 									</div>
 								</div>
-								<div class="col-md-3"></div>
+								<div class="col-md-1"></div>
 							</div>
 							<div class="row">
-								<div class="col-md-3"></div>
-								<div class="col-md-6">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
 									<div class="form-group">
 										<label for="baoMingUplimit">设置人数:</label> <input type="number"
 											class="form-control" min="1" value="1" name="baoMingUplimit"
@@ -126,7 +95,7 @@
 											class="form-text text-muted" hidden="true">每次活动人数不得少于1</small>
 									</div>
 								</div>
-								<div class="col-md-3"></div>
+								<div class="col-md-1"></div>
 							</div>
 
 							<!--
@@ -135,8 +104,8 @@
                             开始时间则确定了“可签到”的时间，一般为开始时间前30分钟~开始时间后15分钟的时间段内，提早和超时都不予签到
         -->
 							<div class="row">
-								<div class="col-md-3"></div>
-								<div class="col-md-6">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
 									<div class="form-group">
 										<label for="date">选择日期:</label> <input type="text"
 											class="form-control" name="date" id="date"
@@ -144,7 +113,7 @@
 											id="info4date" class="form-text text-muted" hidden="true">必填，单击输入框选择日期和时间</small>
 									</div>
 								</div>
-								<div class="col-md-3"></div>
+								<div class="col-md-1"></div>
 							</div>
 
 							<!-- 
@@ -154,24 +123,24 @@
                             只有签退成功才能获得积分和积累工作时长
          -->
 							<div class="row">
-								<div class="col-md-3"></div>
-								<div class="col-md-6">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
 									<div class="form-group">
 										<label for="hour">活动时长(小时): <input type="text"
-											value="1" id="hourInput"
+											value="1" id="hour" onchange="activityModal.op.checkHour(this);"
 											style="border:0; color:#f6931f; font-weight:bold; font-size: 17px">
 										</label>
-										<div id="hour" name="hour"></div>
-										<small id="info4hour" class="form-text text-muted"
+										<div id="hourBar" name="hourBar"></div>
+										<small id="hourBar" class="form-text text-muted"
 											hidden="true">默认活动时常为1小时</small>
 									</div>
 								</div>
-								<div class="col-md-3"></div>
+								<div class="col-md-1"></div>
 							</div>
 
 							<div class="row">
-								<div class="col-md-3"></div>
-								<div class="col-md-6">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
 									<div class="form-group">
 										<label for="score">积分值:</label> <input type="number" min="0"
 											class="form-control" name="score" id="score" value="0">
@@ -179,16 +148,16 @@
 											hidden="true">签到后获取的积分</small>
 									</div>
 								</div>
-								<div class="col-md-3"></div>
+								<div class="col-md-1"></div>
 							</div>
 
 							<div class="row mb-5">
-								<div class="col-md-3"></div>
-								<div class="col-md-6">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
 									<button type="button " name="commit" id="commit"
 										class="btn btn-primary btn-lg btn-block">发起活动</button>
 								</div>
-								<div class="col-md-3"></div>
+								<div class="col-md-1"></div>
 							</div>
 
 						</div>
