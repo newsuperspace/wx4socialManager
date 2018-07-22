@@ -116,10 +116,8 @@
 												</s:a></td>
 											<td>
 												<div class="btn-group" role="group">
-													<s:a cssClass="btn btn-sm btn-outline-secondary"
-														role="button"
-														onclick="projectModal.op.createActivity('%{dpid}');"
-														href="#">新活动</s:a>
+													<button type="button"
+														class="btn btn-outline-secondary btn-sm">推送</button>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">其他</button>
 												</div>

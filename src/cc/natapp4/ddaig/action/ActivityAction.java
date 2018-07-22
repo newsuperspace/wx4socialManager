@@ -23,14 +23,32 @@ import cc.natapp4.ddaig.service_interface.UserService;
 @Lazy(true)
 public class ActivityAction extends ActionSupport implements ModelDriven<Activity>{
 
-	//================================================DI 注入
+	// ==============================DI注入==============================
 	@Resource(name="activityService")
 	private ActivityService  activityService;
 	@Resource(name="userService")
-	private  UserService userService;
+	private UserService userService;
 	
+	// ==============================属性驱动==============================
+	private String uid;
+	public String getUid() {
+		return uid;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
 	
-	// 模型驱动——收纳请求参数
+	// 新建活动时，这里传来需要新建活动的doingProject的ID
+	private String dpid;
+	public String getDpid() {
+		return dpid;
+	}
+	public void setDpid(String dpid) {
+		this.dpid = dpid;
+	}
+
+	// ==============================模型驱动==============================
 	private Activity activity;
 	@Override
 	public Activity getModel() {
@@ -38,6 +56,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		return this.activity;
 	}
 
+	// ==============================Methods==============================
 	/**
 	 * 在后台，点击某个用户的积分，则会产生本次请求
 	 * 请求会将所用户的uid传递过来，从而可以在数据库
@@ -46,20 +65,12 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	 */
 	public  String showList(){
 		
-		User user = userService.queryEntityById(this.uid);
-		Set<Activity> activities = user.getActivities();
-
-		ActionContext.getContext().put("activities", activities);
+//		User user = userService.queryEntityById(this.uid);
+//		Set<Activity> activities = user.getActivities();
+//
+//		ActionContext.getContext().put("activities", activities);
 		
 		return "showList";
-	}
-	private String uid;
-	public String getUid() {
-		return uid;
-	}
-
-	public void setUid(String uid) {
-		this.uid = uid;
 	}
 
 	/**
@@ -80,12 +91,17 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	 * @return
 	 */
 	public String getVisitors(){
-		
-		String aid  =  this.activity.getAid();
-		Activity a = activityService.queryEntityById(aid);
-		Set<User> users = a.getUsers();
-		
-		ActionContext.getContext().put("visitors", users);
+//		
+//		String aid  =  this.activity.getAid();
+//		Activity a = activityService.queryEntityById(aid);
+//		Set<User> users = a.getUsers();
+//		
+//		ActionContext.getContext().put("visitors", users);
 		return "visitorList";
+	}
+	
+	public String createPage(){
+		ActionContext.getContext().put("dpid", this.getDpid());
+		return "create";
 	}
 }

@@ -19,16 +19,6 @@
 	<package name="project" namespace="/" extends="base-package" strict-method-invocation="false">
 		<action name="projectAction_*"  method="{1}"   class="projectAction">
 				<result>/WEB-INF/pages/right/project/projectList.jsp</result>
-				<result name="minusFirst" >/WEB-INF/pages/right/project/minusFirst.jsp</result>
-				<result name="zero">/WEB-INF/pages/right/project/zero.jsp</result>
-				<result name="first">/WEB-INF/pages/right/project/first.jsp</result>
-				<result name="second">/WEB-INF/pages/right/project/second.jsp</result>
-				<result name="third">/WEB-INF/pages/right/project/third.jsp</result>
-				<result name="fourth">/WEB-INF/pages/right/project/fourth.jsp</result>
-				
-				
-				
-				
 				<result  name="json"  type="json"></result>
 		</action>
 	</package>

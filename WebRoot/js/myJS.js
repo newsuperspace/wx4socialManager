@@ -1448,17 +1448,25 @@ var projectModal = {
 
 	op : {
 		/*
-		 * 点击项目名称————弹出projectInfoModal，显示项目的详细信息。
+		 * 点击项目名称————弹出projectInfoModal，显示项目的详细信息的Modal。
 		 */
 		projectInfo : function(dpid) {
 			alert(dpid);
 		},
 
 		/*
-		 * 点击已开展活动的数字，可以跳转到Activity页面，显示当前项目所开展过的活动信息列表
+		 * 点击已开展活动的数字，可以跳转到Activity页面，显示当前项目所开展过的活动信息历史纪录表————activityList.jsp
 		 */
 		getActivities : function(dpid) {
 			alert(dpid);
+		},
+		/*
+		 * projectList.jsp页面上点击某个项目的"新活动"按钮时调用本方法
+		 * dpid： 是在当初请求projectList.jsp的时候，由服务器端的struts2通过OGNL表达式将doingProject的dpid填入进来的
+		 */
+		createActivity: function(dpid){
+			var url = "activityAction_createPage.action?dpid="+dpid;
+			$(location).attr("href",url);
 		},
 	}
 };
@@ -1497,8 +1505,28 @@ var navbarModal = {
 		}
 	};
 
+/**
+ * 处理activityList.jsp页面上与
+ * 新建活动/修改活动等有关的操作
+ */
+var activityModal = {
+	init:{},
+	data:{},
+	op:{
+		
+		
+		
+	}
+}
+
+/**
+ * 包含后台与微信端进行交互的所有逻辑
+ */
 var aboutWeixin = {
 	init : {
+		/**
+		 * op中包含的是与微信端进行初始化操作的逻辑，有页面加载完成后通过jQuery的$(function() {})自动完成对下列方法的调用
+		 */
 		op : {
 			/*
 			 * 负责Weixin公众号端访问的页面的所有必要前提操作
@@ -1606,6 +1634,7 @@ var aboutWeixin = {
 					if (data.result) {
 						// 已经实名认证过了
 						alert("您已完成实名认证，请勿重复操作");
+						// 通过微信的SDK-API实现关闭页面的操作
 						wx.closeWindow();
 					} 
 				});
@@ -1615,6 +1644,9 @@ var aboutWeixin = {
 	},
 	data : {},
 
+	/**
+	 * 这个op中包含的是被动调用的方法
+	 */
 	op : {
 		/*
 		 * 获得指定请求参数名的请求参数值。
@@ -1676,6 +1708,57 @@ var aboutWeixin = {
 		}
 	}
 };
+
+var activityModal = {
+	init:{
+		// 对当前页面上的jQueryUI组件进行一些初始化工作
+		initOp: function(){
+			 // 设置日期时间选择器
+            $("#date").prop("readonly", true).datetimepicker({
+                showAnim: "blind",
+                showButtonPanel: false, // 不现实日期时间选择下面的按钮行
+                showSecond: false,
+                onClose: function (selectedDate) {
+                    // 当选择器关闭时出发本事件回调
+                },
+                // 可选日期范围从当前日期偏移1天开始，到1个月的为选择范围
+                minDate: 1,
+                maxDate: "+1M"
+            });
+
+            // 设置活动时间的滚动条
+            $("#hour").slider({
+                range: true,
+                min: 1, // 最小值为1（小时）
+                max: 12, // 最大值为12（小时）
+                change: function (event) {
+                    // 当滚动条被波动时，出发本回调，设置显示的数值
+                    var hour = $(event.target).slider("values")[1];
+                    $("#hourInput").val(hour);
+                },
+
+            });
+
+            // 由于默认活动参与人数不设限制，因此在刚刚载入页面的时候需要预先隐藏baoMingUplimit
+            $("#baoMingUplimit").parent().attr("hidden",true);
+		}
+	},
+	data:{},
+	op:{
+		/*
+		 * 监听活动人数限制类型的selector的变化，用来显示设置参与人数的input
+		 */
+		typeChangeListener: function(){
+			var type = $("#type").val();
+            if ('1' == type) {
+                $("#baoMingUplimit").parent().attr("hidden", true);
+            } else if ('2' == type) {
+                $("#baoMingUplimit").parent().attr("hidden", false);
+            }
+		},
+	}
+}
+
 
 
 /**

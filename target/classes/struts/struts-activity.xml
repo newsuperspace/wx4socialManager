@@ -18,9 +18,7 @@
 <struts>
 	<package name="activity" namespace="/" extends="base-package" strict-method-invocation="false">
 		<action name="activityAction_*"  method="{1}"   class="activityAction">
-				<result name="showAllList">/WEB-INF/jsp/frame/aboutActivity/activityList.jsp</result>
-				<result name="showList">/WEB-INF/jsp/frame/aboutActivity/activityList.jsp</result>
-				<result name="visitorList">/WEB-INF/jsp/frame/aboutActivity/visitorList.jsp</result>
+			<result name="create">/WEB-INF/pages/right/activity/createActivity.jsp</result>
 		</action>
 	</package>
 </struts>

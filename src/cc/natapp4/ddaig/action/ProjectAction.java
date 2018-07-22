@@ -24,6 +24,8 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
+import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4CreateActivity;
+import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.DoingProjectService;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.FourthLevelService;
@@ -42,6 +44,8 @@ public class ProjectAction extends ActionSupport implements ModelDriven<DoingPro
 	// ==========================================================DI注入Aspect
 	@Resource(name = "doingProjectService")
 	private DoingProjectService doingProjectService;
+	@Resource(name="activityService")
+	private ActivityService  activityService;
 	@Resource(name = "userService")
 	private UserService userService;
 	@Resource(name = "minusFirstLevelService")
@@ -64,7 +68,7 @@ public class ProjectAction extends ActionSupport implements ModelDriven<DoingPro
 
 	@Override
 	public DoingProject getModel() {
-		doingProject = new DoingProject();
+		this.doingProject = new DoingProject();
 		return this.doingProject;
 	}
 
@@ -92,6 +96,44 @@ public class ProjectAction extends ActionSupport implements ModelDriven<DoingPro
 	}
 
 	// ==========================================================Method
+	
+	/**
+	 * 筹备新建活动所需要的信息，包括doingProject的项目名称/doingProject项目dpid
+	 * @return
+	 */
+	public String showCreateActivityModal(){
+		
+		ReturnMessage4CreateActivity  result  =  new  ReturnMessage4CreateActivity();
+		
+		String dpid = this.doingProject.getDpid();
+		// 判断请求参数是否为""
+		if(dpid.equals("")){
+			result.setResult(false);
+			result.setMessage("关键参数dpid为null，新建活动失败");
+			
+			ActionContext.getContext().getValueStack().push(result);
+			return "json";
+		}
+		
+		DoingProject dp = doingProjectService.queryEntityById(dpid);
+		// 判断是否能找到制定dpid的doingProject
+		if(null==dp){
+			result.setMessage("不存在dpid为"+dpid+"的项目，新建活动失败");
+			result.setResult(false);
+			
+			ActionContext.getContext().getValueStack().push(result);
+			return "json";
+		}
+		
+		// 一切正常如是返回doingProject的数据信息
+		result.setDp(dp);
+		result.setMessage("doingProject的数据信息已经找到");
+		result.setDp(dp);
+		
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+	
 
 	/*
 	 * AJAX 创建新项目

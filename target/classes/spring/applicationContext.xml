@@ -68,6 +68,7 @@
 				/js/**=anon
 				/qrcode/**=anon
 				/openJSP/**=anon
+				/jqueryui/**=anon
 				/weixinAction_*.action = anon
 				/ajaxAction4weixin_*.action = anon
 			<!-- 

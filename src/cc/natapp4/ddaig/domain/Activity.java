@@ -13,21 +13,23 @@ public class Activity implements Serializable {
 	private String aid;				
 	/*
 	 *  发起活动的类型——
-	 *  1、开放报名【现阶段只有这一种】
+	 *  1、开放报名
 	 *  ①向活动所属项目的执行者（必定是一个层级对象）的管辖范围内的所有成员发送活动通知，公开进行招募，并限定准确的参与者人数上限
 	 *  ②招募时间可以通过baoMingBeginTime和baoMingEndTime来进行约束
 	 *  ③在报名时间内，收到通知的用户可以进行报名，报名的用户会在该活动对应的visitor表中生成一条该用户的visitor记录，只不过visitor的startTime和endTime两个字段都是null
 	 *  ④当活动开始的时候，用户可以在签到时间内进行签到，非报名用户不能签到（因为在visitor中找不到该用户的记录），签到和签退后都会在该已报名用户对应的visitor的
 	 *  startTime和endTime字段上记录下时间信息。
 	 *  ⑤对于报名，但没有来参加的可以给予一定的惩罚。
-	 *  TODO 2、指定团队【后续开发再支持】
+	 *  2、限定人数
+	 *  TODO 
+	 *  3、指定团队【后续开发再支持】
 	 *  ①活动发起方必定是一个项目的直接执行人，他可以选定其所辖范围内的其他执行团队参与活动，例如thirdLevel的管理者可以选定旗下的全部三个fourthLevel子团队参加活动
 	 *  也可只选择三个中的一个或两个。
 	 *  ②被确定参与活动的团队的成员才有资格在活动开始的时候进行扫码签到
 	 *  ③只要扫码签到的成员就会在visitor上生成一条对应记录，没有来参加活动的自然不会存在visitor记录信息，完全是自愿来参加的。
 	 */
 	private String type;
-	// 如果type类型是开放报名，则需要在这里设置最高报名人数
+	// 如果type类型是限定人数，则需要在这里设置最高报名人数
 	private int baoMingUplimit;   
 	/*
 	 * 通过endTime - beginTime，可以计算出活动的持续时间
@@ -35,15 +37,20 @@ public class Activity implements Serializable {
 	 * 因此这个字段设置成long类型是最合适的
 	 */
 	private long activityBeginTime;   // 活动的开始时间（以1970-1-1日为起点的毫秒值）
-	private long activityEndTime;		// 活动的借书时间（以1970-1-1日为起点的毫秒值）
+	private long activityEndTime;		// 活动的结束时间（以1970-1-1日为起点的毫秒值）
+	
+	/*
+	 * 默认报名开始时间为活动新建时
+	 * 活动报名截止时间为活动那一天之前
+	 */
 	private long baoMingBeginTime; // 活动报名的开始时间
 	private long baoMingEndTime;  // 活动报名的截止时间
 	
 	private int score;				// 为开展当前活动所分配到的积分（足够平均分配给每位参与者）
-	private String qrcodeUrl;    // 活动扫码签到所使用的二维码图片地址
+	private String qrcodeUrl;    // 活动扫码签到所使用的二维码图片本地相对路径地址，内容为活动的ID
 	private String name;      // 活动名称
 	private String description;     // 活动的描述
-	private String state;  // 筹备中、进行中、已完成、已取消
+	private String state;  // 进行中、已完成、已取消、筹备中
 	 
 	/*
 	 *  报名的用户列表
