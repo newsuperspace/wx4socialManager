@@ -1505,19 +1505,6 @@ var navbarModal = {
 		}
 	};
 
-/**
- * 处理activityList.jsp页面上与
- * 新建活动/修改活动等有关的操作
- */
-var activityModal = {
-	init:{},
-	data:{},
-	op:{
-		
-		
-		
-	}
-}
 
 /**
  * 包含后台与微信端进行交互的所有逻辑
@@ -1765,6 +1752,8 @@ var activityModal = {
             } else if ('2' == type) {
                 $("#baoMingUplimit").parent().attr("hidden", false);
             }
+            activityModal.op.checkInput();
+            activityModal.op.checkBaomingUplimit();
 		},
 		
 		// 校验函数——校验id=hour的input的值是否在1~12之间
@@ -1792,16 +1781,49 @@ var activityModal = {
 		// 检查id=name/descrpition/date 这三个input是否为空，为空则commit提交按钮为disabled
 		checkInput: function(){
 			let aflag = true;
-            $("input").each(function(){
-                if($(this).val()==""){
-                    aflag=false;
-                }
+            $("input[data-myInput='me']").each(function(){
+            	let $self = $(this);
+            	if($self.attr("id")=="baoMingUplimit"){
+            		// 如果当前input是baoMingUplimit
+            		if($("#type").val()=='2'){
+            			// 只有type设置成限定人数，才检查baoMingUplimit是否为空
+            			if($self.val()==""){
+                            aflag=false;
+                        }
+            		}
+            	}else{
+            		// 其他的input都要检查是否为空
+            		if($self.val()==""){
+            			aflag=false;
+            		}
+            	}
             });
             if(aflag){
                 $("#commit").attr("disabled",false);
             }else{
                 $("#commit").attr("disabled",true);
             }
+		},
+		
+		/*
+		 * 查看baoMingUplimit这个input的人数是否在1~max之间
+		 */
+		checkBaomingUplimit: function(){
+			if($("#type").val()=='1'){
+				// 不限定人数，无需检查
+			}else{
+				// 限定人数，检查
+				var baoMingUplimit = parseInt($("#baoMingUplimit").val());
+				var min = parseInt($("#baoMingUplimit").attr("min"));
+				var max = parseInt($("#baoMingUplimit").attr("max"));
+				if(baoMingUplimit<=max && baoMingUplimit>=min){
+					$("#commit").attr("disabled",false);
+					$("#info4baoMingUplimit").attr("hidden", true);
+				}else{
+					$("#commit").attr("disabled",true);
+					$("#info4baoMingUplimit").attr("hidden",false).text("报名人数限制应在"+min+"~"+max+"之间");
+				}
+			}
 		},
 		
 		// AJAX 创建活动

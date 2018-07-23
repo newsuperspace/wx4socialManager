@@ -53,7 +53,7 @@ public class User implements Serializable {
 	private boolean ishere;   // 该用户当前是否在公众号中 
 	private boolean locked;  // 是否被封禁 true=封禁  false或null = 正常
 	// ---------------------------------------Foreign-KEY-------------------------------------
-	private Grouping grouping;     // 所在分组（与微信的tag标签一一对应，每个tag对应一种前端的菜单样式和后端的管理层级★★★）
+	private Grouping grouping;     // 所在分组（与微信的tag标签一一对应）
 
 	private List<Visitor> visits; // 该用户个人参加活动的信息列表
 	private Set<Exchange> exchanges; // 当前用户的消分记录
