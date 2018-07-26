@@ -105,34 +105,63 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	}
 
 	// ==============================Methods==============================
+
 	/**
-	 * 在后台，点击某个用户的积分，则会产生本次请求 请求会将所用户的uid传递过来，从而可以在数据库
-	 * 中查找该用户所参与的全部Activity信息，并显示到后台指定JSP页面上
+	 * 在doingProject的jsp页面上，当管理者点击某一个doingProject的活动总数量的时候，就会请求本方法
+	 * 方法会获取某一个doingProject的全部活动信息，然后跳转到活动展示页面
 	 * 
 	 * @return
 	 */
-	public String showList() {
-
-		// User user = userService.queryEntityById(this.uid);
-		// Set<Activity> activities = user.getActivities();
-		//
-		// ActionContext.getContext().put("activities", activities);
-
-		return "showList";
+	public String showDoingProjectActivityList() {
+		DoingProject doingProject = doingProjectService.queryEntityById(dpid);
+		List<Activity> activities = doingProject.getActivities();
+		// 下面的全部活动数据信息将会现在在activityList.jsp的表格中
+		ActionContext.getContext().put("activities", activities);
+		// 下面的信息将作为activityList.jsp的标题
+		ActionContext.getContext().put("title", doingProject.getBesureProject().getName()+"的全部活动信息");
+		return "doingProjectActivityList";
 	}
 
 	/**
-	 * 获取所有已经发起的活动Activity，并显示到后台指定的jsp页面上
+	 * 根据当前操作者的层级对象，获取该层级对象之下的所有层级对象的所有活动的数据信息，并显示到后台指定的jsp页面上
+	 * 在该JSP页面上可以通过日期选择器/层级选择等方式对数据进行进一步筛选
 	 * 
 	 * @return
 	 */
-	public String showAllList() {
+	public String allActivityList() {
 
-		List<Activity> list = activityService.queryEntities();
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
 
-		ActionContext.getContext().put("activities", list);
+		// 如果当前操作者是admin， 那么可以获取系统中所有activity的数据信息
+		if (isAdmin) {
+			List<Activity> list = activityService.queryEntities();
+			ActionContext.getContext().put("activities", list);
+			return "allActivityList";
+		}else{
+			// 非admin也就是正式层级对象的管理者的用户，只能获取该层级对象之下的所有子层级对象的全部活动
+			
+		}
 
-		return "showAllList";
+		return "allActivityList";
 	}
 
 	/**
@@ -150,6 +179,13 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		return "visitorList";
 	}
 
+	/**
+	 * 新建活动前的必要准备 （1）将未来新建的活动所属的doingProject的dpid返回到前端页面createActivity.jsp
+	 * （2）根据当前操作执行者所管理的层级对象所拥有的人员数量，设置前端页面createActivity.jsp中设置活动参与人数上线的max属性
+	 * 最后一切设置完毕后，通过struts结果集索引字符串请求转发到用于新建活动的页面————createActivity.jsp
+	 * 
+	 * @return
+	 */
 	public String createPage() {
 		// ---------------------------Shiro认证操作者身份---------------------------
 		Subject subject = SecurityUtils.getSubject();
@@ -237,6 +273,11 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		return "create";
 	}
 
+	/**
+	 * AJAX 基于前端通过AJAX提交过来的必要数据信息，首先通过后端校验，校验通过正式执行活动新建逻辑 并将数据写入数据库。
+	 * 
+	 * @return
+	 */
 	public String createActivity() {
 		// ---------------------------Shiro认证操作者身份---------------------------
 		Subject subject = SecurityUtils.getSubject();
@@ -386,44 +427,45 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			}
 			// 最终获知到当前层级对象的所有成员数量
 			max = members.size();
-			if(max<min){
+			if (max < min) {
 				message.setResult(false);
-				message.setMessage("你所管理的当前层级，人员数量低于最小值"+min+"请选择不设限制。");
+				message.setMessage("你所管理的当前层级，人员数量低于最小值" + min + "请选择不设限制。");
 				ActionContext.getContext().getValueStack().push(message);
 				return "json";
-			}else if(baoMingUplimit<min || baoMingUplimit>max){
+			} else if (baoMingUplimit < min || baoMingUplimit > max) {
 				message.setResult(false);
-				message.setMessage("你所设置的活动参与人数"+baoMingUplimit+"不在"+min+"~"+max+"之间，不予新建活动");
+				message.setMessage("你所设置的活动参与人数" + baoMingUplimit + "不在" + min + "~" + max + "之间，不予新建活动");
 				ActionContext.getContext().getValueStack().push(message);
 				return "json";
 			}
-		}else{
+		} else {
 			// 如果活动人员限制类型（type）不是2（限制人数），则应该把baoMingUplimit字段设置为-1，表明此次活动没有人员数量限制。
 			baoMingUplimit = -1;
 		}
-		
+
 		// 校验活动持续时间——hour字段
-		if(hour<1 || hour>12){
+		if (hour < 1 || hour > 12) {
 			hour = 1;
 		}
-		// TODO 校验活动积分：实际应该“参与人数*score”得到单次活动花费，不应小于当前doingProject的lastLaborCost（项目剩余积分）
-		if(score<0 || score>5){
+		// TODO
+		// 校验活动积分：实际应该“参与人数*score”得到单次活动花费，不应小于当前doingProject的lastLaborCost（项目剩余积分）
+		if (score < 0 || score > 5) {
 			score = 0;
 		}
 		// ----------------------校验完毕，当程序执行到这里的时候就代表所有参数都正确，可以着手执行新建活动的逻辑了----------------------
-		Activity  activity =  new  Activity();
+		Activity activity = new Activity();
 		activity.setName(name);
 		activity.setDescription(description);
 		activity.setScore(score);
 		activity.setType(type);
 		activity.setBaoMingUplimit(baoMingUplimit);
-		
+
 		// 报名的开始时间就是现在
 		activity.setBaoMingBeginTime(System.currentTimeMillis());
 		// 报名的截止时间是活动当天的00:00
 		activity.setBaoMingEndTime(activityDateTimeMillis);
 		// 设置活动开始时间的yyyy-MM-dd HH:mm:ss 格式的准确时间的格里高利历偏移量
-		formatter = new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
 			activityDateTimeMillis = (formatter.parse(date)).getTime();
 		} catch (ParseException e) {
@@ -435,20 +477,20 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		}
 		activity.setActivityBeginTime(activityDateTimeMillis);
 		// 设置活动结束时间的准确格里高利历偏移量
-		long activityEndTime = activityDateTimeMillis + 1000*60*60*hour;
+		long activityEndTime = activityDateTimeMillis + 1000 * 60 * 60 * hour;
 		activity.setActivityEndTime(activityEndTime);
-		
+
 		// 设置剩余的其他内容
 		activity.setProject(doingProject);
-		String aid  =  UUID.randomUUID().toString();
+		String aid = UUID.randomUUID().toString();
 		String qrcodeUri = QRCodeUtils.createActivityQR(aid);
 		activity.setQrcodeUrl(qrcodeUri);
 		activity.setAid(aid);
-		
+
 		// activity的bean数据填装完成，与所属的doingProject也已经进来关联，现在可以级联向数据库保存activity了
 		activityService.save(activity);
-		
-		message.setMessage("名为"+name+"的活动创建成功！");
+
+		message.setMessage("名为" + name + "的活动创建成功！");
 		message.setResult(true);
 		ActionContext.getContext().getValueStack().push(message);
 		return "json";

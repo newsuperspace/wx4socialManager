@@ -14,6 +14,8 @@
 		strict-method-invocation="false">
 		<action name="activityAction_*" method="{1}" class="activityAction">
 			<result name="create">/WEB-INF/pages/right/activity/createActivity.jsp</result>
+			<result name="visitorList">/WEB-INF/pages/right/activity/visitorList.jsp</result>
+			<result name="doingProjectActivityList">/WEB-INF/pages/right/activity/activityList.jsp</result>
 			<result name="json" type="json"></result>
 		</action>
 	</package>

@@ -1458,7 +1458,8 @@ var projectModal = {
 		 * 点击已开展活动的数字，可以跳转到Activity页面，显示当前项目所开展过的活动信息历史纪录表————activityList.jsp
 		 */
 		getActivities : function(dpid) {
-			alert(dpid);
+			var url = "activityAction_showDoingProjectActivityList.action?dpid="+dpid;
+			$(location).attr("href",url);
 		},
 		/*
 		 * projectList.jsp页面上点击某个项目的"新活动"按钮时调用本方法
@@ -1742,6 +1743,13 @@ var activityModal = {
 	},
 	data:{},
 	op:{
+		/*
+		 * 跳转到展示活动参与者的list列表页面
+		 */
+		showVisitors: function(aid){
+			alert("当前活动的aid是："+aid);
+		},
+		
 		/*
 		 * 监听活动人数限制类型的selector的变化，用来显示设置参与人数的input
 		 */

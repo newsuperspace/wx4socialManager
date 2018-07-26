@@ -36,7 +36,7 @@
 							<h1 class="h2">项目信息</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
-									
+
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#selectProjects">
 										<span class="glyphicon glyphicon-search"></span> 筛选
@@ -52,11 +52,11 @@
 											aria-haspopup="true" aria-expanded="false">
 											<span class="glyphicon glyphicon-cog"></span> 其他
 										</button>
-										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="others">
+										<div class="dropdown-menu dropdown-menu-right"
+											aria-labelledby="others">
 											<a class="dropdown-item" href="#"
-												onclick="userModal.op.batchCreateQR();">批量重建二维码</a>
-											<a class="dropdown-item disabled" href="#">Disabled
-												action</a>
+												onclick="userModal.op.batchCreateQR();">批量重建二维码</a> <a
+												class="dropdown-item disabled" href="#">Disabled action</a>
 											<h6 class="dropdown-header">Section header</h6>
 											<a class="dropdown-item" href="#">Action</a>
 											<div class="dropdown-divider"></div>
@@ -80,30 +80,24 @@
 										<th>项目名</th>
 										<th>DPID</th>
 										<th>项目类型</th>
-										<th>已开展活动数</th>
+										<th>活动</th>
 										<th>操作</th>
 									</tr>
 								</thead>
 								<tbody>
 									<s:iterator value="#projects">
 										<tr>
-											<td>
-												<s:if test="%{thirdLevel!=null}">
-													<s:property value="thirdLevel.name"/>
-												</s:if>
-												<s:elseif test="%{secondLevel!=null&&thirdLevel==null}">
-													<s:property value="secondLevel.name"/>
-												</s:elseif>
-												<s:elseif test="%{firstLevel!=null&&secondLevel==null}">
-													<s:property value="firstLevel.name"/>
-												</s:elseif>
-												<s:elseif test="%{zeroLevel!=null&&firstLevel==null}">
-													<s:property value="zeroLevel.name"/>
-												</s:elseif>
-												<s:elseif test="%{minusFirstLevel!=null&&zeroLevel==null}">
-													<s:property value="minusFirstLevel.name"/>
-												</s:elseif>
-											</td>
+											<td><s:if test="%{thirdLevel!=null}">
+													<s:property value="thirdLevel.name" />
+												</s:if> <s:elseif test="%{secondLevel!=null&&thirdLevel==null}">
+													<s:property value="secondLevel.name" />
+												</s:elseif> <s:elseif test="%{firstLevel!=null&&secondLevel==null}">
+													<s:property value="firstLevel.name" />
+												</s:elseif> <s:elseif test="%{zeroLevel!=null&&firstLevel==null}">
+													<s:property value="zeroLevel.name" />
+												</s:elseif> <s:elseif test="%{minusFirstLevel!=null&&zeroLevel==null}">
+													<s:property value="minusFirstLevel.name" />
+												</s:elseif></td>
 											<td><s:a href="#"
 													onclick="projectModal.op.projectInfo('%{dpid}')">
 													<s:property value="besureProject.name" />
@@ -153,7 +147,7 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
-		
+
 		<!-- Modal4用户详情 -->
 		<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
 			aria-labelledby="detialsModal" aria-hidden="true">

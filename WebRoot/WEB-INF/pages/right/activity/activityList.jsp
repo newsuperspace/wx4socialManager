@@ -33,10 +33,12 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2">项目信息</h1>
+							<h1 class="h2">
+								<s:property value="#title"/>
+							</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
-									
+
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#selectProjects">
 										<span class="glyphicon glyphicon-search"></span> 筛选
@@ -52,11 +54,11 @@
 											aria-haspopup="true" aria-expanded="false">
 											<span class="glyphicon glyphicon-cog"></span> 其他
 										</button>
-										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="others">
+										<div class="dropdown-menu dropdown-menu-right"
+											aria-labelledby="others">
 											<a class="dropdown-item" href="#"
-												onclick="userModal.op.batchCreateQR();">批量重建二维码</a>
-											<a class="dropdown-item disabled" href="#">Disabled
-												action</a>
+												onclick="userModal.op.batchCreateQR();">批量重建二维码</a> <a
+												class="dropdown-item disabled" href="#">Disabled action</a>
 											<h6 class="dropdown-header">Section header</h6>
 											<a class="dropdown-item" href="#">Action</a>
 											<div class="dropdown-divider"></div>
@@ -76,50 +78,50 @@
 								class="table table-striped table-sm table-bordered table-hover text-center">
 								<thead class="thead-dark">
 									<tr>
-										<th>所属层级对象</th>
-										<th>项目名</th>
-										<th>DPID</th>
-										<th>项目类型</th>
-										<th>已开展活动数</th>
+										<th>项目</th>
+										<th>活动名</th>
+										<th>活动描述</th>
+										<th>开始日期</th>
+										<th>结束日期</th>
+										<th>参与限制</th>
+										<th>参与者</th>
+										<th>积分支出</th>
+										<th>状态</th>
 										<th>操作</th>
 									</tr>
 								</thead>
 								<tbody>
-									<s:iterator value="#projects">
+									<s:iterator value="#activities">
 										<tr>
+											<td><s:property value="dpName" /></td>
+											<td><s:property value="name" /></td>
+											<td><s:property value="description" /></td>
+											<td><s:property value="beginTimeStr" /></td>
+											<td><s:property value="endTimeStr" /></td>
 											<td>
-												<s:if test="%{thirdLevel!=null}">
-													<s:property value="thirdLevel.name"/>
-												</s:if>
-												<s:elseif test="%{secondLevel!=null&&thirdLevel==null}">
-													<s:property value="secondLevel.name"/>
-												</s:elseif>
-												<s:elseif test="%{firstLevel!=null&&secondLevel==null}">
-													<s:property value="firstLevel.name"/>
-												</s:elseif>
-												<s:elseif test="%{zeroLevel!=null&&firstLevel==null}">
-													<s:property value="zeroLevel.name"/>
-												</s:elseif>
-												<s:elseif test="%{minusFirstLevel!=null&&zeroLevel==null}">
-													<s:property value="minusFirstLevel.name"/>
-												</s:elseif>
+												<s:if test="type=='1'">开放报名</s:if>
+												<s:elseif test="type='2'">限定人数</s:elseif>
 											</td>
 											<td><s:a href="#"
-													onclick="projectModal.op.projectInfo('%{dpid}')">
-													<s:property value="besureProject.name" />
+													onclick="activityModal.op.showVisitors('%{aid}');">
+													<s:property value="visitors.size()" />
 												</s:a></td>
-											<td><s:property value="dpid" /></td>
-											<td><s:property value="besureProject.projectType.name" /></td>
-											<td><s:a href="#"
-													onclick="projectModal.op.getActivities('%{dpid}')">
-													<s:property value="activities.size()" />
-												</s:a></td>
+											<td><s:property value="scorePaid" /></td>
+											<td><s:property value="state" /></td>
 											<td>
 												<div class="btn-group" role="group">
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">推送</button>
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">其他</button>
+													<s:a cssClass="btn btn-sm btn-outline-secondary"
+														role="button"
+														onclick="activityModal.op.showVisitors('%{aid}');"
+														href="#">签到/离</s:a>
+													<s:a cssClass="btn btn-sm btn-outline-secondary"
+														role="button"
+														onclick="activityModal.op.showVisitors('%{aid}');"
+														href="#">补签</s:a>
+													<s:a cssClass="btn btn-sm btn-outline-secondary"
+														role="button"
+														onclick="activityModal.op.showVisitors('%{aid}');"
+														href="#">取消</s:a>
 												</div>
 											</td>
 										</tr>
@@ -151,7 +153,7 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
-		
+
 		<!-- Modal4用户详情 -->
 		<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
 			aria-labelledby="detialsModal" aria-hidden="true">
