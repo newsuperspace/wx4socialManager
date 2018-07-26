@@ -99,15 +99,21 @@
 											<td><s:property value="beginTimeStr" /></td>
 											<td><s:property value="endTimeStr" /></td>
 											<td>
-												<s:if test="type=='1'">开放报名</s:if>
-												<s:elseif test="type='2'">限定人数</s:elseif>
+												<s:if test="%{type==1}">开放报名</s:if>
+												<s:elseif test="%{type==2}">限定人数</s:elseif>
+												<s:else>缺失</s:else>
 											</td>
 											<td><s:a href="#"
 													onclick="activityModal.op.showVisitors('%{aid}');">
 													<s:property value="visitors.size()" />
 												</s:a></td>
 											<td><s:property value="scorePaid" /></td>
-											<td><s:property value="state" /></td>
+											<td>
+												<s:if test="%{state=='preparing'}">筹备中</s:if>
+												<s:elseif test="%{state=='doing'}">进行中</s:elseif>
+												<s:elseif test="%{state='canceled'}">已取消</s:elseif>
+												<s:elseif test="%{state='finished'}">已完成</s:elseif>
+											</td>
 											<td>
 												<div class="btn-group" role="group">
 													<s:a cssClass="btn btn-sm btn-outline-secondary"

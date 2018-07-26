@@ -482,6 +482,16 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 
 		// 设置剩余的其他内容
 		activity.setProject(doingProject);
+		/*
+		 * ★★★★★
+		 * 容器来承装从表对象时，Hibernate为了能辨识出存入List容器中从表对象的先后顺序，
+		 * 会在所关联的从表中加入一个我通常会命名为“index4主表名”的字段用来存放从表新建的先后次序，
+		 * 这样当Hibernate级联地从从表中获取与主表管理的数据到List容器中的时候，就能通过这个次序在容器中排列好先后顺序。
+		 * 因此在实际新建从表数据的时候，应该获取到主表对象，然后从主表中获取到list容器然后调用list的add()方法将新建的从表对象放入到容器中，
+		 * 然后从表中的主表字段也要引用到主表对象，最后再级联地保存从表对象就能完成新建从表和确定从表次序的工作。否则，如果只是通过从表中的主表引用来引用主表，
+		 * 而不在主表的list容器中添加新建的从表对象，那么新建的从表对象的“index4主表名”的字段就会为null缺少排列序号。
+		 */
+		doingProject.getActivities().add(activity);
 		String aid = UUID.randomUUID().toString();
 		String qrcodeUri = QRCodeUtils.createActivityQR(aid);
 		activity.setQrcodeUrl(qrcodeUri);

@@ -1852,8 +1852,8 @@ var activityModal = {
 				if(data.result){
 					// 创建成功
 					alert(data.message);
-					// TODO 这里应该跳转到活动列表——activityList.jsp 不过现在还没创建
-//					$(location).attr("href","");
+					// 跳转到活动列表——activityList.jsp
+					$(location).attr("href","activityAction_showDoingProjectActivityList.action?dpid="+param.dpid);
 				}else{
 					// 创建失败
 					alert(data.message);
