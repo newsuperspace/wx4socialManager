@@ -90,7 +90,11 @@ public class ShiroAction extends ActionSupport {
 		this.password = password;
 	}
 	// ===================Action中的方法=====================
-	
+	/**
+	 * 通过输入用户名和密码完成登录，该方法用来测试环境下使用实际工作工作环境是通过微信扫码（wx4login()）完成的登录
+	 * 本登录入口方法对应的realm是MyReal4Input类（wx4loging()方法对应的是MyRealm类）
+	 * @return
+	 */
 	public String login4Input(){
 		
 		String username  =  this.getUsername();

@@ -94,21 +94,38 @@
 			 	注意如此配置时，访问者的权限必须同时都拥有才能认证成功！
 			  -->
 			  <!-- 
-			  	由于Shiro filterChainDefinitions中 roles默认是and，
-				/** = user,roles[system,general]
-				比如：roles[system,general] ，表示同时需要“system”和“general” 2个角色才通过认证
-				所以需要自定义 继承 AuthorizationFilter
+			  	整个filterChainDefinitions链条遵循从上到下匹配的原则，只要找到匹配的原则就通过，之后的过滤器就不再看了
+			  	如果本次来访不是访问链条中最上部分的静态资源，也不是logout退出，那么就是要访问系统。
+			  	对于访问系统后台的请求就需要遵循下面的过滤器规则
+			  	（1）authc——先登录系统
+			  	（2）anyPerms——是自定义的过滤器，表明只要拥有admin,all:systemaccess4desk,all:system:access4weixin中的任何一项权限，并且
+			  	与实际访问方式相符合（确实是用微信或桌面端访问的）
+			  	只要同时符合以上两点规则就能顺利访问系统后台
 			   -->
 				/**=authc,anyPerms[admin,all:system:access4desk,all:system:access4weixin]
 			</value>
 		</property>
 	</bean>
 	<!-- 配置Shiro主控中心——securityManager -->
-	<bean lazy-init="true" id="securityManager"
-		class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
-		<!-- 配置自定义Realm(已经通过注解置于Spring容器的IOC之下)，这非常重要★ -->
-		<!--<property name="realm" ref="myRealm"></property>--> 
-		<property name="realm" ref="myRealm4Input"></property> <!-- ● -->
+	<bean lazy-init="true" id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<!-- 
+			securityManager中有一个名为authenticator的属性，该属性用来存放分派管理多Realm的模块对象
+			该模块对象的具体说明，请见下方的myModularRealm的bean上的注释以及该类中的解释说明
+		 -->
+		<property name="authenticator" ref="myModularRealm"></property>
+		<!-- 
+			配置自定义Realm(已经通过注解置于Spring容器的IOC之下)，这非常重要★
+			由于当前系统中需要根据不同业务情景用到两个Realm，分别是
+			（1）处理微信登陆方式的myReal；
+			（2）处理测试阶段传统登陆方式的myReal4Input；
+			因此我们使用securityManager的realms这个List类型的容器属性，存放需要用到的所有realm的bean
+		 -->
+		<property name="realms">
+			<list>
+				<ref bean="myRealm"/>
+				<ref bean="myRealm4Input"/>
+			</list>
+		</property>
 		<!-- 配置session管理器 -->
 		<property name="sessionManager" ref="sessionManager"></property>
 	</bean>
@@ -118,7 +135,24 @@
 	<!-- 配置Shiro的声明周期进程（哦也不知道用什么用，反正是标准写法） -->
 	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
 
-
+	<!-- 
+		一个系统中需要同时又多个realm用来分别处理不同认证情景或共同处理同一个认证情景的时候
+		就需要一个继承自ModularRealmAuthenticator的实现类，用来控制什么情况下调用什么realm的
+		业务需要，该Modular将会交给securityManager来自动调用。
+	 -->
+	<bean id="myModularRealm" class="cc.natapp4.ddaig.security.MyModularRealm">
+		<!-- 
+			myModuleRealm类中有一个Map类型的容器属性，就叫definedRealms，用来存放当前系统中需要用的所有realm
+			在这里通过Spring对Bean的属性的初始化功能，将系统中所名为myReal和myReal4Input的两个realm的bean装入
+			Map属性容器中，备用。
+		 -->
+		<property name="definedRealms">
+			<map>
+				<entry key="myReal" value-ref="myReal"></entry>
+				<entry key="myReal4Input" value-ref="myReal4Input"></entry>
+			</map>
+		</property>
+	</bean>
 
 	<!-- =========================================HIBERNATE=========================================== -->
 	<!-- 数据源的bean -->
@@ -172,20 +206,20 @@
 
 	
  
-	<!-- =========================================SpringMVC（只使用了WebSocket功能）=========================================== -->
+	<!-- =========================SpringMVC（SpringMVC完全可以代替Struts2，但目前我只使用了WebSocket功能，真是可惜！）============================ -->
 	
 	<!-- 通过SpringMVC框架入口（一个配置在当前工程中的web.xml中的一个servlet）来处理前端提交来的websocket协议请求 
 		而判断到是websocket协议后就会提交给下面的配置来处理。 allowed-prigins属性 是实现跨域请求的 path属性定义的值是 /login，该属性将与web.xml中配置的SpringMVC入口的servlet类的<url-pattern>中的url映射的/ws/*的“*”相对应 
 		共同构成以后前端可以使用的连接当前服务器的ws://ddaig.natapp4.cc/weixin/ws/login 的URL的相对路径部分。这是一个坑，一定要注意★ -->
-<!-- 
+
 	<bean id="webSocketHandler4Login" class="cc.natapp4.ddaig.websocket.WebSocketHandler4Login" />
 	<websocket:handlers allowed-origins="*">
-		对于请求路径是 /ws/login 的websocket请求，将交由名叫webSocketHandler4Login的处理类处理
+		<!-- 对于请求路径是 /ws/login 的websocket请求，将交由名叫webSocketHandler4Login的处理类处理 -->
 		<websocket:mapping path="/login" handler="webSocketHandler4Login" />
-		在交给该处理类处理webSocket请求之前，需要先经过特定拦截器，在该拦截器中可以做预先和善后准备工作
+		<!-- 在交给该处理类处理webSocket请求之前，需要先经过特定拦截器，在该拦截器中可以做预先和善后准备工作 -->
 		<websocket:handshake-interceptors>
 			<bean class="cc.natapp4.ddaig.websocket.HandShakeInterceptor4Login" />
 		</websocket:handshake-interceptors>
 	</websocket:handlers>
--->
+
 </beans>

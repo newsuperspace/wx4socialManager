@@ -2,6 +2,12 @@ package cc.natapp4.ddaig.domain;
 
 import java.io.Serializable;
 
+/**
+ * visitor中记录着用户所参与的一次活动的一次信息记录，用来表示该用户在参加这次活动中的一些信息
+ * 
+ * @author Administrator
+ *
+ */
 public class Visitor implements Serializable {
 
 	// 主键(可以很方便的统计出活动参与累计人次)

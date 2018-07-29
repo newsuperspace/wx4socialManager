@@ -4,6 +4,8 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.tags.PermissionTag;
 
 /**
+ * 自定义shiro的JSP标签
+ * 
  * 由于Shiro的自定义JSP标签缺少类似hasAnyRoles的hasAnyPermissions的标签（权限列表是or的关系即可通过认证）
  * 因此这里我们自己定义了一个JSP标签，而且我们的myShiro.tld已经保存在了/WEB-INF/tlds中了，只需要在JSP页面上像
  * menu.jsp那样通过JSP处理指令引入即可使用产生效果。
