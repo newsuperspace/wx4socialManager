@@ -16,8 +16,6 @@
 然后再Run as → Maven build → 在操作意图中写上"compile" 重新编译工程中的所有配置文件、java源文件等到target，最后再次启动tomcat服务器，这样一来当重新部署工程到服务器上的时候就会将target中新编译的内容部署到服务器了。
 （4）如果出现Maven的某些工具、插件没有安装成功导致异常，则需要Run as → Maven Install 重新向当前工程中安装Maven所需要插件。
 
-
-
 // ---------------------------Shiro认证操作者身份---------------------------
 		Subject subject = SecurityUtils.getSubject();
 		String principal = (String) subject.getPrincipal();
@@ -39,18 +37,29 @@
 			}
 		}
 
-
+// ---------------------------系统登陆的逻辑流程---------------------------
+		
+前端来访 → MyShiroFilter将所请求的URL进行分析，如果发现名为code的请求参数就放到session域中命名为wxURL，也就是判定本次来访时来自微信端的 → Shiro的Filter过滤器链条 → 如果当前所请求的路径需要authc则转交给shiroFilter这个bean中配置的loginUrl属性所标定的Action处理 → shiroAction_login.action
+						如果session中存在wxURL，认定为微信端来访 → 执行认证操作 → 返回结果集索引字符串SUCCESS → 通过shiroAction.wxURL作为动态结果集访问原目标路径
+					  /
+→ShiroAction.login() → 											  							 扫码 → shiroAction.ws4Login();
+					  \																	   /
+						如果session中不存在wxURL，为桌面端来访→	跳转到/openJSP/sigin.jsp → 
+																						   \
+																							 传统 → shiroAction.login4Input();
+		
+		
+		
+		
+		
+		
+		
+		
 
 总计划：
 1、完成MinusFirstLevel展示详情Modal的功能
-
-
-
-
 14、修改微信公众号菜单，取消实名认证这个菜单组，使得所有新加入用户直接就能看到正式用户菜单，但是在我们自己的web应用后台做一个Filter或Interceptor操作检测访问系统功能的用户是否完成实名认证（cardid是否为null）如果没有则跳转到实名认证JSP页面，强制要求用户实名认证，否则不能使用任何功能，这就解决了微信菜单缓存的问题。
-
 16、重新开启websocket，实现扫描二维码登录web后台操作。
-
 细节计划：
 
 

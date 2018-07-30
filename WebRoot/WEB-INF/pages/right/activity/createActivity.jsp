@@ -13,6 +13,7 @@
 <!-- Bootstrap CSS -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
+<!-- jQueryUI CSS -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/jqueryui/jquery-ui.css"></link>
 <link rel="stylesheet"
@@ -178,15 +179,19 @@
 	</div>
 </body>
 
+<!-- jQuery JS-->
 <script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
+<!-- jQueryUI JS-->
 <script src="${pageContext.request.contextPath}/jqueryui/jquery-ui.js"></script>
 <script
 	src="${pageContext.request.contextPath}/jqueryui/jquery-ui-timepicker-addon.js"></script>
 <script type="text/javascript"
 	src="${pageContext.request.contextPath}/jqueryui/jquery-ui-timepicker-zh-CN.js"></script>
+<!-- Bootstrap JS -->
 <script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
+<!-- 其他 JS -->
 <script type="text/javascript"
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script>

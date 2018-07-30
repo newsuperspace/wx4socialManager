@@ -32,9 +32,9 @@ public class WebSocketHandler4Login extends TextWebSocketHandler {
 		String urlQR = context.getResource("/"+qrcode).getPath();
 		System.out.println("要删除的登录用二维码的URL是：" + urlQR);
 		File  file  =  new File(urlQR);
-		
+		// 删除用于登录用的密钥二维码
 		file.delete();
-
+		// 我们自己的善后处理完毕后，要记得将流程交还给父类，执行默认的关闭ws连接的逻辑 ★
 		super.afterConnectionClosed(session, status);
 	}
 
@@ -67,7 +67,7 @@ public class WebSocketHandler4Login extends TextWebSocketHandler {
 		String[] contentArr = split[2].split(":");
 		// 查看type类型，了解前端意图（已经成功建立连接、寻问用户是否已经扫码、告知服务器端ws关闭连接）
 		switch (typeArr[1].trim()) {
-		case "start":   // 已经建立ws连接，有前段告知咱们服务器等待扫码的uuid是什么
+		case "start":   // 已经建立ws连接，有前端告知咱们服务器等待扫码的uuid是什么
 			context.setAttribute(uuidArr[1], "waiting");
 			System.out.println("WebSocket已开启，已将uuid为"+uuidArr[1]+"放入到了ServletContext域中，等待用户微信扫码认领");
 			// 为了善后需要将必要信息放入WebSocket的session中保存起来备用
@@ -88,7 +88,7 @@ public class WebSocketHandler4Login extends TextWebSocketHandler {
 				session.sendMessage(new TextMessage(sb.toString())); 
 			}
 			break;
-		case "close":    // 前端告诉咱们关闭ws连接，但是要先做好收尾工作
+		case "close":    // 前端告诉咱们是时候关闭ws连接了，但是我们后端要先做好收尾工作————自动执行afterConnectionClosed()中的收尾逻辑
 			session.close();
 			break;
 		}

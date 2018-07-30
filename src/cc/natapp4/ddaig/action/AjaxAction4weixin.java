@@ -87,6 +87,7 @@ public class AjaxAction4weixin extends ActionSupport {
 
 	// ==============================JS-SKD认证=============================
 	/**
+	 * 【已使用】
 	 * 供给前端获取调用微信JS-SDK权限的签名的方法
 	 * 
 	 * @return
@@ -182,6 +183,7 @@ public class AjaxAction4weixin extends ActionSupport {
 
 	// ==============================微信web认证授权=============================
 	/**
+	 * 【已使用】
 	 * 用来通过前端页面传递过来的code码来换取究竟是哪个用户openID访问的该页面
 	 * 
 	 * @return
@@ -247,7 +249,11 @@ public class AjaxAction4weixin extends ActionSupport {
 	}
 
 	// ==============================实名制认证=============================
-	// 确定当前微信端用户是否之前已经完成过实名认证
+	/**
+	 * 【已使用】
+	 * 确定当前微信端用户是否之前已经完成过实名认证
+	 * @return
+	 */
 	public String preCheckRealName(){
 		ReturnMessage4Common  result = new  ReturnMessage4Common();
 		
@@ -280,7 +286,11 @@ public class AjaxAction4weixin extends ActionSupport {
 		return SUCCESS;
 	}
 	
-	// 响应从微信前端 实名认证页面提交过来的 用户实名信息表单
+	/**
+	 * 【已使用】
+	 * 响应从微信前端 实名认证页面提交过来的 用户实名信息表单
+	 * @return
+	 */
 	public String checkRealName() {
 		// 这里调用UserService，来完成实名制认证，并将结果返回
 		Result4CheckRealName result = new Result4CheckRealName();
@@ -411,161 +421,65 @@ public class AjaxAction4weixin extends ActionSupport {
 		this.sex = sex;
 	}
 
-	// ==============================新建活动=============================
-	public String createActivity() {
-
-		Result4CreateActivity result = new Result4CreateActivity();
-
-		if (StringUtils.isEmpty(name) || StringUtils.isEmpty(description) || StringUtils.isEmpty(score)) {
-			result.setMessage("活动新建失败");
-			result.setResult(false);
-		} else {
-			Activity activity = new Activity();
-			activity.setScore(score);
-			activity.setDescription(description);
-			activity.setName(name);
-
-			activityService.save(activity);
-
-			result.setMessage("活动新建成功");
-			result.setResult(true);
-
-		}
-
-		ActionContext.getContext().getValueStack().push(result);
-		return SUCCESS;
-	}
-
-	public class Result4CreateActivity {
-		private String message;
-		private boolean result;
-
-		public String getMessage() {
-			return message;
-		}
-
-		public void setMessage(String message) {
-			this.message = message;
-		}
-
-		public boolean isResult() {
-			return result;
-		}
-
-		public void setResult(boolean result) {
-			this.result = result;
-		}
-
-		public Result4CreateActivity(String message, boolean result) {
-			this.message = message;
-			this.result = result;
-		}
-
-		public Result4CreateActivity() {
-		}
-	}
-
-	private String name;
-	private String description;
-	private String score;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getScore() {
-		return score;
-	}
-
-	public void setScore(String score) {
-		this.score = score;
-	}
-
-	// ==============================获取活动列表=============================
-	/**
-	 * TODO
-	 * 这里应该根据拥有社区用户（community_user）Tag的OpenId，来获取本社区的Activity，但Demo中简单处理成直接获取所有Activity
-	 * 以后正式给一个街道的多个社区同时使用的时候，应该在Activity中添加创建者和所在社区的id
-	 * 并且也要创建社区表，以区分Activity、user所属的社区背景
-	 * 
-	 * @return
-	 */
-	public String getActivityList() {
-		List<Activity> list = activityService.queryEntities();
-
-		ActionContext.getContext().getValueStack().push(list);
-		return SUCCESS;
-	}
+	
 
 	// ===========================对没有加入公众号的用户的提供的活动签到功能=======================
 	public String signIn() {
 
-		Activity activity = activityService.queryEntityById(this.aid);
-		User user = userService.queryEntityById(this.uid);
-
-		// 判断当前用户是不是重复签到★
-		if (activity.getUsers() != null) {
-			// 当前活动中已经有人参与了，则
-			for (User u : activity.getUsers()) {
-				if (u.getUid().equals(user.getUid())) {
-					// 如果当前扫码用户已经存在于参与当前活动的用户集合中，那么应该终止后续积分逻辑，并告知该用户
-					ReturnMessage4Common  result = new ReturnMessage4Common("该用户已签到成功，请勿重复签到。", false); 
-					ActionContext.getContext().getValueStack().push(result);
-					return SUCCESS;
-				}
-			}
-		}
-
-		// 将用户添加到当前活动activity的uses集合中，以此可以方便的通过user查找到该用户参与活动的历史和当前活动的参与者，以及防止相同user重复扫码参与
-		Set<User> users = activity.getUsers();
-		if (null == users) {
-			// 如果该activity的users集合是null，则说明当前扫码用户是第一个活动参与者
-			users = new HashSet<User>();
-			users.add(user);
-			activity.setUsers(users);
-		} else {
-			// 不是第一个扫码的，则直接添加到该activity的set集合中即可
-			activity.getUsers().add(user);
-		}
-
-		// 添加积分
-		if (StringUtils.isEmpty(user.getScore())) {
-			user.setScore(activity.getScore());
-		} else {
-			int total = Integer.valueOf(user.getScore());
-			int score = Integer.valueOf(activity.getScore());
-			total += score;
-			user.setScore("" + total);
-		}
-
-		// 保存user
-		userService.update(user);
-		// 保存activity
-		activityService.update(activity);
-
-		// 签到成功，回复信息
-		StringBuffer sb = new StringBuffer();
-		sb.append(user.getUsername());
-		sb.append("在");
-		sb.append(activity.getName());
-		sb.append("中签到成功,");
-		sb.append("其当前积分是：");
-		sb.append(user.getScore()+"。");
-
-		ReturnMessage4Common  result = new ReturnMessage4Common(sb.toString(), true); 
-		ActionContext.getContext().getValueStack().push(result);
+//		Activity activity = activityService.queryEntityById(this.aid);
+//		User user = userService.queryEntityById(this.uid);
+//
+//		// 判断当前用户是不是重复签到★
+//		if (activity.getUsers() != null) {
+//			// 当前活动中已经有人参与了，则
+//			for (User u : activity.getUsers()) {
+//				if (u.getUid().equals(user.getUid())) {
+//					// 如果当前扫码用户已经存在于参与当前活动的用户集合中，那么应该终止后续积分逻辑，并告知该用户
+//					ReturnMessage4Common  result = new ReturnMessage4Common("该用户已签到成功，请勿重复签到。", false); 
+//					ActionContext.getContext().getValueStack().push(result);
+//					return SUCCESS;
+//				}
+//			}
+//		}
+//
+//		// 将用户添加到当前活动activity的uses集合中，以此可以方便的通过user查找到该用户参与活动的历史和当前活动的参与者，以及防止相同user重复扫码参与
+//		Set<User> users = activity.getUsers();
+//		if (null == users) {
+//			// 如果该activity的users集合是null，则说明当前扫码用户是第一个活动参与者
+//			users = new HashSet<User>();
+//			users.add(user);
+//			activity.setUsers(users);
+//		} else {
+//			// 不是第一个扫码的，则直接添加到该activity的set集合中即可
+//			activity.getUsers().add(user);
+//		}
+//
+//		// 添加积分
+//		if (StringUtils.isEmpty(user.getScore())) {
+//			user.setScore(activity.getScore());
+//		} else {
+//			int total = Integer.valueOf(user.getScore());
+//			int score = Integer.valueOf(activity.getScore());
+//			total += score;
+//			user.setScore("" + total);
+//		}
+//
+//		// 保存user
+//		userService.update(user);
+//		// 保存activity
+//		activityService.update(activity);
+//
+//		// 签到成功，回复信息
+//		StringBuffer sb = new StringBuffer();
+//		sb.append(user.getUsername());
+//		sb.append("在");
+//		sb.append(activity.getName());
+//		sb.append("中签到成功,");
+//		sb.append("其当前积分是：");
+//		sb.append(user.getScore()+"。");
+//
+//		ReturnMessage4Common  result = new ReturnMessage4Common(sb.toString(), true); 
+//		ActionContext.getContext().getValueStack().push(result);
 		return SUCCESS;
 	}
 

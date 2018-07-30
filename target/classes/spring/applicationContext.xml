@@ -33,7 +33,16 @@
 	<bean lazy-init="true" id="shiroFilter"
 		class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
 		<property name="securityManager" ref="securityManager" />
-		<property name="loginUrl" value="/openJSP/signin.jsp" /> <!-- ● -->
+		<!-- 
+			★★ 重要 ★★
+			在下方的filterChainDefinitions 过滤器规则定义链条中定义了对哪些URL路径的访问采取何种过滤器原则
+			如果前端来访者所要访问的url是需要authc过滤器规则的，则说明任何对该形态URL的请求都必须进行登录操作。
+			登录操作就会自动跳转到loginUrl属性所配置的路径上去执行，
+			这个值可以是形如："/openJSP/signin.jsp" 的JSP页面路径
+			也可以是 "shiroAction_login.action" 这样action请求
+			无论是哪一种，当判定某次需要登录的时候shiro就会将请求转发到这个url去
+		-->
+		<property name="loginUrl" value="shiroAction_login.action" /> 
 		<property name="unauthorizedUrl" value="/openJSP/unauthorized.jsp" />
 		<!-- 配置 过滤器简称 的 映射 -->
 		<property name="filters">
