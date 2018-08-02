@@ -2,22 +2,23 @@
 /**
  * 这个脚本是专用于通过websocket实现后台系统登录的前端页面上的脚本逻辑
  */
+var wsData = {
+	baseURL : "ddaig.nat200.top/weixin",
+	lastTime : 60,
+}
+
+
 var wsModal = {
 	// 数据
 	data : {
-		// 公共数据对象
-		common : {
-			// 这里可以根据实际的服务器域名随时变动配置
-			baseURL : "ddaig.nat200.top/weixin",
-			lastTime : 60,
-		},
+		
 		// 与WebSocket有关的数据对象
 		wsData : {
 			wsObject : null, // ws连接对象
-			wsURL : "ws://" + wsModal.data.common.baseURL + "/ws/login", // 开启ws连接的时候 连接的服务器的URL
+			wsURL : "ws://" + wsData.baseURL + "/ws/login", // 开启ws连接的时候 连接的服务器的URL
 			wsQR : "", // 服务器上二维码的相对路径 如 temp/1/12/SJDIFSJ38223L4J.gif
 			sub_title : "请使用扫码登录功能", // 显示文本
-			sub_desc : "二维码有效期" + wsModal.data.common.lastTime + "秒", // 显示的附文本
+			sub_desc : "二维码有效期" + wsData.lastTime + "秒", // 显示的附文本
 			wsCode : "", // 二维码的uuid值
 		}
 	},
@@ -46,13 +47,13 @@ var wsModal = {
 
 				if ("success" == result[0]) { // 用户已经扫码成功
 					// 先立刻停止计时器，并交给计时器最后一个任务——告诉服务器关闭ws连接吧，我前端已经不需要了 ★
-					wsModal.data.common.lastTime = -1;
+					wsData.lastTime = -1;
 					// 用户已经使用微信的扫码功能完成了扫码操作，并且已经将自己的openID存入了ServletContext域中的当前uuid的键值对儿中
 					var openid = result[1];
 					// 通过Ajax请求
 					var url = "shiroAction_ws4Login.action";
 					var data = {
-						"openid" : openid,  // 已经扫码者的微信openID
+						"openid" : openid, // 已经扫码者的微信openID
 					};
 					$.post(url, data, function(re, textStatus, req) {
 						if (re.result) {
@@ -63,8 +64,8 @@ var wsModal = {
 							$("#title").text(re.message);
 							$("#lastTime").text("自动跳转到系统首页...");
 							// 跳转页面
-//							window.location.href = re.reLocal;
-							$(location).attr("href",re.reLocal);
+							//							window.location.href = re.reLocal;
+							$(location).attr("href", re.reLocal);
 						} else {
 							// 登录失败，告知信息
 							// 设置二维码图片 成 红叉子
@@ -102,6 +103,7 @@ var wsModal = {
 				$.post(url, data, function(data, textStatus, req) {
 					wsModal.data.wsData.wsQR = data.qrURI;
 					wsModal.data.wsData.wsCode = data.uuid;
+					$("#qrcode").attr("src", "/weixin/"+data.qrURI);
 				})
 
 				// 记得回复Ajax为异步执行
@@ -115,18 +117,18 @@ var wsModal = {
 			 */
 			wsTimer : function() {
 				var message = "";
-				if (wsModal.data.common.lastTime > 0) {
+				if (wsData.lastTime > 0) {
 					// 倒计时
-					wsModal.data.common.lastTime -= 1;
-					console.log("剩余时间：" + wsModal.data.common.lastTime);
+					wsData.lastTime -= 1;
+					console.log("剩余时间：" + wsData.lastTime);
 					// 更新页面显示
-					$("#lastTime").text("二维码有效期" + wsModal.data.common.lastTime + "秒");
+					$("#desc").text("二维码有效期" + wsData.lastTime + "秒");
 					// 通过WebSocket与服务器沟通，让服务器查看UUID码是否已经被填入了登陆者的OpenID
 					message = "type:logined,";
 					message += "uuid:" + wsModal.data.wsData.wsCode + ",";
-					message += "content:" + wsModal.data.common.lastTime;
+					message += "content:" + wsData.lastTime;
 					wsModal.data.wsData.wsObject.send(message);
-				} else if (wsModal.data.common.lastTime == 0) { // 定时器自然时间耗尽了
+				} else if (wsData.lastTime == 0) { // 定时器自然时间耗尽了
 					// 告知服务器，关闭连接（一定要注意，连接不能从前端关闭，这样服务器端不知道何时处理收尾工作）
 					message = "type:close,";
 					message += "uuid:" + wsModal.data.wsData.wsCode + ",";
@@ -136,7 +138,7 @@ var wsModal = {
 					$("#qrcode").attr("src", "/weixin/img/error.png");
 					// 设置相关文字的显示
 					$("#title").text("二维码已过期");
-					$("#lastTime").text("请刷新页面后再次尝试");
+					$("#desc").text("请刷新页面后再次尝试");
 					// 一定要return出来，这样就不会执行最后一句计时器循环了。
 					return;
 				} else { // 服务器端传来扫码成功的信息后
@@ -149,7 +151,7 @@ var wsModal = {
 					$("#qrcode").attr("src", "/weixin/img/loading.jpg");
 					// 设置相关文字的显示
 					$("#title").text("身份验证中...");
-					$("#lastTime").text("请稍候...");
+					$("#desc").text("请稍候...");
 					// 一定要return出来，这样就不会执行最后一句计时器循环了。
 					return;
 				}
@@ -162,22 +164,21 @@ var wsModal = {
 					wsModal.op.wsOP.wsTimer();
 				}, 1000);
 			},
-		
+
 			/**
 			 * 当用户选择用户名密码的方式登录的时候，需要在提交表单时出发本方法
 			 * 用来告知服务器端终止ws连接并完成善后工作。
 			 */
-			loginFromInput: function(){
+			loginFromInput : function() {
 				// 直接告知服务器端管理WS连接
 				wsModal.data.wsData.wsObject.close();
 			}
-		
 		},
 	},
 
 	// 初始化
 	init : {
-		initWebsocket: function(){
+		initWebsocket : function() {
 			// 先通过Ajax从服务器端获取登录UUID的qrcode路径数据———— 形如： “temp/2/10/3842-284-382-181-31.gif”的字符串返回
 			wsModal.op.wsOP.wsGetQR();
 			// 将通过ajax返回的图片的相对路径 存放在data.wsData
@@ -198,7 +199,6 @@ var wsModal = {
 	}
 }
 
-$(function(){
+$(function() {
 	wsModal.init.initWebsocket();
 });
-

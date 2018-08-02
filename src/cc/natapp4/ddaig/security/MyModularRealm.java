@@ -9,6 +9,10 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.util.CollectionUtils;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.sym.Name;
 
 /**
  * 我们知道Shiro的登录流程是： 前端登陆页面（用户名、密码信息） → shirAction.login() →
@@ -28,6 +32,8 @@ import org.apache.shiro.util.CollectionUtils;
  * @author Administrator
  *
  */
+@Component("myModularRealm")
+@Lazy(true)
 public class MyModularRealm extends ModularRealmAuthenticator {
 
 	/**

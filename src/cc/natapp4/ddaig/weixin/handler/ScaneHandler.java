@@ -69,6 +69,11 @@ import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
  * 
  */
 @Lazy(true)
+/**
+ * 处理微信公众号按钮类型为WxConsts.BUTTON_SCANCODE_WAITMSG 扫码推事件
+ * @author Administrator
+ *
+ */
 public class ScaneHandler extends AbstractHandler {
 
 	@Resource(name = "activityService")
@@ -89,7 +94,12 @@ public class ScaneHandler extends AbstractHandler {
 	 * wxMessage——是当前这次待处理消息所包含的全部信息（openID、key、message等等）的主体对象★★
 	 * wxMpService——用来调用weixin-java-tools的API的服务对象★
 	 * context——是一个容器对象，用来存放键值对儿数据，从而在同一次事件处理的过程中，在多个Handler之间传递数据。
-	 * sessionManager——会话管理，weixin-java-tools也实现了Session的功能。
+	 * sessionManager——会话管理，weixin-java-tools也实现了类似Session的功能。
+	 * 
+	 * 目前来说当前Handler需要处理的功能包括：
+	 * （1）签到/退（self_gn_qdqt）
+	 * (2)扫码登录（self_gn_dl）
+	 * (3)积分兑换（self_gn_dh）
 	 */
 	@Override
 	public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage, Map<String, Object> context, WxMpService wxMpService,
@@ -99,75 +109,32 @@ public class ScaneHandler extends AbstractHandler {
 		WeixinService4RecallImpl service = (WeixinService4RecallImpl) wxMpService;
 		// 获取触发当前信息的用户的openID
 		String openID = wxMessage.getFromUser();
-		System.out.println("扫码签到用户的openID是：" + openID);
 		// 通过openID从本地数据库查找到该用户，备用
 		User user = userService.queryByOpenId(openID);
 		// 然后获取本次qrcode扫码的结果
 		ScanCodeInfo codeInfo = wxMessage.getScanCodeInfo();
 		System.out.println("扫码结果是：" + codeInfo.getScanResult());
 
-		// 分析用户按下的扫码按钮究竟是哪一个
+		// 分析用户按下的扫码按钮究竟是(self_gn_qdqt/self_gn_dl/self_gn_dh)
 		String eventKey = wxMessage.getEventKey();
 		System.out.println("触发当前扫码推事件的按钮的key是：" + eventKey);
-		// 准备回复消息的OutMessage对象
+		// 准备回复消息用的OutMessage对象
 		WxMpXmlOutMessage outMessage = null;
 		// 开始不同业务逻辑的分支
 		switch (eventKey) {
-		case "second_1": // 处理扫码签到
-			Activity activity = activityService.queryEntityById(codeInfo.getScanResult());
-			// 判断当前用户是不是重复签到★
-			if (activity.getUsers() != null) {
-				// 当前活动中已经有人参与了，则
-				for (User u : activity.getUsers()) {
-					if (u.getUid().equals(user.getUid())) {
-						// 如果当前扫码用户已经存在于参与当前活动的用户集合中，那么应该终止后续积分逻辑，并告知该用户
-						outMessage = textBuilder.build("您已参与该活动，请勿重复签到。", wxMessage, service);
-						return outMessage;
-					}
-				}
-			}
-
-			// 将用户添加到当前活动activity的uses集合中，以此可以方便的通过user查找到该用户参与活动的历史和当前活动的参与者，以及防止相同user重复扫码参与
-			Set<User> users = activity.getUsers();
-			if (null == users) {
-				// 如果该activity的users集合是null，则说明当前扫码用户是第一个活动参与者
-				users = new HashSet<User>();
-				users.add(user);
-				activity.setUsers(users);
-			} else {
-				// 不是第一个扫码的，则直接添加到该activity的set集合中即可
-				activity.getUsers().add(user);
-			}
-			// 添加积分
-			if (StringUtils.isEmpty(user.getScore())) {
-				user.setScore(activity.getScore());
-			} else {
-				int total = Integer.valueOf(user.getScore());
-				int score = Integer.valueOf(activity.getScore());
-				total += score;
-				user.setScore("" + total);
-			}
-			// 保存user
-			userService.update(user);
-			// 保存activity
-			activityService.update(activity);
+		case "self_gn_qdqt": // 处理扫码签到
 			// 向公众号扫码用户回复积分信息
 			StringBuffer sb = new StringBuffer();
 			sb.append("签到已成功，");
 			sb.append("感谢您参与本次 ");
-			sb.append(activity.getName());
-			sb.append(" 活动！");
+			sb.append("XX活动！");
 			sb.append("您的当前积分是：");
 			sb.append(user.getScore());
 			outMessage = textBuilder.build(sb.toString(), wxMessage, service);
 			break;
 
-		case "second_2_4": // 处理消除积分
-			String score = user.getScore();
-			if (StringUtils.isEmpty(score)) {
-				// 如果用户的score字段记录的是null或者“”，那么就修正成0
-				score = "0";
-			}
+		case "self_gn_dh": // 处理积分兑换
+			int score = user.getScore();
 			Ware ware = wareService.queryEntityById(codeInfo.getScanResult());
 			if (null == ware) { // ---------------------------------------------------------------------------------------------------判断扫码推过来的扫码结果——codeInfo.getScnResult()结果是否是兑换品的wid
 				// 不是兑换品的二维码
@@ -193,7 +160,7 @@ public class ScaneHandler extends AbstractHandler {
 				// 更新用户的积分数据
 				int orignScore = Integer.valueOf(score);
 				int price = Integer.valueOf(ware.getCore());
-				user.setScore(String.valueOf(orignScore - price));
+				user.setScore(orignScore - price);
 				userService.update(user);
 				// 更新ware的相关数据（surplus和total）
 				int newSurplus = Integer.valueOf(ware.getSurplus()) - 1;
@@ -213,15 +180,24 @@ public class ScaneHandler extends AbstractHandler {
 			}
 			break;
 			
-		case "third_2": // 系统后台登陆
+		case "self_gn_dl": // 系统后台登陆
 			ServletContext servletContext = ServletActionContext.getServletContext();
+			// 获取到登陆用的临时二维码中的UUID值
 			String  info = (String) servletContext.getAttribute(codeInfo.getScanResult());
 			
 			if(StringUtils.isEmpty(info)){
 				outMessage = textBuilder.build("未找到合法的身份识别信息.", wxMessage, service);
 			}else{
+				/*
+				 * 默认情况下，位于servletContext域中的名为该uuid的Map，值是"waiting"字符串
+				 * 一旦用户通过微信扫码登录功能扫描PC端页面上的二维码，就会将二维码的uuid传递到本handler来处理
+				 * 我们就可以根据uuid在servletContext中找到该map，然后将扫码签到的openID的值代替waiting
+				 * 放入到map中。
+				 * 当代前端websocket轮询时，weSocketHandler中就会查找该uuid中的值是否还是waiting，如果不是
+				 * 则将已经替换的openid作为shiro的UsernamePassword的用户名（密码默认为"123"）执行登录操作。
+				 */
 				servletContext.setAttribute(codeInfo.getScanResult(), openID);
-				outMessage = textBuilder.build("扫码已完成，系统确认中...", wxMessage, service);
+				outMessage = textBuilder.build("扫码完成，等待系统确认...", wxMessage, service);
 			}
 			break;
 		}

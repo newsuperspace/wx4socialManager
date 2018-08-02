@@ -41,6 +41,11 @@ import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
  * 
  */
 @Lazy(true)
+/**
+ * 处理微信公众号按钮类型为WxConsts.BUTTON_CLICK 的事件
+ * @author Administrator
+ *
+ */
 public class MenuClickHandler extends AbstractHandler {
 
 	@Resource(name="userService")
@@ -59,13 +64,13 @@ public class MenuClickHandler extends AbstractHandler {
 		
 		String eventKey = wxMessage.getEventKey();
 		switch (eventKey) {
-		case "second_2_1":  // 用户在公众号菜单上按下的是获取自身积分的button
+		case "self_bm_score":  // 用户在公众号菜单上按下的是获取自身积分的button
 		
 			 User user = userService.queryByOpenId(wxMessage.getFromUser());
 			 
 			 if(null==user){
 				 // 用户不存在
-				 outMessage = textBuilder.build("您的账号并不存在，请联系管理员。", wxMessage, service);
+				 outMessage = textBuilder.build("您的账号不存在，请联系管理员", wxMessage, service);
 			 }else{
 				 // 用户存在
 				 int score = user.getScore();
@@ -85,7 +90,6 @@ public class MenuClickHandler extends AbstractHandler {
 				 outMessage = textBuilder.build(sb.toString(), wxMessage, service);
 			 }
 			break;
-
 		
 		}
 		

@@ -295,7 +295,7 @@ public class ShiroAction extends ActionSupport {
 	}
 
 	/**
-	 * openJSP/login.jsp页面在$.ready() 中通过Ajax向服务器端所要当前这次用于登录 的QRCODE的相对路径URI
+	 * openJSP/signin.jsp页面在$.ready() 中通过Ajax向服务器端所要当前这次用于登录 的QRCODE的相对路径URI
 	 * 
 	 * @return
 	 */

@@ -255,8 +255,9 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 	 * STEP3 个性化菜单设置，第一期工程暂时不将菜单结构存放在xml或properties中，直接在源码中写了。
 	 */
 	private void createMenu() {
+		
+		// 先删除公众号中的全部菜单，再重新创建菜单
 		try {
-			// 先删除公众号中的全部菜单，再重新创建菜单
 			// 先获取当前公众号中的所有Menu（一个menu+多个可能的个性化menu）
 			WxMpMenu menuGet = this.getMenuService().menuGet();
 			if (null != menuGet) {
@@ -268,7 +269,7 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		}
 
 		// 创建三个菜单对象，每个菜单对象对应一种用户标签的用户权限
-		WxMenu selfmenu = new WxMenu(); // 默认菜单，其他没有标签的用户都将看到这个菜单，但当前项目是没有用的，因为每个新加入的用户都会被默认设定成no_real_name这个标签，只不过在创建菜单的时候必须有这么一个默认菜单
+		WxMenu selfMenu = new WxMenu(); // 默认菜单，其他没有标签的用户都将看到这个菜单，但当前项目是没有用的，因为每个新加入的用户都会被默认设定成no_real_name这个标签，只不过在创建菜单的时候必须有这么一个默认菜单
 //		WxMenu firstMenu = new WxMenu(); // 没有认证的用户的个性化菜单
 //		WxMenu secondMenu = new WxMenu(); // 普通用户的个性化菜单
 //		WxMenu thirdMenu = new WxMenu(); // 社区用户的个性化菜单
@@ -296,17 +297,82 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 //		firstMenu.setMatchRule(firstRule);
 //		secondMenu.setMatchRule(secondRule);
 //		thirdMenu.setMatchRule(thirdRule);
-//		// 开始设置菜单项目,一级菜单最多只能有三个，切记！
-		// 设计默认菜单
-		WxMenuButton button4SelfMenu1 = new WxMenuButton();
+//		// 开始设置菜单项目,一级菜单最多只能有三个，切记！第二级菜单下只能有5个子按钮，且微信公众号的所有菜单按钮名称字数不能超过四个
+		/**
+		 * =======================开始设计默认菜单=======================
+		 */
+		// ------------------先创建菜单的第一级目录结构（微信公众号第一级最多有三个）------------------
+		WxMenuButton selfMenuButton1 = new WxMenuButton();
+		selfMenuButton1.setName("身边公益");
+		WxMenuButton selfMenuButton2 = new WxMenuButton();
+		selfMenuButton2.setName("便民服务");
+		WxMenuButton selfMenuButton3 = new WxMenuButton();
+		selfMenuButton3.setName("工具箱");
+		// 将三个一级目录加入到公众号默认菜单中
+		selfMenu.getButtons().add(selfMenuButton1);
+		selfMenu.getButtons().add(selfMenuButton2);
+		selfMenu.getButtons().add(selfMenuButton3);
+		
+		// ------------------然后创建每个第一级目录下的二级结构（二级菜单最多5个，二级菜单才是功能的直接入口！）------------------
+		WxMenuButton  button = null;
+		// ~~~~~~~~~~~~~~~~~设计“身边公益”~~~~~~~~~~~~~~~~~
+		// (1)社区动态按钮(占位置)
+		button = new WxMenuButton();
+		button.setType(WxConsts.BUTTON_VIEW);
+		button.setKey("self_gy_dt");
+		button.setName("社区动态");
+		button.setUrl("www.baidu.com");
+		selfMenuButton1.getSubButtons().add(button);
+		// （2）...
+		// ~~~~~~~~~~~~~~~~~设计“便民服务”~~~~~~~~~~~~~~~~~
+		// (1)实名制按钮
+		button = new WxMenuButton();
 		Properties p = ConfigUtils.getProperties("wxConfig/weixin.properties");
 		String url = p.getProperty("webroot") + "/" + "openJSP/realName.jsp";
+		// 由于登录“实名认证”页面目前需要至少获取到用户的openID，因此需要将认证页面的url进行OAUTH2的认证，然后把返回的OAUTH2的路径作为该按钮点击后的访问路径设置
 		String oauth2buildAuthorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
-		button4SelfMenu1.setType(WxConsts.BUTTON_VIEW);
-		button4SelfMenu1.setName("实名认证");
-		button4SelfMenu1.setKey("self_1_1");
-		button4SelfMenu1.setUrl(oauth2buildAuthorizationUrl);
-		selfmenu.getButtons().add(button4SelfMenu1);
+		button.setType(WxConsts.BUTTON_VIEW);
+		button.setName("实名制");
+		button.setKey("self_bm_smz");
+		button.setUrl(oauth2buildAuthorizationUrl);
+		selfMenuButton2.getSubButtons().add(button);
+		// (2)获取积分
+		button = new  WxMenuButton();
+		button.setName("获取积分");
+		button.setType(WxConsts.BUTTON_CLICK);
+		button.setKey("self_bm_score");
+		selfMenuButton2.getSubButtons().add(button);
+		// （3）....
+		// ~~~~~~~~~~~~~~~~~设计“功能列表”~~~~~~~~~~~~~~~~~
+		// （1）签到/退
+		button = new WxMenuButton();
+		button.setName("签到/退");
+		button.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
+		button.setKey("self_gn_qdqt");
+		selfMenuButton3.getSubButtons().add(button);
+		// （2）扫码登录
+		button = new WxMenuButton();
+		button.setName("扫码登录");
+		button.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
+		button.setKey("self_gn_dl");
+		selfMenuButton3.getSubButtons().add(button);
+		// （3）管理平台
+		button = new WxMenuButton();
+		button.setName("管理平台");
+		button.setType(WxConsts.BUTTON_VIEW);
+		button.setKey("self_gn_pt");
+		url = p.getProperty("webroot");
+		oauth2buildAuthorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
+		button.setUrl(oauth2buildAuthorizationUrl);
+		selfMenuButton3.getSubButtons().add(button);
+		// （4）积分兑换
+		button = new WxMenuButton();
+		button.setName("积分兑换");
+		button.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
+		button.setKey("self_gn_dh");
+		selfMenuButton3.getSubButtons().add(button);
+		
+		
 
 //		// 设计第一个个性化菜单(实名认证功能)
 //		WxMenuButton button4FirstMenu1 = new WxMenuButton();
@@ -383,7 +449,7 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		do {
 			b = true;
 			try {
-				this.getMenuService().menuCreate(selfmenu);
+				this.getMenuService().menuCreate(selfMenu);
 				b = false;
 				System.out.println("默认菜单创建成功！");
 			} catch (WxErrorException e) {

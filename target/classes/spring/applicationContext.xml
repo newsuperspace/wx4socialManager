@@ -42,7 +42,7 @@
 			也可以是 "shiroAction_login.action" 这样action请求
 			无论是哪一种，当判定某次需要登录的时候shiro就会将请求转发到这个url去
 		-->
-		<property name="loginUrl" value="shiroAction_login.action" /> 
+		<property name="loginUrl" value="/shiroAction_login.action" /> 
 		<property name="unauthorizedUrl" value="/openJSP/unauthorized.jsp" />
 		<!-- 配置 过滤器简称 的 映射 -->
 		<property name="filters">
@@ -78,8 +78,32 @@
 				/qrcode/**=anon
 				/openJSP/**=anon
 				/jqueryui/**=anon
+				<!-- temp中存放的是用于登录用的临时二维码，也属于静态资源所以要"豁免shiro" -->
+				/temp/** = anon
+				
+				<!-- Websocket的访问方式也会收到Shiro的拦截，因此也必须豁免所有/ws的访问方式 -->
+				/ws/** = anon
+				
+				<!-- 
+					★★★★★
+					weixinAction用来响应从微信端服务器来的请求，例如recall()方法作为微信端公众号的入口，因此必须“无偿开放”
+					不能被Shiro限制住
+				 -->
 				/weixinAction_*.action = anon
+				<!-- 同上 -->
 				/ajaxAction4weixin_*.action = anon
+				<!-- 
+					★★★★★
+					因为"/shiroAction_login.action" 作为shiro在认证（登录）的loginUrl的配置路径，也就是说一旦遇到需要认证的路径
+					就会请求转发到shiroAction_login.action 因此这里也必须设置shiroAction中的方法“无偿”被访问，否则就会让前端陷入死循环的请求转发中。
+					同时，shiroAction_getLoginQR.action 是作为登陆页面/openJSP/signin.jsp中通过jQuery的$.ready()自动执行的初始化操作中所访问的，作用
+					是从咱们的后端获取用于登录的临时二维码，如果shiroAction被限制需要登录后访问，而由于shiroAction_getLoginQR是在登录页面上请求的因此
+					登陆者永远没有机会获取到二维码（需要登录后才能有权访问shiroAction_getLoginQR，但是登陆必须先依靠shiroAction_getLoginQR获取二维码
+					这就是一个死局）
+					综上所述，当前系统中也必须完全放开 对于/shiroAction中所有方法的访问
+					★★★★★
+				 -->
+				/shiroAction_*.action = anon
 			<!-- 
 				/logout 对应于 filters中声明好的 key="logout"的过滤器，该过滤器的具体配置引用自
 				id="logoutFilter"的过滤器配置，其中的redirectUrl所配置的就是系统退出后跳转的页面。
@@ -157,8 +181,8 @@
 		 -->
 		<property name="definedRealms">
 			<map>
-				<entry key="myReal" value-ref="myReal"></entry>
-				<entry key="myReal4Input" value-ref="myReal4Input"></entry>
+				<entry key="myRealm" value-ref="myRealm"></entry>
+				<entry key="myRealm4Input" value-ref="myRealm4Input"></entry>
 			</map>
 		</property>
 	</bean>
