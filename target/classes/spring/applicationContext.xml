@@ -145,13 +145,15 @@
 			securityManager中有一个名为authenticator的属性，该属性用来存放分派管理多Realm的模块对象
 			该模块对象的具体说明，请见下方的myModularRealm的bean上的注释以及该类中的解释说明
 		 -->
-		<property name="authenticator" ref="myModularRealm"></property>
+		<property name="authenticator" ref="myAuthenticator"></property>
+		
 		<!-- 
 			配置自定义Realm(已经通过注解置于Spring容器的IOC之下)，这非常重要★
 			由于当前系统中需要根据不同业务情景用到两个Realm，分别是
 			（1）处理微信登陆方式的myReal；
 			（2）处理测试阶段传统登陆方式的myReal4Input；
 			因此我们使用securityManager的realms这个List类型的容器属性，存放需要用到的所有realm的bean
+			对于多Realms，该realms容器会最终赋值给myModularRealm
 		 -->
 		<property name="realms">
 			<list>
@@ -159,6 +161,7 @@
 				<ref bean="myRealm4Input"/>
 			</list>
 		</property>
+		
 		<!-- 配置session管理器 -->
 		<property name="sessionManager" ref="sessionManager"></property>
 	</bean>
@@ -173,18 +176,18 @@
 		就需要一个继承自ModularRealmAuthenticator的实现类，用来控制什么情况下调用什么realm的
 		业务需要，该Modular将会交给securityManager来自动调用。
 	 -->
-	<bean id="myModularRealm" class="cc.natapp4.ddaig.security.MyModularRealm">
-		<!-- 
-			myModuleRealm类中有一个Map类型的容器属性，就叫definedRealms，用来存放当前系统中需要用的所有realm
-			在这里通过Spring对Bean的属性的初始化功能，将系统中所名为myReal和myReal4Input的两个realm的bean装入
-			Map属性容器中，备用。
-		 -->
-		<property name="definedRealms">
-			<map>
-				<entry key="myRealm" value-ref="myRealm"></entry>
-				<entry key="myRealm4Input" value-ref="myRealm4Input"></entry>
-			</map>
-		</property>
+	<bean id="myAuthenticator" class="cc.natapp4.ddaig.security.MyModularRealmAuthenticator" lazy-init="true">
+		 <!-- 配置认证策略，只要有一个Realm认证成功即可，并且返回所有认证成功信息 -->
+        <property name="definedRealms">
+            <map>
+                <entry key="myRealm" value-ref="myRealm" />
+                <entry key="myRealm4Input" value-ref="myRealm4Input" />
+            </map>
+        </property>
+        <!-- ce lue -->
+        <property name="authenticationStrategy">
+            <bean class="org.apache.shiro.authc.pam.FirstSuccessfulStrategy" />
+        </property>
 	</bean>
 
 	<!-- =========================================HIBERNATE=========================================== -->

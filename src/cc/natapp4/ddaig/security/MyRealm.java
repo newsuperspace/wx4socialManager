@@ -16,6 +16,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -81,10 +82,16 @@ public class MyRealm extends AuthorizingRealm {
 		}
 
 		User user = userService.queryByOpenId(openid);
-		Manager manager = user.getManager();
-
-		if (null == manager)
+		
+		if(null==user){
 			return null;
+		}
+		
+		Manager manager = user.getManager();
+		
+		if(manager==null){
+			return null;
+		}
 
 		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 		// // 添加 角色 信息[新系统下已经没有角色这一说法了]
@@ -175,6 +182,14 @@ public class MyRealm extends AuthorizingRealm {
 		return info;
 	}
 
+	
+	
+	@Override
+	public boolean supports(AuthenticationToken token) {
+	    return token instanceof MyUsernamePasswordToken;
+	}
+	
+	
 	/**
 	 * 在ShiroAction.login()方法中 → currentUser.login(shiroToken); 方法的调用 而进入当前方法
 	 * 进行身份认证的逻辑
@@ -198,6 +213,10 @@ public class MyRealm extends AuthorizingRealm {
 
 		// 现在根据openId从数据库中查找到了对应的用户对象
 		User user = userService.queryByOpenId(openId);
+		
+		if(null==user){
+			return null;
+		}
 
 		if (user.isLocked()) {
 			// 用户被锁定

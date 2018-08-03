@@ -14,7 +14,6 @@ import org.apache.shiro.authc.ExpiredCredentialsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.subject.Subject;
 import org.apache.struts2.ServletActionContext;
@@ -25,7 +24,7 @@ import org.springframework.stereotype.Controller;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 
-import cc.natapp4.ddaig.security.MyUsernamepasswordToken;
+import cc.natapp4.ddaig.security.MyUsernamePasswordToken;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4RecallImpl;
 import me.chanjar.weixin.common.exception.WxErrorException;
@@ -101,9 +100,7 @@ public class ShiroAction extends ActionSupport {
 		String username  =  this.getUsername();
 		String password  =  this.getPassword();
 		// 基于前端提交的表单数据创建token
-		MyUsernamepasswordToken token = new MyUsernamepasswordToken(username, password);
-		// 指定用来验证本token的realm类型
-		token.setLoginType("myRealm4Input");
+		MyUsernamePasswordToken token = new MyUsernamePasswordToken(username, password, "myRealmInput");
 		// 获取唯一代表当前用户的subject对象
 		Subject subject = SecurityUtils.getSubject();
 		// 开始验证
@@ -189,9 +186,7 @@ public class ShiroAction extends ActionSupport {
 
 			// --------------------------------------------------------★开始进行Shiro的身份认证(Authentication)过程★-----------------------------------------------
 			// 使用Shiro的API功能开始进行认证操作，这里我们选择最基本的UsernamePasswordToken
-			MyUsernamepasswordToken shiroToken = new MyUsernamepasswordToken(openId, "123"); // credential
-			// 指定认证本token所使用的realm的名字
-			shiroToken.setLoginType("myRealm");
+			MyUsernamePasswordToken shiroToken = new MyUsernamePasswordToken(openId, "123", "myRealm"); // credential
 			
 			// 默认统一设定成“123”
 			// shiroToken.setRememberMe(true);
@@ -363,9 +358,7 @@ public class ShiroAction extends ActionSupport {
 		result.setResult(false);
 
 		// 密码对于微信扫码登陆无关紧要，默认统一设定成“123”
-		MyUsernamepasswordToken shiroToken = new MyUsernamepasswordToken(this.openid, "123"); // credential
-		// 指定验证本token所需要的realm
-		shiroToken.setLoginType("myRealm");
+		MyUsernamePasswordToken shiroToken = new MyUsernamePasswordToken(this.openid, "123", "myRealm"); // credential
 		
 		// shiroToken.setRememberMe(true);
 		Subject currentUser = SecurityUtils.getSubject();

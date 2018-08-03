@@ -15,6 +15,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -90,6 +91,11 @@ public class MyRealm4Input extends AuthorizingRealm {
 		}
 
 		User user = userService.getUserByUsername(username);
+		
+		if(null==user){
+			return null;
+		}
+		
 		Manager manager =  user.getManager();
 		
 		if (null == manager)
@@ -194,6 +200,12 @@ public class MyRealm4Input extends AuthorizingRealm {
 		return info;
 	}
 
+	
+	@Override
+	public boolean supports(AuthenticationToken token) {
+	    return token instanceof MyUsernamePasswordToken;
+	}
+	
 	/**
 	 * 在ShiroAction.login4Input()方法中 → subject.login(token); 方法的调用 而进入当前方法
 	 * 进行身份认证的逻辑
@@ -228,7 +240,8 @@ public class MyRealm4Input extends AuthorizingRealm {
 		System.out.println("当前用户所管理的层级对象是："+user.getManager().getLevelName());
 		if(null==user || null == user.getManager()){
 			// 查找不到该对象
-			throw new UnknownAccountException();
+//			throw new UnknownAccountException();
+			return null;
 		}else if (user.isLocked()) {
 			// 用户被锁定
 			throw new LockedAccountException();

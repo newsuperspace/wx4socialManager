@@ -58,7 +58,10 @@
                     
                     <div id="tabs-2">
                         <h1 class="h3 mb-3 font-weight-normal">请输入用户名和密码</h1>
-                        <form action="shiroAction_login4Input.action" method="post" onsubmit="wsModal.op.wsOP.loginFromInput()">
+                        <!-- 
+                        	★★★method必须为get请求，不然我们在表单中填写的中文提交到服务器端时会成为乱码★★★
+                         -->
+                        <form action="shiroAction_login4Input.action" method="get" onsubmit="wsModal.op.wsOP.loginFromInput()">
 	                        <input type="text" id="username" name="username" class="form-control" placeholder="用户名" required autofocus>
 	                        <input type="password" id="password" name="password" class="form-control mt-1" placeholder="密码" required>
 	                        <div class="checkbox mb-3">
