@@ -773,7 +773,7 @@ var managerModal = {
 				// 将提交按钮预制成“不可用状态”
 				$("#button4UserAssigned").attr("disabled", true)
 
-				let level = data.level;
+				var level = data.level;
 				switch (level) {
 				case -1:
 					// 操作者是街道层级，将直属人员分配到社区
@@ -784,7 +784,7 @@ var managerModal = {
 					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, 0)
 					});
-					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
+					for (var i = 0; i < data.allChildren4Ajax.length; i++) {
 						$option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].zid);
 						$option.text(data.allChildren4Ajax[i].name);
@@ -799,7 +799,7 @@ var managerModal = {
 					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, 1);
 					});
-					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
+					for (var i = 0; i < data.allChildren4Ajax.length; i++) {
 						var $option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].flid);
 						$option.text(data.allChildren4Ajax[i].name);
@@ -814,7 +814,7 @@ var managerModal = {
 					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, 2);
 					});
-					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
+					for (var i = 0; i < data.allChildren4Ajax.length; i++) {
 						var $option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].scid);
 						$option.text(data.allChildren4Ajax[i].name);
@@ -829,7 +829,7 @@ var managerModal = {
 					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, 3);
 					});
-					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
+					for (var i = 0; i < data.allChildren4Ajax.length; i++) {
 						var $option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].thid);
 						$option.text(data.allChildren4Ajax[i].name);
@@ -844,7 +844,7 @@ var managerModal = {
 					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, 4);
 					});
-					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
+					for (var i = 0; i < data.allChildren4Ajax.length; i++) {
 						var $option = $("<option></option>");
 						$option.attr("value", data.allChildren4Ajax[i].foid);
 						$option.text(data.allChildren4Ajax[i].name);
@@ -859,7 +859,7 @@ var managerModal = {
 					$select.unbind().bind("change", function() {
 						managerModal.op.showAssignedUserModalCanBeCommit(uid, -1);
 					});
-					for (let i = 0; i < data.length; i++) {
+					for (var i = 0; i < data.length; i++) {
 						$option = $("<option></option>");
 						$option.attr("value", data[i].mflid);
 						$option.text(data[i].name);
@@ -998,7 +998,7 @@ var managerModal = {
 						// 先创建一个默认的option
 						$select.append($("<option value='0' selected>--请选择--</option>"));
 						// 开始遍历子层级数据，并创建对应的option
-						for (let i = 0; i < data.minusLevels.length; i++) {
+						for (var i = 0; i < data.minusLevels.length; i++) {
 							var minusLevel = data.minusLevels[i];
 							var option = $("<option></option>");
 							option.attr("value", minusLevel.mflid);
@@ -1014,7 +1014,7 @@ var managerModal = {
 							 * 这里有个大学问，因为我们要向方法中传递参数，而参数我们只希望传递当前时刻的数值
 							 * 由于这里传递进去的是变量值，如果变量 I 是全局变量（使用var关键字声明），则会以
 							 * 类似“址传递”的方式传递进去，则变量会随着I的实时状态而改变，这不是我们想看到的。
-							 * 如果想以“值传递”的方式传参，则需要变量I为局部变量，因此在for循环头部中使用let
+							 * 如果想以“值传递”的方式传参，则需要变量I为局部变量，因此在for循环头部中使用var
 							 * 关键字来定义变量I。
 							 */
 							managerModal.op.changeAppointSelect(-1, $select.val(), data.lowest, uid);
@@ -1032,7 +1032,7 @@ var managerModal = {
 						case -1:
 							// 操作者是街道，则操作者的层级对象是data.minusFirst
 							var level = data.minusFirst;
-							for (let i = 0; i < level.children4Ajax.length; i++) {
+							for (var i = 0; i < level.children4Ajax.length; i++) {
 								// 获取次层级zeroLevel对象
 								var child = level.children4Ajax[i];
 								var option = $("<option></option>");
@@ -1043,7 +1043,7 @@ var managerModal = {
 						case 0:
 							// 操作者是社区，则操作者的层级对象是data.zero
 							var level = data.zero;
-							for (let i = 0; i < level.children4Ajax.length; i++) {
+							for (var i = 0; i < level.children4Ajax.length; i++) {
 								// 获取次层级firstLevel对象
 								var child = level.children4Ajax[i];
 								var option = $("<option></option>");
@@ -1054,7 +1054,7 @@ var managerModal = {
 						case 1:
 							// 操作者是第一级，则操作者的层级对象是data.first
 							var level = data.first;
-							for (let i = 0; i < level.children4Ajax.length; i++) {
+							for (var i = 0; i < level.children4Ajax.length; i++) {
 								// 获取次层级secondLevel对象
 								var child = level.children4Ajax[i];
 								var option = $("<option></option>");
@@ -1065,7 +1065,7 @@ var managerModal = {
 						case 2:
 							// 操作者是第二级，则操作者的层级对象是data.second
 							var level = data.second;
-							for (let i = 0; i < level.children4Ajax.length; i++) {
+							for (var i = 0; i < level.children4Ajax.length; i++) {
 								// 获取次层级thirdLevel对象
 								var child = level.children4Ajax[i];
 								var option = $("<option></option>");
@@ -1076,7 +1076,7 @@ var managerModal = {
 						case 3:
 							// 操作者是第三级，则操作者的层级对象是data.third
 							var level = data.third;
-							for (let i = 0; i < level.children4Ajax.length; i++) {
+							for (var i = 0; i < level.children4Ajax.length; i++) {
 								// 获取次层级fourthLevel对象
 								var child = level.children4Ajax[i];
 								var option = $("<option></option>");
@@ -1094,7 +1094,7 @@ var managerModal = {
 							 * 这里有个大学问，因为我们要向方法中传递参数，而参数我们只希望传递当前时刻的数值
 							 * 由于这里传递进去的是变量值，如果变量 I 是全局变量（使用var关键字声明），则会以
 							 * 类似“址传递”的方式传递进去，则变量会随着I的实时状态而改变，这不是我们想看到的。
-							 * 如果想以“值传递”的方式传参，则需要变量I为局部变量，因此在for循环头部中使用let
+							 * 如果想以“值传递”的方式传参，则需要变量I为局部变量，因此在for循环头部中使用var
 							 * 关键字来定义变量I。
 							 */
 							managerModal.op.changeAppointSelect(data.lowest, $select.val(), data.lowest, uid);
@@ -1225,7 +1225,7 @@ var userModal = {
 				// 根据被操作对象是否已经被委任 data.manager==null? 来确定select是否可以被设置
 				if (null != data.manager4Ajax) {
 					// 已被委任，不能选动select
-					let op = $("<option></option>");
+					var op = $("<option></option>");
 					switch (data.grouping.tag) {
 					case "minus_first":
 						op.attr("value", data.grouping.tag).text("街道管理者");
@@ -1252,7 +1252,7 @@ var userModal = {
 					// 没有被委任，则可以选动select
 					// 分析tags中所包含的tag名称，并重新组建option
 					for (var i = 0; i < data.tags.length; i++) {
-						let op = $("<option></option>");
+						var op = $("<option></option>");
 						switch (data.tags[i]) {
 						case "minus_first":
 							op.attr("value", data.tags[i]).text("街道管理者");
@@ -1410,7 +1410,7 @@ var overAll = {
 			 * 页面被加载的时候通过localStorage确定左侧边栏应该打开的是哪个content
 			 */
 			prepareCollapse : function() {
-				let cid = localStorage.getItem("contentID");
+				var cid = localStorage.getItem("contentID");
 				if (null === cid) {
 					$("#userContent").collapse('show');
 				} else {
@@ -1788,9 +1788,9 @@ var activityModal = {
 		
 		// 检查id=name/descrpition/date 这三个input是否为空，为空则commit提交按钮为disabled
 		checkInput: function(){
-			let aflag = true;
+			var aflag = true;
             $("input[data-myInput='me']").each(function(){
-            	let $self = $(this);
+            	var $self = $(this);
             	if($self.attr("id")=="baoMingUplimit"){
             		// 如果当前input是baoMingUplimit
             		if($("#type").val()=='2'){

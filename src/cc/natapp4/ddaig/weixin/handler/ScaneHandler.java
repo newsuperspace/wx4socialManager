@@ -180,7 +180,7 @@ public class ScaneHandler extends AbstractHandler {
 			}
 			break;
 			
-		case "self_gn_dl": // 系统后台登陆
+		case "self_gn_login": // 系统后台登陆
 			ServletContext servletContext = ServletActionContext.getServletContext();
 			// 获取到登陆用的临时二维码中的UUID值
 			String  info = (String) servletContext.getAttribute(codeInfo.getScanResult());

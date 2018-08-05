@@ -401,7 +401,7 @@ public class ShiroAction extends ActionSupport {
 		
 		result.setMessage(msg);
 		if(result.isResult())
-			result.setReLocal("/index.jsp");
+			result.setReLocal("/weixin/index.jsp");
 
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
