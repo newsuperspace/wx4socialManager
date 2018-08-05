@@ -56,13 +56,13 @@ public class PermissionsAuthorizationFilter extends AuthorizationFilter {
 		for(String p: perms){
 			if(subject.isPermitted(p)){
 				if(p.equals("all:system:access4desk")){
-					// 判断本次访问是否真的来自桌面
+					// 判断本次访问是否真的来自桌面端
 					String wxUrl = (String)session.getAttribute("wxURL");
 					if(StringUtils.isEmpty(wxUrl)){
 						return true;
 					}
 				}else if(p.equals("all:system:access4weixin")){
-					// 判断本次访问是否真的来自微信
+					// 判断本次访问是否真的来自微信端
 					String wxUrl = (String)session.getAttribute("wxURL");
 					if(!StringUtils.isEmpty(wxUrl)){
 						return true;

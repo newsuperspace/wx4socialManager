@@ -134,6 +134,10 @@
 			  	（2）anyPerms——是自定义的过滤器，表明只要拥有admin,all:systemaccess4desk,all:system:access4weixin中的任何一项权限，并且
 			  	与实际访问方式相符合（确实是用微信或桌面端访问的）
 			  	只要同时符合以上两点规则就能顺利访问系统后台
+			  	
+			  	★★★
+			  	对于当前访问是从微信端还是桌面端发来的，并且实际访问方式是否与来访者相符的判断都是通过我们自定义的shiro过滤器 permissionsAuthorizationFilter
+			  	完成的。
 			   -->
 				/**=authc,anyPerms[admin,all:system:access4desk,all:system:access4weixin]
 			</value>

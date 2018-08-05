@@ -319,9 +319,11 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		// (1)社区动态按钮(占位置)
 		button = new WxMenuButton();
 		button.setType(WxConsts.BUTTON_VIEW);
+//		button.setKey("self_gy_dt");
 		button.setKey("self_gy_dt");
 		button.setName("社区动态");
-		button.setUrl("www.baidu.com");
+		// ★★★微信菜单中的URL设置一定要以http://开头★★★
+		button.setUrl("http://www.baidu.com");
 		selfMenuButton1.getSubButtons().add(button);
 		// （2）...
 		// ~~~~~~~~~~~~~~~~~设计“便民服务”~~~~~~~~~~~~~~~~~
@@ -333,6 +335,7 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		String oauth2buildAuthorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
 		button.setType(WxConsts.BUTTON_VIEW);
 		button.setName("实名制");
+//		button.setKey("self_bm_smz");
 		button.setKey("self_bm_smz");
 		button.setUrl(oauth2buildAuthorizationUrl);
 		selfMenuButton2.getSubButtons().add(button);
@@ -340,6 +343,7 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		button = new  WxMenuButton();
 		button.setName("获取积分");
 		button.setType(WxConsts.BUTTON_CLICK);
+//		button.setKey("self_bm_score");
 		button.setKey("self_bm_score");
 		selfMenuButton2.getSubButtons().add(button);
 		// （3）....
@@ -348,19 +352,22 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		button = new WxMenuButton();
 		button.setName("签到/退");
 		button.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
+//		button.setKey("self_gn_qdqt");
 		button.setKey("self_gn_qdqt");
 		selfMenuButton3.getSubButtons().add(button);
 		// （2）扫码登录
 		button = new WxMenuButton();
 		button.setName("扫码登录");
 		button.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
-		button.setKey("self_gn_dl");
+		button.setKey("self_gn_login");
+//		button.setKey("self_gn_dl");
 		selfMenuButton3.getSubButtons().add(button);
 		// （3）管理平台
 		button = new WxMenuButton();
 		button.setName("管理平台");
 		button.setType(WxConsts.BUTTON_VIEW);
 		button.setKey("self_gn_pt");
+//		button.setKey("self_gn_pt");
 		url = p.getProperty("webroot");
 		oauth2buildAuthorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
 		button.setUrl(oauth2buildAuthorizationUrl);
@@ -370,6 +377,7 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		button.setName("积分兑换");
 		button.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
 		button.setKey("self_gn_dh");
+//		button.setKey("self_gn_dh");
 		selfMenuButton3.getSubButtons().add(button);
 		
 		
@@ -446,6 +454,7 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		// 至此三个个性化菜单都准备好了，可以向公众号中创建了
 		boolean b  =  false;
 		// 创建菜单的时候必须先创建默认菜单，不然会报错。虽然当前工程不需要这个默认菜单 ★★
+		System.out.println("=======开始创建默认菜单=======");
 		do {
 			b = true;
 			try {
@@ -453,9 +462,10 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 				b = false;
 				System.out.println("默认菜单创建成功！");
 			} catch (WxErrorException e) {
+				e.printStackTrace();
 				try {
-					// 等待3秒
-					Thread.sleep(3*1000);
+					// 等待5秒
+					Thread.sleep(5*1000);
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
