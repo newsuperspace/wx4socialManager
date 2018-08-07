@@ -3,29 +3,37 @@ package cc.natapp4.ddaig.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.struts2.ServletActionContext;
 
+import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.interceptor.Interceptor;
 
 /**
- * AccessControllAllowOriginInterceptor拦截器的作用是
- * 设置允许跨域请求的响应头信息，这样其他域名的服务器，例如微信服务器也可以通过HttpClient.jar提供的功能
- * 实现跨域请求我们服务器的数据信息了。
+ * ChckRealNameInterceptor拦截器的作用是：
+ * 当微信前端请求我们服务器的服务的时候（例如获取积分信息/扫码签到/登陆系统后台/扫码登陆...）这些功能的前提条件是
+ * 必须先完成实名认证，否则不予响应。
  * 
- * 这是因为出了浏览器可以请求服务器外，服务器也能请求其他服务器，这就要涉及到跨域请求。
- * W3C标准默认不允许这样的请求，但通过设置响应头信息就允许请求了。
+ * 因此本拦截器就是考察以下情况：
+ * （1）查看所请求的路径是否包含code，包含则为微信端请求，应该进行实名认证考察，否则是桌面端来访应该放行给shiro处理认证授权问题；
+ * （2）包含code则
+ * 
  * @author Administrator
  *
  */
-public class AccessControlAllowOriginInterceptor implements Interceptor {
+public class CheckRealNameInterceptor implements Interceptor {
 
 	@Override
 	public void destroy() {
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
 	public void init() {
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
@@ -42,15 +50,20 @@ public class AccessControlAllowOriginInterceptor implements Interceptor {
 				.get(ServletActionContext.HTTP_RESPONSE);
 		HttpServletRequest request = (HttpServletRequest) invocation.getInvocationContext()
 				.get(ServletActionContext.HTTP_REQUEST);
-
-		// 防止表单乱码，因此告诉应用程序以码表——utf-8来解码请求正文
-//		request.setCharacterEncoding("UTF-8");
-		// 设置允许跨域请求的响应头
-		response.setHeader("Access-Control-Allow-Origin", "*");
-		// 设置响应头，告诉浏览器以何种码表对响应正文进行解码
-//		response.setContentType("text/html;charset=gb2312");
-
-		return invocation.invoke();
+		
+		// 查看本次请求是否含有code请求参数
+		String code = request.getParameter("code");
+		if(StringUtils.isEmpty(code)){
+			// 不含有code请求参数，本次请求不是来自微信端的，直接放行
+			invocation.invoke();
+		}
+		
+		// 剩下的部分就是着重处理从微信端发来的请求了
+		
+		
+		
+		
+		return null;
 	}
 
 }

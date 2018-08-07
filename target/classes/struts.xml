@@ -42,6 +42,10 @@
 		而服务器端返回JSON格式数据的时候需要使用到struts-json-plugin.jar中提供的名为“json”
 		的结果集的转换（将位于栈顶的持久化状态对象为元素的容器进行遍历扫描，将属性与属性值转变为[{},{},...{}]的json格式字符串）
 		过程，然后回传给前端，前端就能通过$.post()的回调函数的data参数以JSON对象的方式直接获取从服务器端传递过来的数据了。
+		
+		因此我们所定义base-package 中将拥有json-default包中所定义的所有结果集（主要就是json结果集索引字符串的使用权）、interceptor等
+		并且我们还能在base-package中增加我们自己定义的一些拦截器（比如允许响应跨域请求的accessControlAllowOriginInterceptor拦截器）
+		这样当定义action的xml配置文件的时候，就能通过extend这个基础包，从而有权使用包括：自定义拦截器栈、json结果集索引等在内的全部继承内容
 	 -->
 	<package name="base-package" namespace="/" extends="json-default">
 		

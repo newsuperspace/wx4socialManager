@@ -23,7 +23,7 @@
 				<div class="col-1"></div>
 				<div class="col-10">
 					<div class="form-group">
-						<label for="username">姓名</label> <input type="text"
+						<label for="username">姓名</label> <input onchange="aboutWeixin.op.canCheckRealName();" type="text"
 							class="form-control col-12" name="username" id="username"
 							aria-describedby="helpId4Username" placeholder="例如：張三"> <small
 							id="helpId4Username" class="form-text text-muted text-warm">请填写您的真实姓名</small>
@@ -36,7 +36,7 @@
 				<div class="col-1"></div>
 				<div class="col-10">
 					<div class="form-group">
-						<label for="sex">性别</label> <select class="form-control col-12"
+						<label for="sex">性别</label> <select onchange="aboutWeixin.op.canCheckRealName();" class="form-control col-12"
 							name="sex" id="sex">
 							<option value="0">--请选择--</option>
 							<option value="1">男</option>
@@ -51,7 +51,7 @@
 				<div class="col-1"></div>
 				<div class="col-10">
 					<div class="form-group">
-						<label for="age">年龄</label> <input type="text"
+						<label for="age">年龄</label> <input onchange="aboutWeixin.op.canCheckRealName();" type="text"
 							class="form-control col-12" name="age" id="age"
 							aria-describedby="helpId4Age" placeholder="例如：22"> <small
 							id="helpId4Age" class="form-text text-muted text-warm">您的年龄是？</small>
@@ -64,11 +64,10 @@
 				<div class="col-1"></div>
 				<div class="col-10">
 					<div class="form-group">
-						<label for="telephone">电话</label> <input type="text"
+						<label for="telephone">电话</label> <input onchange="aboutWeixin.op.canCheckRealName();" type="text"
 							class="form-control col-12" name="phone" id="phone"
 							aria-describedby="helpId4Phone" placeholder="例如：65083142">
-						<small id="helpId4Phone"
-							class="form-text text-muted text-warm">联系电话</small>
+						<small id="helpId4Phone" class="form-text text-muted text-warm">联系电话</small>
 					</div>
 				</div>
 				<div class="col-1"></div>
@@ -77,7 +76,8 @@
 			<div class="row">
 				<div class="col-2"></div>
 				<div class="col-8">
-					<button type="button" name="commit" id="commit" onclick="aboutWeixin.op.checkRealName();"
+					<button disabled="true" type="button" name="commit" id="commit"
+						onclick="aboutWeixin.op.checkRealName();"
 						class="btn btn-primary btn-block">提交</button>
 				</div>
 				<div class="col-2 "></div>
@@ -94,4 +94,11 @@
 <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script type="text/javascript"
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
+<script type="text/javascript">
+
+	$(function(){
+		// 判断当前操作者是否已经实名认证过了，如果已经实名认证过就直接关闭页面
+		aboutWeixin.init.op.preCheckRealName();
+	});
+</script>
 </html>

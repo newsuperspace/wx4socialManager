@@ -1598,10 +1598,7 @@ var aboutWeixin = {
 
 					// （1）隐藏右上角的弹出式菜单，防止当前页面被分享出去
 					wx.hideOptionMenu();
-					// TODO 调用其他需要使用JS-SKD的初始化工作.......
-					// （2）判断当前操作者是否已经实名认证过了，如果已经实名认证过就直接关闭页面
-					aboutWeixin.init.op.preCheckRealName();
-
+					// TODO 调用其他需要使用JS-SKD进行的初始设置工作.......
 				});
 			},
 			/*
@@ -1613,18 +1610,22 @@ var aboutWeixin = {
 			preCheckRealName : function() {
 
 				var url = "ajaxAction4weixin_preCheckRealName.action";
+				var openid = localStorage.getItem("openid");
+				if(""==openid){
+					alert("openID获取失败，禁止实名认证操作！");
+					wx.closeWindow();
+				}
 				var param = {
-					openid : localStorage.getItem("openid"),
+					openid : openid,
 				};
 
-				var isClose = false;
 				$.post(url, param, function(data, textStatus, req) {
 					if (data.result) {
 						// 已经实名认证过了
 						alert("您已完成实名认证，请勿重复操作");
 						// 通过微信的SDK-API实现关闭页面的操作
 						wx.closeWindow();
-					} 
+					}
 				});
 			},
 			
@@ -1654,6 +1655,37 @@ var aboutWeixin = {
 			return null; // 返回参数值
 		},
 
+		
+		/*
+		 * realName.jsp前端表单验证逻辑，只有当
+		 * username
+		 * sex
+		 * age
+		 * phone
+		 * 这四个input都有值得时候，提交按钮才可用
+		 */
+		canCheckRealName: function(){
+			var username = $("#username").val();
+			var sex = $("#sex").val();
+			var age = $("#age").val();
+			var phone = $("#phone").val();
+			if ("" == username || null == username) {
+				$("#helpId4Username").text("姓名为必填项");
+				return;
+			} else if ("" == sex || null == sex || 0 == sex) {
+				$("#helpId4Sex").text("性别为必填项");
+				return;
+			} else if ("" == age || null == age) {
+				$("#helpId4Age").text("年龄为必填项");
+				return;
+			} else if ("" == phone || null == phone) {
+				$("#helpId4Phone").text("电话为必填项");
+				return;
+			}
+			
+			$("#commit").attr("disabled", false);
+		},
+		
 		/*
 		 * 对于realName.jsp页面上提交表单时进行实名认证的Ajax操作
 		 */
@@ -1666,7 +1698,7 @@ var aboutWeixin = {
 			if ("" == username || null == username) {
 				$("#helpId4Username").text("姓名为必填项");
 				return;
-			} else if ("" == sex || null == sex) {
+			} else if ("" == sex || null == sex || 0 == sex) {
 				$("#helpId4Sex").text("性别为必填项");
 				return;
 			} else if ("" == age || null == age) {

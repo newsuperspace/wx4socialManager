@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
-import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 
@@ -112,7 +111,7 @@ public class WeiXinAction extends ActionSupport implements ModelDriven<SignBean>
 			return null;  // 用来与微信服务器进行握手的“signature”加密签名已经写入到了HttpServletResponse中了，可以通过返回null告知Struts2的结果集不用处理该响应，直接向请求方返回即可。
 		case "normal":
 			// 确认是来自微信官方服务器的常态化消息，直接放行到STEP2中去处理即可
-			System.out.println("本地服务器与微信服务器交互成功，将开始处理微信端发来的消息");
+			System.out.println("开始处理微信端发来的消息");
 			break;
 		case "error":
 			// 直接ruturn null 即可，Error信息已经在调用sign()方法的时候就写入到了HttpServletResponse的字节输出流中了
