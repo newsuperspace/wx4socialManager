@@ -67,12 +67,9 @@ org.hibernate.LazyInitializationException: failed to lazily initialize a collect
 
 总计划：
 1、完成MinusFirstLevel展示详情Modal的功能
-14、修改微信公众号菜单，取消实名认证这个菜单组，使得所有新加入用户直接就能看到正式用户菜单，但是在我们自己的web应用后台做一个Filter或Interceptor操作检测访问系统功能的用户是否完成实名认证（cardid是否为null）如果没有则跳转到实名认证JSP页面，强制要求用户实名认证，否则不能使用任何功能，这就解决了微信菜单缓存的问题。
+
 
 细节计划：
-（1） 完成CheckRealNameInterceptor拦截器，建立免实名认证信息即可访问的URL路径列表（properties文件）
-针对请求weixinAction_recall()等方法，要求该来访者的openID下必须有用户名等认证信息，方可放行
-否则返回消息，指导该用户完成实名认证。
 
 （2）在permissionLevel_permissionType_permission.json文件中 新加入普通用户来访者的权限，这种人也可以通过微信菜单的"管理系统"按钮访问后台系统，
 但是他们只能看到"活动信息"这一条大目录

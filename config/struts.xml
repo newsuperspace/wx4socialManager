@@ -52,18 +52,23 @@
 		<interceptors>
 			<!-- 引入自定义的拦截器 -->
 			<interceptor name="accessControlAllowOriginInterceptor" class="cc.natapp4.ddaig.interceptor.AccessControlAllowOriginInterceptor"></interceptor>
-			<!-- 声明拦截器栈，引入其他拦截器或自定义拦截器，规定拦截器执行顺序 -->
+			
+			<!-- 声明“拦截器栈”，引入其他拦截器或自定义拦截器，规定拦截器执行顺序 -->
 			<interceptor-stack name="weixinInterceptor">
 				<!-- 
 					引入父包中的拦截器栈中的所有拦截器到本包中的拦截器栈中来。
 				 -->
 				<interceptor-ref name="defaultStack"></interceptor-ref>
 				<!-- 
-					在这之后放置我们自定义的拦截器				
+					在这之后放置我们自定义的拦截器(注意，是有先后顺序的)				
 			 	-->
 			 	<interceptor-ref name="accessControlAllowOriginInterceptor"></interceptor-ref>
+			 	
 			</interceptor-stack>
+			
 		</interceptors>
+		
+		<!-- 本自定义基础包——base-package 默认使用的“拦截器栈”是什么 -->
 		<default-interceptor-ref name="weixinInterceptor"></default-interceptor-ref>
 		
 		<!-- 

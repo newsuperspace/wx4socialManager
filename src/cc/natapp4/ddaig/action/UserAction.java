@@ -1,5 +1,6 @@
 package cc.natapp4.ddaig.action;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -199,7 +200,8 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		String levelName = "";
 		String levelDescription = "";
 		String qrcode = "";
-
+		String realPath = "";
+		
 		String t = doingMan.getGrouping().getTag();
 
 		long month = 2592000;  // 30天的秒数
@@ -212,12 +214,16 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				
 				long qrcodeTime = minusFirstLevel.getQrcodeTime();
 				qrcode = minusFirstLevel.getQrcode();
-				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month){
+				realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
+				
+				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month || !new File(realPath).isDirectory()){
 					// 带参数的临时二维码已经过期，需要更换
 					// 获取过期qrcode在服务器磁盘上的真实路径
-					String realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
 					// 删除该失效二维码
-					FileController.deleteFile(realPath);
+					if(new File(realPath).isDirectory()){
+						// 如果二维码图片存在，则删除该图片
+						FileController.deleteFile(realPath);
+					}
 					/*
 					 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
 					 * 将该参数提交给微信端后会生成“带参数二维码”，
@@ -251,14 +257,17 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 
 				long qrcodeTime = zeroLevel.getQrcodeTime();
 				qrcode = zeroLevel.getQrcode();
-				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month){
+				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month || !new File(realPath).isDirectory()){
 					// 带参数的临时二维码已经过期，需要更换
 					System.out.println("当前日期毫秒："+System.currentTimeMillis());
 					System.out.println("生成二维码日期："+qrcodeTime);
 					// 获取过期qrcode在服务器磁盘上的真实路径
-					String realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
+					realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
 					// 删除该失效二维码
-					FileController.deleteFile(realPath);
+					if(new File(realPath).isDirectory()){
+						// 如果二维码图片存在，则删除该图片
+						FileController.deleteFile(realPath);
+					}
 					/*
 					 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
 					 * 将该参数提交给微信端后会生成“带参数二维码”，
@@ -292,12 +301,15 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 
 				long qrcodeTime = firstLevel.getQrcodeTime();
 				qrcode = firstLevel.getQrcode();
-				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month){
+				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month || !new File(realPath).isDirectory()){
 					// 带参数的临时二维码已经过期，需要更换
 					// 获取过期qrcode在服务器磁盘上的真实路径
-					String realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
+					realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
 					// 删除该失效二维码
-					FileController.deleteFile(realPath);
+					if(new File(realPath).isDirectory()){
+						// 如果二维码图片存在，则删除该图片
+						FileController.deleteFile(realPath);
+					}
 					/*
 					 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
 					 * 将该参数提交给微信端后会生成“带参数二维码”，
@@ -331,12 +343,15 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				
 				long qrcodeTime = secondLevel.getQrcodeTime();
 				qrcode = secondLevel.getQrcode();
-				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month){
+				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month || !new File(realPath).isDirectory()){
 					// 带参数的临时二维码已经过期，需要更换
 					// 获取过期qrcode在服务器磁盘上的真实路径
-					String realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
+					realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
 					// 删除该失效二维码
-					FileController.deleteFile(realPath);
+					if(new File(realPath).isDirectory()){
+						// 如果二维码图片存在，则删除该图片
+						FileController.deleteFile(realPath);
+					}
 					/*
 					 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
 					 * 将该参数提交给微信端后会生成“带参数二维码”，
@@ -370,12 +385,15 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 
 				long qrcodeTime = thirdLevel.getQrcodeTime();
 				qrcode = thirdLevel.getQrcode();
-				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month){
+				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month || !new File(realPath).isDirectory()){
 					// 带参数的临时二维码已经过期，需要更换
 					// 获取过期qrcode在服务器磁盘上的真实路径
-					String realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
+					realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
 					// 删除该失效二维码
-					FileController.deleteFile(realPath);
+					if(new File(realPath).isDirectory()){
+						// 如果二维码图片存在，则删除该图片
+						FileController.deleteFile(realPath);
+					}
 					/*
 					 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
 					 * 将该参数提交给微信端后会生成“带参数二维码”，
@@ -412,9 +430,12 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				if((System.currentTimeMillis()-qrcodeTime)/1000 >= month){
 					// 带参数的临时二维码已经过期，需要更换
 					// 获取过期qrcode在服务器磁盘上的真实路径
-					String realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
+					realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
 					// 删除该失效二维码
-					FileController.deleteFile(realPath);
+					if(new File(realPath).isDirectory()){
+						// 如果二维码图片存在，则删除该图片
+						FileController.deleteFile(realPath);
+					}
 					/*
 					 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
 					 * 将该参数提交给微信端后会生成“带参数二维码”，

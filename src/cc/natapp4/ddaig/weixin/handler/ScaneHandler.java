@@ -2,9 +2,7 @@ package cc.natapp4.ddaig.weixin.handler;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
@@ -14,7 +12,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Exchange;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.Ware;
@@ -22,6 +19,7 @@ import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.ExchangeService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.WareService;
+import cc.natapp4.ddaig.utils.CheckRealNameUtils;
 import cc.natapp4.ddaig.weixin.builder.TextBuilder;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4RecallImpl;
 import me.chanjar.weixin.common.exception.WxErrorException;
@@ -71,6 +69,7 @@ import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 @Lazy(true)
 /**
  * 处理微信公众号按钮类型为WxConsts.BUTTON_SCANCODE_WAITMSG 扫码推事件
+ * 
  * @author Administrator
  *
  */
@@ -119,88 +118,100 @@ public class ScaneHandler extends AbstractHandler {
 		String eventKey = wxMessage.getEventKey();
 		System.out.println("触发当前扫码推事件的按钮的key是：" + eventKey);
 		// 准备回复消息用的OutMessage对象
-		WxMpXmlOutMessage outMessage = null;
+		/**
+		 *  下面处理不同业务逻辑的case分支中可能某些分支需要用户预先进行实名认证，这里的ChekRealNameUtils.check()就是用来实名认证的
+		 */
+		WxMpXmlOutMessage outMessage = CheckRealNameUtils.check(openID, wxMessage, service);
 		// 开始不同业务逻辑的分支
 		switch (eventKey) {
 		case "self_gn_qdqt": // 处理扫码签到
-			// 向公众号扫码用户回复积分信息
-			StringBuffer sb = new StringBuffer();
-			sb.append("签到已成功，");
-			sb.append("感谢您参与本次 ");
-			sb.append("XX活动！");
-			sb.append("您的当前积分是：");
-			sb.append(user.getScore());
-			outMessage = textBuilder.build(sb.toString(), wxMessage, service);
+			if(null==outMessage){
+				// 向公众号扫码用户回复积分信息
+				StringBuffer sb = new StringBuffer();
+				sb.append("签到已成功，");
+				sb.append("感谢您参与本次 ");
+				sb.append("XX活动！");
+				sb.append("您的当前积分是：");
+				sb.append(user.getScore());
+				outMessage = textBuilder.build(sb.toString(), wxMessage, service);
+			}
 			break;
 
 		case "self_gn_dh": // 处理积分兑换
-			int score = user.getScore();
-			Ware ware = wareService.queryEntityById(codeInfo.getScanResult());
-			if (null == ware) { // ---------------------------------------------------------------------------------------------------判断扫码推过来的扫码结果——codeInfo.getScnResult()结果是否是兑换品的wid
-				// 不是兑换品的二维码
-				outMessage = textBuilder.build("您扫描的二维码不是兑换品专属二维码，请确认后重新扫码。", wxMessage, service);
-			} else if (Integer.valueOf(score) < Integer.valueOf(ware.getCore())) { // ---------------------------------------判断用户是否拥有足够积分
-				// 积分不足
-				outMessage = textBuilder.build("抱歉，您的积分不足。如有疑问请与社区联系，感谢您对社区公益的支持！", wxMessage, service);
-			} else if (Integer.valueOf(ware.getSurplus()) < 1) { // ------------------------------------------------------------判断剩余商品是否充足
-				// 剩余商品不足
-				outMessage = textBuilder.build("抱歉，您所兑换的物品库存不足，请联系社区。", wxMessage, service);
-			} else { // ----------------------------------------------------------------------------------------------------------------正常兑换逻辑开始
-				// 新建一条记录
-				Exchange e = new Exchange();
-				// 获取当前兑换日期/时间数据
-				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-				String exchangeDate = format.format(new Date(System.currentTimeMillis()));
-				// 向exchange记录专用写入数据,并写入数据库
-				e.setExchangeData(exchangeDate);
-				e.setScore(ware.getCore());
-				e.setUser(user);
-				e.setWare(ware);
-				exchangeService.save(e);
-				// 更新用户的积分数据
-				int orignScore = Integer.valueOf(score);
-				int price = Integer.valueOf(ware.getCore());
-				user.setScore(orignScore - price);
-				userService.update(user);
-				// 更新ware的相关数据（surplus和total）
-				int newSurplus = Integer.valueOf(ware.getSurplus()) - 1;
-				int newTotal = Integer.valueOf(ware.getTotal()) + 1;
-				ware.setSurplus("" + newSurplus);
-				ware.setTotal("" + newTotal);
-				wareService.update(ware);
-				// 组装回复用户微信的文本信息
-				StringBuffer sb2 = new StringBuffer();
-				sb2.append(exchangeDate);
-				sb2.append(" 恭喜您使用了");
-				sb2.append(price + "积分成功兑换了 ");
-				sb2.append(ware.getWname() + "。");
-				sb2.append("目前剩余积分 ");
-				sb2.append(user.getScore() + "，感谢您对社区公益的支持。");
-				outMessage = textBuilder.build(sb2.toString(), wxMessage, service);
+			if(null==outMessage){
+				int score = user.getScore();
+				Ware ware = wareService.queryEntityById(codeInfo.getScanResult());
+				if (null == ware) { // ---------------------------------------------------------------------------------------------------判断扫码推过来的扫码结果——codeInfo.getScnResult()结果是否是兑换品的wid
+					// 不是兑换品的二维码
+					outMessage = textBuilder.build("您扫描的二维码不是兑换品专属二维码，请确认后重新扫码。", wxMessage, service);
+				} else if (Integer.valueOf(score) < Integer.valueOf(ware.getCore())) { // ---------------------------------------判断用户是否拥有足够积分
+					// 积分不足
+					outMessage = textBuilder.build("抱歉，您的积分不足。如有疑问请与社区联系，感谢您对社区公益的支持！", wxMessage, service);
+				} else if (Integer.valueOf(ware.getSurplus()) < 1) { // ------------------------------------------------------------判断剩余商品是否充足
+					// 剩余商品不足
+					outMessage = textBuilder.build("抱歉，您所兑换的物品库存不足，请联系社区。", wxMessage, service);
+				} else { // ----------------------------------------------------------------------------------------------------------------正常兑换逻辑开始
+					// 新建一条记录
+					Exchange e = new Exchange();
+					// 获取当前兑换日期/时间数据
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+					String exchangeDate = format.format(new Date(System.currentTimeMillis()));
+					// 向exchange记录专用写入数据,并写入数据库
+					e.setExchangeData(exchangeDate);
+					e.setScore(ware.getCore());
+					e.setUser(user);
+					e.setWare(ware);
+					exchangeService.save(e);
+					// 更新用户的积分数据
+					int orignScore = Integer.valueOf(score);
+					int price = Integer.valueOf(ware.getCore());
+					user.setScore(orignScore - price);
+					userService.update(user);
+					// 更新ware的相关数据（surplus和total）
+					int newSurplus = Integer.valueOf(ware.getSurplus()) - 1;
+					int newTotal = Integer.valueOf(ware.getTotal()) + 1;
+					ware.setSurplus("" + newSurplus);
+					ware.setTotal("" + newTotal);
+					wareService.update(ware);
+					// 组装回复用户微信的文本信息
+					StringBuffer sb2 = new StringBuffer();
+					sb2.append(exchangeDate);
+					sb2.append(" 恭喜您使用了");
+					sb2.append(price + "积分成功兑换了 ");
+					sb2.append(ware.getWname() + "。");
+					sb2.append("目前剩余积分 ");
+					sb2.append(user.getScore() + "，感谢您对社区公益的支持。");
+					outMessage = textBuilder.build(sb2.toString(), wxMessage, service);
+				}
 			}
 			break;
 			
 		case "self_gn_login": // 系统后台登陆
-			ServletContext servletContext = ServletActionContext.getServletContext();
-			// 获取到登陆用的临时二维码中的UUID值
-			String  info = (String) servletContext.getAttribute(codeInfo.getScanResult());
 			
-			if(StringUtils.isEmpty(info)){
-				outMessage = textBuilder.build("未找到合法的身份识别信息.", wxMessage, service);
-			}else{
-				/*
-				 * 默认情况下，位于servletContext域中的名为该uuid的Map，值是"waiting"字符串
-				 * 一旦用户通过微信扫码登录功能扫描PC端页面上的二维码，就会将二维码的uuid传递到本handler来处理
-				 * 我们就可以根据uuid在servletContext中找到该map，然后将扫码签到的openID的值代替waiting
-				 * 放入到map中。
-				 * 当代前端websocket轮询时，weSocketHandler中就会查找该uuid中的值是否还是waiting，如果不是
-				 * 则将已经替换的openid作为shiro的UsernamePassword的用户名（密码默认为"123"）执行登录操作。
-				 */
-				servletContext.setAttribute(codeInfo.getScanResult(), openID);
-				outMessage = textBuilder.build("扫码完成，等待系统确认...", wxMessage, service);
+			if(null==outMessage){
+				
+				ServletContext servletContext = ServletActionContext.getServletContext();
+				// 获取到登陆用的临时二维码中的UUID值
+				String  info = (String) servletContext.getAttribute(codeInfo.getScanResult());
+				
+				if(StringUtils.isEmpty(info)){
+					outMessage = textBuilder.build("未找到合法的身份识别信息.", wxMessage, service);
+				}else{
+					/*
+					 * 默认情况下，位于servletContext域中的名为该uuid的Map，值是"waiting"字符串
+					 * 一旦用户通过微信扫码登录功能扫描PC端页面上的二维码，就会将二维码的uuid传递到本handler来处理
+					 * 我们就可以根据uuid在servletContext中找到该map，然后将扫码签到的openID的值代替waiting
+					 * 放入到map中。
+					 * 当代前端websocket轮询时，weSocketHandler中就会查找该uuid中的值是否还是waiting，如果不是
+					 * 则将已经替换的openid作为shiro的UsernamePassword的用户名（密码默认为"123"）执行登录操作。
+					 */
+					servletContext.setAttribute(codeInfo.getScanResult(), openID);
+					outMessage = textBuilder.build("扫码完成，等待系统确认...", wxMessage, service);
+				}
 			}
 			break;
 		}
+		
 		// 返回结果
 		return outMessage;
 	}

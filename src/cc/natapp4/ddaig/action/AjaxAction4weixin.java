@@ -1,22 +1,15 @@
 package cc.natapp4.ddaig.action;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 
-import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
@@ -27,7 +20,6 @@ import cc.natapp4.ddaig.weixin.service_implement.WeixinService4RecallImpl;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
 import me.chanjar.weixin.common.bean.WxJsapiSignature;
 import me.chanjar.weixin.common.exception.WxErrorException;
-import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 
 @Controller("ajaxAction4weixin")
@@ -266,7 +258,7 @@ public class AjaxAction4weixin extends ActionSupport {
 			if(!user.getGrouping().getTag().equals("unreal")){
 				// 已经实名认证过了
 				result.setResult(true);
-				result.setMessage("该openid已经使命认证过");
+				result.setMessage("该openid已经实名认证过");
 				// 通过微信向该用户发送消息(单独启动一个线程来做发送消息的事儿)
 				new Runnable() {
 					
