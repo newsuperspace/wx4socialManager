@@ -1,7 +1,6 @@
 package cc.natapp4.ddaig.action;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -13,16 +12,11 @@ import org.springframework.stereotype.Controller;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
-
-import cc.natapp4.ddaig.domain.Permission;
 import cc.natapp4.ddaig.domain.PermissionLevel;
 import cc.natapp4.ddaig.domain.PermissionType;
-import cc.natapp4.ddaig.domain.Role;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.PermissionLevelService;
-import cc.natapp4.ddaig.service_interface.PermissionService;
 import cc.natapp4.ddaig.service_interface.PermissionTypeService;
-import cc.natapp4.ddaig.service_interface.RoleService;
 
 @Controller("permissionTypeAction")
 @Lazy(true)

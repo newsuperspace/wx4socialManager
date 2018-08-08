@@ -5,7 +5,6 @@ import java.util.Set;
 
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Permission;
-import cc.natapp4.ddaig.domain.Role;
 import cc.natapp4.ddaig.domain.User;
 
 

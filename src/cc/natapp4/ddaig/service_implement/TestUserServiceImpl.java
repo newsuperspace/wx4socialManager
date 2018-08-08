@@ -56,13 +56,6 @@ public class TestUserServiceImpl extends BaseServiceImpl<User> implements UserSe
 		return dao.queryByOpenId(openID);
 	}
 
-	/**
-	 * 实名认证
-	 */
-	@Override
-	public void checkRealName(String openID, String username, String cardID, String address, String phone)
-			throws WeixinExceptionWhenCheckRealName {
-	}
 
 	/**
 	 * 类洗浴新鲜活动Activity的子类个性化方法，bacause需要自动生成用来分别各个用户的unique的QRCODE
@@ -130,6 +123,12 @@ public class TestUserServiceImpl extends BaseServiceImpl<User> implements UserSe
 	@Override
 	public User getUserByUsername(String username) {
 		return dao.getUserByUsername(username);
+	}
+
+	@Override
+	public void checkRealName(String openID, String username, String sex, int age, String phone)
+			throws WeixinExceptionWhenCheckRealName {
+		// TODO Auto-generated method stub
 	}
 	
 

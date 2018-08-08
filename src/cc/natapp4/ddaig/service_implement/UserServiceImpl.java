@@ -5,28 +5,19 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.sym.Name;
 
-import cc.natapp4.ddaig.action.AjaxAction4weixin.Result4CheckRealName;
-import cc.natapp4.ddaig.dao_implement.BaseDaoImpl;
 import cc.natapp4.ddaig.dao_interface.BaseDao;
 import cc.natapp4.ddaig.dao_interface.UserDao;
 import cc.natapp4.ddaig.domain.Grouping;
-import cc.natapp4.ddaig.domain.Manager;
-import cc.natapp4.ddaig.domain.Role;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
 import cc.natapp4.ddaig.service_interface.GroupingService;
-import cc.natapp4.ddaig.service_interface.RoleService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
-import me.chanjar.weixin.common.exception.WxErrorException;
 
 @Service("userService")
 /*
@@ -69,10 +60,6 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	 */
 	@Resource(name = "weixinService4Setting")
 	private WeixinService4SettingImpl wxService4Setting;
-
-	// TODO 一下这些DI注入式专门给 isAdmin()这个测试方法使用的，正式部署程序的使用应该弃用
-	@Resource(name = "roleService")
-	private RoleService roleService;
 
 	@Override
 	protected BaseDao<User> getBaseDao() {

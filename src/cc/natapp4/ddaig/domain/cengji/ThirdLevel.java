@@ -12,8 +12,6 @@ import cc.natapp4.ddaig.domain.DoingProject;
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.Permission;
-import cc.natapp4.ddaig.domain.Role;
-import cc.natapp4.ddaig.domain.User;
 
 /**
  * 第三级—— 总队

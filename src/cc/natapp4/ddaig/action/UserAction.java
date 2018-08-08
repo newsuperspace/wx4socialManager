@@ -43,7 +43,6 @@ import cc.natapp4.ddaig.service_interface.FourthLevelService;
 import cc.natapp4.ddaig.service_interface.GroupingService;
 import cc.natapp4.ddaig.service_interface.ManagerService;
 import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
-import cc.natapp4.ddaig.service_interface.RoleService;
 import cc.natapp4.ddaig.service_interface.SecondLevelService;
 import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
@@ -81,8 +80,6 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	private FourthLevelService fourthLevelService;
 	@Resource(name = "weixinService4Setting")
 	private WeixinService4SettingImpl weixinService4Setting;
-	@Resource(name = "roleService")
-	private RoleService roleService;
 
 	// ======================================================模型驱动——收纳请求参数
 	private User user;

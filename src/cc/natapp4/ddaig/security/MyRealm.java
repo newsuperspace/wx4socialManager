@@ -8,7 +8,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -16,14 +15,12 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
@@ -31,7 +28,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Permission;
-import cc.natapp4.ddaig.domain.Role;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
@@ -40,7 +36,6 @@ import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.service_interface.PermissionService;
-import cc.natapp4.ddaig.service_interface.RoleService;
 import cc.natapp4.ddaig.service_interface.UserService;
 
 /**
@@ -57,8 +52,6 @@ import cc.natapp4.ddaig.service_interface.UserService;
 public class MyRealm extends AuthorizingRealm {
 
 	private UserService userService = null;
-	@Resource(name = "roleService")
-	private RoleService roleService;
 	@Resource(name = "permissionService")
 	private PermissionService permissionService;
 
