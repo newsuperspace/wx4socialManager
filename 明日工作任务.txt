@@ -56,12 +56,7 @@ org.hibernate.LazyInitializationException: failed to lazily initialize a collect
 						如果session中不存在wxURL，为桌面端来访→	跳转到/openJSP/sigin.jsp → 
 																						   \
 																							 传统 → shiroAction.login4Input();
-		
-		
-		
-		
-		
-		
+				
 		
 		
 
@@ -86,6 +81,57 @@ org.hibernate.LazyInitializationException: failed to lazily initialize a collect
 			
 （3）恢复活动扫码签到功能（与微信交互）
 （4）扫码签退、积分累计、服务时长累计自动完成（与微信交互）
+
+
+
+// ==============================================WeUI设计"个人中心"=============================================
+一、重要的参考资料：
+（1）weui.css   	https://github.com/Tencent/weui/wiki
+（2）weui.js		https://github.com/Tencent/weui.js/blob/master/docs/README.md
+（3）WeUI的Demo		https://weui.io/
+（4）WeUI.js的Demo	https://weui.io/weui.js/
+
+二、WeUI组件的使用参考：
+（1）ActionSheet
+用来提供从低端弹起的功能菜单
+（2）Cell和badge结合的消息列表
+https://weui.io/#badge
+（3）Cell，列表视图，用于将信息以列表的结构显示在页面上
+https://github.com/Tencent/weui/wiki/Cell
+
+三、当前任务需求：
+1、实名认证页	√
+（1）成功信息页 Msg Page	√
+（2）失败信息页	Msg Page	√
+2、用户中心页 √
+（1）个人信息页	bootstrap
+二维码
+我的地址
+我的ID
+我的性别
+（2）可参加活动的列表页面 	preView	√
+（3）已参加活动的列表页面	preView	√
+（4）活动历史列表页面		preView	√
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
