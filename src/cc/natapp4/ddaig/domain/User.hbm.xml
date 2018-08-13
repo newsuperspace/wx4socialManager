@@ -18,6 +18,7 @@
 		<property name="email" length="50"></property>
 		<property name="score" type="integer"></property>
 		<property name="sex" length="6"></property>
+		<property name="birth" length="12"></property>
 		<property name="age" type="integer"></property>
 		<property name="phone" length="20"></property>
 		<property name="qrcode" length="100"></property>

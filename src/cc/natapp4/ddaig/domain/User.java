@@ -48,6 +48,7 @@ public class User implements Serializable {
 	private int score;    // 积分  ★
 	private String sex;      // 性别
 	private int age;    // 年龄
+	private String birth; // 出生年-月-日，形如: yyyy-MM-dd 
 	private String phone;   // 电话号码
 	private String qrcode;   // 用户专属qrcode的相对路径————qrcode/1/12/xxxx.gif
 	private boolean ishere;   // 该用户当前是否在公众号中 
@@ -82,13 +83,17 @@ public class User implements Serializable {
 	public User() {}
 	//==============================SETTERs/GETTERs============================
 	
-	
-	
 	public String getSickname() {
 		return sickname;
 	}
 	public void setSickname(String sickname) {
 		this.sickname = sickname;
+	}
+	public String getBirth() {
+		return birth;
+	}
+	public void setBirth(String birth) {
+		this.birth = birth;
 	}
 	
 	public long getRegistrationTime() {

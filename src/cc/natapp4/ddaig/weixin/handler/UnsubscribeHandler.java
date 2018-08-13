@@ -1,6 +1,5 @@
 package cc.natapp4.ddaig.weixin.handler;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;

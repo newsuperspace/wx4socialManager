@@ -327,57 +327,45 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		selfMenuButton1.getSubButtons().add(button);
 		// （2）...
 		// ~~~~~~~~~~~~~~~~~设计“便民服务”~~~~~~~~~~~~~~~~~
-		// (1)实名制按钮
+		// (1)进入用户中心的按钮，如果用户没有实名认证，则自动跳转到实名认证页面
 		button = new WxMenuButton();
 		Properties p = ConfigUtils.getProperties("wxConfig/weixin.properties");
-		String url = p.getProperty("webroot") + "/" + "openJSP/realName.jsp";
+		String url = p.getProperty("webroot") + "/" + "personalCenterAction_accessPersonalCenter.action";
 		// 由于登录“实名认证”页面目前需要至少获取到用户的openID，因此需要将认证页面的url进行OAUTH2的认证，然后把返回的OAUTH2的路径作为该按钮点击后的访问路径设置
 		String oauth2buildAuthorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
 		button.setType(WxConsts.BUTTON_VIEW);
-		button.setName("实名制");
-//		button.setKey("self_bm_smz");
-		button.setKey("self_bm_smz");
+		button.setName("用户中心");
+		button.setKey("self_bm_center");
 		button.setUrl(oauth2buildAuthorizationUrl);
 		selfMenuButton2.getSubButtons().add(button);
 		// (2)获取积分
 		button = new  WxMenuButton();
 		button.setName("获取积分");
 		button.setType(WxConsts.BUTTON_CLICK);
-//		button.setKey("self_bm_score");
 		button.setKey("self_bm_score");
 		selfMenuButton2.getSubButtons().add(button);
 		// （3）....
 		// ~~~~~~~~~~~~~~~~~设计“功能列表”~~~~~~~~~~~~~~~~~
-		// （1）签到/退
+		// （1）扫码登录
 		button = new WxMenuButton();
-		button.setName("签到/退");
-		button.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
-//		button.setKey("self_gn_qdqt");
-		button.setKey("self_gn_qdqt");
-		selfMenuButton3.getSubButtons().add(button);
-		// （2）扫码登录
-		button = new WxMenuButton();
-		button.setName("扫码登录");
+		button.setName("扫码登录系统");
 		button.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
 		button.setKey("self_gn_login");
-//		button.setKey("self_gn_dl");
 		selfMenuButton3.getSubButtons().add(button);
-		// （3）管理平台
+		// （2）管理平台
 		button = new WxMenuButton();
-		button.setName("管理平台");
+		button.setName("进入系统后台");
 		button.setType(WxConsts.BUTTON_VIEW);
-		button.setKey("self_gn_pt");
-//		button.setKey("self_gn_pt");
+		button.setKey("self_gn_system");
 		url = p.getProperty("webroot");
 		oauth2buildAuthorizationUrl = this.oauth2buildAuthorizationUrl(url, WxConsts.OAUTH2_SCOPE_BASE, null);
 		button.setUrl(oauth2buildAuthorizationUrl);
 		selfMenuButton3.getSubButtons().add(button);
-		// （4）积分兑换
+		// （3）积分兑换
 		button = new WxMenuButton();
 		button.setName("积分兑换");
 		button.setType(WxConsts.BUTTON_SCANCODE_WAITMSG);
 		button.setKey("self_gn_dh");
-//		button.setKey("self_gn_dh");
 		selfMenuButton3.getSubButtons().add(button);
 		
 		

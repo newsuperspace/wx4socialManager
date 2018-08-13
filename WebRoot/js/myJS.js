@@ -1532,19 +1532,21 @@ var aboutWeixin = {
 				// 由于当前页面是用来实名制认证的，因此通过OAthure2.0认证后会将用来获取access_token的票据code以请求参数的形式传递过来
 				// 因此这里就需要预先获取到请求参数code的值，并且进行Ajax通讯让服务器从微信官方得到该用户真正的openID，并且保存到数据组件中备用
 				var code = aboutWeixin.op.getAccess_Token("code");
-				// 准备进行Ajax通讯获取来访用户的OpenID
-				var url = "ajaxAction4weixin_getOpenIdthroughCode.action";
-				var param = {
-					"code" : code,
-				};
-				$.post(url, param, function(data) {
-					if (!jQuery.isEmptyObject(data)) {
-						// 将当前操作的用户的openid保存到localStorage中
-						localStorage.setItem("openid", data.openid);
-					} else {
-						console.log("以Code换取用户OpenID时出现异常");
-					}
-				});
+				if(null!=code && ""!=code){
+					// 如果存在code请求参数，则可以开始准备进行Ajax通讯获取来访用户的OpenID
+					var url = "ajaxAction4weixin_getOpenIdthroughCode.action";
+					var param = {
+						"code" : code,
+					};
+					$.post(url, param, function(data) {
+						if (!jQuery.isEmptyObject(data)) {
+							// 将当前操作的用户的openid保存到localStorage中
+							localStorage.setItem("openid", data.openid);
+						} else {
+							console.log("以Code换取用户OpenID时出现异常");
+						}
+					});
+				}
 
 				// =============================JS-SDK使用权限签名=============================
 				// 因为当前页面需要在"实名制认证成功"后就让微信浏览器关闭此页面，因此需要使用微信提供的JS-SDK来调用微信的功能
@@ -1552,7 +1554,7 @@ var aboutWeixin = {
 				// （1）加载微信JS-SDK的模块【已通过在页面上使用<script></script>标签完成】
 				// （2）加载JS-SDK模块后可以直接通过"wx"或"jWeixin"这个全局变量实现对微信web功能的API调用，但再此之前还需要config配置过程
 				url = "ajaxAction4weixin_getJsapiSignature.action"
-				// 得到需要调用JS-SDK的页面的URL，但不能包括"#"号及其后面的部分，因此需要通过JS原生的split()函数切割一下  ★
+				// 得到当前需要调用JS-SDK的页面URL，但不包括"#"号及其后面的部分，因此需要通过JS原生的split()函数切割一下  ★
 				var paramUrl = window.location.href.split("#")[0];
 				console.log(paramUrl);
 				param = {
@@ -1601,33 +1603,6 @@ var aboutWeixin = {
 					// TODO 调用其他需要使用JS-SKD进行的初始设置工作.......
 				});
 			},
-			/*
-			 * 当用户打开realName.jsp页面时，预先通过Ajax将用户的openid传递到服务器进行校验
-			 * 如果发现该用户已经完成实名认证（grouping.tag!=unreal）才会正常显示表达页面，
-			 * 否则调用JS-SDK直接关闭页面，并向用户的微信发送“您已完成实名认证无需重复认证”
-			 * 的消息。
-			 */
-			preCheckRealName : function() {
-
-				var url = "ajaxAction4weixin_preCheckRealName.action";
-				var openid = localStorage.getItem("openid");
-				if(""==openid){
-					alert("openID获取失败，禁止实名认证操作！");
-					wx.closeWindow();
-				}
-				var param = {
-					openid : openid,
-				};
-
-				$.post(url, param, function(data, textStatus, req) {
-					if (data.result) {
-						// 已经实名认证过了
-						alert("您已完成实名认证，请勿重复操作");
-						// 通过微信的SDK-API实现关闭页面的操作
-						wx.closeWindow();
-					}
-				});
-			},
 			
 		}
 	},
@@ -1650,6 +1625,7 @@ var aboutWeixin = {
 			// 构造一个含有目标参数名的正则表达式对象，当前工程就是code这个请求参数名
 			var reg = new RegExp("(^|&)" + code + "=([^&]*)(&|$)");
 			var r = window.location.search.substr(1).match(reg); // 匹配目标参数
+			// r有时候可能为""
 			if (r != null)
 				return unescape(r[2]);
 			return null; // 返回参数值
@@ -1666,24 +1642,26 @@ var aboutWeixin = {
 		 */
 		canCheckRealName: function(){
 			var username = $("#username").val();
-			var sex = $("#sex").val();
-			var age = $("#age").val();
+			var sex = $('input[name="sex"]:checked').val();
+			var birth = $("#birth").val();
 			var phone = $("#phone").val();
 			if ("" == username || null == username) {
-				$("#helpId4Username").text("姓名为必填项");
-				return;
-			} else if ("" == sex || null == sex || 0 == sex) {
-				$("#helpId4Sex").text("性别为必填项");
-				return;
-			} else if ("" == age || null == age) {
-				$("#helpId4Age").text("年龄为必填项");
-				return;
-			} else if ("" == phone || null == phone) {
-				$("#helpId4Phone").text("电话为必填项");
+				console.log("姓名为必填项");
+				$("#submit").addClass("weui-btn_disabled");
 				return;
 			}
-			
-			$("#commit").attr("disabled", false);
+			if ("" == phone || null == phone) {
+				console.log("电话为必填项");
+				$("#submit").addClass("weui-btn_disabled");
+				return;
+			}
+			if ("" == birth || null == birth) {
+				console.log("年龄为必填项");
+				$("#submit").addClass("weui-btn_disabled");
+				return;
+			}
+			console.log("现在可以提交了");
+			$("#submit").removeClass("weui-btn_disabled");
 		},
 		
 		/*
@@ -1692,8 +1670,8 @@ var aboutWeixin = {
 		checkRealName : function() {
 			var url = "ajaxAction4weixin_checkRealName.action";
 			var username = $("#username").val();
-			var sex = $("#sex").val();
-			var age = $("#age").val();
+			var sex = $('input[name="sex"]:checked').val();
+			var birth = $("#birth").val();
 			var phone = $("#phone").val();
 			if ("" == username || null == username) {
 				$("#helpId4Username").text("姓名为必填项");
@@ -1701,7 +1679,7 @@ var aboutWeixin = {
 			} else if ("" == sex || null == sex || 0 == sex) {
 				$("#helpId4Sex").text("性别为必填项");
 				return;
-			} else if ("" == age || null == age) {
+			} else if ("" == birth || null == birth) {
 				$("#helpId4Age").text("年龄为必填项");
 				return;
 			} else if ("" == phone || null == phone) {
@@ -1710,10 +1688,9 @@ var aboutWeixin = {
 			}
 
 			var param = {
-				openid : localStorage.getItem("openid"),
 				username : username,
 				sex : sex,
-				age : age,
+				birth : birth,
 				phone : phone
 			};
 			$.post(url, param, function(data) {

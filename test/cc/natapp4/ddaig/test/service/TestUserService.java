@@ -19,13 +19,14 @@ import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
+import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
 import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
 
 public class TestUserService {
 
-	private static  ApplicationContext context  =  new  ClassPathXmlApplicationContext("spring/applicationContext.xml");
+	private static  ApplicationContext context  =  new  ClassPathXmlApplicationContext("spring/applicationContext4Test.xml");
 	
 	@Test
 	public void testAdd(){
@@ -129,6 +130,12 @@ public class TestUserService {
 	@Test
 	public void testDelete(){
 
+	}
+	
+	@Test
+	public void testCheckRealNae() throws Throwable{
+		UserService userService = (UserService) context.getBean("testUserService");
+		userService.checkRealName("okNKU0Vb9EQtWTfteAyS3nVMd0Iw", "jixiang", "2", "1988-08-21", "65856442");
 	}
 	
 	

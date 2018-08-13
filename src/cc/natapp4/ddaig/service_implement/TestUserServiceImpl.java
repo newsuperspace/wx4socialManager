@@ -1,5 +1,7 @@
 package cc.natapp4.ddaig.service_implement;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.sym.Name;
 
-import cc.natapp4.ddaig.action.AjaxAction4weixin.Result4CheckRealName;
 import cc.natapp4.ddaig.dao_implement.BaseDaoImpl;
 import cc.natapp4.ddaig.dao_interface.BaseDao;
 import cc.natapp4.ddaig.dao_interface.UserDao;
@@ -126,9 +127,43 @@ public class TestUserServiceImpl extends BaseServiceImpl<User> implements UserSe
 	}
 
 	@Override
-	public void checkRealName(String openID, String username, String sex, int age, String phone)
+	public void checkRealName(String openID, String username, String sex, String birth, String phone)
 			throws WeixinExceptionWhenCheckRealName {
-		// TODO Auto-generated method stub
+		
+		User user = dao.queryByOpenId(openID);
+		user.setPhone(phone);
+		user.setUsername(username);
+		if("1".equals(sex)){
+			user.setSex("男");
+		}else{
+			user.setSex("女");
+		}
+		user.setBirth(birth);
+		
+		// 开始计算年龄
+		SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd");
+		long time = 0;
+		try {
+			time = formatter.parse(birth).getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		System.out.println("birth:"+time);
+		System.out.println("between:"+(System.currentTimeMillis() - time));
+		long year = 1000L*60*60*24*365;
+		System.out.println("year:"+year);
+		int age  =  (int) Math.floor((System.currentTimeMillis() - time)/(1000*60*60*24*365L));
+		user.setAge(age);
+		// 变更该用户的标签
+		List<Grouping> list = this.groupingService.queryEntities();
+		for (Grouping g : list) {
+			if (g.getTag().equals("common")) {
+
+				// 新建User对象到本地数据库保存
+				user.setGrouping(g); // 新建User一定要与Grouping进行绑定
+				this.update(user);
+			}
+		}
 	}
 	
 

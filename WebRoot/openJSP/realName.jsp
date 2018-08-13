@@ -14,77 +14,82 @@
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
 <link rel="stylesheet"
-	href="${pageContext.request.contextPath}/css/signin.css">
+	href="https://res.wx.qq.com/open/libs/weui/1.1.3/weui.min.css">
 </head>
-<body>
-	<div class="container mt-3">
-		<form action="#" method="post">
-			<div class="row">
-				<div class="col-1"></div>
-				<div class="col-10">
-					<div class="form-group">
-						<label for="username">姓名</label> <input onchange="aboutWeixin.op.canCheckRealName();" type="text"
-							class="form-control col-12" name="username" id="username"
-							aria-describedby="helpId4Username" placeholder="例如：張三"> <small
-							id="helpId4Username" class="form-text text-muted text-warm">请填写您的真实姓名</small>
-					</div>
-				</div>
-				<div class="col-1"></div>
-			</div>
 
-			<div class="row">
-				<div class="col-1"></div>
-				<div class="col-10">
-					<div class="form-group">
-						<label for="sex">性别</label> <select onchange="aboutWeixin.op.canCheckRealName();" class="form-control col-12"
-							name="sex" id="sex">
-							<option value="0">--请选择--</option>
-							<option value="1">男</option>
-							<option value="2">女</option>
-						</select> <small id="helpId4Sex" class="form-text text-muted text-warm">选择您的性别</small>
-					</div>
-				</div>
-				<div class="col-1"></div>
-			</div>
+<body style="background-color: #efeff4;">
 
-			<div class="row">
-				<div class="col-1"></div>
-				<div class="col-10">
-					<div class="form-group">
-						<label for="age">年龄</label> <input onchange="aboutWeixin.op.canCheckRealName();" type="text"
-							class="form-control col-12" name="age" id="age"
-							aria-describedby="helpId4Age" placeholder="例如：22"> <small
-							id="helpId4Age" class="form-text text-muted text-warm">您的年龄是？</small>
-					</div>
-				</div>
-				<div class="col-1"></div>
+	<form action="personalCenterAction_realName.action" method="get">
+	<div class="weui-cells__title">您的姓名是？</div>
+	<div class="weui-cells weui-cells_form">
+		<div class="weui-cell">
+			<!-- <div class="weui-cell__hd">
+                <span class="weui-label" style="vertical-align: middle">姓名</span>
+            </div> -->
+			<div class="weui-cell__bd">
+				<input onchange="aboutWeixin.op.canCheckRealName();"
+					class="weui-input" type="text" 
+					placeholder="例如：张三" name="username" id="username" />
 			</div>
-
-			<div class="row">
-				<div class="col-1"></div>
-				<div class="col-10">
-					<div class="form-group">
-						<label for="telephone">电话</label> <input onchange="aboutWeixin.op.canCheckRealName();" type="text"
-							class="form-control col-12" name="phone" id="phone"
-							aria-describedby="helpId4Phone" placeholder="例如：65083142">
-						<small id="helpId4Phone" class="form-text text-muted text-warm">联系电话</small>
-					</div>
-				</div>
-				<div class="col-1"></div>
-			</div>
-
-			<div class="row">
-				<div class="col-2"></div>
-				<div class="col-8">
-					<button disabled="true" type="button" name="commit" id="commit"
-						onclick="aboutWeixin.op.checkRealName();"
-						class="btn btn-primary btn-block">提交</button>
-				</div>
-				<div class="col-2 "></div>
-			</div>
-
-		</form>
+		</div>
 	</div>
+
+	<div class="weui-cells__title">您的性别是？</div>
+	<div class="weui-cells weui-cells_radio">
+		 <label class="weui-cell weui-check__label" for="x11">
+            <div class="weui-cell__bd">
+                <span style="vertical-align: middle">男</span>
+            </div>
+            <div class="weui-cell__ft">
+                <input type="radio" class="weui-check" name="sex" id="x11" value="1" checked="checked">
+                <span class="weui-icon-checked"></span>
+            </div>
+        </label>
+        <label class="weui-cell weui-check__label" for="x12">
+            <div class="weui-cell__bd">
+                <span style="vertical-align: middle">女</span>
+            </div>
+            <div class="weui-cell__ft">
+                <input type="radio" name="sex" class="weui-check" value="2" id="x12">
+                <span class="weui-icon-checked"></span>
+            </div>
+        </label>
+	</div>
+
+	<div class="weui-cells__title">您的手机号是？</div>
+	<div class="weui-cells weui-cells_form">
+		<div class="weui-cell">
+			<!-- <div class="weui-cell__hd">
+                <span class="weui-label" style="vertical-align: middle">姓名</span>
+            </div> -->
+			<div class="weui-cell__bd">
+				<input id="phone" name="phone"
+					onchange="aboutWeixin.op.canCheckRealName();" class="weui-input"
+					type="tel" name="phone" id="phone" 
+					placeholder="例如：15001222837">
+			</div>
+		</div>
+	</div>
+
+	<div class="weui-cells__title">您的生日是？</div>
+	<div class="weui-cells weui-cells_form">
+		<div class="weui-cell">
+			<!-- <div class="weui-cell__hd">
+                <span class="weui-label" style="vertical-align: middle">姓名</span>
+            </div> -->
+			<div class="weui-cell__bd">
+				<input id="birth" class="weui-input"
+					onchange="aboutWeixin.op.canCheckRealName();" type="text" value=""
+					name="birth" />
+			</div>
+		</div>
+	</div>
+
+	<div class="weui-cells__tips">请您如实填写每项内容</div>
+	<button type="submit" class="weui-btn weui-btn_primary mt-2 weui-btn_disabled" 
+		id="submit">确认</button>
+		
+</form>
 </body>
 
 <script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
@@ -94,11 +99,32 @@
 <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script type="text/javascript"
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
-<script type="text/javascript">
+<script type="text/javascript"
+	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
+<script>
 
-	$(function(){
-		// 判断当前操作者是否已经实名认证过了，如果已经实名认证过就直接关闭页面
-		aboutWeixin.init.op.preCheckRealName();
+	$('#birth').on('focus', function() {
+		weui.datePicker({
+			start : "1900-1-1",
+			end : new Date(),
+			defaultValue : [ 1980, 7, 15 ],
+			onChange : function(result) {
+				console.log(result);
+			},
+			onConfirm : function(result) {
+				let birth = "";
+				for (let i = 0; i < result.length; i++) {
+					console.log(result[i].value);
+					birth += result[i].value;
+					if ((i + 1) != result.length) {
+						birth += "-";
+					}
+				}
+				console.log(birth);
+				$("#birth").val(birth);
+				aboutWeixin.op.canCheckRealName();
+			}
+		});
 	});
 </script>
 </html>

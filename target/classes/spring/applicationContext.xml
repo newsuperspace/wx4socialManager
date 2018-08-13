@@ -85,13 +85,15 @@
 				/ws/** = anon
 				
 				<!-- 
-					★★★★★
+					★★★★★shiro豁免
 					weixinAction用来响应从微信端服务器来的请求，例如recall()方法作为微信端公众号的入口，因此必须“无偿开放”
 					不能被Shiro限制住
 				 -->
 				/weixinAction_*.action = anon
-				<!-- 同上 -->
+				<!-- 同上前端页面涉及与微信端的交互时（例如：通过code换取openID，获得JS-SDK的使用权等）需要请求本action -->
 				/ajaxAction4weixin_*.action = anon
+				<!-- 用户通过微信段访问用户中心、进行实名认证等操作都需要请求本action，因此需要豁免shiro -->
+				/personalCenterAction_*.action = anon
 				<!-- 
 					★★★★★
 					因为"/shiroAction_login.action" 作为shiro在认证（登录）的loginUrl的配置路径，也就是说一旦遇到需要认证的路径

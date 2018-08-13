@@ -34,6 +34,7 @@
 	<include file="struts/struts-thirdLevel.xml"></include>		
 	<include file="struts/struts-fourthLevel.xml"></include>		
 	<include file="struts/struts-project.xml"></include>		
+	<include file="struts/struts-personalCenter.xml"></include>		
 		
 		
 	<!-- 

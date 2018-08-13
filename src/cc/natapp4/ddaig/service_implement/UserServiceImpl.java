@@ -1,5 +1,8 @@
 package cc.natapp4.ddaig.service_implement;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,47 +75,10 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	}
 
 	/**
-	 * 【TODO 测试用】 实名认证的后门程序，如果在测试环境中我的手机上不了网，或者全部admin用户都消失了，则也就没人能拥有最高权限了
-	 * 这个时候只要 String username, String cardID, String address, String phone
-	 * 这四个从前端提交来的字段都是admin 那么就可以将该用户自动设置成admin角色用户
-	 * 
-	 * return true表示已经将该用户设定成admin并且也绑定成了community_user
-	 * ，一切都做妥当了，不需要checkRealName()多管闲事了 false
-	 * 表示本方法没有发挥什么作用，将新建用户的工作交还给checkRealName()的剩余代码。
-	 */
-//	private boolean isAdmin(User user, String username, String cardID, String address, String phone) {
-//
-//		if ("admin".equals(username) && "admin".equals(cardID) && "admin".equals(address) && "admin".equals(phone)) {
-//			List<Grouping> list = this.groupingService.queryEntities();
-//			for (Grouping g : list) {
-//				if (g.getTag().equals("community_user")) {
-//
-//					// 新建User对象到本地数据库保存
-//					user.setGrouping(g); // 新建User一定要与Grouping进行绑定
-//					// 直接升级成admin角色
-//					Role role = roleService.queryEntityById("402881eb6086931701608693244c0000");
-//					user.setRole(role);
-//					this.update(user);
-//
-//					// 最后在公众号中设置"非认证用户"的tag就可以了
-//					String[] ids = { user.getOpenid() };
-//					try {
-//						wxService4Setting.getUserTagService().batchTagging(g.getTagid(), ids);
-//						return true;
-//					} catch (WxErrorException e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//		}
-//		return false;
-//	}
-
-	/**
 	 * 实名认证
 	 */
 	@Override
-	public void checkRealName(String openID, String username, String sex, int age, String phone)
+	public void checkRealName(String openID, String username, String sex, String birth, String phone)
 			throws WeixinExceptionWhenCheckRealName {
 
 		// TODO 这里还是有问题的，因为必须要先检测是否有后台添加用户，这里为了尽快检测系统可用性而选择只有微信公众号添加用户这一种方式
@@ -125,6 +91,23 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		}else{
 			user.setSex("女");
 		}
+		user.setBirth(birth);
+		
+		// 开始计算年龄
+		SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd");
+		long time = 0;
+		try {
+			time = formatter.parse(birth).getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		/*
+		 * ★★★ 这里必须要注意，如果我们希望计算的是一个long类型的数学表达式，就像下面这种乘法式
+		 * 那么必须在其中一个数字（通常是第一个数字）后面加上L标志，否则Java默认按照int型计算结果
+		 * 所以如果不加L，那么计算出来的值最多只有10位，而long类型有11位
+		 */
+		int age  =  (int) Math.floor((System.currentTimeMillis() - time)/(1000L*60*60*24*365));
 		user.setAge(age);
 		// 变更该用户的标签
 		List<Grouping> list = this.groupingService.queryEntities();
