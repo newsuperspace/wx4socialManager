@@ -14,6 +14,7 @@ import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.DoingProject;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
+import cc.natapp4.ddaig.domain.Visitor;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
@@ -39,31 +40,118 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 
 	@Override
 	public List<Activity> getCanJoinActivityList(String openid) {
+		// 先获取当前用户的user对象
+		User user = (User) this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0);
+
 		// 先从数据库找到所有与该用户所属层级对象有关的活动
 		List<Activity> allActivities = this.getAllActivities(openid);
-		// 开始从中筛选符合条件的（没过期的、没报名的）
-
-		return null;
+		List<Activity> list = new ArrayList<Activity>();
+		// 开始从中筛选符合条件的（没过报名截止期的、没报名的）
+		long currentTime = System.currentTimeMillis();
+		for (Activity a : allActivities) {
+			if (a.getBaoMingEndTime() < currentTime) {
+				// 活动的报名期限已经超时了
+				continue;
+			}
+			// 获取该还未过报名期的活动的参与者列表（也是报名列表）
+			List<Visitor> visitors = a.getVisitors();
+			// 如果还没有人报名该活动，则该活动是我们要找的
+			if (visitors == null || visitors.size() == 0) {
+				list.add(a);
+				continue;
+			} else {
+				// 标记位
+				boolean canAdd = true;
+				// 如果已经存在活动参与者List，则需要进一步筛选该活动列表是否已经存在本用户了
+				for (Visitor v : visitors) {
+					if (v.getUser().getUid().equals(user.getUid())) {
+						// 该用户已经是该活动的参与者了，则该活动就不用被选取了
+						canAdd = false;
+						break;
+					}
+				}
+				if (canAdd) {
+					list.add(a);
+				}
+			}
+		}
+		return list;
 	}
 
 	@Override
 	public List<Activity> getJoiningActivityList(String openid) {
+		// 先获取当前用户的user对象
+		User user = (User) this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0);
+
 		// 先从数据库找到所有与该用户所属层级对象有关的活动
 		List<Activity> allActivities = this.getAllActivities(openid);
-		// 开始从中筛选符合条件的（没过期的，已经报名的）
-
-		return null;
+		List<Activity> list = new ArrayList<Activity>();
+		// 开始从中筛选符合条件的（没过活动结束期的，已报名的）
+		long currentTime = System.currentTimeMillis();
+		for (Activity a : allActivities) {
+			if (a.getActivityEndTime() < currentTime) {
+				continue;
+			}
+			
+			List<Visitor> visitors = a.getVisitors();
+			if (visitors == null || visitors.size() == 0) {
+				continue;
+			} else {
+				// 标记位
+				boolean canAdd = false;
+				for (Visitor v : visitors) {
+					// 已报名了吗？
+					if (v.getUser().getUid().equals(user.getUid())) {
+						// 已经报名了
+						canAdd = true;
+						break;
+					}
+				}
+				if (canAdd) {
+					list.add(a);
+				}
+			}
+		}
+		return list;
 	}
 
 	@Override
 	public List<Activity> getJoinedActivityList(String openid) {
+		// 先获取当前用户的user对象
+		User user = (User) this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0);
+
 		// 先从数据库找到所有与该用户所属层级对象有关的活动
 		List<Activity> allActivities = this.getAllActivities(openid);
-		// 开始从中筛选符合条件的（已过期的，已报名的）
-
-		return null;
+		List<Activity> list = new ArrayList<Activity>();
+		// 开始从中筛选符合条件的（已过活动结束期的，已报名的）
+		long currentTime = System.currentTimeMillis();
+		for (Activity a : allActivities) {
+			if (a.getBaoMingEndTime() > currentTime) {
+				continue;
+			}
+			
+			List<Visitor> visitors = a.getVisitors();
+			if (visitors == null || visitors.size() == 0) {
+				continue;
+			} else {
+				// 标记位
+				boolean canAdd = false;
+				for (Visitor v : visitors) {
+					if (v.getUser().getUid().equals(user.getUid())) {
+						canAdd = true;
+						break;
+					}
+				}
+				if (canAdd) {
+					list.add(a);
+				}
+			}
+		}
+		return list;
 	}
 
+	
+	
 	/**
 	 * 【通过JUnit初步测试】
 	 */

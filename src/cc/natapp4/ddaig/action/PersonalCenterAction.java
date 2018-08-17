@@ -1,5 +1,7 @@
 package cc.natapp4.ddaig.action;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +14,7 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 
 import cc.natapp4.ddaig.bean.Info4RealName;
+import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
@@ -89,18 +92,22 @@ public class PersonalCenterAction extends ActionSupport {
 	 * 换取来访者的真正openID，从而确定来访者身份。
 	 */
 	private String code;
+
 	public String getCode() {
 		return code;
 	}
+
 	public void setCode(String code) {
 		this.code = code;
 	}
 
 	// 这个state是微信端服务器基于oauth2.0协议请求重定向时随同code属性一起发来的，一般情况下我们不会使用
 	private String state;
+
 	public String getState() {
 		return state;
 	}
+
 	public void setState(String state) {
 		this.state = state;
 	}
@@ -112,23 +119,27 @@ public class PersonalCenterAction extends ActionSupport {
 	private String phone;
 	private String birth;
 	private String sex;
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
+
 	public void setSex(String sex) {
 		this.sex = sex;
 	}
+
 	public void setBirth(String birth) {
 		this.birth = birth;
 	}
+
 	// ================================== ACTIONS
 	// ==================================
 	/**
-	 * 【已使用】
-	 * 微信端的 “用户中心”
+	 * 【已使用】 微信端的 “用户中心”
 	 * 按钮（EVENT_VIEW类型）点击后就会请求personalCenterAction_accessPersonalCenter.action
 	 * 本方法的作用就是引导用户访问自己的用户中心（在向用户的微信端返回JSP之前需要通过Struts2的值栈来组织好页面显示的内容） 其逻辑过程为：
 	 * （1）首先，根据用户访问oauth2认证连接，然后被微信端服务器请求重定向过来的的路径中附带的名为code的请求参数换取到来访用户的openID
@@ -182,8 +193,8 @@ public class PersonalCenterAction extends ActionSupport {
 	 */
 	public String realName() {
 		// 这里调用UserService，来完成实名制认证，并将结果返回
-		Info4RealName  info = new Info4RealName();
-		
+		Info4RealName info = new Info4RealName();
+
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		System.out.println("提交实名制认证请求的用户的openID是:" + openid);
 		System.out.println("提交的username是：" + this.username);
@@ -224,51 +235,57 @@ public class PersonalCenterAction extends ActionSupport {
 			}
 		}
 
+		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
 		ActionContext.getContext().getValueStack().push(info);
 		return "msgPage";
 	}
 
-	
-	
 	/**
 	 * 获取当前用户可以报名参加的活动
+	 * 
 	 * @return
 	 */
-	public String getCanJoinActivityList(){
+	public String getCanJoinActivityList() {
 		String result = "";
-		
-		
-		
-//		ActionContext.getContext().getValueStack().push();
+		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		List<Activity> canJoinActivityList = activityService.getCanJoinActivityList(openid);
+
+		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
+		ActionContext.getContext().getValueStack().push(canJoinActivityList);
 		return result;
 	}
-	
-	
+
 	/**
 	 * 获取当前用户已经报名的活动，而且活动还有效(非取消或过期状态)
+	 * 
 	 * @return
 	 */
-	public String getJoiningActivityList(){
+	public String getJoiningActivityList() {
 		String result = "";
-		
-//		ActionContext.getContext().getValueStack().push(o);
+		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		List<Activity> joiningActivityList = activityService.getJoiningActivityList(openid);
+
+		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
+		ActionContext.getContext().getValueStack().push(joiningActivityList);
 		return result;
 	}
-	
-	
+
 	/**
 	 * 获取当前用户已经参加过的活动，但是活动已经过期或被取消
+	 * 
 	 * @return
 	 */
-	public String getJoinedActivityList(){
+	public String getJoinedActivityList() {
 		String result = "";
-		
-		
-//		ActionContext.getContext().getValueStack().push(o);
+		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		List<Activity> joinedActivityList = activityService.getJoinedActivityList(openid);
+
+		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
+		ActionContext.getContext().getValueStack().push(joinedActivityList);
 		return result;
 	}
-	
-	
-	
 
 }

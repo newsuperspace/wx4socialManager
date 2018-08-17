@@ -44,7 +44,7 @@
 			<many-to-many class="cc.natapp4.ddaig.domain.Permission" column="pid"></many-to-many>
 		</set>
 		
-		<set name="doingProjects" cascade="save-update" lazy="false">
+		<set name="doingProjects" cascade="save-update" lazy="true">
 			<key>
 				<column name="thid"></column>
 			</key>
