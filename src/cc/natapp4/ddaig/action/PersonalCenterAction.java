@@ -127,6 +127,7 @@ public class PersonalCenterAction extends ActionSupport {
 	// ================================== ACTIONS
 	// ==================================
 	/**
+	 * 【已使用】
 	 * 微信端的 “用户中心”
 	 * 按钮（EVENT_VIEW类型）点击后就会请求personalCenterAction_accessPersonalCenter.action
 	 * 本方法的作用就是引导用户访问自己的用户中心（在向用户的微信端返回JSP之前需要通过Struts2的值栈来组织好页面显示的内容） 其逻辑过程为：
@@ -227,6 +228,47 @@ public class PersonalCenterAction extends ActionSupport {
 		return "msgPage";
 	}
 
+	
+	
+	/**
+	 * 获取当前用户可以报名参加的活动
+	 * @return
+	 */
+	public String getCanJoinActivityList(){
+		String result = "";
+		
+		
+		
+//		ActionContext.getContext().getValueStack().push();
+		return result;
+	}
+	
+	
+	/**
+	 * 获取当前用户已经报名的活动，而且活动还有效(非取消或过期状态)
+	 * @return
+	 */
+	public String getJoiningActivityList(){
+		String result = "";
+		
+//		ActionContext.getContext().getValueStack().push(o);
+		return result;
+	}
+	
+	
+	/**
+	 * 获取当前用户已经参加过的活动，但是活动已经过期或被取消
+	 * @return
+	 */
+	public String getJoinedActivityList(){
+		String result = "";
+		
+		
+//		ActionContext.getContext().getValueStack().push(o);
+		return result;
+	}
+	
+	
 	
 
 }

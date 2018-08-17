@@ -25,6 +25,7 @@ org.hibernate.LazyInitializationException: failed to lazily initialize a collect
 因此该问题的解决办法就是设置OpenSessionInView拦截器的规则为"/*"
 
 
+
 // ---------------------------Shiro认证操作者身份---------------------------
 		Subject subject = SecurityUtils.getSubject();
 		String principal = (String) subject.getPrincipal();
