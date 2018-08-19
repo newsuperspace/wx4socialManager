@@ -95,7 +95,7 @@
 					<!--足-->
 					<div class="weui-form-preview__ft">
 						<!-- <a class="weui-form-preview__btn weui-form-preview__btn_default" href="javascript:">取消报名</a> -->
-						<s:a onclick="baoming('%{aid}');" cssClass="weui-form-preview__btn weui-form-preview__btn_primary">报名</s:a>
+						<s:a onclick="baoming('%{aid}');" href="#" cssClass="weui-form-preview__btn weui-form-preview__btn_primary">报名</s:a>
 						
 					</div>
 				</div>
@@ -133,14 +133,28 @@
 				label : '再想想',
 				type : 'default',
 				onClick : function() {
-					alert('已取消');
+					console.log("取消报名");
 				}
 			}, {
 				label : '确定报名',
 				type : 'primary',
 				onClick : function() {
 					// 执行报名逻辑ajax操作
-					alert('报名的活动的AID是' + aid);
+					let url = "personalCenterAction_baoMing.action";
+					let param = {
+						aid: aid
+					}
+					$.post(url, param, function(data, textStatus, req) {
+						if(data.result){
+							// 报名成功
+							weui.alert(data.message);
+							// 刷新页面
+							window.location.reload();
+						}else{
+							// 报名失败
+							weui.alert(data.message);
+						}
+					});
 				}
 			} ]
 		});

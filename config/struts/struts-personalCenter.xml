@@ -18,17 +18,19 @@
 <struts>
 	<package name="personalCenterAction" namespace="/" extends="base-package" strict-method-invocation="false">
 		<action name="personalCenterAction_*"  method="{1}"   class="personalCenterAction">
-				<result type="json"></result>
+				<!-- 前端通过Ajax通许来访时，本结果集（通过struts-json.jar插件拓展的）可将栈顶对象解析为JSON格式字符串写入到Response正文然后返回给前端 -->
+				<result name="json" type="json"></result>
 				<!-- 让用户的微信端跳转到personalCenter.jsp页面 -->
 				<result name="personalCenter">/openJSP/personalCenter.jsp</result>
 				<!-- 让用户的微信端跳转到realName.jsp页面 -->
 				<result name="realName">/openJSP/realName.jsp</result>
 				<!-- 跳转到消息页面 -->
 				<result name="msgPage">/openJSP/msgPage4realName.jsp</result>
-				
+				<!-- 跳转到与活动列表相关的页面 -->
 				<result name="canJoinActivityList">/openJSP/canJoinActivityList.jsp</result>
 				<result name="joiningActivityList">/openJSP/joiningActivityList.jsp</result>
 				<result name="joinedActivityList">/openJSP/joinedActivityList.jsp</result>
+				
 		</action>
 	</package>
 </struts>

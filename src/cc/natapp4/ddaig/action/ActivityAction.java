@@ -31,6 +31,7 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
+import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4CreateActivity;
 import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.DoingProjectService;
@@ -165,6 +166,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	}
 
 	/**
+	 * TODO
 	 * 得到参加当前活动的全部User，并返回到一个visitorList.jsp，用来展示哪些人参加了活动。
 	 * 
 	 * @return
@@ -505,4 +507,10 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		ActionContext.getContext().getValueStack().push(message);
 		return "json";
 	}
+
+
+
+
+
+
 }

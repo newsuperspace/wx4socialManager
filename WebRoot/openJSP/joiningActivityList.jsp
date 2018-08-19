@@ -89,9 +89,9 @@
 					<!--足-->
 					<div class="weui-form-preview__ft">
 						<!-- <a class="weui-form-preview__btn weui-form-preview__btn_default" href="javascript:">取消报名</a> -->
-						<s:a onclick="cancelBaoming('%{aid}');" cssClass="weui-form-preview__btn weui-form-preview__btn_default">取消报名</s:a>
-						<s:a onclick="cancelBaoming('%{aid}');" cssClass="weui-form-preview__btn weui-form-preview__btn_primary">扫码签到</s:a>
-						<s:a onclick="cancelBaoming('%{aid}');" cssClass="weui-form-preview__btn weui-form-preview__btn_primary">扫码签退</s:a>
+						<s:a onclick="cancelBaoming('%{aid}');" href="#" cssClass="weui-form-preview__btn weui-form-preview__btn_default">取消报名</s:a>
+						<s:a onclick="cancelBaoming('%{aid}');" href="#" cssClass="weui-form-preview__btn weui-form-preview__btn_primary">扫码签到</s:a>
+						<s:a onclick="cancelBaoming('%{aid}');" href="#" cssClass="weui-form-preview__btn weui-form-preview__btn_primary">扫码签退</s:a>
 					</div>
 				</div>
 			</div>

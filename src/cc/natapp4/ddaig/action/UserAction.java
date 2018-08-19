@@ -972,15 +972,19 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		return "json";
 	}
 
+	/**
+	 * 获取某个用户用积分兑换奖品的记录列表
+	 * @return
+	 */
 	public String getExchangeList() {
 
 		// String uid = this.getModel().getUid();
 		// 切记一定要不这样获取数据驱动的请求参数，getModal()是给Struts框架使用的，不是给人使用的★★★★
 		String uid = this.user.getUid();
 		User u = userService.queryEntityById(uid);
-		Set<Exchange> set = u.getExchanges();
+		List<Exchange> list = u.getExchanges();
 
-		ActionContext.getContext().put("exchanges", set);
+		ActionContext.getContext().put("exchanges", list);
 		return "exchangeList";
 	}
 

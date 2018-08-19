@@ -57,7 +57,8 @@ public class User implements Serializable {
 	private Grouping grouping;     // 所在分组（与微信的tag标签一一对应）
 
 	private List<Visitor> visits; // 该用户个人参加活动的信息列表
-	private Set<Exchange> exchanges; // 当前用户的消分记录
+//	private Set<Exchange> exchanges; // 当前用户的消分记录
+	private List<Exchange> exchanges; // 当前用户的消分记录
 	
 	
 	/*
@@ -221,11 +222,28 @@ public class User implements Serializable {
 		this.visits = visits;
 	}
 	
+	
+	/*
+	 * ★★★★
+	 * 该注解的意思是当struts的一个名叫struts-json.jar的插件在解析值栈栈顶的一个对象
+	 * 为符合JSON格式的字符串并写入到SerlvetHttpResponse的正文中，用于向前端通过Ajax
+	 * 来访的请求回复JSON数据的时候，由于对象与对象之间存在相互引用的现象，而JSON解析
+	 * 是看不出这种相互相互引用的，这样就会造成JSON解析时的死循环。
+	 * 
+	 * 为了防止出现死循环，我们通常在从A→B或者从B→A的其中一个对象的引用的GETTER上添加
+	 * @JSON(serialize=false)注解，这个注解的意思就是告诉JSON解析器，不用深入解析该GETTER
+	 * 所引用的对象了。
+	 * 
+	 * 具体当前情况来说就是，由于从前端通过Ajax请求User对象的数据时，通常不会需要该对象的从表数据
+	 * 因此我们也就无需将从表数据写入到JSON中，而只需要把User的主表数据解析到JSON应该就能应对多数
+	 * 业务情况，如果说前端真的需要该User的有关兑换记录的所有数据，那么我们完全可以将包含有该用户的
+	 * 所有兑换数据的List容器放入到栈顶供给JSON解析即可，从而既避免出现死循环，又能满足特殊的业务需要。
+	 */
 	@JSON(serialize=false)
-	public Set<Exchange> getExchanges() {
+	public List<Exchange> getExchanges() {
 		return exchanges;
 	}
-	public void setExchanges(Set<Exchange> exchanges) {
+	public void setExchanges(List<Exchange> exchanges) {
 		this.exchanges = exchanges;
 	}
 
@@ -237,6 +255,7 @@ public class User implements Serializable {
 	 * 
 	 * 在这更重要的是防止JSON解析时出现死循环，毕竟manager中也有user字段，user中又有
 	 * manager字段，你中有我我中有你，如此反复解析何时是头？
+	 * 
 	 */
 	@JSON(serialize=false)
 	public Manager getManager() {
