@@ -25,6 +25,10 @@
 				<result name="realName">/openJSP/realName.jsp</result>
 				<!-- 跳转到消息页面 -->
 				<result name="msgPage">/openJSP/msgPage4realName.jsp</result>
+				
+				<result name="canJoinActivityList">/openJSP/canJoinActivityList.jsp</result>
+				<result name="joiningActivityList">/openJSP/joiningActivityList.jsp</result>
+				<result name="joinedActivityList">/openJSP/joinedActivityList.jsp</result>
 		</action>
 	</package>
 </struts>

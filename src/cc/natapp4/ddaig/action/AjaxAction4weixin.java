@@ -2,7 +2,9 @@ package cc.natapp4.ddaig.action;
 
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
@@ -182,23 +184,45 @@ public class AjaxAction4weixin extends ActionSupport {
 	 * @return
 	 */
 	public String getOpenIdthroughCode() {
+		Result4GetOpenIdthouroughCode result = new Result4GetOpenIdthouroughCode();
 		WxMpOAuth2AccessToken token = null;
 		if(null==code || "".equals(code)){
 			// 如果来访连接没有带着code参数，说明不是从微信端来访的页面，直接PASS即可
 			return null;
 		}
-		try {
-			token = mpService4Recall.oauth2getAccessToken(this.code);
-		} catch (WxErrorException e) {
-			e.printStackTrace();
+		/*
+		 * 检测该code是否是之前已经兑换过openid，如果兑换过还用相同code向微信端兑换，则会爆出 
+		 * me.chanjar.weixin.common.exception.WxErrorException: {"errcode":40163,"errmsg":"code been used, hints: [ req_id: ZT.I300234116 ]"}
+		 * 的异常。
+		 * 
+		 * 解决办法是,由于整个系统中所以涉及通过code兑换openid的逻辑中都会首先检测session域中的名为“openid”的字段是否已经有了openid，如果存在openid
+		 * 直接使用即可（对于一个公众号来说，同一个用户的openid用换不会改变，一旦获取到可以在session有效期内永久使用），就不用再麻烦使用code向微信服务器
+		 * 兑换了。
+		 */
+		HttpSession session = ServletActionContext.getRequest().getSession();
+		String storagedOpenid = (String) session.getAttribute("openid");
+		if(StringUtils.isEmpty(storagedOpenid)){
+			try {
+				token = mpService4Recall.oauth2getAccessToken(this.code);
+				String openId = token.getOpenId();
+				System.out.println("本次通过code换取的openID是：" + openId);
+				result.setOpenid(openId);
+				result.setResult(true);
+				result.setMessage("openID兑换成功！");
+				// 把已经兑换的code保存到session域中，用于判断下次请求参数的code是否是这次已经兑换过的code
+				session.setAttribute("openid", openId);
+			} catch (WxErrorException e) {
+				e.printStackTrace();
+				result.setResult(false);
+				result.setMessage("openID兑换时出现异常！");
+			}
+		}else{
+			result.setOpenid(storagedOpenid);
+			result.setResult(true);
+			result.setMessage("该code已经在之前兑换过openID，该openID已经保存到服务器的session域中了，无需重复兑换");
 		}
-		String openId = token.getOpenId();
-
-		System.out.println("本次来访的用户的openID是：" + openId);
-
-		Result4GetOpenIdthouroughCode result = new Result4GetOpenIdthouroughCode(openId);
+		
 		ActionContext.getContext().getValueStack().push(result);
-
 		return SUCCESS;
 	}
 
@@ -210,20 +234,30 @@ public class AjaxAction4weixin extends ActionSupport {
 	 */
 	public class Result4GetOpenIdthouroughCode {
 		// 将当前正在访问前端的用户的openID传递到前方，备用
+		private boolean result;
 		private String openid;
-
+		private String message;
+		public boolean isResult() {
+			return result;
+		}
+		public void setResult(boolean result) {
+			this.result = result;
+		}
+		public String getMessage() {
+			return message;
+		}
+		public void setMessage(String message) {
+			this.message = message;
+		}
 		public String getOpenid() {
 			return openid;
 		}
-
 		public void setOpenid(String openid) {
 			this.openid = openid;
 		}
-
 		public Result4GetOpenIdthouroughCode(String openid) {
 			this.openid = openid;
 		}
-
 		public Result4GetOpenIdthouroughCode() {
 		}
 	}

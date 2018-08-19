@@ -246,13 +246,13 @@ public class PersonalCenterAction extends ActionSupport {
 	 * @return
 	 */
 	public String getCanJoinActivityList() {
-		String result = "";
+		String result = "canJoinActivityList";
 		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		List<Activity> canJoinActivityList = activityService.getCanJoinActivityList(openid);
 
 		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
-		ActionContext.getContext().getValueStack().push(canJoinActivityList);
+		ActionContext.getContext().put("list", canJoinActivityList);
 		return result;
 	}
 
@@ -262,13 +262,13 @@ public class PersonalCenterAction extends ActionSupport {
 	 * @return
 	 */
 	public String getJoiningActivityList() {
-		String result = "";
+		String result = "joiningActivityList";
 		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		List<Activity> joiningActivityList = activityService.getJoiningActivityList(openid);
 
 		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
-		ActionContext.getContext().getValueStack().push(joiningActivityList);
+		ActionContext.getContext().put("list", joiningActivityList);
 		return result;
 	}
 
@@ -278,13 +278,13 @@ public class PersonalCenterAction extends ActionSupport {
 	 * @return
 	 */
 	public String getJoinedActivityList() {
-		String result = "";
+		String result = "joinedActivityList";
 		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		List<Activity> joinedActivityList = activityService.getJoinedActivityList(openid);
 
 		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
-		ActionContext.getContext().getValueStack().push(joinedActivityList);
+		ActionContext.getContext().put("list", joinedActivityList);
 		return result;
 	}
 

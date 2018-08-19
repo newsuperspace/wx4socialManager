@@ -26,20 +26,17 @@ public class ActivityServiceImpl extends BaseServiceImpl<Activity> implements Ac
 
 	@Override
 	public List<Activity> getCanJoinActivityList(String openid) {
-		dao.getCanJoinActivityList(openid);
-		return null;
+		return dao.getCanJoinActivityList(openid);
 	}
 
 	@Override
 	public List<Activity> getJoiningActivityList(String openid) {
-		dao.getJoiningActivityList(openid);
-		return null;
+		return dao.getJoiningActivityList(openid);
 	}
 
 	@Override
 	public List<Activity> getJoinedActivityList(String openid) {
-		dao.getJoinedActivityList(openid);
-		return null;
+		return dao.getJoinedActivityList(openid);
 	}
 
 	

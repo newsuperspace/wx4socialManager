@@ -1539,11 +1539,17 @@ var aboutWeixin = {
 						"code" : code,
 					};
 					$.post(url, param, function(data) {
-						if (!jQuery.isEmptyObject(data)) {
-							// 将当前操作的用户的openid保存到localStorage中
+//						if (!jQuery.isEmptyObject(data)) {
+//							// 将当前操作的用户的openid保存到localStorage中
+//							localStorage.setItem("openid", data.openid);
+//						} else {
+//							console.log("以Code换取用户OpenID时出现异常（可能之前已经用该code换取过openID了）");
+//						}
+						if(data.result){
 							localStorage.setItem("openid", data.openid);
-						} else {
-							console.log("以Code换取用户OpenID时出现异常");
+							console.log(data.message);
+						}else{
+							console.log(data.message);
 						}
 					});
 				}

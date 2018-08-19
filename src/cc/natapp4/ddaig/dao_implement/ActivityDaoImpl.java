@@ -41,7 +41,7 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 	@Override
 	public List<Activity> getCanJoinActivityList(String openid) {
 		// 先获取当前用户的user对象
-		User user = (User) this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0);
+		User user = (User)(this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0));
 
 		// 先从数据库找到所有与该用户所属层级对象有关的活动
 		List<Activity> allActivities = this.getAllActivities(openid);
@@ -81,7 +81,7 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 	@Override
 	public List<Activity> getJoiningActivityList(String openid) {
 		// 先获取当前用户的user对象
-		User user = (User) this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0);
+		User user = (User)(this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0));
 
 		// 先从数据库找到所有与该用户所属层级对象有关的活动
 		List<Activity> allActivities = this.getAllActivities(openid);
@@ -118,7 +118,7 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 	@Override
 	public List<Activity> getJoinedActivityList(String openid) {
 		// 先获取当前用户的user对象
-		User user = (User) this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0);
+		User user = (User)(this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0));
 
 		// 先从数据库找到所有与该用户所属层级对象有关的活动
 		List<Activity> allActivities = this.getAllActivities(openid);
@@ -161,7 +161,7 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 		List<Activity> list = new ArrayList<Activity>();
 
 		// 先通过openid找到该用户的user对象
-		User user = (User) this.getHibernateTemplate().find("from User u where u.openid=? ", openid).get(0);
+		User user = (User)(this.getHibernateTemplate().find("from User u where u.openid=? ", openid).get(0));
 		// 然后进一步获取user的member，得到其在层级结构中的位置
 		Member member = user.getMember();
 		// 然后开始分析member中各个层级对象的设置，利用已经外键关联的层级对象在数据库查找这些层级对象的所有activity
