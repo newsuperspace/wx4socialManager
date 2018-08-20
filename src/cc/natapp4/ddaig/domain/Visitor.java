@@ -1,6 +1,10 @@
 package cc.natapp4.ddaig.domain;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * visitor中记录着用户所参与的一次活动的一次信息记录，用来表示该用户在参加这次活动中的一些信息
@@ -28,7 +32,30 @@ public class Visitor implements Serializable {
 	private User  user;
 	// 当前活动参与者参与的活动是。。。
 	private Activity  activity;
+	
+	
+	// =================以下非数据库字段，而是用来给JSP页面进行数据展示时供给STRUTS的OGNL表达式或struts的自定义JSP标签之用=================
+	private String startTimeStr;
+	private String endTimeStr;
 
+	public String getStartTimeStr() {
+		if(StringUtils.isEmpty(startTimeStr)){
+			SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");  
+			String format = formatter.format(new Date(startTime));
+			this.startTimeStr = format;
+		}
+		return startTimeStr;
+	}
+	public String getEndTimeStr() {
+		if(StringUtils.isEmpty(endTimeStr)){
+			SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");  
+			String format = formatter.format(new Date(endTime));
+			this.endTimeStr = format;
+		}
+		return endTimeStr;
+	}
+	
+	
 	//==================SETTERs/GETTERs===================
 	public int getVid() {
 		return vid;

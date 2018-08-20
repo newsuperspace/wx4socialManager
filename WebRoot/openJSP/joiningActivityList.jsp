@@ -37,39 +37,42 @@
 					<div class="weui-form-preview__hd">
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动名称</label> <em
-								class="weui-form-preview__value" id="name"><s:property value="name"/></em>
+								class="weui-form-preview__value" id="name"><s:property
+									value="name" /></em>
 						</div>
 					</div>
 					<!--体-->
 					<div class="weui-form-preview__bd">
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">发起方</label> <span
-								class="weui-form-preview__value" id="initiator">
-							<s:if test="project.zeroLevel==null">
-								<span class="weui-form-preview__value" id="initiator"><s:property value="project.minusFirstLevel.name"/></span>
-							</s:if>
-							<s:elseif test="project.firstLevel==null">
-								<span class="weui-form-preview__value" id="initiator"><s:property value="project.zeroLevel.name"/></span>
-							</s:elseif>
-							<s:elseif test="project.secondLevel==null">
-								<span class="weui-form-preview__value" id="initiator"><s:property value="project.firstLevel.name"/></span>
-							</s:elseif>
-							<s:elseif test="project.thirdLevel==null">
-								<span class="weui-form-preview__value" id="initiator"><s:property value="project.secondLevel.name"/></span>
-							</s:elseif>
-							<s:else>
-								<span class="weui-form-preview__value" id="initiator"><s:property value="project.thirdLevel.name"/></span>
-							</s:else></span>
+								class="weui-form-preview__value" id="initiator"> <s:if
+									test="project.zeroLevel==null">
+									<span class="weui-form-preview__value" id="initiator"><s:property
+											value="project.minusFirstLevel.name" /></span>
+								</s:if> <s:elseif test="project.firstLevel==null">
+									<span class="weui-form-preview__value" id="initiator"><s:property
+											value="project.zeroLevel.name" /></span>
+								</s:elseif> <s:elseif test="project.secondLevel==null">
+									<span class="weui-form-preview__value" id="initiator"><s:property
+											value="project.firstLevel.name" /></span>
+								</s:elseif> <s:elseif test="project.thirdLevel==null">
+									<span class="weui-form-preview__value" id="initiator"><s:property
+											value="project.secondLevel.name" /></span>
+								</s:elseif> <s:else>
+									<span class="weui-form-preview__value" id="initiator"><s:property
+											value="project.thirdLevel.name" /></span>
+								</s:else></span>
 						</div>
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动时间</label> <span
-								class="weui-form-preview__value" id="time">
-								<s:property value="beginTimeStr"/>~<s:property value="endTimeStr"/>	
+								class="weui-form-preview__value" id="time"> <s:property
+									value="beginTimeStr" />~<s:property value="endTimeStr" />
 							</span>
 						</div>
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动简介</label> <span
-								class="weui-form-preview__value" id=”description“><s:property value="description"/></span>
+								class="weui-form-preview__value" id=”description“><s:property
+									value="description" /></span>
 						</div>
 						<!-- <div class="weui-form-preview__item">
                                 <label class="weui-form-preview__label">活动地点</label>
@@ -77,21 +80,44 @@
                             </div> -->
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动积分</label> <span
-								class="weui-form-preview__value" id="score"><s:property value="score"/></span>
+								class="weui-form-preview__value" id="score"><s:property
+									value="score" /></span>
 						</div>
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动状态</label> <span
 								class="weui-form-preview__value" id="limit"> <!--badge-primary|secondary|success|danger|warning|info|light|dark-->
-								<span class="badge badge-primary"><s:property value="state"/></span>
+								<span class="badge badge-primary"><s:property
+										value="state" /></span>
 							</span>
 						</div>
 					</div>
 					<!--足-->
 					<div class="weui-form-preview__ft">
 						<!-- <a class="weui-form-preview__btn weui-form-preview__btn_default" href="javascript:">取消报名</a> -->
-						<s:a onclick="cancelBaoming('%{aid}');" href="#" cssClass="weui-form-preview__btn weui-form-preview__btn_default">取消报名</s:a>
-						<s:a onclick="cancelBaoming('%{aid}');" href="#" cssClass="weui-form-preview__btn weui-form-preview__btn_primary">扫码签到</s:a>
-						<s:a onclick="cancelBaoming('%{aid}');" href="#" cssClass="weui-form-preview__btn weui-form-preview__btn_primary">扫码签退</s:a>
+						<s:if test="buttonState=='可取消'">
+							<s:a onclick="cancelBaoming('%{aid}');" href="#"
+								cssClass="weui-form-preview__btn weui-form-preview__btn_default">取消报名</s:a>
+						</s:if>
+						<s:elseif test="buttonState=='可签到'">
+							<s:a onclick="qianDao();" href="#"
+								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">扫码签到</s:a>
+						</s:elseif>
+						<s:elseif test="buttonState=='可签退'">
+							<s:a onclick="qianTui();" href="#"
+								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">扫码签退</s:a>
+						</s:elseif>
+						<s:elseif test="buttonState=='已签到'">
+							<s:a onclick="hasQianDao('%{theVisitor.startTimeStr}');" href="#"
+								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">您已签到</s:a>
+						</s:elseif>
+						<s:elseif test="buttonState=='已签退'">
+							<s:a onclick="hasQianTui('%{theVisitor.endTimeStr}');" href="#"
+								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">您已签退</s:a>
+						</s:elseif>
+						<s:elseif test="buttonState=='已爽约'">
+							<s:a onclick="shuangYue();" href="#"
+								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">您已爽约</s:a>
+						</s:elseif>
 					</div>
 				</div>
 			</div>
@@ -131,7 +157,7 @@
 				label : '再想想',
 				type : 'default',
 				onClick : function() {
-					alert('不取消了');
+					qianDao();
 				}
 			}, {
 				label : '狠心取消',
@@ -142,7 +168,59 @@
 				}
 			} ]
 		});
-
 	}
+
+	function qianDao() {
+		wx.scanQRCode({
+			desc : '扫描活动二维码完成签到',
+			needResult : 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+			scanType : [ "qrCode", "barCode" ], // 可以指定扫二维码还是一维码，默认二者都有
+			// 扫码成功的回调
+			success : function(res) {
+				// 通过res.resultStr 得到二维码的结果字符串
+				let aid = res.resultStr;
+				alert("扫码签到的活动AID是："+aid);
+			},
+			// 扫码失败的回调
+			error : function(res) {
+				if (res.errMsg.indexOf('function_not_exist') > 0) {
+					alert('版本过低请升级')
+				}
+			}
+		});
+	}
+
+	function qianTui() {
+		wx.scanQRCode({
+			desc : '扫描活动二维码完成签退',
+			needResult : 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+			scanType : [ "qrCode", "barCode" ], // 可以指定扫二维码还是一维码，默认二者都有
+			// 扫码成功的回调
+			success : function(res) {
+				// 通过res.resultStr 得到二维码的结果字符串
+				let aid = res.resultStr;
+				weui.alert("扫码签退的活动AID是："+aid);
+			},
+			// 扫码失败的回调
+			error : function(res) {
+				if (res.errMsg.indexOf('function_not_exist') > 0) {
+					alert('版本过低请升级')
+				}
+			}
+		});
+	}
+	
+	function hasQianDao(time){
+		weui.alert("您已于"+time+"完成签到");
+	}
+	
+	function hasQianTui(time){
+		weui.alert("您已于"+time+"完成签退");
+	}
+	
+	function shuangYue(){
+		weui.alert("由于你没有在活动开始后30分钟内签到，已被系统认定为爽约，如有疑问请联系管理员");
+	}
+	
 </script>
 </html>

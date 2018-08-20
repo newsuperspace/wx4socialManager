@@ -357,7 +357,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			ActionContext.getContext().getValueStack().push(message);
 			return "message";
 		}
-		if ((activityDateTimeMillis - currentTimeMillis) < (1000 * 60 * 60 * 24)) {
+		if ((activityDateTimeMillis - currentTimeMillis) < (1000L * 60 * 60 * 24)) {
 			// 新建活动的日期距离今天不足1天，不予创建
 			message.setResult(false);
 			message.setMessage("新建活动的日期距离今天不足1天，不予创建");
