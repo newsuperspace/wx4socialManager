@@ -24,7 +24,7 @@
 		<!--头部信息-->
 		<div style="padding: 30px;">
 			<h1
-				style="text-align: left;font-size: 20px;font-weight: 400;font-weight: bold;">选择参加的活动</h1>
+				style="text-align: left;font-size: 20px;font-weight: 400;font-weight: bold;">选择可参加的活动</h1>
 			<p
 				style="margin-top: 5px;color: #888;text-align: left;font-size: 14px;">在这里您可以选择自己喜欢的活动进行报名</p>
 		</div>

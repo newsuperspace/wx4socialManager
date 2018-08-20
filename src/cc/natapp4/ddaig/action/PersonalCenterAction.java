@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.struts2.ServletActionContext;
@@ -297,6 +298,7 @@ public class PersonalCenterAction extends ActionSupport {
 	
 		
 	/**
+	 * AJAX
 	 * 当用户通过微信端的canJoinActivityList.jsp页面点击一个活动的“报名”按钮后
 	 * 就会通过Ajax来请求本方法，完成报名操作逻辑。
 	 * 
@@ -375,4 +377,53 @@ public class PersonalCenterAction extends ActionSupport {
 		return "json";
 	}
 
+	
+	
+	/**
+	 * AJAX
+	 * 根据前端发来的活动的activity的aid，取消当前用户在该活动中的报名
+	 * 
+	 * @return
+	 */
+	public String cancelBaoMing(){
+		ReturnMessage4Common  result =  new ReturnMessage4Common();
+		HttpSession session = ServletActionContext.getRequest().getSession();
+		String openid = (String) session.getAttribute("openid");
+		User user = userService.queryByOpenId(openid);
+		Activity activity = activityService.queryEntityById(this.aid);
+		// 清楚user和activity的List容器中的visitor对象，然后再通过visitorService从数据库中彻底删除该对象
+		List<Visitor> visitors = activity.getVisitors();
+		Visitor visitor = null;
+		// 遍历待取消报名的活动中的每个visitor，找到当前用户的visitor
+		for(Visitor v: visitors){
+			if(v.getUser().getOpenid().equals(openid)){
+				visitor = v;
+			}
+		}
+		/*
+		 * 从user和Activity的list容器中移除该visitor，这里有个疑问
+		 * 通过debug模式，我发现不论是User还是Activity中的visitor都是同一个对象，
+		 * 这样当我们从Activity中找到该visitor后，就能同时从user和activity中的List容器中删除该对象了
+		 * ???
+		 * 我不明的的是为什么Hibernate能从两个主表中找到相同的从表，这底层是怎么实现的呢？真方便啊
+		 */
+		visitors.remove(visitor);
+		user.getVisits().remove(visitor);
+		// 最后再从数据库中删除该visitor即大功告成
+		visitorService.delete(visitor);
+		
+		// 最后就是想前端返回消息
+		result.setResult(true);
+		result.setMessage("删除成功");
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 }

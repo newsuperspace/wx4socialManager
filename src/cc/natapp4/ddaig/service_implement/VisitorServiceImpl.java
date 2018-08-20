@@ -1,14 +1,10 @@
 package cc.natapp4.ddaig.service_implement;
 
-import java.io.Serializable;
-import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 
-import cc.natapp4.ddaig.dao_implement.BaseDaoImpl;
 import cc.natapp4.ddaig.dao_interface.BaseDao;
 import cc.natapp4.ddaig.dao_interface.VisitorDao;
 import cc.natapp4.ddaig.domain.Visitor;

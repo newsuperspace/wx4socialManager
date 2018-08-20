@@ -23,7 +23,7 @@
 		<!--头部信息-->
 		<div style="padding: 30px;">
 			<h1
-				style="text-align: left;font-size: 20px;font-weight: 400;font-weight: bold;">已经参加的活动</h1>
+				style="text-align: left;font-size: 20px;font-weight: 400;font-weight: bold;">正在参加的活动</h1>
 			<p
 				style="margin-top: 5px;color: #888;text-align: left;font-size: 14px;">在这里您可以看到已经报名的所有活动，您可以了解活动时间或者取消报名</p>
 		</div>
@@ -127,7 +127,6 @@
 
 
 
-
 	<!--FOOT-->
 	<div class="weui-footer mt-5">
 		<p class="weui-footer__text">Copyright &copy; 2017-2019
@@ -157,14 +156,21 @@
 				label : '再想想',
 				type : 'default',
 				onClick : function() {
-					qianDao();
 				}
 			}, {
 				label : '狠心取消',
 				type : 'primary',
 				onClick : function() {
 					// 执行报名逻辑ajax操作
-					alert('取消报名的活动AID是' + aid);
+					let url = "personalCenterAction_cancelBaoMing.action";
+					let param = {
+						aid: aid
+					}
+					
+					$.post(url, param, function(data, textStatus, req) {
+						weui.alert(data.message);
+						window.location.reload();
+					});
 				}
 			} ]
 		});
