@@ -98,18 +98,22 @@ public class PersonalCenterAction extends ActionSupport {
 	 * 换取来访者的真正openID，从而确定来访者身份。
 	 */
 	private String code;
+
 	public String getCode() {
 		return code;
 	}
+
 	public void setCode(String code) {
 		this.code = code;
 	}
 
 	// 这个state是微信端服务器基于oauth2.0协议请求重定向时随同code属性一起发来的，一般情况下我们不会使用
 	private String state;
+
 	public String getState() {
 		return state;
 	}
+
 	public void setState(String state) {
 		this.state = state;
 	}
@@ -121,15 +125,19 @@ public class PersonalCenterAction extends ActionSupport {
 	private String phone;
 	private String birth;
 	private String sex;
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
+
 	public void setSex(String sex) {
 		this.sex = sex;
 	}
+
 	public void setBirth(String birth) {
 		this.birth = birth;
 	}
@@ -138,12 +146,15 @@ public class PersonalCenterAction extends ActionSupport {
 	 * 活动报名/活动取消/扫码签到等有关Activity的属性驱动
 	 */
 	private String aid;
+
 	public String getAid() {
 		return aid;
 	}
+
 	public void setAid(String aid) {
 		this.aid = aid;
 	}
+
 	// ================================== ACTIONS
 	// ==================================
 	/**
@@ -258,7 +269,11 @@ public class PersonalCenterAction extends ActionSupport {
 		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		List<Activity> canJoinActivityList = activityService.getCanJoinActivityList(openid);
-
+		// 更新一下每个活动的state状态
+		for (Activity a : canJoinActivityList) {
+			a.updateState();
+			activityService.update(a);
+		}
 		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
 		ActionContext.getContext().put("list", canJoinActivityList);
 		return result;
@@ -274,7 +289,11 @@ public class PersonalCenterAction extends ActionSupport {
 		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		List<Activity> joiningActivityList = activityService.getJoiningActivityList(openid);
-
+		// 更新一下每个活动的state状态
+		for (Activity a : joiningActivityList) {
+			a.updateState();
+			activityService.update(a);
+		}
 		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
 		ActionContext.getContext().put("list", joiningActivityList);
 		return result;
@@ -290,38 +309,42 @@ public class PersonalCenterAction extends ActionSupport {
 		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		List<Activity> joinedActivityList = activityService.getJoinedActivityList(openid);
-
+		// 更新一下每个活动的state状态
+		for (Activity a : joinedActivityList) {
+			a.updateState();
+			activityService.update(a);
+		}
 		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
 		ActionContext.getContext().put("list", joinedActivityList);
 		return result;
 	}
-	
-		
+
 	/**
-	 * AJAX
-	 * 当用户通过微信端的canJoinActivityList.jsp页面点击一个活动的“报名”按钮后
+	 * AJAX 当用户通过微信端的canJoinActivityList.jsp页面点击一个活动的“报名”按钮后
 	 * 就会通过Ajax来请求本方法，完成报名操作逻辑。
 	 * 
 	 * 按道理来说，本方法应该放在ActivityAction中，但是由于Shiro需要所有请求ActivityAction
-	 * 都必须先认证（personalCenterAction_*.action已经通过在applicationContext.xml中设置anno实现免认证了）
+	 * 都必须先认证（personalCenterAction_*.action已经通过在applicationContext.
+	 * xml中设置anno实现免认证了）
 	 * 而本方法的访问者允许非管理层用户来访，因此他们肯定通不过权限认证，因此本方法还是放在PersonalCenterAction中吧
+	 * 
 	 * @return
 	 */
-	public String baoMing(){
+	public String baoMing() {
 		// -----------------准备必要数据信息------------------
-		ReturnMessage4Common  result = new ReturnMessage4Common(); 
+		ReturnMessage4Common result = new ReturnMessage4Common();
 		// 前端通过请求参数的方式将需要添加，这里以属性驱动获取到待报名的活动的aid
 		Activity activity = activityService.queryEntityById(this.aid);
 		// 获取报名用户的openid（该openid已经早在用户第一次访问OAUTH2.0授权的personalCenterAction_accessPersonalCenter.action的时候就已经换取并存放在session中）
-		String openid = (String)ServletActionContext.getRequest().getSession().getAttribute("openid");
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		// 进一步获取用户对象
 		User user = userService.queryByOpenId(openid);
-		
+
 		// -----------------检测活动的合法性，例如当前时间是否超过了报名最后期限/例如活动的人数限制是否超过等------------------
 		// （1）获取当前时间的格里高利偏移量，检测是否报名超时
 		long currentTimeMillis = System.currentTimeMillis();
 		long baoMingEndTime = activity.getBaoMingEndTime();
-		if(currentTimeMillis>baoMingEndTime){
+		if (currentTimeMillis > baoMingEndTime) {
 			// 报名时间已过，报名失败
 			result.setResult(false);
 			result.setMessage("报名时间已过，报名失败");
@@ -330,17 +353,17 @@ public class PersonalCenterAction extends ActionSupport {
 		}
 		// （2）检测报名人数
 		int baoMingUplimit = activity.getBaoMingUplimit();
-		if(-1!=baoMingUplimit){
-			if(activity.getVisitors().size()==baoMingUplimit){
+		if (-1 != baoMingUplimit) {
+			if (activity.getVisitors().size() == baoMingUplimit) {
 				result.setMessage("报名人数已满额，报名失败");
 				result.setResult(false);
 				ActionContext.getContext().getValueStack().push(result);
 				return "json";
 			}
 		}
-		
+
 		// -----------------开始执行报名逻辑------------------
-		Visitor v  =  new Visitor();
+		Visitor v = new Visitor();
 		v.setUser(user);
 		v.setActivity(activity);
 		v.setScore(-1);
@@ -350,10 +373,11 @@ public class PersonalCenterAction extends ActionSupport {
 		// 处理新建的visitor在当前用户user中的次序问题
 		List<Visitor> visits = user.getVisits();
 		/*
-		 * 由于User。visits是一个List容器，list容器对添加的visitor有顺序要求（顺序记录在visitor表的index4user字段）
+		 * 由于User。visits是一个List容器，list容器对添加的visitor有顺序要求（
+		 * 顺序记录在visitor表的index4user字段）
 		 * 因此必须显示地将visitor添加到user.visits这个list容器中，这样index4user字段才能正常记录visitor的次序
 		 */
-		if(null==visits){
+		if (null == visits) {
 			visits = new ArrayList<Visitor>();
 			user.setVisits(visits);
 		}
@@ -361,32 +385,28 @@ public class PersonalCenterAction extends ActionSupport {
 		// 处理新建的visitor在所报名活动activity中的次序问题
 		List<Visitor> visitors = activity.getVisitors();
 		// 这里的道理同visits的操作
-		if(null==visitors){
+		if (null == visitors) {
 			visitors = new ArrayList<Visitor>();
 			activity.setVisitors(visitors);
 		}
 		visitors.add(v);
 		// 执行级联save，这样就能在写入新建visitor数据到visitor数据库的时候也级联地保存user和activity的数据到数据库了
 		visitorService.save(v);
-		
-		
+
 		// 组织回复给前端Ajax的消息
-		result.setMessage("活动 "+activity.getName()+" 报名成功！");
+		result.setMessage("活动 " + activity.getName() + " 报名成功！");
 		result.setResult(true);
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
 
-	
-	
 	/**
-	 * AJAX
-	 * 根据前端发来的活动的activity的aid，取消当前用户在该活动中的报名
+	 * AJAX 根据前端发来的活动的activity的aid，取消当前用户在该活动中的报名
 	 * 
 	 * @return
 	 */
-	public String cancelBaoMing(){
-		ReturnMessage4Common  result =  new ReturnMessage4Common();
+	public String cancelBaoMing() {
+		ReturnMessage4Common result = new ReturnMessage4Common();
 		HttpSession session = ServletActionContext.getRequest().getSession();
 		String openid = (String) session.getAttribute("openid");
 		User user = userService.queryByOpenId(openid);
@@ -395,35 +415,27 @@ public class PersonalCenterAction extends ActionSupport {
 		List<Visitor> visitors = activity.getVisitors();
 		Visitor visitor = null;
 		// 遍历待取消报名的活动中的每个visitor，找到当前用户的visitor
-		for(Visitor v: visitors){
-			if(v.getUser().getOpenid().equals(openid)){
+		for (Visitor v : visitors) {
+			if (v.getUser().getOpenid().equals(openid)) {
 				visitor = v;
 			}
 		}
 		/*
 		 * 从user和Activity的list容器中移除该visitor，这里有个疑问
 		 * 通过debug模式，我发现不论是User还是Activity中的visitor都是同一个对象，
-		 * 这样当我们从Activity中找到该visitor后，就能同时从user和activity中的List容器中删除该对象了
-		 * ???
+		 * 这样当我们从Activity中找到该visitor后，就能同时从user和activity中的List容器中删除该对象了 ???
 		 * 我不明的的是为什么Hibernate能从两个主表中找到相同的从表，这底层是怎么实现的呢？真方便啊
 		 */
 		visitors.remove(visitor);
 		user.getVisits().remove(visitor);
 		// 最后再从数据库中删除该visitor即大功告成
 		visitorService.delete(visitor);
-		
+
 		// 最后就是想前端返回消息
 		result.setResult(true);
 		result.setMessage("删除成功");
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
-	
-	
-	
-	
-	
-	
-	
-	
+
 }

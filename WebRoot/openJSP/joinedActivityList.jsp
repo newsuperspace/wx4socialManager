@@ -88,8 +88,15 @@
                         <label class="weui-form-preview__label">您的表现</label>
                         <span class="weui-form-preview__value" id="limit">
                             <!--badge-primary|secondary|success|danger|warning|info|light|dark-->
-                            <span class="badge badge-secondary">未参加</span>
-                            <span class="badge badge-success">完成任务</span>
+                            <s:if test="theVisitor.startTime==-1">
+                            	<span class="badge badge-secondary">未参加</span>
+                            </s:if>
+                            <s:elseif test="theVisitor.endTime==-1">
+                            	<span class="badge badge-warning">未签退</span>
+                            </s:elseif>
+                            <s:elseif test="theVisitor.workTime!=-1">
+                            	<span class="badge badge-success">已参加</span>
+                            </s:elseif>
                         </span>
                     </div>
                 </div>

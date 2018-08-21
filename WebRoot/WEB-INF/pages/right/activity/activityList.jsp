@@ -85,7 +85,7 @@
 										<th>结束日期</th>
 										<th>参与限制</th>
 										<th>参与者</th>
-										<th>积分支出</th>
+										<th>积分奖励</th>
 										<th>状态</th>
 										<th>操作</th>
 									</tr>
@@ -107,12 +107,13 @@
 													onclick="activityModal.op.showVisitors('%{aid}');">
 													<s:property value="visitors.size()" />
 												</s:a></td>
-											<td><s:property value="scorePaid" /></td>
+											<td><s:property value="score" /></td>
 											<td>
-												<s:if test="%{state=='preparing'}">筹备中</s:if>
-												<s:elseif test="%{state=='doing'}">进行中</s:elseif>
-												<s:elseif test="%{state='canceled'}">已取消</s:elseif>
-												<s:elseif test="%{state='finished'}">已完成</s:elseif>
+												<s:if test="%{state=='筹备中'}">筹备中</s:if>
+												<s:elseif test="%{state=='进行中'}">进行中</s:elseif>
+												<s:elseif test="%{state=='已取消'}">已取消</s:elseif>
+												<s:elseif test="%{state=='已完成'}">已完成</s:elseif>
+												<s:elseif test="%{state=='即将开始'}">即将开始</s:elseif>
 											</td>
 											<td>
 												<div class="btn-group" role="group">

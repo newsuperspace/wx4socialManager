@@ -89,7 +89,7 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 		// 开始从中筛选符合条件的（没过活动结束期的，已报名的）
 		long currentTime = System.currentTimeMillis();
 		for (Activity a : allActivities) {
-			if (a.getActivityEndTime() < currentTime) {
+			if ((a.getActivityEndTime()+1000L*60*30) < currentTime) {
 				continue;
 			}
 			
@@ -126,7 +126,7 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 		// 开始从中筛选符合条件的（已过活动结束期的，已报名的）
 		long currentTime = System.currentTimeMillis();
 		for (Activity a : allActivities) {
-			if (a.getBaoMingEndTime() > currentTime) {
+			if ((a.getActivityEndTime()+1000L*60*30) >= currentTime) {
 				continue;
 			}
 			

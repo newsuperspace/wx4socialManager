@@ -116,6 +116,11 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	public String showDoingProjectActivityList() {
 		DoingProject doingProject = doingProjectService.queryEntityById(dpid);
 		List<Activity> activities = doingProject.getActivities();
+		// 更新每个activity的state状态信息，并保存到数据库
+		for(Activity a:activities){
+			a.updateState();
+			activityService.update(a);
+		}
 		// 下面的全部活动数据信息将会现在在activityList.jsp的表格中
 		ActionContext.getContext().put("activities", activities);
 		// 下面的信息将作为activityList.jsp的标题

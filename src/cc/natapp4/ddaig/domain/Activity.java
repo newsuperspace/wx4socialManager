@@ -63,7 +63,7 @@ public class Activity implements Serializable {
 	private List<Visitor> visitors; // 实际参与活动的用户列表
 	// 当前活动所属的项目坚持———【项目为核心原则，有项目才能发起活动】
 	private DoingProject project;
-	
+
 	// ===============================用于前端显示的字段（不与数据库关联）==============================
 	// 前端显示格式如 yyyy-MM-dd HH：mm:ss 的活动开始时间
 	private String beginTimeStr;
@@ -73,18 +73,18 @@ public class Activity implements Serializable {
 	private int scorePaid;
 	// 活动所属项目的项目名
 	private String dpName;
-	
+
 	/*
 	 * 为了方便JSP页面上Struts标签获取当前用户的visitor对象，这个属性就是用来做这个的，哈哈哈正方便呀
 	 */
 	private Visitor theVisitor;
 	public Visitor getTheVisitor() {
-		if(null==this.theVisitor){
+		if (null == this.theVisitor) {
 			// 先获取当前用户的openid
-			String openid = (String)ServletActionContext.getRequest().getSession().getAttribute("openid");
+			String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 			// 然后从当前Activity的visitors中遍历出当前用户的visitor
-			for(Visitor v: this.getVisitors()){
-				if(v.getUser().getOpenid().equals(openid)){
+			for (Visitor v : this.getVisitors()) {
+				if (v.getUser().getOpenid().equals(openid)) {
 					this.theVisitor = v;
 				}
 			}
@@ -94,14 +94,14 @@ public class Activity implements Serializable {
 
 	/*
 	 * joinedActivityList.jsp页面中需要根据当前活动的状态来动态展现按钮，
-	 * 本属性就是给JSP页面上的struts标签动态显示不同按钮的依据。
-	 * （1）可取消————活动的报名期限还没结束，可以取消报名；
-	 * （2）可签到————activityBeginTime的前后半小时；
-	 * （3）可签退————baoMingEndTime的前后半小时；
+	 * 本属性就是给JSP页面上的struts标签动态显示不同按钮的依据。 
+	 * （1）可取消————活动的报名期限还没结束，可以取消报名； √
+	 * （2）可签到————activityBeginTime的前后半小时； 		√
+	 * （3）可签退————baoMingEndTime的前后半小时；		
 	 * 
 	 * （4）已签到
-	 * （5）已签退
-	 * （6）已爽约
+	 *  （5）已签退 
+	 *  （6）已爽约		√
 	 * 
 	 */
 	private String buttonState;
@@ -113,46 +113,48 @@ public class Activity implements Serializable {
 		// 获取当前时间的格里高利里偏移量，用作下面的判断依据之一
 		long currentTimeMillis = System.currentTimeMillis();
 		// 开始判断
-		if(this.getBaoMingEndTime() > currentTimeMillis){
+		if (this.getBaoMingEndTime() > currentTimeMillis) {
 			// 因为报名截至时间还没有结束，因此可以取消报名
 			buttonState = "可取消";
-		}else if(currentTimeMillis < (this.getActivityBeginTime()+1000L*60*30) && currentTimeMillis > (this.getActivityBeginTime()-1000L*60*30)){
+		} else if (currentTimeMillis < (this.getActivityBeginTime() + 1000L * 60 * 30)
+				&& currentTimeMillis > (this.getActivityBeginTime() - 1000L * 60 * 30)) {
 			// 在活动开始时间的前后30分钟的跨度内可以签到
 			List<Visitor> visitors = this.getVisitors();
-			for(Visitor v:visitors){
-				if(v.getUser().getOpenid().equals(openid)){
+			for (Visitor v : visitors) {
+				if (v.getUser().getOpenid().equals(openid)) {
 					// 找到当前用户的visitor对象，如果该用户签到/签退完成后会在visitor对应字段写下签到时间，如果值为-1（新建visitor默认就是-1）则没有签到
 					long startTime = v.getStartTime();
-					if(-1==startTime){
+					if (-1 == startTime) {
 						// 用户还未签到，因此可以签到
 						buttonState = "可签到";
-					}else{
+					} else {
 						// 用户已签到，无需重复签到
 						buttonState = "已签到";
 					}
 				}
 			}
-			
-		}else if(currentTimeMillis < (this.getActivityEndTime()+1000L*60*60) && currentTimeMillis > (this.getActivityEndTime()-1000L*60*30)){
+
+		} else if (currentTimeMillis < (this.getActivityEndTime() + 1000L * 60 * 60)
+				&& currentTimeMillis > (this.getActivityEndTime() - 1000L * 60 * 30)) {
 			// 在活动结束前的30分钟和结束后的30分钟之间可签退
 			List<Visitor> visitors = this.getVisitors();
-			for(Visitor v:visitors){
-				if(v.getUser().getOpenid().equals(openid)){
+			for (Visitor v : visitors) {
+				if (v.getUser().getOpenid().equals(openid)) {
 					// 找到当前用户的visitor对象，如果该用户签到/签退完成后会在visitor对应字段写下签到时间，如果值为-1（新建visitor默认就是-1）则没有签退
 					long endTime = v.getEndTime();
 					long startTime = v.getStartTime();
-					if(-1==startTime){
+					if (-1 == startTime) {
 						// 用户由于迟到没有在规定时间内签到，因此无法完成签退
 						buttonState = "已爽约";
-					}else if(-1==endTime){
+					} else if (-1 == endTime) {
 						buttonState = "可签退";
-					}else{
+					} else {
 						buttonState = "已签退";
 					}
 				}
 			}
 		}
-		
+
 		return buttonState;
 	}
 
@@ -162,20 +164,20 @@ public class Activity implements Serializable {
 	}
 
 	public String getBeginTimeStr() {
-		
-		SimpleDateFormat  formatter =  new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String format = formatter.format(new Date(this.getActivityBeginTime()));
 		return format;
 	}
 
 	public String getEndTimeStr() {
-		SimpleDateFormat  formatter =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String format = formatter.format(new Date(this.getActivityEndTime()));
 		return format;
 	}
 
 	public int getScorePaid() {
-		
+
 		int scorePaid = this.visitors.size() * score;
 		return scorePaid;
 	}
@@ -270,21 +272,20 @@ public class Activity implements Serializable {
 	}
 
 	/*
-	 * 存放如下四种字符串，用来标记当前活动的状态
+	 * 根据当前时刻的实际情况更新活动的状态信息到state位
 	 * 
 	 * 筹备中："preparing" currentTime<activityBeginTime 
 	 * 已取消："canceled"
 	 * 已完成："finished" 
 	 * 进行中："doing" activityBeginTime<=current<activityEndTime
+	 * 即将开始
 	 */
-	public String getState() {
-
+	public void updateState() {
 		if ("已取消".equals(state) || "已完成".equals(state)) {
 			/*
 			 * 如果数据库中已记录的活动状态为取消或完成，则该活动状态已经没有任何变动的余地，
 			 * 直接返回数据库中记录的状态（canceled或finished）
 			 */
-			return state;
 		} else {
 			// 如果不是取消状态，则进一步根据现状情况分析当前活动处于哪一个状态
 
@@ -296,22 +297,27 @@ public class Activity implements Serializable {
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-
-			if (System.currentTimeMillis() < activityStartDateMillis) {
+			long currentTimeMills = System.currentTimeMillis();
+			if (currentTimeMills < activityStartDateMillis) {
 				// 如果当前时间（格里高利历偏移）小于活动开始当天00:00的格里高利偏移，则说明活动处于筹备状态
 				this.setState("筹备中");
-				return state;
-			} else if (System.currentTimeMillis() >= activityBeginTime
-					&& System.currentTimeMillis() <= activityEndTime) {
+			}else if(currentTimeMills >= activityStartDateMillis && currentTimeMills < activityBeginTime){
+				// 从活动当天的0点到活动开始时间，这段时间
+				this.setState("即将开始");
+			} else if (currentTimeMills >= activityBeginTime
+					&& currentTimeMills <= activityEndTime) {
 				// 如果当前时间在活动开始和结束时间之间，则认定活动进行中
 				this.setState("进行中");
-				return state;
 			}else{
 				// 当前时间超过活动结束时间，活动完成
 				this.setState("已完成");
-				return state;
 			}
 		}
+		return;
+	}
+
+	public String getState() {
+		return this.state;
 	}
 
 	public void setState(String state) {
@@ -334,7 +340,5 @@ public class Activity implements Serializable {
 	public void setProject(DoingProject project) {
 		this.project = project;
 	}
-	
-	
 
 }
