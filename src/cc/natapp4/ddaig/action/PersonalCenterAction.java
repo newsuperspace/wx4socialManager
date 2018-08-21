@@ -1,6 +1,8 @@
 package cc.natapp4.ddaig.action;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -213,7 +215,8 @@ public class PersonalCenterAction extends ActionSupport {
 	public String realName() {
 		// 这里调用UserService，来完成实名制认证，并将结果返回
 		Info4RealName info = new Info4RealName();
-
+		info.setTotal("实名认证结果");
+		
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		System.out.println("提交实名制认证请求的用户的openID是:" + openid);
 		System.out.println("提交的username是：" + this.username);
@@ -436,6 +439,99 @@ public class PersonalCenterAction extends ActionSupport {
 		result.setMessage("删除成功");
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
+	}
+
+	/**
+	 * AJAX 执行签到逻辑
+	 * 
+	 * @return
+	 */
+	public String qianDao() {
+		Info4RealName info = new Info4RealName();
+		info.setTotal("签到结果");
+		
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		Activity activity = activityService.queryEntityById(this.aid);
+		List<Visitor> visitors = activity.getVisitors();
+		for (Visitor v : visitors) {
+			if (v.getUser().getOpenid().equals(openid)) {
+				if (-1 == v.getStartTime()) {
+					long currentTimeMillis = System.currentTimeMillis();
+					SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
+					// 向visitor中记录签到时间
+					v.setStartTime(currentTimeMillis);
+					// 组织Info信息，用作msgPage页面显示
+					info.setDetails("");
+					info.setDetailsURL("");
+					info.setIcon("weui-icon-success");
+					info.setTitle("签到成功");
+					info.setMessage("您已于"+dateTimeStr+"完成签到，请准备参加活动过程中务必注意安全");
+					// 向数据库中保存签到时间
+					visitorService.update(v);
+				}else{
+					SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					String dateTimeStr = formatter.format(new Date(v.getStartTime()));
+					info.setDetails("");
+					info.setDetailsURL("");
+					info.setIcon("weui-icon-warn-red");
+					info.setTitle("发生错误");
+					info.setMessage("您已于"+dateTimeStr+"完成签到，请勿重复操作");
+				}
+
+			}
+		}
+		ActionContext.getContext().getValueStack().push(info);
+		return "msgPage";
+	}
+
+	/**
+	 * AJAX 执行签退逻辑
+	 * 
+	 * @return
+	 */
+	public String qianTui() {
+		Info4RealName info = new Info4RealName();
+		info.setTotal("签退结果");
+		
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		User user  =  userService.queryByOpenId(openid);
+		Activity activity = activityService.queryEntityById(this.aid);
+		List<Visitor> visitors = activity.getVisitors();
+		for (Visitor v : visitors) {
+			if (v.getUser().getOpenid().equals(openid)) {
+				if (-1 == v.getEndTime()) {
+					long currentTimeMillis = System.currentTimeMillis();
+					SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
+					// 向visitor中记录签到时间
+					v.setEndTime(currentTimeMillis);
+					// 给予用户积分
+					v.setScore(activity.getScore());
+					user.setScore(user.getScore()+activity.getScore());
+					// 计算本次活动时常
+					v.setWorkTime(v.getEndTime()-v.getStartTime());
+					// 组织Info信息，用作msgPage页面显示
+					info.setDetails("");
+					info.setDetailsURL("");
+					info.setIcon("weui-icon-success");
+					info.setTitle("签退成功");
+					info.setMessage("您已于"+dateTimeStr+"完成签退，感谢您对社区公益的支持，祝您生活愉快");
+					// 向数据库中保存签到时间
+					visitorService.update(v);
+				}else{
+					SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					String dateTimeStr = formatter.format(new Date(v.getStartTime()));
+					info.setDetails("");
+					info.setDetailsURL("");
+					info.setIcon("weui-icon-warn-red");
+					info.setTitle("发生错误");
+					info.setMessage("您已于"+dateTimeStr+"完成签退，请勿重复操作");
+				}
+			}
+		}
+		ActionContext.getContext().getValueStack().push(info);
+		return "msgPage";
 	}
 
 }

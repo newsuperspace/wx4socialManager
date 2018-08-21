@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>实名认证</title>
+<title><s:property value="total"/></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta charset="utf-8">
 <meta name="viewport"
@@ -22,13 +22,13 @@
 	<div class="weui-msg">
         <div class="weui-msg__icon-area">
         	<s:if test="icon=='weui-icon-warn-red'">
-            	<i class="weui-icon-warn weui-icon_msg">红色强烈警告</i>
+            	<i class="weui-icon-warn weui-icon_msg"></i>
         	</s:if>
 			<s:elseif test="icon=='weui-icon-success'">
 				<i class="weui-icon-success weui-icon_msg"></i>
 			</s:elseif>        	
             <s:elseif test="icon='weui-icon-info'">
-            	<i class="weui-icon-info weui-icon_msg">蓝色提示</i>
+            	<i class="weui-icon-info weui-icon_msg"></i>
             </s:elseif>
             <!-- <i class="weui-icon-warn weui-icon_msg-primary">黄色警告</i> -->
             <!-- <i class="weui-icon-waiting weui-icon_msg">蓝色等待</i> -->

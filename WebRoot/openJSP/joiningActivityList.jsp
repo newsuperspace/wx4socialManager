@@ -185,7 +185,8 @@
 			success : function(res) {
 				// 通过res.resultStr 得到二维码的结果字符串
 				let aid = res.resultStr;
-				alert("扫码签到的活动AID是："+aid);
+				let url = "personalCenterAction_qianDao.action?"+"aid="+aid;
+				$(location).attr("href",url);
 			},
 			// 扫码失败的回调
 			error : function(res) {
@@ -205,7 +206,8 @@
 			success : function(res) {
 				// 通过res.resultStr 得到二维码的结果字符串
 				let aid = res.resultStr;
-				weui.alert("扫码签退的活动AID是："+aid);
+				let url = "personalCenterAction_qianTui.action?"+"aid="+aid;
+				$(location).attr("href",url);
 			},
 			// 扫码失败的回调
 			error : function(res) {
