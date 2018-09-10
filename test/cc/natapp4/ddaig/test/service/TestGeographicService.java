@@ -1,5 +1,7 @@
 package cc.natapp4.ddaig.test.service;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -27,11 +29,19 @@ public class TestGeographicService {
 	}
 
 	/**
-	 * 
+	 * 【通过】
 	 */
 	@Test
-	public void testUpdate(){
-		
+	public void testQueryAndUpdate(){
+		GeographicService  service  =  (GeographicService) context.getBean("geographicService");
+		List<Geographic> list = service.queryEntities();
+		Geographic geo  = null;
+		for(Geographic g:list){
+			geo = g;
+			System.out.println("当前查找出的坐标对象的name："+g.getName());
+		}
+		geo.setDescription("22222");
+		service.update(geo);
 	}
 	
 	/**
@@ -39,7 +49,9 @@ public class TestGeographicService {
 	 */
 	@Test
 	public void testDelete(){
-		
+		GeographicService  service  =  (GeographicService) context.getBean("geographicService");
+		Geographic geographic = service.queryEntityById("402881e465c187730165c18796100000");
+		service.delete(geographic);
 	}
 	
 	

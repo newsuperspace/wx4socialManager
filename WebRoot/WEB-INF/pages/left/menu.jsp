@@ -94,45 +94,50 @@
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
-									
-										<myShiro:hasAnyPermissions name="minus_first:project:retrieve,zero:project:retrieve,first:project:retrieve,second:project:retrieve,third:project:retrieve">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action")'>我的项目</a>
-										</li>
+
+										<myShiro:hasAnyPermissions
+											name="minus_first:project:retrieve,zero:project:retrieve,first:project:retrieve,second:project:retrieve,third:project:retrieve">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action")'>我的项目</a>
+											</li>
 										</myShiro:hasAnyPermissions>
-										
+
 										<myShiro:hasAnyPermissions name="admin">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=minusFirst")'>街道级项目</a>
-										</li>
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=minusFirst")'>街道级项目</a>
+											</li>
 										</myShiro:hasAnyPermissions>
-										
-										<myShiro:hasAnyPermissions name="admin,minus_first:project:retrieve">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=zero")'>社区级项目</a>
-										</li>
+
+										<myShiro:hasAnyPermissions
+											name="admin,minus_first:project:retrieve">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=zero")'>社区级项目</a>
+											</li>
 										</myShiro:hasAnyPermissions>
-										
-										<myShiro:hasAnyPermissions name="admin,minus_first:project:retrieve,zero:project:retrieve">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=first")'>第一级项目</a>
-										</li>
+
+										<myShiro:hasAnyPermissions
+											name="admin,minus_first:project:retrieve,zero:project:retrieve">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=first")'>第一级项目</a>
+											</li>
 										</myShiro:hasAnyPermissions>
-										
-										<myShiro:hasAnyPermissions name="admin,minus_first:project:retrieve,zero:project:retrieve,first:project:retrieve">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=second")'>第二级项目</a>
-										</li>
+
+										<myShiro:hasAnyPermissions
+											name="admin,minus_first:project:retrieve,zero:project:retrieve,first:project:retrieve">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=second")'>第二级项目</a>
+											</li>
 										</myShiro:hasAnyPermissions>
-										
-										<myShiro:hasAnyPermissions name="admin,minus_first:project:retrieve,zero:project:retrieve,first:project:retrieve,second:project:retrieve">
-										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=third")'>第三级项目</a>
-										</li>
+
+										<myShiro:hasAnyPermissions
+											name="admin,minus_first:project:retrieve,zero:project:retrieve,first:project:retrieve,second:project:retrieve">
+											<li class="nav-item"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("projectContent", "doingProjectAction_getProjects.action?level=third")'>第三级项目</a>
+											</li>
 										</myShiro:hasAnyPermissions>
-										
+
 										<!-- 项目只能是街道/社区/第一/第二/第三层级对象持有，第四层级不得持有项目 -->
-										
+
 
 									</ul>
 
@@ -201,6 +206,51 @@
 								</div>
 							</div>
 						</div>
+
+
+
+						<myShiro:hasAnyPermissions
+							name="admin,zero:house:retrieveHouse,zero:house:retrieveActivity">
+
+							<div class="card">
+								<div class="card-header px-0 py-1" role="tab"
+									id="houseContentHeaderId">
+									<a class="nav-link" data-toggle="collapse" href="#houseContent"
+										aria-expanded="false" aria-controls="houseContent"> 活动室管理
+									</a>
+								</div>
+								<!--
+                                        注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
+                                        并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
+                                        因此同一时间只能打开其中一个card
+                                    -->
+								<div id="houseContent" class="collapse in" role="tabpanel"
+									data-parent="#accordianId"
+									aria-labelledby="houseContentHeaderId">
+									<div class="card-body py-1">
+
+										<ul class="navbar-nav mr-auto mt-0 pt-0">
+
+											<myShiro:hasAnyPermissions
+												name="admin,zero:house:retrieveHouse">
+												<li class="nav-item active"><a class="nav-link"
+													href="#"
+													onclick='overAll.op.saveCollapseContentID2LS("houseContent", "houseAction_*.action")'>活动室设置
+														<span class="sr-only">(current)</span>
+												</a></li>
+											</myShiro:hasAnyPermissions>
+
+											<myShiro:hasAnyPermissions
+												name="admin,zero:house:retrieveActivity">
+												<li class="nav-item"><a class="nav-link" href="#"
+													onclick='overAll.op.saveCollapseContentID2LS("houseContent", "houseAction_*.action")'>月使用详情</a></li>
+											</myShiro:hasAnyPermissions>
+
+										</ul>
+									</div>
+								</div>
+							</div>
+						</myShiro:hasAnyPermissions>
 
 						<shiro:hasPermission name="admin">
 							<div class="card">
