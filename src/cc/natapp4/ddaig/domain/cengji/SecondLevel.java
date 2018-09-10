@@ -9,6 +9,8 @@ import org.apache.struts2.json.annotations.JSON;
 
 import cc.natapp4.ddaig.domain.BesureProject;
 import cc.natapp4.ddaig.domain.DoingProject;
+import cc.natapp4.ddaig.domain.Geographic;
+import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.Permission;
@@ -41,6 +43,10 @@ public class SecondLevel implements LevelInterface {
 	private Set<Member> members;
 	// 当前层级对象所能行使的权限（多对多）
 	private Set<Permission> permissions;
+	
+	// 当前层级对象所创建的点位
+	private List<Geographic> geographics;
+	
 	// qrcode 的相對路徑
 	// ,包含形如："level:-1;id:293jjf8239832jf8j298ufd987sfh28923"的字符串的二維碼被放置在形如"qrcode/1/12/xxxx.gif"之下
 	private String qrcode;
@@ -57,6 +63,8 @@ public class SecondLevel implements LevelInterface {
 	private List<ThirdLevel> allChildren4Ajax;
 
 	// ==================================SETTERs/GETTERs=====================================
+	
+	
 	// AJAX
 	public List<ThirdLevel> getAllChildren4Ajax() {
 		List<ThirdLevel> list = new ArrayList<ThirdLevel>();
@@ -69,6 +77,14 @@ public class SecondLevel implements LevelInterface {
 			list.add(third);
 		}
 		return list;
+	}
+
+	@JSON(serialize = false)
+	public List<Geographic> getGeographics() {
+		return geographics;
+	}
+	public void setGeographics(List<Geographic> geographics) {
+		this.geographics = geographics;
 	}
 
 	// AJAX

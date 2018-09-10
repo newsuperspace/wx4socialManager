@@ -43,6 +43,10 @@ import cc.natapp4.ddaig.utils.QRCodeUtils;
 @Lazy(true)
 public class ActivityAction extends ActionSupport implements ModelDriven<Activity> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// ==============================DI注入==============================
 	@Resource(name = "activityService")
 	private ActivityService activityService;

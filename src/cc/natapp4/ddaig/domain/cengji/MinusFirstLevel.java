@@ -9,6 +9,7 @@ import org.apache.struts2.json.annotations.JSON;
 
 import cc.natapp4.ddaig.domain.BesureProject;
 import cc.natapp4.ddaig.domain.DoingProject;
+import cc.natapp4.ddaig.domain.Geographic;
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.Permission;
@@ -43,6 +44,8 @@ public class MinusFirstLevel implements LevelInterface {
 	private Set<Member> members;
 	// 当前层级对象所能行使的权限（多对多）
 	private Set<Permission> permissions;
+	// 该层级所创建的所有点位
+	private List<Geographic> geographics;
 	// qrcode 的相對路徑
 	// ,包含形如："level:-1;id:293jjf8239832jf8j298ufd987sfh28923"的字符串的二維碼被放置在形如"qrcode/1/12/xxxx.gif"之下
 	private String qrcode;
@@ -196,4 +199,13 @@ public class MinusFirstLevel implements LevelInterface {
 		this.besureProjects = besureProjects;
 	}
 
+	@JSON(serialize=false)
+	public List<Geographic> getGeographics() {
+		return geographics;
+	}
+
+	public void setGeographics(List<Geographic> geographics) {
+		this.geographics = geographics;
+	}
+	
 }

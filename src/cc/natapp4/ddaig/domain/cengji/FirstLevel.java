@@ -9,6 +9,7 @@ import org.apache.struts2.json.annotations.JSON;
 
 import cc.natapp4.ddaig.domain.BesureProject;
 import cc.natapp4.ddaig.domain.DoingProject;
+import cc.natapp4.ddaig.domain.Geographic;
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.Permission;
@@ -55,12 +56,16 @@ public class FirstLevel implements LevelInterface {
 	private Set<DoingProject> doingProjects;
 	// 当前层级之下等待审核的项目列表
 	private Set<BesureProject> besureProjects;
-
+	// 当前层级对象所创建的点位
+	private List<Geographic> geographics;
+	
 	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
 	private List<SecondLevel> children4Ajax;
 	private List<SecondLevel> allChildren4Ajax;
 
 	// ==================================SETTERs/GETTERs=====================================
+	
+	
 	// AJAX
 	public List<SecondLevel> getAllChildren4Ajax() {
 		List<SecondLevel> list = new ArrayList<SecondLevel>();
@@ -73,6 +78,14 @@ public class FirstLevel implements LevelInterface {
 			list.add(second);
 		}
 		return list;
+	}
+
+	@JSON(serialize = false)
+	public List<Geographic> getGeographics() {
+		return geographics;
+	}
+	public void setGeographics(List<Geographic> geographics) {
+		this.geographics = geographics;
 	}
 
 	// AJAX

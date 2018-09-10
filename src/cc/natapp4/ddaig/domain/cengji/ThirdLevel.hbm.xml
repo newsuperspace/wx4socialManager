@@ -14,6 +14,13 @@
 		<property name="qrcode" length="100"></property>
 		<property name="qrcodeTime" type="long"></property>
 
+		<list name="geographics" cascade="save-update" lazy="true">
+			<key column="thid"></key>
+			<list-index column="index4third"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Geographic" />
+		</list>
+
+
 		<many-to-one name="parent" column="scid" lazy="false"
 			class="cc.natapp4.ddaig.domain.cengji.SecondLevel" cascade="save-update"></many-to-one>
 

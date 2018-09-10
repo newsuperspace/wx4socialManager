@@ -63,6 +63,11 @@ public class Activity implements Serializable {
 	private List<Visitor> visitors; // 实际参与活动的用户列表
 	// 当前活动所属的项目坚持———【项目为核心原则，有项目才能发起活动】
 	private DoingProject project;
+	
+	// 【室内活动】，则这里需要关联指定House对象（一对多外键关联）
+	private House house;
+	// 【室外活动】，则这里需要关联指定Geographic对象（一对多外键关联）
+	private Geographic geographic;
 
 	// ===============================用于前端显示的字段（不与数据库关联）==============================
 	// 前端显示格式如 yyyy-MM-dd HH：mm:ss 的活动开始时间
@@ -90,6 +95,19 @@ public class Activity implements Serializable {
 			}
 		}
 		return theVisitor;
+	}
+
+	public House getHouse() {
+		return house;
+	}
+	public void setHouse(House house) {
+		this.house = house;
+	}
+	public Geographic getGeographic() {
+		return geographic;
+	}
+	public void setGeographic(Geographic geographic) {
+		this.geographic = geographic;
 	}
 
 	/*

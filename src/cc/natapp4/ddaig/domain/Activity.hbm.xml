@@ -4,43 +4,38 @@
 <hibernate-mapping>
 	<class name="cc.natapp4.ddaig.domain.Activity">
 		<id name="aid" length="50">
-			<!-- 
-				设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段
-			 -->
-			 <!-- 
-			 	主键产生器设置成assigned，是有需要根据aid来生成专属qrcode，因此需要手动生成并设置到bean中
-			  -->
+			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
+			<!-- 主键产生器设置成assigned，是有需要根据aid来生成专属qrcode，因此需要手动生成并设置到bean中 -->
 			<generator class="assigned"></generator>
 		</id>
 
 		<property name="type" length="30"></property>
-		<property name="baoMingUplimit" type="integer"></property>		
+		<property name="baoMingUplimit" type="integer"></property>
 		<property name="activityBeginTime" type="long"></property>
 		<property name="activityEndTime" type="long"></property>
 		<property name="baoMingBeginTime" type="long"></property>
 		<property name="baoMingEndTime" type="long"></property>
-		<property name="score" type="integer"></property>		
+		<property name="score" type="integer"></property>
 		<property name="qrcodeUrl" length="100"></property>
 		<property name="name" length="50"></property>
 		<property name="description" length="500"></property>
 		<property name="state" length="10"></property>
-		
+
 		<list name="visitors" cascade="save-update" lazy="true">
 			<key column="aid"></key>
-			<list-index column="index4activity" ></list-index>
-			<one-to-many class="cc.natapp4.ddaig.domain.Visitor"/>
-		</list>		
+			<list-index column="index4activity"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Visitor" />
+		</list>
+
+		<many-to-one name="project" class="cc.natapp4.ddaig.domain.DoingProject"
+			column="pid" cascade="save-update" lazy="false"></many-to-one>
 		
-		<many-to-one name="project"
-			class="cc.natapp4.ddaig.domain.DoingProject"
-			column="pid"
-			cascade="save-update"
-			lazy="false"
-		></many-to-one>
-		
-		
-		
-		
-	
+		<many-to-one name="house" class="cc.natapp4.ddaig.domain.House"
+			cascade="save-update" column="hid" lazy="false"></many-to-one>
+
+		<many-to-one name="geographic" class="cc.natapp4.ddaig.domain.Geographic"
+			cascade="save-update" column="geoid" lazy="false"></many-to-one>
+
+
 	</class>
 </hibernate-mapping>
