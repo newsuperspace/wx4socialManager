@@ -235,7 +235,7 @@
 												name="admin,zero:house:retrieveHouse">
 												<li class="nav-item active"><a class="nav-link"
 													href="#"
-													onclick='overAll.op.saveCollapseContentID2LS("houseContent", "houseAction_*.action")'>活动室设置
+													onclick='overAll.op.saveCollapseContentID2LS("houseContent", "houseAction_getHouseList.action")'>活动室设置
 														<span class="sr-only">(current)</span>
 												</a></li>
 											</myShiro:hasAnyPermissions>

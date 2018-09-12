@@ -1401,10 +1401,10 @@ var overAll = {
 						toggle : true
 					});
 					overAll.init.data.isWeixin = false;
-				}else{
+				} else {
 					overAll.init.data.isWeixin = true;
 				}
-				console.log("当前屏幕像素分辨为"+window.screen.availWidth+",功能菜单样式设置完成");
+				console.log("当前屏幕像素分辨为" + window.screen.availWidth + ",功能菜单样式设置完成");
 			},
 			/*
 			 * 页面被加载的时候通过localStorage确定左侧边栏应该打开的是哪个content
@@ -1420,7 +1420,7 @@ var overAll = {
 		},
 
 		data : {
-			isWeixin: false,
+			isWeixin : false,
 		},
 	},
 
@@ -1458,53 +1458,225 @@ var projectModal = {
 		 * 点击已开展活动的数字，可以跳转到Activity页面，显示当前项目所开展过的活动信息历史纪录表————activityList.jsp
 		 */
 		getActivities : function(dpid) {
-			var url = "activityAction_showDoingProjectActivityList.action?dpid="+dpid;
-			$(location).attr("href",url);
+			var url = "activityAction_showDoingProjectActivityList.action?dpid=" + dpid;
+			$(location).attr("href", url);
 		},
 		/*
 		 * projectList.jsp页面上点击某个项目的"新活动"按钮时调用本方法
 		 * dpid： 是在当初请求projectList.jsp的时候，由服务器端的struts2通过OGNL表达式将doingProject的dpid填入进来的
 		 */
-		createActivity: function(dpid){
-			var url = "activityAction_createPage.action?dpid="+dpid;
-			$(location).attr("href",url);
+		createActivity : function(dpid) {
+			var url = "activityAction_createPage.action?dpid=" + dpid;
+			$(location).attr("href", url);
 		},
 	}
 };
 
 var navbarModal = {
-		
-		data:{},
-		init:{},
-		op:{
-			/*
-			 * 向后端请求获取当前操作者的层级信息
-			 * 层级QRCODE
-			 * 层级名
-			 * 层级描述
-			 * 层级所有者
-			 */
-			preMyselfLevelInfo: function(){
-				var url = "userAction_preMyselfLevelInfo.action";
-				
-				$.post(url, null, function(data, textStatus, req) {
-					if(data.result){
-						var levelName = data.levelName;
-						var levelDescription = data.levelDescription;
-						var qrcode = data.qrcode;
-						var levelManager = data.levelManager;
-						$("#levelQrcode").attr("src", qrcode);
-						$("#levelName").text(levelName);
-						$("#levelDescription").text(levelDescription);
-						$("#levelManager").text(levelManager);
-						$("#levelInfoModal").modal("show");
-					}else{
-						alert(data.message);
-					}
-				});
-			}
+	data : {},
+	init : {},
+	op : {
+		/*
+		 * 向后端请求获取当前操作者的层级信息
+		 * 层级QRCODE
+		 * 层级名
+		 * 层级描述
+		 * 层级所有者
+		 */
+		preMyselfLevelInfo : function() {
+			var url = "userAction_preMyselfLevelInfo.action";
+
+			$.post(url, null, function(data, textStatus, req) {
+				if (data.result) {
+					var levelName = data.levelName;
+					var levelDescription = data.levelDescription;
+					var qrcode = data.qrcode;
+					var levelManager = data.levelManager;
+					$("#levelQrcode").attr("src", qrcode);
+					$("#levelName").text(levelName);
+					$("#levelDescription").text(levelDescription);
+					$("#levelManager").text(levelManager);
+					$("#levelInfoModal").modal("show");
+				} else {
+					alert(data.message);
+				}
+			});
 		}
-	};
+	}
+};
+
+
+var houseModal = {
+	init : {},
+	data : {},
+	op : {
+		/**
+		 * 【完成】
+		 * 显示新建房屋窗口前的准备工作
+		 */
+		showCreateModal : function() {
+			$("#name").val("");
+			$("description").val("");
+			$("#createModal").modal('show');
+		},
+		/**
+		 * 【完成】
+		 * AJAX
+		 * 新建活动室
+		 */
+		createHouse : function() {
+			let param = {
+				name : $("#name").val(),
+				description : $("#description").val()
+			}
+			let url = "houseAction_createHouse.action";
+			$.post(url, param, function(data, textStatus, req) {
+				$("#createModal").modal('hide');
+				weui.alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * 【完成】
+		 * AJAX
+		 * 显示更新房屋窗口前的准备工作
+		 */
+		showUpdateModal : function(hid) {
+			let param = {
+				hid : hid
+			}
+			let url = "houseAction_getHouseInfo.action";
+			$.post(url, param, function(data, textStatus, req) {
+				if (data.result) {
+					// result == true,表明根据前端所提供的hid，获取到了指定房屋的数据信息，可以准备Modal的数据显示了
+					$("#hid4update").val(hid);
+					$("#name4update").val(data.house.name);
+					$("#description4update").val(data.house.description);
+					$("#longitude4update").val(data.house.geographic.longitude);
+					$("#latitude").val(data.house.geographic.latitude);
+					$("#updateModal").modal('show');
+				} else {
+					weui.alert("获取不到指定活动室的数据信息，请重试！");
+				}
+			});
+		},
+		/**
+		 * 【完成】
+		 * AJAX
+		 * 更新活动室数据
+		 */
+		updateHouse : function() {
+			let param = {
+				hid : $("#hid4update").val(),
+				name : $("#name4update").val(),
+				description : $("#description4update").val(),
+				longitude : $("#longitude4update").val(),
+				latitude : $("#latitude4update").val()
+			}
+			let url = "houseAction_updateHouse.action";
+			$.post(url, param, function(data, textStatus, req) {
+				$("#updateModal").modal('hide');
+				weui.alert(data.message);
+				window.location.reload();
+			});
+		},
+
+		/**
+		 * AJAX
+		 * 关闭房屋
+		 */
+		closeHouse : function(hid) {
+			weui.confirm('是否停用该房屋？', {
+				title : '是否停用该房屋？',
+				buttons : [ {
+					label : '不',
+					type : 'default',
+					onClick : function() {}
+				}, {
+					label : '是的',
+					type : 'primary',
+					onClick : function() {
+						let param = {
+							hid : hid
+						}
+						let url = "houseAction_closeHouse.action";
+						$.post(url, param, function(data, textStatus, req) {
+							weui.alert(data.message);
+							window.location.reload();
+						});
+					}
+				} ]
+			});
+		},
+		/**
+		 * AJAX
+		 * 开放房屋
+		 */
+		openHouse : function(hid) {
+			weui.confirm('是否启用该房屋？', {
+				title : '是否启用该房屋？',
+				buttons : [ {
+					label : '不',
+					type : 'default',
+					onClick : function() {}
+				}, {
+					label : '是的',
+					type : 'primary',
+					onClick : function() {
+						let param = {
+							hid : hid
+						}
+						let url = "houseAction_openHouse.action";
+						$.post(url, param, function(data, textStatus, req) {
+							weui.alert(data.message);
+							window.location.reload();
+						});
+					}
+				} ]
+			});
+		},
+
+		/**
+		 * AJAX
+		 * 刪除房屋
+		 */
+		deleteHouse: function(){
+			weui.confirm('刪除该活动室后将不可恢复，是否确认删除？', {
+				title : '刪除该活动室后将不可恢复，是否确认删除？',
+				buttons : [ {
+					label : '不',
+					type : 'default',
+					onClick : function() {}
+				}, {
+					label : '是的',
+					type : 'primary',
+					onClick : function() {
+						let param = {
+							hid : hid
+						}
+						let url = "houseAction_deleteHouse.action";
+						$.post(url, param, function(data, textStatus, req) {
+							weui.alert(data.message);
+							window.location.reload();
+						});
+					}
+				} ]
+			});
+		},
+		
+		
+		/**
+		 * AJAX 
+		 * 根据提供的hid从后端获取指定房屋的数据信息，
+		 * 然后显示在InfoModal上
+		 */
+		houseInfo : function(hid) {
+			weui.alert("您所点击的房屋的hid是：" + hid);
+		},
+	}
+};
+
 
 
 /**
@@ -1527,28 +1699,28 @@ var aboutWeixin = {
 				$.ajaxSetup({
 					async : false // 全局设置Ajax为同步执行
 				});
-				
+
 				// ===============================微信网页认证授权===========================
 				// 由于当前页面是用来实名制认证的，因此通过OAthure2.0认证后会将用来获取access_token的票据code以请求参数的形式传递过来
 				// 因此这里就需要预先获取到请求参数code的值，并且进行Ajax通讯让服务器从微信官方得到该用户真正的openID，并且保存到数据组件中备用
 				var code = aboutWeixin.op.getAccess_Token("code");
-				if(null!=code && ""!=code){
+				if (null != code && "" != code) {
 					// 如果存在code请求参数，则可以开始准备进行Ajax通讯获取来访用户的OpenID
 					var url = "ajaxAction4weixin_getOpenIdthroughCode.action";
 					var param = {
 						"code" : code,
 					};
 					$.post(url, param, function(data) {
-//						if (!jQuery.isEmptyObject(data)) {
-//							// 将当前操作的用户的openid保存到localStorage中
-//							localStorage.setItem("openid", data.openid);
-//						} else {
-//							console.log("以Code换取用户OpenID时出现异常（可能之前已经用该code换取过openID了）");
-//						}
-						if(data.result){
+						//						if (!jQuery.isEmptyObject(data)) {
+						//							// 将当前操作的用户的openid保存到localStorage中
+						//							localStorage.setItem("openid", data.openid);
+						//						} else {
+						//							console.log("以Code换取用户OpenID时出现异常（可能之前已经用该code换取过openID了）");
+						//						}
+						if (data.result) {
 							localStorage.setItem("openid", data.openid);
 							console.log(data.message);
-						}else{
+						} else {
 							console.log(data.message);
 						}
 					});
@@ -1606,10 +1778,9 @@ var aboutWeixin = {
 
 					// （1）隐藏右上角的弹出式菜单，防止当前页面被分享出去
 					wx.hideOptionMenu();
-					// TODO 调用其他需要使用JS-SKD进行的初始设置工作.......
+				// TODO 调用其他需要使用JS-SKD进行的初始设置工作.......
 				});
 			},
-			
 		}
 	},
 	data : {},
@@ -1637,7 +1808,7 @@ var aboutWeixin = {
 			return null; // 返回参数值
 		},
 
-		
+
 		/*
 		 * realName.jsp前端表单验证逻辑，只有当
 		 * username
@@ -1646,7 +1817,7 @@ var aboutWeixin = {
 		 * phone
 		 * 这四个input都有值得时候，提交按钮才可用
 		 */
-		canCheckRealName: function(){
+		canCheckRealName : function() {
 			var username = $("#username").val();
 			var sex = $('input[name="sex"]:checked').val();
 			var birth = $("#birth").val();
@@ -1669,7 +1840,7 @@ var aboutWeixin = {
 			console.log("现在可以提交了");
 			$("#submit").removeClass("weui-btn_disabled");
 		},
-		
+
 		/*
 		 * 对于realName.jsp页面上提交表单时进行实名认证的Ajax操作
 		 */
@@ -1713,74 +1884,73 @@ var aboutWeixin = {
 };
 
 var activityModal = {
-	init:{
+	init : {
 		// 对当前页面上的jQueryUI组件进行一些初始化工作
-		initOp: function(){
-			 // 设置日期时间选择器
-            $("#date").prop("readonly", true).datetimepicker({
-                showAnim: "blind",
-                showButtonPanel: false, // 不现实日期时间选择下面的按钮行
-                showSecond: false,
-                onClose: function (selectedDate) {
-                    // 当选择器关闭时出发本事件回调
-                },
-                // 可选日期范围从当前日期偏移1天开始，到1个月的为选择范围
-                minDate: 1,
-                maxDate: "+1M"
-            });
+		initOp : function() {
+			// 设置日期时间选择器
+			$("#date").prop("readonly", true).datetimepicker({
+				showAnim : "blind",
+				showButtonPanel : false, // 不现实日期时间选择下面的按钮行
+				showSecond : false,
+				onClose : function(selectedDate) {
+					// 当选择器关闭时出发本事件回调
+				},
+				// 可选日期范围从当前日期偏移1天开始，到1个月的为选择范围
+				minDate : 1,
+				maxDate : "+1M"
+			});
 
-            // 设置活动时间的滚动条
-            $("#hourBar").slider({
-                range: false,   // 如果设置成true就会出现前后两个滑块
-                min: 1, // 最小值为1（小时）
-                max: 12, // 最大值为12（小时）
-                change: function (event) {
-                    // 获取滑块儿的jQuery对象，因为event.target是出发当前回调方法的DOM对象（一个div），因此需要先转化成jQuery对象，才能调用jQuery的API
-                    var $hourBar = $(event.target);
-                    // 当滚动条被波动时，出发本回调，设置显示的数值
-                    /*
-                     * 如果设置的range为true，则此处虎丘两个滑块儿的值的时候应该使用values， 
-                     * 返回一个数组index=0为第一个滑块儿的数值；index=1为第二个滑块儿的数值
-                     */
-                    // var hour = $(event.target).slider("values")[1];
-                    /* 
-                     * 而如果range为false，则只有一个滑块儿，因此直接使用value就能获取到这个滑块儿的数值了。
-                     */
-                   var hour = $hourBar.slider("value");
-                    $("#hour").val(hour);
-                },
+			// 设置活动时间的滚动条
+			$("#hourBar").slider({
+				range : false, // 如果设置成true就会出现前后两个滑块
+				min : 1, // 最小值为1（小时）
+				max : 12, // 最大值为12（小时）
+				change : function(event) {
+					// 获取滑块儿的jQuery对象，因为event.target是出发当前回调方法的DOM对象（一个div），因此需要先转化成jQuery对象，才能调用jQuery的API
+					var $hourBar = $(event.target);
+					// 当滚动条被波动时，出发本回调，设置显示的数值
+					/*
+					 * 如果设置的range为true，则此处虎丘两个滑块儿的值的时候应该使用values， 
+					 * 返回一个数组index=0为第一个滑块儿的数值；index=1为第二个滑块儿的数值
+					 */
+					// var hour = $(event.target).slider("values")[1];
+					/* 
+					 * 而如果range为false，则只有一个滑块儿，因此直接使用value就能获取到这个滑块儿的数值了。
+					 */
+					var hour = $hourBar.slider("value");
+					$("#hour").val(hour);
+				},
+			});
 
-            });
-
-            // 由于默认活动参与人数不设限制，因此在刚刚载入页面的时候需要预先隐藏baoMingUplimit
-            $("#baoMingUplimit").parent().attr("hidden",true);
+			// 由于默认活动参与人数不设限制，因此在刚刚载入页面的时候需要预先隐藏baoMingUplimit
+			$("#baoMingUplimit").parent().attr("hidden", true);
 		}
 	},
-	data:{},
-	op:{
+	data : {},
+	op : {
 		/*
 		 * 跳转到展示活动参与者的list列表页面
 		 */
-		showVisitors: function(aid){
-			alert("当前活动的aid是："+aid);
+		showVisitors : function(aid) {
+			alert("当前活动的aid是：" + aid);
 		},
-		
+
 		/*
 		 * 监听活动人数限制类型的selector的变化，用来显示设置参与人数的input
 		 */
-		typeChangeListener: function(){
+		typeChangeListener : function() {
 			var type = $("#type").val();
-            if ('1' == type) {
-                $("#baoMingUplimit").parent().attr("hidden", true);
-            } else if ('2' == type) {
-                $("#baoMingUplimit").parent().attr("hidden", false);
-            }
-            activityModal.op.checkInput();
-            activityModal.op.checkBaomingUplimit();
+			if ('1' == type) {
+				$("#baoMingUplimit").parent().attr("hidden", true);
+			} else if ('2' == type) {
+				$("#baoMingUplimit").parent().attr("hidden", false);
+			}
+			activityModal.op.checkInput();
+			activityModal.op.checkBaomingUplimit();
 		},
-		
+
 		// 校验函数——校验id=hour的input的值是否在1~12之间
-		checkHour: function(self){
+		checkHour : function(self) {
 			var $hourInput = $(self);
 			/*
 			 * 然后再将数字字符串转变为真正的Number类型的数值
@@ -1788,88 +1958,88 @@ var activityModal = {
 			 * 因此为了保险起见，我们通过 "parseInt(hour.val())||1"的形式来获取数值
 			 * 因为如果parseInt(hour.val()) 是 NaN/Null/undefined 则就会默认为1
 			 * 否则才是parseInt(hour.val())的本值，这是一个JS中的常用技巧★★
-			 */ 
-			var hour =  parseInt($hourInput.val()) || 1;
+			 */
+			var hour = parseInt($hourInput.val()) || 1;
 			// 然后判断hour是否在1~12之间
-			if(hour<1){
+			if (hour < 1) {
 				hour = 1;
-			}else if(hour>12){
+			} else if (hour > 12) {
 				hour = 12;
-            }
-            console.log("当前hour的值被修正成："+hour);
-            $hourInput.val(hour);
-            $("#hourBar").slider("value",hour);
+			}
+			console.log("当前hour的值被修正成：" + hour);
+			$hourInput.val(hour);
+			$("#hourBar").slider("value", hour);
 		},
-		
+
 		// 检查id=name/descrpition/date 这三个input是否为空，为空则commit提交按钮为disabled
-		checkInput: function(){
+		checkInput : function() {
 			let aflag = true;
-            $("input[data-myInput='me']").each(function(){
-            	let $self = $(this);
-            	if($self.attr("id")=="baoMingUplimit"){
-            		// 如果当前input是baoMingUplimit
-            		if($("#type").val()=='2'){
-            			// 只有type设置成限定人数，才检查baoMingUplimit是否为空
-            			if($self.val()==""){
-                            aflag=false;
-                        }
-            		}
-            	}else{
-            		// 其他的input都要检查是否为空
-            		if($self.val()==""){
-            			aflag=false;
-            		}
-            	}
-            });
-            if(aflag){
-                $("#commit").attr("disabled",false);
-            }else{
-                $("#commit").attr("disabled",true);
-            }
+			$("input[data-myInput='me']").each(function() {
+				let $self = $(this);
+				if ($self.attr("id") == "baoMingUplimit") {
+					// 如果当前input是baoMingUplimit
+					if ($("#type").val() == '2') {
+						// 只有type设置成限定人数，才检查baoMingUplimit是否为空
+						if ($self.val() == "") {
+							aflag = false;
+						}
+					}
+				} else {
+					// 其他的input都要检查是否为空
+					if ($self.val() == "") {
+						aflag = false;
+					}
+				}
+			});
+			if (aflag) {
+				$("#commit").attr("disabled", false);
+			} else {
+				$("#commit").attr("disabled", true);
+			}
 		},
-		
+
 		/*
 		 * 查看baoMingUplimit这个input的人数是否在1~max之间
 		 */
-		checkBaomingUplimit: function(){
-			if($("#type").val()=='1'){
+		checkBaomingUplimit : function() {
+			if ($("#type").val() == '1') {
 				// 不限定人数，无需检查
-			}else{
+			} else {
 				// 限定人数，检查
 				var baoMingUplimit = parseInt($("#baoMingUplimit").val());
 				var min = parseInt($("#baoMingUplimit").attr("min"));
 				var max = parseInt($("#baoMingUplimit").attr("max"));
-				if(baoMingUplimit<=max && baoMingUplimit>=min){
-					$("#commit").attr("disabled",false);
+				if (baoMingUplimit <= max && baoMingUplimit >= min) {
+					$("#commit").attr("disabled", false);
 					$("#info4baoMingUplimit").attr("hidden", true);
-				}else{
-					$("#commit").attr("disabled",true);
-					$("#info4baoMingUplimit").attr("hidden",false).text("报名人数限制应在"+min+"~"+max+"之间");
+				} else {
+					$("#commit").attr("disabled", true);
+					$("#info4baoMingUplimit").attr("hidden", false).text("报名人数限制应在" + min + "~" + max + "之间");
 				}
 			}
 		},
-		
+
 		// AJAX 创建活动
-		createActivity: function(){
-			
+		createActivity : function() {
+
 			var url = "activityAction_createActivity.action";
 			var param = {
-				name: $("#name").val(),
-				dpid: $("#dpid").val(),
-				description: $("#description").val(),
-				type: $("#type").val(),
-				baoMingUplimit: $("#baoMingUplimit").val(),
-				date: $("#date").val(),
-				hour: $("#hour").val(),
-				score: $("#score").val(),
+				name : $("#name").val(),
+				dpid : $("#dpid").val(),
+				description : $("#description").val(),
+				type : $("#type").val(),
+				baoMingUplimit : $("#baoMingUplimit").val(),
+				date : $("#date").val(),
+				hour : $("#hour").val(),
+				score : $("#score").val(),
 			}
 			$.post(url, param, function(data, textStatus, req) {
-				if(data.result){
+				if (data.result) {
 					// 创建成功
 					alert(data.message);
 					// 跳转到活动列表——activityList.jsp
-					$(location).attr("href","activityAction_showDoingProjectActivityList.action?dpid="+param.dpid);
-				}else{
+					$(location).attr("href", "activityAction_showDoingProjectActivityList.action?dpid=" + param.dpid);
+				} else {
 					// 创建失败
 					alert(data.message);
 				}
@@ -1895,7 +2065,7 @@ $(function() {
 	 * 而当桌面端浏览页面时由于缺少必要的weixin票据请求参数，则在执行微信初始化的时候就会爆出错误
 	 * 一旦报错就会终止后续的初始化代码运行，因此要将微信初始化放在所有通用初始化工作的最后执行。
 	 */
-	if(overAll.init.data.isWeixin){
+	if (overAll.init.data.isWeixin) {
 		// 只有屏幕分辨率小到一定程度才能被认定为是微信端在访问页面，因此才执行与weixin有关的初始化操作。
 		// 否则认定是桌面在访问页面，不需要设计微信的初始化操作
 		aboutWeixin.init.op.getOpenIdAndConfigJSSDK();

@@ -15,7 +15,9 @@
 
 		<property name="name" length="50"></property>
 		<property name="description" length="250"></property>
-
+		
+		<property name="enable" type="boolean" not-null="true">
+		</property>
 
 		<one-to-one name="geographic" cascade="save-update" 
 			 class="cc.natapp4.ddaig.domain.Geographic" 

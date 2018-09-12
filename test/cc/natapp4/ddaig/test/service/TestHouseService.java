@@ -28,7 +28,8 @@ public class TestHouseService {
 	 */
 	@Test
 	public void testQueryAndUpdate(){
-		House house = service.queryEntityById("402881e465c1c06a0165c1c092f50000");
+		House house = service.queryEntityById("402881e465cb48a10165cb48bf340000");
+		System.out.println(house.isEnable());
 		house.setDescription("修改后的描述");
 		service.update(house);
 	}
@@ -38,6 +39,6 @@ public class TestHouseService {
 	 */
 	@Test
 	public void testDelete(){
-		service.deleteById("402881e465c1c06a0165c1c092f50000");
+		service.deleteById("402881e465cb48a10165cb48bf340000");
 	}
 }

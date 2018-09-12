@@ -21,8 +21,18 @@ public class House implements Serializable {
 	private List<Activity> activities;
 	// 所属社区
 	private ZeroLevel zeroLevel;
+	// 状态  true可用(默认为可用)，false不可用
+	private boolean enable = true;
 	
 	
+	
+	
+	public boolean isEnable() {
+		return enable;
+	}
+	public void setEnable(boolean enable) {
+		this.enable = enable;
+	}
 	public String getHid() {
 		return hid;
 	}
