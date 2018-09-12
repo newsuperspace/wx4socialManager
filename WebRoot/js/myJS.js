@@ -1516,7 +1516,7 @@ var houseModal = {
 		 */
 		showCreateModal : function() {
 			$("#name").val("");
-			$("description").val("");
+			$("#description").val("");
 			$("#createModal").modal('show');
 		},
 		/**
@@ -1532,8 +1532,16 @@ var houseModal = {
 			let url = "houseAction_createHouse.action";
 			$.post(url, param, function(data, textStatus, req) {
 				$("#createModal").modal('hide');
-				weui.alert(data.message);
-				window.location.reload();
+				weui.alert(data.message, {
+				    title: '处理结果',
+				    buttons: [{
+				        label: '确认',
+				        type: 'primary',
+				        onClick: function(){ 
+				        	window.location.reload();
+				        }
+				    }]
+				});
 			});
 		},
 
@@ -1546,15 +1554,15 @@ var houseModal = {
 			let param = {
 				hid : hid
 			}
-			let url = "houseAction_getHouseInfo.action";
+			let url = "houseAction_showUpdateModal.action";
 			$.post(url, param, function(data, textStatus, req) {
 				if (data.result) {
 					// result == true,表明根据前端所提供的hid，获取到了指定房屋的数据信息，可以准备Modal的数据显示了
 					$("#hid4update").val(hid);
 					$("#name4update").val(data.house.name);
 					$("#description4update").val(data.house.description);
-					$("#longitude4update").val(data.house.geographic.longitude);
-					$("#latitude").val(data.house.geographic.latitude);
+					$("#longitude4update").val(data.house.longitude);
+					$("#latitude4update").val(data.house.latitude);
 					$("#updateModal").modal('show');
 				} else {
 					weui.alert("获取不到指定活动室的数据信息，请重试！");
@@ -1577,8 +1585,17 @@ var houseModal = {
 			let url = "houseAction_updateHouse.action";
 			$.post(url, param, function(data, textStatus, req) {
 				$("#updateModal").modal('hide');
-				weui.alert(data.message);
-				window.location.reload();
+				
+				weui.alert(data.message, {
+				    title: '处理结果',
+				    buttons: [{
+				        label: '确认',
+				        type: 'primary',
+				        onClick: function(){ 
+				        	window.location.reload();
+				        }
+				    }]
+				});
 			});
 		},
 
@@ -1587,7 +1604,7 @@ var houseModal = {
 		 * 关闭房屋
 		 */
 		closeHouse : function(hid) {
-			weui.confirm('是否停用该房屋？', {
+			weui.confirm('房屋停用后，在创建活动时将不可见本房屋', {
 				title : '是否停用该房屋？',
 				buttons : [ {
 					label : '不',
@@ -1602,7 +1619,6 @@ var houseModal = {
 						}
 						let url = "houseAction_closeHouse.action";
 						$.post(url, param, function(data, textStatus, req) {
-							weui.alert(data.message);
 							window.location.reload();
 						});
 					}
@@ -1614,7 +1630,7 @@ var houseModal = {
 		 * 开放房屋
 		 */
 		openHouse : function(hid) {
-			weui.confirm('是否启用该房屋？', {
+			weui.confirm('房屋启用后，在创建活动时可以预约使用本房屋', {
 				title : '是否启用该房屋？',
 				buttons : [ {
 					label : '不',
@@ -1629,7 +1645,6 @@ var houseModal = {
 						}
 						let url = "houseAction_openHouse.action";
 						$.post(url, param, function(data, textStatus, req) {
-							weui.alert(data.message);
 							window.location.reload();
 						});
 					}
@@ -1641,9 +1656,9 @@ var houseModal = {
 		 * AJAX
 		 * 刪除房屋
 		 */
-		deleteHouse: function(){
-			weui.confirm('刪除该活动室后将不可恢复，是否确认删除？', {
-				title : '刪除该活动室后将不可恢复，是否确认删除？',
+		deleteHouse: function(hid){
+			weui.confirm('刪除该活动室后将不可恢复', {
+				title : '是否确认删除？',
 				buttons : [ {
 					label : '不',
 					type : 'default',
@@ -1657,7 +1672,6 @@ var houseModal = {
 						}
 						let url = "houseAction_deleteHouse.action";
 						$.post(url, param, function(data, textStatus, req) {
-							weui.alert(data.message);
 							window.location.reload();
 						});
 					}

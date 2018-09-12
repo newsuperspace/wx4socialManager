@@ -44,7 +44,7 @@
 							<!-- ● -->
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
-									<shiro:hasPermission name="zero:house:create">
+									<shiro:hasPermission name="zero:house:createHouse">
 										<button class="btn btn-sm btn-outline-secondary"
 											data-toggle="modal"
 											onclick="houseModal.op.showCreateModal();">
@@ -102,7 +102,8 @@
 												</s:else>
 											</td>
 											<!-- ● -->
-											<td><shiro:hasPermission name="admin,zero:house:update">
+											<td>
+												<myShiro:hasAnyPermissions name="admin,zero:house:updateHouse">
 													<div class="btn-group" role="group">
 														<!-- ● -->
 														<s:a cssClass="btn btn-sm btn-outline-secondary"
@@ -125,7 +126,8 @@
 															role="button"
 															onclick="houseModal.op.deleteHouse('%{hid}');" href="#">删除</s:a>
 													</div>
-												</shiro:hasPermission></td>
+												</myShiro:hasAnyPermissions>
+											</td>
 										</tr>
 									</s:iterator>
 								</tbody>
@@ -201,7 +203,7 @@
 							data-dismiss="modal">关闭</button>
 						<!-- ● -->
 						<button type="button" class="btn btn-primary"
-							onclick="houseModal.op.showCreateHouse();">新建</button>
+							onclick="houseModal.op.createHouse();">新建</button>
 					</div>
 				</div>
 			</div>

@@ -28,8 +28,6 @@ public class Geographic implements Serializable {
 	private String name;
 	// 点位描述
 	private String description;
-	// 如果该座标是某个活动室的坐标，这里1 to 1关联所属house（默认为null表示无关联用房）
-	private House house;
 	// 该地理点位上曾经发起过的活动
 	private List<Activity> activities;
 	// 该点位信息创建者的层级（-1、0、1、2、3、4）
@@ -123,12 +121,6 @@ public class Geographic implements Serializable {
 	}
 	public void setDescription(String description) {
 		this.description = description;
-	}
-	public House getHouse() {
-		return house;
-	}
-	public void setHouse(House house) {
-		this.house = house;
 	}
 
 }

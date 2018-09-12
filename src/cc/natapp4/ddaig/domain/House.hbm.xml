@@ -15,15 +15,11 @@
 
 		<property name="name" length="50"></property>
 		<property name="description" length="250"></property>
+		<property name="longitude" type="double"></property>
+		<property name="latitude" type="double"></property>
 		
 		<property name="enable" type="boolean" not-null="true">
 		</property>
-
-		<one-to-one name="geographic" cascade="save-update" 
-			 class="cc.natapp4.ddaig.domain.Geographic" 
-			 lazy="false"> <!-- ★这里的lazy="false"不能省略，莫非一对一默认懒加载吗？ -->
-		</one-to-one>
-
 
 		<list name="activities" cascade="save-update" lazy="true">
 			<key column="hid"></key>

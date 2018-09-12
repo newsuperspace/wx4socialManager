@@ -15,8 +15,10 @@ public class House implements Serializable {
 	private String name;
 	// 房间功能描述
 	private String description;
-	// 房间坐标位置
-	private Geographic geographic;
+	// 房间坐标位置（经度）
+	private double latitude = -1;
+	// 房间坐标位置（维度）
+	private double longitude = -1;
 	// 房间所开展的活动
 	private List<Activity> activities;
 	// 所属社区
@@ -25,8 +27,18 @@ public class House implements Serializable {
 	private boolean enable = true;
 	
 	
-	
-	
+	public double getLatitude() {
+		return latitude;
+	}
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+	public double getLongitude() {
+		return longitude;
+	}
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
 	public boolean isEnable() {
 		return enable;
 	}
@@ -44,12 +56,6 @@ public class House implements Serializable {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public Geographic getGeographic() {
-		return geographic;
-	}
-	public void setGeographic(Geographic geographic) {
-		this.geographic = geographic;
 	}
 	public String getDescription() {
 		return description;

@@ -15,11 +15,6 @@
 		<property name="description" length="250"></property>
 		<property name="name" length="50"></property>
 
-
-		<one-to-one name="house" cascade="save-update"
-			class="cc.natapp4.ddaig.domain.House" lazy="false"> <!-- ★这里的lazy="false"不能省略，莫非一对一默认懒加载吗？ -->
-		</one-to-one>
-
 		<list name="activities" cascade="save-update" lazy="true">
 			<key column="geoid"></key>
 			<list-index column="index4geo"></list-index>
