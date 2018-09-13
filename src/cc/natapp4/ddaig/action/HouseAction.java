@@ -49,7 +49,6 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 	@Resource(name = "houseService")
 	private HouseService houseService;
 	@Resource(name = "geographicService")
-	private GeographicService geographicService;
 
 	// ==============================属性驱动==============================
 

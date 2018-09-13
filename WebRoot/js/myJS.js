@@ -1506,6 +1506,77 @@ var navbarModal = {
 };
 
 
+
+/*
+ * geoList.jsp页面上，与位置坐标有关的功能
+ */
+var geoModal = {
+	init:{},
+	data:{},
+	op:{
+		/**
+		 * 显示新建位置坐标的Modal对话框前的准备工作
+		 */
+		showCreateModal: function(){
+			
+		},
+		/**
+		 * AJAX 
+		 * 新建坐标
+		 */
+		createGeo: function(){
+			
+		},
+		/**
+		 * AJAX
+		 * 显示更新坐标数据信息的MODAL前的准备工作(数据回显)
+		 */
+		showUpdateModal: function(){
+			
+		},
+		/**
+		 * AJAX
+		 * 执行更新坐标数据信息的操作
+		 */
+		updateGeo: function(){
+			
+		},
+		/**
+		 * AJAX
+		 * 停用位置坐标
+		 */
+		closeGeo: function(){
+			
+		},
+		/**
+		 * AJAX
+		 * 启用位置坐标
+		 */
+		openGeo: function(){
+			
+		},
+		/**
+		 * AJAX
+		 * 删除位置坐标
+		 */
+		deleteGeo: function(){
+			
+		},
+		/**
+		 * AJAX
+		 * 获得位置坐标的详情信息到详情Modal上显示
+		 */
+		geoInfo: function(){
+			
+		}
+		
+	}
+}
+
+
+/**
+ * houseList.jsp页面上与活动室有关的功能
+ */
 var houseModal = {
 	init : {},
 	data : {},

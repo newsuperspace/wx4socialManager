@@ -13,10 +13,7 @@
 	<package name="geographic" namespace="/" extends="base-package"
 		strict-method-invocation="false">
 		<action name="geographicAction_*" method="{1}" class="geographicAction">
-			<!-- 月视图的JSP，用来显示某个活动室当月的活动安排情况 -->
-			<result name="mouth">/WEB-INF/pages/right/activity/createActivity.jsp</result>
-			<!-- 自定义周视图，在创建活动时显示当前周活动预约的情况 -->
-			<result name="custom">/WEB-INF/pages/right/activity/visitorList.jsp</result>
+			<result>/WEB-INF/pages/right/geographic/geoList.jsp</result>
 			<!-- 获取当月活动数据源source，以AJAX通讯方式，以JSON数据格式返回给前端的FullCalendar用来更新/显示活动数据 -->
 			<result name="json" type="json"></result>
 		</action>

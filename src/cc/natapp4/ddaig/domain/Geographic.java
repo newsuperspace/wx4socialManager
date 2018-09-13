@@ -24,13 +24,15 @@ public class Geographic implements Serializable {
 	private double longitude;
 	// 纬度坐标
 	private double latitude;
+	// 当前坐标是否可用，新建默认为true（可用），如果设置为false则在新建活动时将看不到该坐标
+	private boolean enable;
 	// 点位名称
 	private String name;
 	// 点位描述
 	private String description;
 	// 该地理点位上曾经发起过的活动
 	private List<Activity> activities;
-	// 该点位信息创建者的层级（-1、0、1、2、3、4）
+	// 该点位信息创建者的层级（-1、0、1、2、3、4）,用来快速定位从下面那个层级对象属性中找到归属层级
 	private int level;
 	// 点位所处层级对象
 	private MinusFirstLevel minusFirstLevel;
@@ -41,6 +43,13 @@ public class Geographic implements Serializable {
 	private FourthLevel fourthLevel;
 	
 	// ==========================SETTER/GETTER===========================
+	
+	public boolean isEnable() {
+		return enable;
+	}
+	public void setEnable(boolean enable) {
+		this.enable = enable;
+	}
 	@JSON(serialize=false)
 	public List<Activity> getActivities() {
 		return activities;
