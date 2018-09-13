@@ -13,7 +13,10 @@
 	<package name="house" namespace="/" extends="base-package"
 		strict-method-invocation="false">
 		<action name="houseAction_*" method="{1}" class="houseAction">
+			<!-- 查询、新建、更新、删除社区中房屋信息的列表页面 -->
 			<result>/WEB-INF/pages/right/house/houseList.jsp</result>
+			<!-- 查询特定房屋中当月开展活动情况的页面 -->
+			<result name="month">/WEB-INF/pages/right/house/house4month.jsp</result>
 			<!-- 获取当月活动数据源source，以AJAX通讯方式，以JSON数据格式返回给前端的FullCalendar用来更新/显示活动数据 -->
 			<result name="json" type="json"></result>
 		</action>

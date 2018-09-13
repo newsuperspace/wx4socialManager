@@ -243,7 +243,7 @@
 											<myShiro:hasAnyPermissions
 												name="admin,zero:house:retrieveActivity">
 												<li class="nav-item"><a class="nav-link" href="#"
-													onclick='overAll.op.saveCollapseContentID2LS("houseContent", "houseAction_*.action")'>月使用详情</a></li>
+													onclick='overAll.op.saveCollapseContentID2LS("houseContent", "houseAction_getMonthView.action")'>月使用详情</a></li>
 											</myShiro:hasAnyPermissions>
 
 										</ul>

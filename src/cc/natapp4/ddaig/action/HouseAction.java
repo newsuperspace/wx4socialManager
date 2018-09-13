@@ -27,6 +27,8 @@ import cc.natapp4.ddaig.service_interface.DoingProjectService;
 import cc.natapp4.ddaig.service_interface.GeographicService;
 import cc.natapp4.ddaig.service_interface.HouseService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.json.returnMessage.Json4FullCalendar;
+
 
 @Controller("houseAction")
 @Scope("prototype")
@@ -267,5 +269,95 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
+	
+	
+	
+	/**
+	 * 从数据库获取到活动室数据信息放入到值栈中，
+	 * 然后跳转到house4month.jsp中显示
+	 * @return
+	 */
+	public String getMonthView(){
+		
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
+		
+		// -----------------开始业务逻辑----------------
+		List<House> houses =  null;
+		
+		if(isAdmin){
+			// 如果当前来访者是系统管理员，则他有权查看系统中所有社区的所有活动室
+			houses = houseService.queryEntities();
+		}else{
+			
+			Set<ZeroLevel> zls = doingMan.getManager().getZls();
+			ZeroLevel  zero  = null;
+			for(ZeroLevel z:zls){
+				zero  = z;
+			}
+			houses = zero.getHouses();
+		}
+
+		ActionContext.getContext().put("houses", houses);
+		return "month";
+	}
+	
+	
+	
+	/**
+	 * 【未完成】
+	 * AJAX 
+	 * 获取指定活动室当月的全部活动数据，并根据FullCalendar的规定属性组织成Json4FullCalendar
+	 * 然后依次放入到List容器中以JSON形式返回给前端，则前端的FullCalendar的API会将该JSon作为
+	 * 日历的数据源，在日历上动态显示事件图标信息
+	 * @return
+	 */
+	public String getEventSource4month(){
+		String hid  = this.house.getHid();
+		House h = houseService.queryEntityById(hid);
+		
+		Json4FullCalendar  json  =  null;
+		List<Json4FullCalendar> list  =  new ArrayList<Json4FullCalendar>();
+		
+		for(int i=0;i<5;i++){
+			json = new Json4FullCalendar();
+			if("101".equals(h.getName())){
+				json.setBackgroundColor("red");
+			}else if("202".equals(h.getName())){
+				json.setBackgroundColor("yellow");
+			}else{
+				json.setBackgroundColor("blue");
+			}
+			json.setEnd("2018-09-2"+i+"T11:30:00");
+			json.setId(hid+"&"+i);
+			json.setStart("2018-09-2"+i+"T10:00:00");
+			json.setTextColor("black");
+			json.setTitle(h.getName()+"活动"+i);
+//			json.setUrl("http://www.baidu.com");
+			list.add(json);
+		}
+		
+		ActionContext.getContext().getValueStack().push(list);
+		return "json";
+	}
+	
+	
 
 }
