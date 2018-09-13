@@ -79,6 +79,9 @@
 										<th>名称</th>
 										<!-- ● -->
 										<th>描述</th>
+										<th>经度</th>
+										<th>纬度</th>
+										<th>活动数</th>
 										<th>状态</th>
 										<!-- ● -->
 										<th>操作</th>
@@ -88,12 +91,15 @@
 									<s:iterator value="#geos">
 										<tr>
 											<td><s:a href="#"
-													onclick="geoModal.op.geoInfo('%{hid}')">
+													onclick="geoModal.op.geoInfo('%{geoid}')">
 													<!-- ● -->
 													<s:property value="name" />
 												</s:a></td>
 											<!-- ● -->
 											<td><s:property value="description" /></td>
+											<td><s:property value="longitude"/></td>
+											<td><s:property value="latitude"/></td>
+											<td><s:property value="activities.size()"/></td>
 											<td>
 												<s:if test="enable">
 													使用中
@@ -103,28 +109,28 @@
 											</td>
 											<!-- ● -->
 											<td>
-												<myShiro:hasAnyPermissions name="admin,zero:geo:updateGeo">
+												<myShiro:hasAnyPermissions name="admin,minus_first:geo:updateGeo,zero:geo:updateGeo,first:geo:updateGeo,second:geo:updateGeo,third:geo:updateGeo,fourth:geo:updateGeo">
 													<div class="btn-group" role="group">
 														<!-- ● -->
 														<s:a cssClass="btn btn-sm btn-outline-secondary"
 															role="button"
-															onclick="geoModal.op.showUpdateModal('%{hid}');"
+															onclick="geoModal.op.showUpdateModal('%{geoid}');"
 															href="#">修改</s:a>
 
 														<s:if test="enable">
 															<s:a cssClass="btn btn-sm btn-outline-secondary"
 																role="button"
-																onclick="geoModal.op.closeGeo('%{hid}');" href="#">关闭</s:a>
+																onclick="geoModal.op.closeGeo('%{geoid}');" href="#">关闭</s:a>
 														</s:if>
 														<s:else>
 															<s:a cssClass="btn btn-sm btn-outline-secondary"
 																role="button"
-																onclick="geoModal.op.openGeo('%{hid}');" href="#">启用</s:a>
+																onclick="geoModal.op.openGeo('%{geoid}');" href="#">启用</s:a>
 														</s:else>
 
 														<s:a cssClass="btn btn-sm btn-outline-secondary"
 															role="button"
-															onclick="geoModal.op.deleteGeo('%{hid}');" href="#">删除</s:a>
+															onclick="geoModal.op.deleteGeo('%{geoid}');" href="#">删除</s:a>
 													</div>
 												</myShiro:hasAnyPermissions>
 											</td>
@@ -165,7 +171,7 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<!-- ● -->
-						<h4 class="modal-title">新建活动室</h4>
+						<h4 class="modal-title">新建活动地点</h4>
 						<button type="button" class="close" data-dismiss="modal"
 							aria-label="Close">
 							<span aria-hidden="true">&times;</span>
@@ -195,7 +201,31 @@
 									<span class="input-group-text">描述</span>
 								</div>
 							</div>
+							
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-glass"></span></span>
+								</div>
+								<input type="text" class="form-control" name="latitude"
+									id="latitude">
+								<div class="input-group-prepend">
+									<span class="input-group-text">纬度</span>
+								</div>
+							</div>
 
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-glass"></span></span>
+								</div>
+								<input type="text" class="form-control" name="longitude"
+									id="longitude">
+								<div class="input-group-prepend">
+									<span class="input-group-text">经度</span>
+								</div>
+							</div>
+							
 						</div>
 					</div>
 					<div class="modal-footer">
@@ -215,7 +245,7 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<!-- ● -->
-						<h4 class="modal-title">更新活动室</h4>
+						<h4 class="modal-title">更新活动地点</h4>
 						<button type="button" class="close" data-dismiss="modal"
 							aria-label="Close">
 							<span aria-hidden="true">&times;</span>
@@ -224,7 +254,7 @@
 					<div class="modal-body">
 						<div class="container-fluid">
 
-							<input type="hidden" id="hid4update">
+							<input type="hidden" id="geoid4update">
 
 							<div class="input-group input-group-sm mb-3">
 								<div class="input-group-prepend">

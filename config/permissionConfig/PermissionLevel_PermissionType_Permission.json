@@ -109,7 +109,35 @@
 						"enabled": true
 					}
 				]
+			},
+			{
+				"description": "地点类型",
+				"permissionTypeName": "geo",
+				"enabled": "true",
+				"permissions": [
+					{
+							"description": "查询地点",
+							"permissionName": "retrieveGeo",
+							"enabled": true
+					},
+					{
+							"description": "新建地点",
+							"permissionName": "createGeo",
+							"enabled": true
+					},
+					{
+							"description": "更新地点",
+							"permissionName": "updateGeo",
+							"enabled": true
+					},
+					{
+							"description": "删除地点",
+							"permissionName": "deleteGeo",
+							"enabled": true
+					}
+				]
 			}
+			
 		]
 	},
 
@@ -253,7 +281,35 @@
 						"enabled": true
 					}
 				]
+			},
+			{
+				"description": "地点类型",
+				"permissionTypeName": "geo",
+				"enabled": "true",
+				"permissions": [
+					{
+							"description": "查询地点",
+							"permissionName": "retrieveGeo",
+							"enabled": true
+					},
+					{
+							"description": "新建地点",
+							"permissionName": "createGeo",
+							"enabled": true
+					},
+					{
+							"description": "更新地点",
+							"permissionName": "updateGeo",
+							"enabled": true
+					},
+					{
+							"description": "删除地点",
+							"permissionName": "deleteGeo",
+							"enabled": true
+					}
+				]
 			}
+		
 		]
 	},
 
@@ -365,7 +421,35 @@
 						"enabled": true
 					}
 				]
+			},
+			{
+				"description": "地点类型",
+				"permissionTypeName": "geo",
+				"enabled": "true",
+				"permissions": [
+					{
+							"description": "查询地点",
+							"permissionName": "retrieveGeo",
+							"enabled": true
+					},
+					{
+							"description": "新建地点",
+							"permissionName": "createGeo",
+							"enabled": true
+					},
+					{
+							"description": "更新地点",
+							"permissionName": "updateGeo",
+							"enabled": true
+					},
+					{
+							"description": "删除地点",
+							"permissionName": "deleteGeo",
+							"enabled": true
+					}
+				]
 			}
+			
 		]
 	},
 
@@ -477,7 +561,35 @@
 						"enabled": true
 					}
 				]
+			},
+			{
+				"description": "地点类型",
+				"permissionTypeName": "geo",
+				"enabled": "true",
+				"permissions": [
+					{
+							"description": "查询地点",
+							"permissionName": "retrieveGeo",
+							"enabled": true
+					},
+					{
+							"description": "新建地点",
+							"permissionName": "createGeo",
+							"enabled": true
+					},
+					{
+							"description": "更新地点",
+							"permissionName": "updateGeo",
+							"enabled": true
+					},
+					{
+							"description": "删除地点",
+							"permissionName": "deleteGeo",
+							"enabled": true
+					}
+				]
 			}
+			
 		]
 	},
 
@@ -589,7 +701,35 @@
 						"enabled": true
 					}
 				]
+			},
+			{
+				"description": "地点类型",
+				"permissionTypeName": "geo",
+				"enabled": "true",
+				"permissions": [
+					{
+							"description": "查询地点",
+							"permissionName": "retrieveGeo",
+							"enabled": true
+					},
+					{
+							"description": "新建地点",
+							"permissionName": "createGeo",
+							"enabled": true
+					},
+					{
+							"description": "更新地点",
+							"permissionName": "updateGeo",
+							"enabled": true
+					},
+					{
+							"description": "删除地点",
+							"permissionName": "deleteGeo",
+							"enabled": true
+					}
+				]
 			}
+			
 		]
 	},
 
@@ -701,7 +841,35 @@
 						"enabled": true
 					}
 				]
+			},
+			{
+				"description": "地点类型",
+				"permissionTypeName": "geo",
+				"enabled": "true",
+				"permissions": [
+					{
+							"description": "查询地点",
+							"permissionName": "retrieveGeo",
+							"enabled": true
+					},
+					{
+							"description": "新建地点",
+							"permissionName": "createGeo",
+							"enabled": true
+					},
+					{
+							"description": "更新地点",
+							"permissionName": "updateGeo",
+							"enabled": true
+					},
+					{
+							"description": "删除地点",
+							"permissionName": "deleteGeo",
+							"enabled": true
+					}
+				]
 			}
+			
 		]
 	},
 

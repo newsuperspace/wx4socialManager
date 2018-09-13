@@ -1,6 +1,7 @@
 eclipse.preferences.version=1
 encoding//WebRoot/WEB-INF/pages/left/menu.jsp=UTF-8
 encoding//WebRoot/WEB-INF/pages/right/user/userList.jsp=UTF-8
+encoding//config/permissionConfig/PermissionLevel_PermissionType_Permission.json=UTF-8
 encoding/<project>=UTF-8
 encoding/config=UTF-8
 encoding/src=UTF-8
