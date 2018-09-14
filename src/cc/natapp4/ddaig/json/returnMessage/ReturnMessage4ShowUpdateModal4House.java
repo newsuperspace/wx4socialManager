@@ -20,7 +20,7 @@ import cc.natapp4.ddaig.domain.House;
  * @author Administrator
  *★★ 用作JSON插件扫描解析的JavaBean类必须是public，private会让该类不可见也就不能进行反射了 ★★
  */
-public class ReturnMessage4ShowUpdateModal implements Serializable {
+public class ReturnMessage4ShowUpdateModal4House implements Serializable {
 
 	private String message;
 	private boolean result;
@@ -51,12 +51,12 @@ public class ReturnMessage4ShowUpdateModal implements Serializable {
 		this.result = result;
 	}
 
-	public ReturnMessage4ShowUpdateModal(String message, boolean result) {
+	public ReturnMessage4ShowUpdateModal4House(String message, boolean result) {
 		this.message = message;
 		this.result = result;
 	}
 
-	public ReturnMessage4ShowUpdateModal() {
+	public ReturnMessage4ShowUpdateModal4House() {
 		// 默认构造器
 	}
 

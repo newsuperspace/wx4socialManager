@@ -21,7 +21,7 @@ import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
-import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4ShowUpdateModal;
+import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4ShowUpdateModal4House;
 import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.DoingProjectService;
 import cc.natapp4.ddaig.service_interface.GeographicService;
@@ -172,7 +172,7 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 
 		House h = houseService.queryEntityById(hid);
 
-		ReturnMessage4ShowUpdateModal result = new ReturnMessage4ShowUpdateModal();
+		ReturnMessage4ShowUpdateModal4House result = new ReturnMessage4ShowUpdateModal4House();
 		if (null != h) {
 			result.setHouse(h);
 			result.setResult(true);
@@ -256,11 +256,15 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 	public String deleteHouse() {
 		ReturnMessage4Common result = new ReturnMessage4Common();
 		House h = houseService.queryEntityById(this.house.getHid());
-
+		
 		if (null == h) {
 			result.setMessage("您所要删除的活动室不存在");
 		} else {
-			// 删除房屋
+			// 从zeroLevel的houses列表中移除待删除房屋，这样Hibernate会自动维护index序号
+			h.getZeroLevel().getHouses().remove(h);
+			// 切断house与原所属zeroLevel的外键关联
+			h.setZeroLevel(null);
+			// 正式从数据库中删除house
 			houseService.delete(h);
 			result.setMessage("删除成功！");
 		}

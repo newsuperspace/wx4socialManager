@@ -1511,65 +1511,183 @@ var navbarModal = {
  * geoList.jsp页面上，与位置坐标有关的功能
  */
 var geoModal = {
-	init:{},
-	data:{},
-	op:{
+	init : {},
+	data : {},
+	op : {
 		/**
 		 * 显示新建位置坐标的Modal对话框前的准备工作
 		 */
-		showCreateModal: function(){
-			
+		showCreateModal : function() {
+			$("#name").val("");
+			$("#description").val("");
+			$("#longitude").val("");
+			$("#latitude").val("");
+			$("#createModal").modal('show');
 		},
 		/**
 		 * AJAX 
 		 * 新建坐标
 		 */
-		createGeo: function(){
-			
+		createGeo : function() {
+			let param = {
+				name : $("#name").val(),
+				description : $("#description").val(),
+				longitude: $("#longitude").val(),
+				latitude: $("#latitude").val()
+			}
+			let url = "geographicAction_createGeo.action";
+			$.post(url, param, function(data, textStatus, req) {
+				$("#createModal").modal('hide');
+				weui.alert(data.message, {
+					title : '处理结果',
+					buttons : [ {
+						label : '确认',
+						type : 'primary',
+						onClick : function() {
+							window.location.reload();
+						}
+					} ]
+				});
+			});
 		},
 		/**
 		 * AJAX
 		 * 显示更新坐标数据信息的MODAL前的准备工作(数据回显)
 		 */
-		showUpdateModal: function(){
+		showUpdateModal : function(geoid) {
 			
+			let param = {
+					geoid : geoid
+				}
+				let url = "geographicAction_showUpdateModal.action";
+				$.post(url, param, function(data, textStatus, req) {
+					if (data.result) {
+						// result == true,表明根据前端所提供的hid，获取到了指定房屋的数据信息，可以准备Modal的数据显示了
+						$("#geoid4update").val(geoid);
+						$("#name4update").val(data.geographic.name);
+						$("#description4update").val(data.geographic.description);
+						$("#longitude4update").val(data.geographic.longitude);
+						$("#latitude4update").val(data.geographic.latitude);
+						$("#updateModal").modal('show');
+					} else {
+						weui.alert("获取不到指定活动室的数据信息，请重试！");
+					}
+				});
 		},
 		/**
 		 * AJAX
 		 * 执行更新坐标数据信息的操作
 		 */
-		updateGeo: function(){
+		updateGeo : function() {
 			
+			let param = {
+					geoid : $("#geoid4update").val(),
+					name : $("#name4update").val(),
+					description : $("#description4update").val(),
+					longitude : $("#longitude4update").val(),
+					latitude : $("#latitude4update").val()
+				}
+				let url = "geographicAction_updateGeo.action";
+				$.post(url, param, function(data, textStatus, req) {
+					$("#updateModal").modal('hide');
+
+					weui.alert(data.message, {
+						title : '处理结果',
+						buttons : [ {
+							label : '确认',
+							type : 'primary',
+							onClick : function() {
+								window.location.reload();
+							}
+						} ]
+					});
+				});
 		},
 		/**
 		 * AJAX
 		 * 停用位置坐标
 		 */
-		closeGeo: function(){
-			
+		closeGeo : function(geoid) {
+			weui.confirm('活动地点停用后，在创建活动时将不可用', {
+				title : '是否停用该活动地点？',
+				buttons : [ {
+					label : '不',
+					type : 'default',
+					onClick : function() {}
+				}, {
+					label : '是的',
+					type : 'primary',
+					onClick : function() {
+						let param = {
+							geoid : geoid
+						}
+						let url = "geographicAction_closeGeo.action";
+						$.post(url, param, function(data, textStatus, req) {
+							window.location.reload();
+						});
+					}
+				} ]
+			});
 		},
 		/**
 		 * AJAX
 		 * 启用位置坐标
 		 */
-		openGeo: function(){
-			
+		openGeo : function(geoid) {
+			weui.confirm('活动地点启用后，在创建活动时可以使用', {
+				title : '是否启用该活动地点？',
+				buttons : [ {
+					label : '不',
+					type : 'default',
+					onClick : function() {}
+				}, {
+					label : '是的',
+					type : 'primary',
+					onClick : function() {
+						let param = {
+							geoid : geoid
+						}
+						let url = "geographicAction_openGeo.action";
+						$.post(url, param, function(data, textStatus, req) {
+							window.location.reload();
+						});
+					}
+				} ]
+			});
 		},
 		/**
 		 * AJAX
 		 * 删除位置坐标
 		 */
-		deleteGeo: function(){
-			
+		deleteGeo : function(geoid) {
+			weui.confirm('刪除该活动地点后将不可恢复', {
+				title : '是否确认删除？',
+				buttons : [ {
+					label : '不',
+					type : 'default',
+					onClick : function() {}
+				}, {
+					label : '是的',
+					type : 'primary',
+					onClick : function() {
+						let param = {
+							geoid : geoid
+						}
+						let url = "geographicAction_deleteGeo.action";
+						$.post(url, param, function(data, textStatus, req) {
+							window.location.reload();
+						});
+					}
+				} ]
+			});
 		},
 		/**
 		 * AJAX
 		 * 获得位置坐标的详情信息到详情Modal上显示
 		 */
-		geoInfo: function(){
-			
+		geoInfo : function(geoid) {
+			weui.alert("您所点击的活动地点的ID是："+geoid);
 		}
-		
 	}
 }
 
@@ -1604,14 +1722,14 @@ var houseModal = {
 			$.post(url, param, function(data, textStatus, req) {
 				$("#createModal").modal('hide');
 				weui.alert(data.message, {
-				    title: '处理结果',
-				    buttons: [{
-				        label: '确认',
-				        type: 'primary',
-				        onClick: function(){ 
-				        	window.location.reload();
-				        }
-				    }]
+					title : '处理结果',
+					buttons : [ {
+						label : '确认',
+						type : 'primary',
+						onClick : function() {
+							window.location.reload();
+						}
+					} ]
 				});
 			});
 		},
@@ -1656,16 +1774,16 @@ var houseModal = {
 			let url = "houseAction_updateHouse.action";
 			$.post(url, param, function(data, textStatus, req) {
 				$("#updateModal").modal('hide');
-				
+
 				weui.alert(data.message, {
-				    title: '处理结果',
-				    buttons: [{
-				        label: '确认',
-				        type: 'primary',
-				        onClick: function(){ 
-				        	window.location.reload();
-				        }
-				    }]
+					title : '处理结果',
+					buttons : [ {
+						label : '确认',
+						type : 'primary',
+						onClick : function() {
+							window.location.reload();
+						}
+					} ]
 				});
 			});
 		},
@@ -1730,7 +1848,7 @@ var houseModal = {
 		 * AJAX
 		 * 刪除房屋
 		 */
-		deleteHouse: function(hid){
+		deleteHouse : function(hid) {
 			weui.confirm('刪除该活动室后将不可恢复', {
 				title : '是否确认删除？',
 				buttons : [ {
@@ -1752,8 +1870,8 @@ var houseModal = {
 				} ]
 			});
 		},
-		
-		
+
+
 		/**
 		 * AJAX 
 		 * 根据提供的hid从后端获取指定房屋的数据信息，
