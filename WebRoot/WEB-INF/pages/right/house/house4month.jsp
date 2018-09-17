@@ -116,7 +116,16 @@
 
 		// 注意fullCalendar的'C'是大写，小写就找不到该function了
 		$("#calendar").fullCalendar({
-
+			// 设置日历的主题风格，这里选用了bootstrap3风格
+			themeSystem : 'bootstrap3',
+			// 当使用Bootstrap风格时，设置header部分的按钮图标。
+			bootstrapGlyphicons : {
+				close : 'glyphicon-remove',
+				prev : 'glyphicon-chevron-left',
+				next : 'glyphicon-chevron-right',
+				prevYear : 'glyphicon-backward',
+				nextYear : 'glyphicon-forward'
+			},
 			// 设置每周第一天，数字int型，默认0（周日）
 			firstDay : 1,
 			// 设置页面上方的按钮阵列

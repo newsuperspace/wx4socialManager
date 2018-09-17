@@ -28,6 +28,12 @@ public class Activity implements Serializable {
 	 * ③只要扫码签到的成员就会在visitor上生成一条对应记录，没有来参加活动的自然不会存在visitor记录信息，完全是自愿来参加的。
 	 */
 	private String type;
+	/*
+	 * 活动类型：
+	 * 1=室外活动
+	 * 2=室内活动
+	 */
+	private String activityType;
 	// 如果type类型是限定人数，则需要在这里设置最高报名人数
 	private int baoMingUplimit;
 	/*
@@ -215,6 +221,14 @@ public class Activity implements Serializable {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getActivityType() {
+		return activityType;
+	}
+
+	public void setActivityType(String activityType) {
+		this.activityType = activityType;
 	}
 
 	public int getBaoMingUplimit() {

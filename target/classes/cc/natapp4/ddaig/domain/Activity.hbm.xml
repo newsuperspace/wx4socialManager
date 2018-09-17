@@ -10,6 +10,7 @@
 		</id>
 
 		<property name="type" length="30"></property>
+		<property name="activityType" length="30"></property>
 		<property name="baoMingUplimit" type="integer"></property>
 		<property name="activityBeginTime" type="long"></property>
 		<property name="activityEndTime" type="long"></property>

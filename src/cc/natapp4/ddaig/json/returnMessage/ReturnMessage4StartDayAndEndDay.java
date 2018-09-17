@@ -1,0 +1,66 @@
+package cc.natapp4.ddaig.json.returnMessage;
+
+import java.io.Serializable;
+import java.util.List;
+
+import cc.natapp4.ddaig.domain.cengji.FirstLevel;
+import cc.natapp4.ddaig.domain.cengji.FourthLevel;
+import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
+import cc.natapp4.ddaig.domain.cengji.SecondLevel;
+import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
+import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
+
+/**
+ * 用于回复前端通过Ajax发来的请求
+ * 当前JavaBean类中存放服务器处理结果的回复信息
+ * 然后将当前类实例放入到值栈栈顶
+ * 同时被请求的Action的方法应该返回"json"结果集索引字符串
+ * 如此struts-json-plugin.jar这个Struts2插件中用于向前端返回JSON格式数据的结果集
+ * 就能从栈顶中取出取出这个对象，然后对类进行反射分析，将对象中数据解析成JSON格式字符串
+ * 然后返回给前端正在等待的AJAX
+ * 
+ * 当前类是最普通的回复消息，只包含两个字段——
+ * boolean result  true表示处理成功；false表示处理失败
+ * String message  说明信息
+ * 
+ * @author Administrator
+ *★★ 用作JSON插件扫描解析的JavaBean类必须是public，private会让该类不可见也就不能进行反射了 ★★
+ */
+public class ReturnMessage4StartDayAndEndDay implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String message;   // 包含回复信息
+	private boolean result;   // 处理结果True为成功;false为失败
+	private String startDay;  // 形如 2018-08-03 这样的字符串
+	private int  endDay;  // 持续天数
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public boolean isResult() {
+		return result;
+	}
+	public void setResult(boolean result) {
+		this.result = result;
+	}
+	public String getStartDay() {
+		return startDay;
+	}
+	public void setStartDay(String startDay) {
+		this.startDay = startDay;
+	}
+	public int getEndDay() {
+		return endDay;
+	}
+	public void setEndDay(int endDay) {
+		this.endDay = endDay;
+	}
+	
+	
+	
+}

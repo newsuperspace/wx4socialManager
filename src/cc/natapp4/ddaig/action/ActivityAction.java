@@ -2,17 +2,22 @@ package cc.natapp4.ddaig.action;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.swing.RowFilter.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -23,6 +28,8 @@ import com.opensymphony.xwork2.ModelDriven;
 
 import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.DoingProject;
+import cc.natapp4.ddaig.domain.Geographic;
+import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
@@ -31,11 +38,14 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
-import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4CreateActivity;
+import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4StartDayAndEndDay;
 import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.DoingProjectService;
+import cc.natapp4.ddaig.service_interface.GeographicService;
+import cc.natapp4.ddaig.service_interface.HouseService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.utils.ActivityUtils;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 
 @Controller("activityAction")
@@ -54,8 +64,31 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	private UserService userService;
 	@Resource(name = "doingProjectService")
 	private DoingProjectService doingProjectService;
+	@Resource(name = "houseService")
+	private HouseService houseService;
+	@Resource(name = "geographicService")
+	private GeographicService geographicService;
 
 	// ==============================属性驱动==============================
+	private String hid;
+	private String geoid;
+
+	public String getHid() {
+		return hid;
+	}
+
+	public void setHid(String hid) {
+		this.hid = hid;
+	}
+
+	public String getGeoid() {
+		return geoid;
+	}
+
+	public void setGeoid(String geoid) {
+		this.geoid = geoid;
+	}
+
 	private String uid;
 
 	public String getUid() {
@@ -88,21 +121,30 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		this.hour = hour;
 	}
 
-	// 新建活动时，这里存放形如 2018-07-25 00:00:00 的活动日使劲按字符串，符合yyyy-MM-dd HH:mm:ss
-	// 的DateFormat
-	private String date;
+	// JSP页面上创建室内活动时，date4calendar的input中形如"2018-09-18T09:00:00~2018-09-18T11:30:00"的字符串
+	private String date4calendar;
 
-	public String getDate() {
-		return date;
+	public String getDate4calendar() {
+		return date4calendar;
 	}
 
-	public void setDate(String date) {
-		this.date = date;
+	public void setDate4calendar(String date4calendar) {
+		this.date4calendar = date4calendar;
+	}
+
+	// 新建室外活动时，这里存放形如 "2018-07-25 00:00:00" 的活动日使劲按字符串，符合yyyy-MM-dd HH:mm:ss
+	private String date4selector;
+
+	public String getDate4selector() {
+		return date4selector;
+	}
+
+	public void setDate4selector(String date4selector) {
+		this.date4selector = date4selector;
 	}
 
 	// ==============================模型驱动==============================
 	private Activity activity;
-
 	@Override
 	public Activity getModel() {
 		activity = new Activity();
@@ -112,6 +154,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	// ==============================Methods==============================
 
 	/**
+	 * 【未完成，缺少配套的前端JSP页面】
 	 * 在doingProject的jsp页面上，当管理者点击某一个doingProject的活动总数量的时候，就会请求本方法
 	 * 方法会获取某一个doingProject的全部活动信息，然后跳转到活动展示页面
 	 * 
@@ -121,19 +164,19 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		DoingProject doingProject = doingProjectService.queryEntityById(dpid);
 		List<Activity> activities = doingProject.getActivities();
 		// 更新每个activity的state状态信息，并保存到数据库
-		for(Activity a:activities){
+		for (Activity a : activities) {
 			a.updateState();
 			activityService.update(a);
 		}
 		// 下面的全部活动数据信息将会现在在activityList.jsp的表格中
 		ActionContext.getContext().put("activities", activities);
 		// 下面的信息将作为activityList.jsp的标题
-		ActionContext.getContext().put("title", doingProject.getBesureProject().getName()+"的全部活动信息");
+		ActionContext.getContext().put("title", doingProject.getBesureProject().getName() + "的全部活动信息");
 		return "doingProjectActivityList";
 	}
 
 	/**
-	 * 根据当前操作者的层级对象，获取该层级对象之下的所有层级对象的所有活动的数据信息，并显示到后台指定的jsp页面上
+	 * 【未实现】 根据当前操作者的层级对象，获取该层级对象之下的所有层级对象的所有活动的数据信息，并显示到后台指定的jsp页面上
 	 * 在该JSP页面上可以通过日期选择器/层级选择等方式对数据进行进一步筛选
 	 * 
 	 * @return
@@ -166,17 +209,16 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			List<Activity> list = activityService.queryEntities();
 			ActionContext.getContext().put("activities", list);
 			return "allActivityList";
-		}else{
+		} else {
 			// 非admin也就是正式层级对象的管理者的用户，只能获取该层级对象之下的所有子层级对象的全部活动
-			
+
 		}
 
 		return "allActivityList";
 	}
 
 	/**
-	 * TODO
-	 * 得到参加当前活动的全部User，并返回到一个visitorList.jsp，用来展示哪些人参加了活动。
+	 * TODO 得到参加当前活动的全部User，并返回到一个visitorList.jsp，用来展示哪些人参加了活动。
 	 * 
 	 * @return
 	 */
@@ -191,7 +233,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	}
 
 	/**
-	 * 新建活动前的必要准备 （1）将未来新建的活动所属的doingProject的dpid返回到前端页面createActivity.jsp
+	 * 【完成】 新建活动前的必要准备 （1）将未来新建的活动所属的doingProject的dpid返回到前端页面createActivity.jsp
 	 * （2）根据当前操作执行者所管理的层级对象所拥有的人员数量，设置前端页面createActivity.jsp中设置活动参与人数上线的max属性
 	 * 最后一切设置完毕后，通过struts结果集索引字符串请求转发到用于新建活动的页面————createActivity.jsp
 	 * 
@@ -223,7 +265,9 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		ActionContext.getContext().put("dpid", this.getDpid());
 		// 確定当前操作者（doingMan）所管理的层级对象，查找该层级对象之下的全部人员数量
 		String tag = doingMan.getGrouping().getTag();
-		Set<Member> members = new HashSet<Member>();
+		Set<Member> members = null;
+		List<House> houses = null;
+		List<Geographic> geos = null;
 		switch (tag) {
 		case "minus_first":
 			Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
@@ -233,6 +277,9 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			}
 			// 获取到当前层级对象的所有成员的集合
 			members = mfl.getMembers();
+			// TODO 如果街道有自己的活动室，那么应该哎后续工作中允许街道像社区一样设置自己的活动室
+			houses  =  null;
+			geos = mfl.getGeographics();
 			break;
 		case "zero":
 			Set<ZeroLevel> zls = doingMan.getManager().getZls();
@@ -241,6 +288,8 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				zl = l;
 			}
 			members = zl.getMembers();
+			houses = zl.getHouses();
+			geos = zl.getGeographics();
 			break;
 		case "first":
 			Set<FirstLevel> fls = doingMan.getManager().getFls();
@@ -249,6 +298,8 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				fl = l;
 			}
 			members = fl.getMembers();
+			houses = fl.getParent().getHouses();
+			geos = fl.getGeographics();
 			break;
 		case "second":
 			Set<SecondLevel> scls = doingMan.getManager().getScls();
@@ -257,6 +308,8 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				sc = l;
 			}
 			members = sc.getMembers();
+			houses = sc.getParent().getParent().getHouses();
+			geos = sc.getGeographics();
 			break;
 		case "third":
 			Set<ThirdLevel> tls = doingMan.getManager().getTls();
@@ -265,6 +318,8 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				tl = l;
 			}
 			members = tl.getMembers();
+			houses = tl.getParent().getParent().getParent().getHouses();
+			geos = tl.getGeographics();
 			break;
 		case "fourth":
 			Set<FourthLevel> fols = doingMan.getManager().getFols();
@@ -273,13 +328,34 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				fol = l;
 			}
 			members = fol.getMembers();
+			houses = fol.getParent().getParent().getParent().getParent().getHouses();
+			geos = fol.getGeographics();
 			break;
+		}
+		if(members==null){
+			members = new  HashSet<Member>();
 		}
 		// 最终获知到当前层级对象的所有成员数量
 		int size = members.size();
 		// 将成员数量放入到Map栈空间中，以供createActivity.jsp中通过max='<s:property
 		// value="%{'#size'}">' 使用
 		ActionContext.getContext().put("size", size);
+		// 过滤出可用的house
+		List<House> list  =  new ArrayList<House>();
+		for(House h:houses){
+			if(h.isEnable()){
+				list.add(h);
+			}
+		}
+		ActionContext.getContext().put("houses", list);
+		// 过滤出可用的geo
+		List<Geographic> list2 = new  ArrayList<Geographic>();
+		for(Geographic g:geos){
+			if(g.isEnable()){
+				list2.add(g);
+			}
+		}
+		ActionContext.getContext().put("geos", list2);
 		// 执行跳转
 		return "create";
 	}
@@ -313,27 +389,67 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 
 		ReturnMessage4CreateActivity message = new ReturnMessage4CreateActivity();
 
+		String s = ServletActionContext.getRequest().getParameter("score");
+		System.out.println("score:"+s);
+		String n = ServletActionContext.getRequest().getParameter("name");
+		System.out.println("name:"+n);
+		
 		String name = this.activity.getName();
 		String dpid = this.dpid;
 		String description = this.activity.getDescription();
+		String activityType = this.activity.getActivityType();
 		String type = this.activity.getType(); // 默认为1
 		int baoMingUplimit = this.activity.getBaoMingUplimit(); // 如果type=2
 																// 则这个属性才有意义，最少为1，最大为活动所属层级的总人员数量上限
-		String date = this.date;
+		String date4selector = this.date4selector;
+		String date4calendar = this.date4calendar;
+
 		int hour = this.hour; // 默认为1
 		int score = this.activity.getScore(); // 默认为0
 
-		// 校验关键input字段信息是否为null
-		if (StringUtils.isEmpty(name) || StringUtils.isEmpty(dpid) || StringUtils.isEmpty(description)
-				|| StringUtils.isEmpty(date)) {
-			// 如果name、description、dpid、date有一个为"",则不予新建活动
+		// --------------------校验关键input字段信息是否为null--------------------
+		boolean hasEmpty = false;
+		switch (activityType) {
+		// 室外活动
+		case "1":
+			if (type.equals("1")) {
+				// 开放报名，不用校验baoMingUplimit
+				if ("".equals(name) || "".equals(description) || "".equals(date4selector) || "".equals(hour)
+						|| "".equals(score)) {
+					hasEmpty = true;
+				}
+			} else {
+				// 限制人数报名，还需要校验baoMingUplimit
+				if ("".equals(name) || "".equals(description) || "".equals(date4selector) || "".equals(hour)
+						|| "".equals(score) || "".equals(baoMingUplimit)) {
+					hasEmpty = true;
+				}
+			}
+			break;
+		// 室内活动
+		case "2":
+			if ("1".equals(type)) {
+				// 开放报名，不用校验baoMingUplimit
+				if ("".equals(name) || "".equals(description)|| "".equals(date4calendar) || "".equals(score)) {
+					hasEmpty= true;
+				}
+			} else {
+				// 限制人数报名，还需要校验baoMingUplimit
+				if ("".equals(name) || "".equals(description)|| "".equals(date4calendar) || "".equals(score)||"".equals(baoMingUplimit)) {
+					hasEmpty = true;
+				}
+			}
+			break;
+		}
+
+		if (hasEmpty) {
 			message.setResult(false);
 			message.setMessage("关键信息为空，不予新建活动");
 			ActionContext.getContext().getValueStack().push(message);
 			return "json";
 		}
 
-		// 校验当前所新建活动所属的doingProject是否存在
+		// --------------------校验当前所新建活动所属的doingProject是否存在--------------------
 		DoingProject doingProject = doingProjectService.queryEntityById(dpid);
 		if (null == doingProject) {
 			message.setResult(false);
@@ -342,7 +458,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			return "json";
 		}
 
-		// 校验活动时间是否相较于当前时间为提前1天
+		// --------------------校验活动时间是否相较于当前时间为提前1天--------------------
 		long currentTimeMillis = System.currentTimeMillis();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		String today = formatter.format(new Date(currentTimeMillis));
@@ -357,15 +473,30 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			return "message";
 		}
 		long activityDateTimeMillis = 0;
-		try {
-			activityDateTimeMillis = (formatter.parse(date.split(" ")[0])).getTime();
-		} catch (ParseException e) {
-			e.printStackTrace();
-			message.setResult(false);
-			message.setMessage("将date活动日期字符串转化为格里高利历偏移量是出现错误，新建终止");
-			ActionContext.getContext().getValueStack().push(message);
-			return "message";
+		if("1".equals(activityType)){
+			// 室外活動
+			try {
+				activityDateTimeMillis = (formatter.parse(date4selector.split(" ")[0])).getTime();
+			} catch (ParseException e) {
+				e.printStackTrace();
+				message.setResult(false);
+				message.setMessage("将date活动日期字符串转化为格里高利历偏移量是出现错误，新建终止");
+				ActionContext.getContext().getValueStack().push(message);
+				return "message";
+			}
+		}else{
+			// 室內活動
+			try {
+				activityDateTimeMillis = formatter.parse(date4calendar.split("~")[0].split("T")[0]).getTime();
+			} catch (ParseException e) {
+				e.printStackTrace();
+				message.setResult(false);
+				message.setMessage("将date活动日期字符串转化为格里高利历偏移量是出现错误，新建终止");
+				ActionContext.getContext().getValueStack().push(message);
+				return "message";
+			}
 		}
+		
 		if ((activityDateTimeMillis - currentTimeMillis) < (1000L * 60 * 60 * 24)) {
 			// 新建活动的日期距离今天不足1天，不予创建
 			message.setResult(false);
@@ -374,7 +505,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			return "json";
 		}
 
-		// 验证参与人数限制类型和参与人数限制
+		// --------------------验证参与人数限制类型和参与人数限制--------------------
 		if (!"1".equals(type) && !"2".equals(type)) {
 			// type的值既不等于1也不等于2，则修正为默认值1
 			type = "1";
@@ -384,7 +515,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			int min = 1;
 			int max = 0;
 			String tag = doingMan.getGrouping().getTag();
-			Set<Member> members = new HashSet<Member>();
+			Set<Member> members = null;
 			switch (tag) {
 			case "minus_first":
 				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
@@ -436,6 +567,9 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				members = fol.getMembers();
 				break;
 			}
+			if(null==members){
+				members = new  HashSet<Member>();
+			}
 			// 最终获知到当前层级对象的所有成员数量
 			max = members.size();
 			if (max < min) {
@@ -454,9 +588,12 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			baoMingUplimit = -1;
 		}
 
-		// 校验活动持续时间——hour字段
-		if (hour < 1 || hour > 12) {
-			hour = 1;
+		// ---------------校验活动持续时间——hour字段------------------
+		if("1".equals(activityType)){
+			// 室外活動
+			if (hour < 1 || hour > 12) {
+				hour = 1;
+			}
 		}
 		// TODO
 		// 校验活动积分：实际应该“参与人数*score”得到单次活动花费，不应小于当前doingProject的lastLaborCost（项目剩余积分）
@@ -470,7 +607,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		activity.setScore(score);
 		activity.setType(type);
 		activity.setBaoMingUplimit(baoMingUplimit);
-
+		activity.setActivityType(activityType);
 		// 报名的开始时间就是现在
 		activity.setBaoMingBeginTime(System.currentTimeMillis());
 		// 报名的截止时间是活动当天的00:00
@@ -478,7 +615,18 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		// 设置活动开始时间的yyyy-MM-dd HH:mm:ss 格式的准确时间的格里高利历偏移量
 		formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
-			activityDateTimeMillis = (formatter.parse(date)).getTime();
+			if("1".equals(activityType)){
+				// 室外活動
+				activityDateTimeMillis = (formatter.parse(date4selector)).getTime();
+			}else{
+				// 室內活動
+				StringBuffer sb =  new StringBuffer();
+				String[] split = date4calendar.split("~")[0].split("T");
+				sb.append(split[0]);
+				sb.append(" ");
+				sb.append(split[1]);
+				activityDateTimeMillis = (formatter.parse(sb.toString())).getTime();
+			}
 		} catch (ParseException e) {
 			e.printStackTrace();
 			message.setResult(false);
@@ -488,26 +636,55 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		}
 		activity.setActivityBeginTime(activityDateTimeMillis);
 		// 设置活动结束时间的准确格里高利历偏移量
-		long activityEndTime = activityDateTimeMillis + 1000 * 60 * 60 * hour;
+		long activityEndTime = 0;
+		if("1".equals(activityType)){
+			// 室外活動
+			activityEndTime = activityDateTimeMillis + 1000 * 60 * 60 * hour;
+		}else{
+			// 室內活動
+			StringBuffer sb =  new StringBuffer();
+			String[] split = date4calendar.split("~")[1].split("T");
+			sb.append(split[0]);
+			sb.append(" ");
+			sb.append(split[1]);
+			try {
+				activityEndTime = (formatter.parse(sb.toString())).getTime();
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
 		activity.setActivityEndTime(activityEndTime);
 
-		// 设置剩余的其他内容
-		activity.setProject(doingProject);
-		/*
-		 * ★★★★★
-		 * 容器来承装从表对象时，Hibernate为了能辨识出存入List容器中从表对象的先后顺序，
-		 * 会在所关联的从表中加入一个我通常会命名为“index4主表名”的字段用来存放从表新建的先后次序，
-		 * 这样当Hibernate级联地从从表中获取与主表管理的数据到List容器中的时候，就能通过这个次序在容器中排列好先后顺序。
-		 * 因此在实际新建从表数据的时候，应该获取到主表对象，然后从主表中获取到list容器然后调用list的add()方法将新建的从表对象放入到容器中，
-		 * 然后从表中的主表字段也要引用到主表对象，最后再级联地保存从表对象就能完成新建从表和确定从表次序的工作。否则，如果只是通过从表中的主表引用来引用主表，
-		 * 而不在主表的list容器中添加新建的从表对象，那么新建的从表对象的“index4主表名”的字段就会为null缺少排列序号。
-		 */
-		doingProject.getActivities().add(activity);
 		String aid = UUID.randomUUID().toString();
 		String qrcodeUri = QRCodeUtils.createActivityQR(aid);
 		activity.setQrcodeUrl(qrcodeUri);
 		activity.setAid(aid);
-
+		
+		// 设置剩余的其他内容
+		activity.setProject(doingProject);
+		/*
+		 * ★★★★★ 容器来承装从表对象时，Hibernate为了能辨识出存入List容器中从表对象的先后顺序，
+		 * 会在所关联的从表中加入一个我通常会命名为“index4主表名”的字段用来存放从表新建的先后次序，
+		 * 这样当Hibernate级联地从从表中获取与主表管理的数据到List容器中的时候，就能通过这个次序在容器中排列好先后顺序。
+		 * 因此在实际新建从表数据的时候，应该获取到主表对象，然后从主表中获取到list容器然后调用list的add()
+		 * 方法将新建的从表对象放入到容器中，
+		 * 然后从表中的主表字段也要引用到主表对象，最后再级联地保存从表对象就能完成新建从表和确定从表次序的工作。否则，
+		 * 如果只是通过从表中的主表引用来引用主表，
+		 * 而不在主表的list容器中添加新建的从表对象，那么新建的从表对象的“index4主表名”的字段就会为null缺少排列序号。
+		 */
+		doingProject.getActivities().add(activity);
+		if("1".equals(activityType)){
+			// 室外活动，关联Geo
+			Geographic geo = geographicService.queryEntityById(geoid);
+			activity.setGeographic(geo);
+			geo.getActivities().add(activity);
+		}else{
+			// 室内活动，关联House
+			House house = houseService.queryEntityById(hid);
+			activity.setHouse(house);
+			house.getActivities().add(activity);
+		}
+		
 		// activity的bean数据填装完成，与所属的doingProject也已经进来关联，现在可以级联向数据库保存activity了
 		activityService.save(activity);
 
@@ -517,9 +694,39 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		return "json";
 	}
 
+	/**
+	 * 【完成】 AJAX 获取当前层级对象管理者所能发起活动的开始日期（最早也是明天）和最远的活动预约天数 活动预约天数随着层级对象的不同而不同，
+	 * 社区管理者每周三就可以开始预约下周的活动（最大预约天数为11天）， 第一层级每周四可以开启下周活动的预约（最大提前10天），
+	 * 第二层级为周五就可以提前安排下周活动（提前9天）， 第三层级周六可以安排下周活动（提前8天），
+	 * 
+	 * @return
+	 */
+	public String getStartDayAndEndDayByAjax() {
 
+		ReturnMessage4StartDayAndEndDay result = null;
 
+		// 由于创建活动页面是通过 层级对象 → 默认项目 → 新建活动 实现的，因此必定属于某个层级对象的
+		DoingProject doingProject = doingProjectService.queryEntityById(this.dpid);
+		if (null != doingProject.getMinusFirstLevel() && null==doingProject.getZeroLevel()) {
+			// 新建活动的是街道层级对象
+			// TODO 街道只能使用街道自己的房屋，而其他层级对象只能使用社区的房屋
 
+		} else if (null != doingProject.getZeroLevel() && null==doingProject.getFirstLevel()) {
+			// 新建活动的是社区层级
+			result = ActivityUtils.getStartDayAndEndDay(0);
+		} else if (null != doingProject.getFirstLevel() && null==doingProject.getSecondLevel()) {
+			// 新建活动的是第一层级
+			result = ActivityUtils.getStartDayAndEndDay(1);
+		} else if (null != doingProject.getSecondLevel() && null==doingProject.getThirdLevel()) {
+			// 新建活动的是第二层级
+			result = ActivityUtils.getStartDayAndEndDay(2);
+		} else if (null != doingProject.getThirdLevel()) {
+			// 新建活动的是第三层级
+			result = ActivityUtils.getStartDayAndEndDay(3);
+		}
 
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
 
 }

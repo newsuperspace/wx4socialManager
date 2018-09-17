@@ -1532,8 +1532,8 @@ var geoModal = {
 			let param = {
 				name : $("#name").val(),
 				description : $("#description").val(),
-				longitude: $("#longitude").val(),
-				latitude: $("#latitude").val()
+				longitude : $("#longitude").val(),
+				latitude : $("#latitude").val()
 			}
 			let url = "geographicAction_createGeo.action";
 			$.post(url, param, function(data, textStatus, req) {
@@ -1555,53 +1555,53 @@ var geoModal = {
 		 * 显示更新坐标数据信息的MODAL前的准备工作(数据回显)
 		 */
 		showUpdateModal : function(geoid) {
-			
+
 			let param = {
-					geoid : geoid
+				geoid : geoid
+			}
+			let url = "geographicAction_showUpdateModal.action";
+			$.post(url, param, function(data, textStatus, req) {
+				if (data.result) {
+					// result == true,表明根据前端所提供的hid，获取到了指定房屋的数据信息，可以准备Modal的数据显示了
+					$("#geoid4update").val(geoid);
+					$("#name4update").val(data.geographic.name);
+					$("#description4update").val(data.geographic.description);
+					$("#longitude4update").val(data.geographic.longitude);
+					$("#latitude4update").val(data.geographic.latitude);
+					$("#updateModal").modal('show');
+				} else {
+					weui.alert("获取不到指定活动室的数据信息，请重试！");
 				}
-				let url = "geographicAction_showUpdateModal.action";
-				$.post(url, param, function(data, textStatus, req) {
-					if (data.result) {
-						// result == true,表明根据前端所提供的hid，获取到了指定房屋的数据信息，可以准备Modal的数据显示了
-						$("#geoid4update").val(geoid);
-						$("#name4update").val(data.geographic.name);
-						$("#description4update").val(data.geographic.description);
-						$("#longitude4update").val(data.geographic.longitude);
-						$("#latitude4update").val(data.geographic.latitude);
-						$("#updateModal").modal('show');
-					} else {
-						weui.alert("获取不到指定活动室的数据信息，请重试！");
-					}
-				});
+			});
 		},
 		/**
 		 * AJAX
 		 * 执行更新坐标数据信息的操作
 		 */
 		updateGeo : function() {
-			
-			let param = {
-					geoid : $("#geoid4update").val(),
-					name : $("#name4update").val(),
-					description : $("#description4update").val(),
-					longitude : $("#longitude4update").val(),
-					latitude : $("#latitude4update").val()
-				}
-				let url = "geographicAction_updateGeo.action";
-				$.post(url, param, function(data, textStatus, req) {
-					$("#updateModal").modal('hide');
 
-					weui.alert(data.message, {
-						title : '处理结果',
-						buttons : [ {
-							label : '确认',
-							type : 'primary',
-							onClick : function() {
-								window.location.reload();
-							}
-						} ]
-					});
+			let param = {
+				geoid : $("#geoid4update").val(),
+				name : $("#name4update").val(),
+				description : $("#description4update").val(),
+				longitude : $("#longitude4update").val(),
+				latitude : $("#latitude4update").val()
+			}
+			let url = "geographicAction_updateGeo.action";
+			$.post(url, param, function(data, textStatus, req) {
+				$("#updateModal").modal('hide');
+
+				weui.alert(data.message, {
+					title : '处理结果',
+					buttons : [ {
+						label : '确认',
+						type : 'primary',
+						onClick : function() {
+							window.location.reload();
+						}
+					} ]
 				});
+			});
 		},
 		/**
 		 * AJAX
@@ -1686,7 +1686,7 @@ var geoModal = {
 		 * 获得位置坐标的详情信息到详情Modal上显示
 		 */
 		geoInfo : function(geoid) {
-			weui.alert("您所点击的活动地点的ID是："+geoid);
+			weui.alert("您所点击的活动地点的ID是：" + geoid);
 		}
 	}
 }
@@ -2096,7 +2096,7 @@ var activityModal = {
 			// 设置日期时间选择器
 			$("#date").prop("readonly", true).datetimepicker({
 				showAnim : "blind",
-				showButtonPanel : false, // 不现实日期时间选择下面的按钮行
+				showButtonPanel : false, // 不显示日期时间选择下面的按钮行
 				showSecond : false,
 				onClose : function(selectedDate) {
 					// 当选择器关闭时出发本事件回调
@@ -2142,6 +2142,7 @@ var activityModal = {
 		},
 
 		/*
+		 * 【完成】
 		 * 监听活动人数限制类型的selector的变化，用来显示设置参与人数的input
 		 */
 		typeChangeListener : function() {
@@ -2151,11 +2152,12 @@ var activityModal = {
 			} else if ('2' == type) {
 				$("#baoMingUplimit").parent().attr("hidden", false);
 			}
-			activityModal.op.checkInput();
-			activityModal.op.checkBaomingUplimit();
 		},
 
-		// 校验函数——校验id=hour的input的值是否在1~12之间
+		/*
+		 * 【完成】
+		 * 校验函数——校验id=hour的input的值是否在1~12之间
+		 */
 		checkHour : function(self) {
 			var $hourInput = $(self);
 			/*
@@ -2177,34 +2179,148 @@ var activityModal = {
 			$("#hourBar").slider("value", hour);
 		},
 
-		// 检查id=name/descrpition/date 这三个input是否为空，为空则commit提交按钮为disabled
+		/*
+		 * 【完成】
+		 * 当活动类型的selector发生变动时出发本回调
+		 */
+		activityTypeChangeListener : function() {
+			let activityType = $("#activityType").val();
+			switch (activityType) {
+			case '0': /*没确定活动*/
+				$("#indoor").attr("hidden", true);
+				$("#outdoor").attr("hidden", true);
+				break;
+			case '1': /*室外活动*/
+				$("#indoor").attr("hidden", true);
+				$("#outdoor").attr("hidden", false);
+				break;
+			case '2': /*室内活动*/
+				$("#indoor").attr("hidden", false);
+				$("#outdoor").attr("hidden", true);
+				break;
+			}
+		},
+
+		/*
+		 * 【完成】
+		 * AJAX
+		 * 当房屋的selector发生变动时出发，主要的功能就是：
+		 * （1）清空date4calendar的内容
+		 * （2）清空date4calendar时会自动出发checkInput()；
+		 * （3）删除自定义calendar的事件源
+		 * （4）AJAX从服务器获取指定House的新的事件源
+		 */
+		houseChangeListener : function() {
+			$("#date4calendar").val("");
+			// 先隐藏日历
+			$('#calendar').attr("hidden", true);
+			$("#date4calendar").attr("disabled", true);		// 其实date4calendar一直是disabled，因为该input只能通过calendar日历选择填入
+			// 获取用户所选中的活动室的hid
+			let hid = $("#houseSelector").val();
+			// 如果用户选择的是"--请选择活动室--"，则
+			if ('0' == hid) {
+				$('#calendar').fullCalendar('removeEventSources');
+				return;
+			}
+			// 否则用户确实选择了一个活动室，开始向本地服务器所要该活动室当月的全部活动数据信息
+			let param = {
+				hid : hid
+			}
+			let url = "houseAction_getEventSource4month.action";
+			$.post(url, param, function(data, textStatus, req) {
+				// 在这里可以设置calendar的数据源
+				// 先删除视图中所有的旧事件数据源
+				$('#calendar').fullCalendar('removeEventSources');
+				// 再通过FullCalendar的“添加事件源”的功能，将JSON对象直接设置成日历的事件源，然后自动绘制时间图标到日历上显示出来。
+				$('#calendar').fullCalendar('addEventSource', data);
+				// 显示日历
+				$('#calendar').attr("hidden", false);
+			});
+		},
+
+
+		/*
+		 * 【完成】
+		 *  当活动地点发生变动时，出发本回调
+		 *  （1）清空date4selector
+		 *  （2）清空date4selector时会自动触发checkInput（）
+		 *  （3）时间滑块重归1
+		 *   (4) 根据geoSelector的选择重新部署date4selector和hourBar（显示或隐藏）
+		 *  
+		 */
+		geoChangeListener : function() {
+			$("#date4selector").val("");
+//			$("#hourBar").slider("value", 1);
+			let geoid = $("#geoSelector").val();
+			if ('0' == geoid) {
+				$("#date4selector").attr("hidden", true);
+				$("#hourBar").attr("hidden", true);
+			} else {
+				$("#date4selector").attr("hidden", false);
+				$("#hourBar").attr("hidden", false);
+			}
+		},
+
+		/*
+		 * 【完成】
+		 * 检查主要的幾個input是否为空，为空则commit提交按钮为disabled
+		 */ 
 		checkInput : function() {
 			let aflag = true;
-			$("input[data-myInput='me']").each(function() {
-				let $self = $(this);
-				if ($self.attr("id") == "baoMingUplimit") {
-					// 如果当前input是baoMingUplimit
-					if ($("#type").val() == '2') {
-						// 只有type设置成限定人数，才检查baoMingUplimit是否为空
-						if ($self.val() == "") {
-							aflag = false;
-						}
+			// 遍历每个拥有data-myInput="me" 的input，查看有没有值
+			let activityType = $("#activityType").val();
+			let type = $("#type").val();
+
+			let name = $("#name").val();
+			let description = $("#description").val();
+			let baoMingUplimit = $("#baoMingUplimit").val();
+			let date4calendar = $("#date4calendar").val(); // 室内
+			let date4selector = $("#date4selector").val(); // 室外
+			let hour = $("#hour").val(); // 室外
+			let score = $("#score").val();
+
+			switch (activityType) {
+			case '0':
+				aflag = false;
+				break;
+			case '1': /*室外活动*/
+				if (type == 1) {
+					// 开放报名，不用校验baoMingUplimit
+					if ("" == name || "" == description || "" == date4selector || "" == hour || "" == score) {
+						aflag = false;
 					}
 				} else {
-					// 其他的input都要检查是否为空
-					if ($self.val() == "") {
+					// 限制人数报名，还需要校验baoMingUplimit
+					if ("" == name || "" == description || "" == baoMingUplimit || "" == date4selector || "" == hour || "" == score) {
 						aflag = false;
 					}
 				}
-			});
+				break;
+			case '2': /*室内活动*/
+				if (type == 1) {
+					// 开放报名，不用校验baoMingUplimit
+					if ("" == name || "" == description || "" == date4calendar || "" == score) {
+						aflag = false;
+					}
+				} else {
+					// 限制人数报名，还需要校验baoMingUplimit
+					if ("" == name || "" == description || "" == baoMingUplimit || "" == date4calendar || "" == score) {
+						aflag = false;
+					}
+				}
+				break;
+			}
 			if (aflag) {
+				// 准备好，可提交
 				$("#commit").attr("disabled", false);
 			} else {
+				// 未准备好，不可提交
 				$("#commit").attr("disabled", true);
 			}
 		},
 
 		/*
+		 * 【完成】
 		 * 查看baoMingUplimit这个input的人数是否在1~max之间
 		 */
 		checkBaomingUplimit : function() {
@@ -2225,19 +2341,41 @@ var activityModal = {
 			}
 		},
 
-		// AJAX 创建活动
+		/*
+		 * 【完成】
+		 *AJAX 
+		 *创建活动
+		 */ 
 		createActivity : function() {
 
 			var url = "activityAction_createActivity.action";
+			let dpid = $("#dpid").val();
+			let activityType =$("#activityType").val();
+			let type =$("#type").val();
+
+			let name =$("#name").val();
+			let description =$("#description").val();
+			let baoMingUplimit =$("#baoMingUplimit").val();
+			let hid=$("#houseSelector").val();   // 室内
+			let date4calendar =$("#date4calendar").val(); // 室内
+			let geoid=$("#geoSelector").val();	// 室外
+			let date4selector =$("#date4selector").val(); // 室外
+			let hour =$("#hour").val();     // 室外
+			let score =$("#score").val();
+			
 			var param = {
-				name : $("#name").val(),
-				dpid : $("#dpid").val(),
-				description : $("#description").val(),
-				type : $("#type").val(),
-				baoMingUplimit : $("#baoMingUplimit").val(),
-				date : $("#date").val(),
-				hour : $("#hour").val(),
-				score : $("#score").val(),
+				"dpid" : dpid,
+				"activityType" : activityType,
+				"type" : type,
+				"name" : name,
+				"description" : description,
+				"baoMingUplimit" : baoMingUplimit,
+				"hid": hid,   // 室内
+				"date4calendar" : date4calendar, // 室内
+				"geoid": geoid,	// 室外
+				"date4selector" : date4selector, // 室外
+				"hour" : hour, // 室外
+				"score" : score,
 			}
 			$.post(url, param, function(data, textStatus, req) {
 				if (data.result) {
