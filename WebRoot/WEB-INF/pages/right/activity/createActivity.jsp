@@ -50,70 +50,52 @@
 							<h1 class="h2">创建新活动</h1>
 						</div>
 						<!-- =============正文=========== -->
+						<input type="hidden" id="dpid"
+							value="<s:property value='%{#dpid}'/>" />
+						<div class="row mt-3">
+							<div class="col-md-1"></div>
+							<div class="col-md-10">
+								<div class="form-group">
+									<label for="name">活动名称:</label> <input type="text"
+										data-myInput="me" onchange="activityModal.op.checkInput();"
+										class="form-control" name="name" id="name"> <small
+										id="info4name" class="form-text text-muted" hidden="true">必填</small>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+
+						<div class="row">
+							<div class="col-md-1"></div>
+							<div class="col-md-10">
+								<div class="form-group">
+									<label for="description">活动内容:</label> <input type="text"
+										data-myInput="me" onchange="activityModal.op.checkInput();"
+										class="form-control" name="description" id="description">
+									<small id="info4description" class="form-text text-muted"
+										hidden="true">必填</small>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+
+						<!-- 人数限制设置 -->
+						<div class="row">
+							<div class="col-md-1"></div>
+							<div class="col-md-10">
+								<div class="form-group">
+									<label for="type">名额限制:</label> <select class="custom-select"
+										id="type" name="type"
+										onchange="activityModal.op.typeChangeListener();activityModal.op.checkInput();activityModal.op.checkBaomingUplimit();">
+										<option value="1" selected>开放报名</option>
+										<option value="2">限定人数</option>
+									</select> <small id="info4type" class="form-text text-muted"
+										hidden="true">请选择人数限制类型，默认不设限</small>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
 						<div class="container">
-							<input type="hidden" id="dpid"
-								value="<s:property value='%{#dpid}'/>" />
-							<div class="row mt-3">
-								<div class="col-md-1"></div>
-								<div class="col-md-10">
-									<div class="form-group">
-										<label for="name">活动名称:</label> <input type="text"
-											data-myInput="me" onchange="activityModal.op.checkInput();"
-											class="form-control" name="name" id="name"> <small
-											id="info4name" class="form-text text-muted" hidden="true">必填</small>
-									</div>
-								</div>
-								<div class="col-md-1"></div>
-							</div>
-
-							<div class="row">
-								<div class="col-md-1"></div>
-								<div class="col-md-10">
-									<div class="form-group">
-										<label for="description">活动内容:</label> <input type="text"
-											data-myInput="me" onchange="activityModal.op.checkInput();"
-											class="form-control" name="description" id="description">
-										<small id="info4description" class="form-text text-muted"
-											hidden="true">必填</small>
-									</div>
-								</div>
-								<div class="col-md-1"></div>
-							</div>
-
-							<!-- 活动类型设置 -->
-							<div class="row">
-								<div class="col-md-1"></div>
-								<div class="col-md-10">
-									<div class="form-group">
-										<label for="activityType">活动类型</label> <select
-											class="form-control form-control-sm" name="activityType"
-											id="activityType"
-											onchange="activityModal.op.activityTypeChangeListener();activityModal.op.checkInput();">
-											<option value="0" selected>--请选择活动类型--</option>
-											<option value="1">室外活动</option>
-											<option value="2">室内活动</option>
-										</select>
-									</div>
-								</div>
-								<div class="col-md-1"></div>
-							</div>
-
-							<!-- 人数限制设置 -->
-							<div class="row">
-								<div class="col-md-1"></div>
-								<div class="col-md-10">
-									<div class="form-group">
-										<label for="type">名额限制:</label> <select class="custom-select"
-											id="type" name="type"
-											onchange="activityModal.op.typeChangeListener();activityModal.op.checkInput();activityModal.op.checkBaomingUplimit();">
-											<option value="1" selected>开放报名</option>
-											<option value="2">限定人数</option>
-										</select> <small id="info4type" class="form-text text-muted"
-											hidden="true">请选择人数限制类型，默认不设限</small>
-									</div>
-								</div>
-								<div class="col-md-1"></div>
-							</div>
 							<div class="row">
 								<div class="col-md-1"></div>
 								<div class="col-md-10">
@@ -129,29 +111,48 @@
 								</div>
 								<div class="col-md-1"></div>
 							</div>
+						</div>
 
-							<!-- 
+						<!-- 活动类型设置 -->
+						<div class="row">
+							<div class="col-md-1"></div>
+							<div class="col-md-10">
+								<div class="form-group">
+									<label for="activityType">活动类型</label> <select
+										class="custom-select" name="activityType"
+										id="activityType"
+										onchange="activityModal.op.activityTypeChangeListener();activityModal.op.checkInput();">
+										<option value="0" selected>--请选择活动类型--</option>
+										<option value="1">室外活动</option>
+										<option value="2">室内活动</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<!-- 
 								室内活动
 							 -->
+						<div class="container">
 							<div class="row" id="indoor" hidden="hidden">
 								<div class="col-md-1"></div>
 								<div class="col-md-10">
 									<div class="form-group">
-										<label for="houseSelector">当前活动室：</label> 
-										<select
+										<label for="houseSelector">当前活动室：</label> <select
 											class="form-control form-control-sm" name="houseSelector"
-											id="houseSelector" onchange="activityModal.op.houseChangeListener();activityModal.op.checkInput();">
+											id="houseSelector"
+											onchange="activityModal.op.houseChangeListener();activityModal.op.checkInput();">
 											<option value="0" selected>--请选择活动室--</option>
-											<!-- TODO -->
 											<s:iterator value="%{#houses}">
-												<option value="<s:property value='hid'/>"><s:property value="%{name}" />
+												<option value="<s:property value='hid'/>"><s:property
+														value="%{name}" />
 												</option>
 											</s:iterator>
 										</select>
 									</div>
-									
-									<div id='calendar'  hidden="true"></div>
-									
+
+									<div id='calendar' hidden="true"></div>
+
 									<input type="text" data-myInput="me" disabled="true"
 										onchange="activityModal.op.checkInput();" class="form-control"
 										name="date4calendar" id="date4calendar"
@@ -161,21 +162,23 @@
 								</div>
 								<div class="col-md-1"></div>
 							</div>
-							
-							<!-- 
+						</div>
+						<!-- 
 								室外活动
-							 -->
+						 -->
+						<div class="container">
 							<div class="row" id="outdoor" hidden="hidden">
 								<div class="col-md-1"></div>
 								<div class="col-md-10">
 									<div class="form-group">
 										<label for="geo">当前活动地点：</label> <select
-											class="form-control form-control-sm" name="geoSelector" id="geoSelector"
+											class="form-control form-control-sm" name="geoSelector"
+											id="geoSelector"
 											onchange="activityModal.op.geoChangeListener();activityModal.op.checkInput();">
-											<option value="0"  selected>--请选择活动地点--</option>
-											<!-- TODO -->
+											<option value="0" selected>--请选择活动地点--</option>
 											<s:iterator value="%{#geos}">
-												<option value="<s:property value='geoid'/>"><s:property value="name"/></option>
+												<option value="<s:property value='geoid'/>"><s:property
+														value="name" /></option>
 											</s:iterator>
 										</select>
 									</div>
@@ -185,8 +188,9 @@
                             开始时间则确定了“可签到”的时间，一般为开始时间前30分钟~开始时间后15分钟的时间段内，提早和超时都不予签到
        						 -->
 									<div class="form-group">
-										<label for="date4selector">选择日期:</label> <input type="text"  hidden="true"
-											data-myInput="me" onchange="activityModal.op.checkInput();"
+										<label for="date4selector">选择日期:</label> <input type="text"
+											hidden="true" data-myInput="me"
+											onchange="activityModal.op.checkInput();"
 											class="form-control" name="date4selector" id="date4selector"
 											aria-describedby="info4date4selector" placeholder="选择日期">
 										<small id="info4date4selector" class="form-text text-muted"
@@ -199,43 +203,45 @@
                             只有签退成功才能获得积分和积累工作时长
         					-->
 									<div class="form-group">
-										<label for="hourBar">活动时长(小时): <input type="text"   hidden="true"
+										<label for="hourBar">活动时长(小时):</label> <input type="text"
 											data-myInput="me" value="1" id="hour"
 											onchange="activityModal.op.checkHour(this);activityModal.op.checkInput();"
 											style="border:0; color:#f6931f; font-weight:bold; font-size: 17px">
-										</label>
+
 										<div id="hourBar" name="hourBar"></div>
 										<small id="hourBar" class="form-text text-muted" hidden="true">默认活动时常为1小时</small>
 									</div>
 								</div>
 								<div class="col-md-1"></div>
 							</div>
-
-							<div class="row">
-								<div class="col-md-1"></div>
-								<div class="col-md-10">
-									<div class="form-group">
-										<label for="score">积分值:</label> <input type="number" min="0"
-											data-myInput="me" onchange="activityModal.op.checkInput();"
-											class="form-control" name="score" id="score" value="0">
-										<small id="info4score" class="form-text text-muted"
-											hidden="true">签到后获取的积分</small>
-									</div>
-								</div>
-								<div class="col-md-1"></div>
-							</div>
-
-							<div class="row mb-5">
-								<div class="col-md-1"></div>
-								<div class="col-md-10">
-									<button type="button " name="commit" id="commit"
-										disabled="true" onclick="activityModal.op.createActivity();"
-										class="btn btn-primary btn-lg btn-block">发起活动</button>
-								</div>
-								<div class="col-md-1"></div>
-							</div>
-
 						</div>
+
+						<div class="row">
+							<div class="col-md-1"></div>
+							<div class="col-md-10">
+								<div class="form-group">
+									<label for="score">积分值:</label> <input type="number" min="0"
+										data-myInput="me" onchange="activityModal.op.checkInput();"
+										class="form-control" name="score" id="score" value="0">
+									<small id="info4score" class="form-text text-muted"
+										hidden="true">签到后获取的积分</small>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+
+						<div class="row mb-5">
+							<div class="col-md-1"></div>
+							<div class="col-md-10">
+								<button type="button " name="commit" id="commit" disabled="true"
+									onclick="activityModal.op.createActivity();"
+									class="btn btn-primary btn-lg btn-block">发起活动</button>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+
+
+
 					</div>
 				</div>
 			</div>
@@ -288,7 +294,7 @@
 			// 展示的默认视图
 			defaultView : 'agenda4A',
 			// 设置页面上方的按钮阵列
-			
+
 			// 用来显示是否在日历上显示周六和周日，默认为true表示显示
 			weekends : true,
 			// 在日历中不显示一周中的某几天，数组形式，从0-6分别表示周日（Sunday）-周一（Monday）
@@ -333,7 +339,6 @@
 					unselectAuto : false,
 					// 如果已设置unselectAuto为true（默认），则点击页面中任何其他地方都会取消选择，只有unselectCancel规定的包含特定css类的DOM对象除外
 					unselectCancel : ".unselectCancel",
-					buttonText : 'A活动室',
 				},
 			},
 			// 用户拖选该最小长度后（15对应一个半小时一个格子，30对应1个小时两个格子）才能选中
@@ -341,23 +346,29 @@
 			// 【全局视图属性】当拖拽选择触及到视图上其他已有事件的时候就会触发本回调，当返回结果为false时取消选择
 			selectOverlap : function(event) {
 				console.log("selectOverlap is running");
-				console.log(event);
+				//console.log(event);
+				// 清空input中的内容
+				$("#date4calendar").val("");
+				// 检查
+				activityModal.op.checkInput();
 				return false;
 			},
 			// 【全局视图属性】在selectable为true（默认为false）的情况下，可以选择每个视图中的多个时间，并且报告所选择的时间信息
 			select : function(start, end, jsEvent, view) {
 				// 开始时间start.format() → 2018-09-05T08:30:00
-				let startTime  = start.format();
+				let startTime = start.format();
 				// 结束时间end.format() → 2018-09-05T10:00:00
 				let endTime = end.format()
 				// 直接放入到date4calendar这个input中等待提交
-				$("#date4calendar").val(startTime+"~"+endTime);
+				$("#date4calendar").val(startTime + "~" + endTime);
+				// 检查
+				activityModal.op.checkInput();
 			},
 			// 这个属性设置每个日期上可见的时间如果超过3个是否被隐藏
 			eventLimit : true,
 		});
 		// 其他初始化操作.....
-		
+
 	});
 
 	// 【完成】
@@ -379,7 +390,7 @@
 			dpid : $("#dpid").val()
 		}
 		$.ajaxSetup({
-				async : false // 全局设置Ajax为同步执行
+			async : false // 全局设置Ajax为同步执行
 		});
 		$.post(url, param, function(data, textStatus, req) {
 			if (data.result) {
@@ -394,12 +405,10 @@
 			}
 		});
 		$.ajaxSetup({
-				async : true // 恢复Ajax为异步执行
+			async : true // 恢复Ajax为异步执行
 		});
-		console.log("startDay="+localStorage.getItem("startDay"));
-		console.log("endDay="+localStorage.getItem("endDay"));
+		console.log("startDay=" + localStorage.getItem("startDay"));
+		console.log("endDay=" + localStorage.getItem("endDay"));
 	}
-	
-	
 </script>
 </html>

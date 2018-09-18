@@ -2094,7 +2094,7 @@ var activityModal = {
 		// 对当前页面上的jQueryUI组件进行一些初始化工作
 		initOp : function() {
 			// 设置日期时间选择器
-			$("#date").prop("readonly", true).datetimepicker({
+			$("#date4selector").prop("readonly", true).datetimepicker({
 				showAnim : "blind",
 				showButtonPanel : false, // 不显示日期时间选择下面的按钮行
 				showSecond : false,
@@ -2235,6 +2235,8 @@ var activityModal = {
 				$('#calendar').fullCalendar('addEventSource', data);
 				// 显示日历
 				$('#calendar').attr("hidden", false);
+				$("[aria-label='next']").attr("hidden",true).click();
+				$("[aria-label='prev']").attr("hidden",true).click();
 			});
 		},
 

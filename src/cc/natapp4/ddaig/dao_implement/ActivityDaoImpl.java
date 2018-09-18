@@ -1,6 +1,9 @@
 package cc.natapp4.ddaig.dao_implement;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +44,7 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 	@Override
 	public List<Activity> getCanJoinActivityList(String openid) {
 		// 先获取当前用户的user对象
-		User user = (User)(this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0));
+		User user = (User) (this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0));
 
 		// 先从数据库找到所有与该用户所属层级对象有关的活动
 		List<Activity> allActivities = this.getAllActivities(openid);
@@ -81,7 +84,7 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 	@Override
 	public List<Activity> getJoiningActivityList(String openid) {
 		// 先获取当前用户的user对象
-		User user = (User)(this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0));
+		User user = (User) (this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0));
 
 		// 先从数据库找到所有与该用户所属层级对象有关的活动
 		List<Activity> allActivities = this.getAllActivities(openid);
@@ -89,10 +92,10 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 		// 开始从中筛选符合条件的（没过活动结束期的，已报名的）
 		long currentTime = System.currentTimeMillis();
 		for (Activity a : allActivities) {
-			if ((a.getActivityEndTime()+1000L*60*30) < currentTime) {
+			if ((a.getActivityEndTime() + 1000L * 60 * 30) < currentTime) {
 				continue;
 			}
-			
+
 			List<Visitor> visitors = a.getVisitors();
 			if (visitors == null || visitors.size() == 0) {
 				continue;
@@ -118,7 +121,7 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 	@Override
 	public List<Activity> getJoinedActivityList(String openid) {
 		// 先获取当前用户的user对象
-		User user = (User)(this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0));
+		User user = (User) (this.getHibernateTemplate().find("from User u where u.openid=?", openid).get(0));
 
 		// 先从数据库找到所有与该用户所属层级对象有关的活动
 		List<Activity> allActivities = this.getAllActivities(openid);
@@ -126,10 +129,10 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 		// 开始从中筛选符合条件的（已过活动结束期的，已报名的）
 		long currentTime = System.currentTimeMillis();
 		for (Activity a : allActivities) {
-			if ((a.getActivityEndTime()+1000L*60*30) >= currentTime) {
+			if ((a.getActivityEndTime() + 1000L * 60 * 30) >= currentTime) {
 				continue;
 			}
-			
+
 			List<Visitor> visitors = a.getVisitors();
 			if (visitors == null || visitors.size() == 0) {
 				continue;
@@ -150,8 +153,6 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 		return list;
 	}
 
-	
-	
 	/**
 	 * 【通过JUnit初步测试】
 	 */
@@ -161,7 +162,7 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 		List<Activity> list = new ArrayList<Activity>();
 
 		// 先通过openid找到该用户的user对象
-		User user = (User)(this.getHibernateTemplate().find("from User u where u.openid=? ", openid).get(0));
+		User user = (User) (this.getHibernateTemplate().find("from User u where u.openid=? ", openid).get(0));
 		// 然后进一步获取user的member，得到其在层级结构中的位置
 		Member member = user.getMember();
 		// 然后开始分析member中各个层级对象的设置，利用已经外键关联的层级对象在数据库查找这些层级对象的所有activity
@@ -359,6 +360,30 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 			// 不属于任何层级（直接扫描公众号二维码加入的公众号），没有活动可参加
 			// 不做任何事
 		}
+		return list;
+	}
+
+	@Override
+	public List<Activity> getActivities4House(String hid) {
+
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		long millis = System.currentTimeMillis();
+		String format2 = format.format(new Date(millis));
+		Date parse = null;
+		try {
+			parse = format.parse(format2);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		long startTime = parse.getTime() + 1000L * 60 * 60 * 24;
+		long endTime = startTime + 1000L * 60 * 60 * 24 * 15;
+
+		List<Activity> list = (List<Activity>) this.getHibernateTemplate().find(
+				"from Activity a inner join fetch a.house h where h.hid=? and a.activityBeginTime >? and a.activityBeginTime <?",
+				hid, startTime, endTime);
+
 		return list;
 	}
 

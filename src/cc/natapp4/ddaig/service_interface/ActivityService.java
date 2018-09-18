@@ -24,4 +24,11 @@ public interface ActivityService extends BaseService<Activity> {
 	 * @return
 	 */
 	public List<Activity> getJoinedActivityList(String openid);
+	
+	/**
+	 * 获取在某一个房子中开展的，从明天到15天以后的全部活动
+	 * @param hid
+	 * @return
+	 */
+	public List<Activity> getActivities4House(String hid);
 }

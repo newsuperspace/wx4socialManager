@@ -16,6 +16,7 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 
+import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Geographic;
 import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.User;
@@ -324,35 +325,36 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 	
 	
 	/**
-	 * 【未完成】
+	 * 【半完成】
 	 * AJAX 
 	 * 获取指定活动室当月的全部活动数据，并根据FullCalendar的规定属性组织成Json4FullCalendar
 	 * 然后依次放入到List容器中以JSON形式返回给前端，则前端的FullCalendar的API会将该JSon作为
 	 * 日历的数据源，在日历上动态显示事件图标信息
+	 * 
+	 * TODO 未来可能街道也有自己的活动场地，因此街道可以使用自己的活动场地，而社区及社区层级
+	 * 之下的所有层级使用社区的场地，因此要根据未来的业务变化而更改
 	 * @return
 	 */
 	public String getEventSource4month(){
+		
+		// 再找到所查找的房屋
 		String hid  = this.house.getHid();
 		House h = houseService.queryEntityById(hid);
-		
+		// 准备用作Fullcalendar数据源的容器
 		Json4FullCalendar  json  =  null;
 		List<Json4FullCalendar> list  =  new ArrayList<Json4FullCalendar>();
-		
-		for(int i=0;i<5;i++){
+		List<Activity> activities = activityService.getActivities4House(hid);
+		for(Activity a: activities){
 			json = new Json4FullCalendar();
-			if("101".equals(h.getName())){
-				json.setBackgroundColor("red");
-			}else if("202".equals(h.getName())){
-				json.setBackgroundColor("yellow");
-			}else{
-				json.setBackgroundColor("blue");
-			}
-			json.setEnd("2018-09-2"+i+"T11:30:00");
-			json.setId(hid+"&"+i);
-			json.setStart("2018-09-2"+i+"T10:00:00");
+			String[] time = a.getBeginTimeStr().split(" ");
+			json.setStart(time[0]+"T"+time[1]);
+			time = a.getEndTimeStr().split(" ");
+			json.setEnd(time[0]+"T"+time[1]);
+			json.setId(a.getAid());
+			json.setBackgroundColor("yellow");
 			json.setTextColor("black");
-			json.setTitle(h.getName()+"活动"+i);
-//			json.setUrl("http://www.baidu.com");
+			json.setTitle(a.getName());
+//			json.setUrl("activityAction_*.action?aid="+a.getAid());
 			list.add(json);
 		}
 		

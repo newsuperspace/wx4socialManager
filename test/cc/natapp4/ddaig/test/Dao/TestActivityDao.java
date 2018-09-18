@@ -20,14 +20,21 @@ import cc.natapp4.ddaig.domain.Activity;
 public class TestActivityDao {
 
 	private static final ApplicationContext  context =  new ClassPathXmlApplicationContext("spring/applicationContext4Test.xml");
+	private ActivityDao dao = (ActivityDao)context.getBean("activityDao");
 
 	@Test
 	public void testGetAllActivities(){
-		ActivityDao dao = (ActivityDao)context.getBean("activityDao");
 		List<Activity> allActivities = dao.getAllActivities("okNKU0Vb9EQtWTfteAyS3nVMd0Iw");
 		System.out.println(allActivities.size());
 	}
-	
+
+	@Test
+	public void testGetActivities4House(){
+		List<Activity> list = dao.getActivities4House("402881e465d1256a0165d12a29190001");
+		for(Activity a:list){
+			System.out.println(a.getName());
+		}
+	}
 	
 	
 }

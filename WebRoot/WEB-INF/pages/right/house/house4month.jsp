@@ -40,6 +40,7 @@
 				<!-- =================Breadcromb（动态include）=============== -->
 				<jsp:include page="/WEB-INF/pages/others/breadcromb.jsp"></jsp:include>
 				<!-- =================================★★真正的页面数据内容显示区域★★===================================== -->
+				<!-- Title开始 -->
 				<div class="row">
 					<div class="col">
 						<!-- =============标题=========== -->
@@ -64,33 +65,32 @@
 								</button>
 							</div>
 						</div>
-
-						<!-- =============FullCalendar=========== -->
-						<div class="row mt-4">
-
-							<div class="col-md-11">
-
-								<div class="form-group">
-									<select class="form-control form-control-lg" name="aaa"
-										id="aaa" onchange="getEventSource4month();">
-										<option value="0">--请在这里选择活动室--</option>
-										<s:iterator value="#houses">
-											<option value="<s:property value='hid'/>"><s:property
-													value="name" /></option>
-										</s:iterator>
-									</select>
-								</div>
-								<div id='calendar' hidden="true"></div>
-
-							</div>
-							<div class="col-md-1"></div>
-						</div>
-						<!-- FullCalendar结束 -->
-
 					</div>
 				</div>
+				<!-- Title结束 -->
+				<!-- FullCalendar开始 -->
+				<div class="row mt-1">
+					<div class="col-md-11">
+						<div class="form-group">
+							<select class="form-control form-control-lg" name="aaa" id="aaa"
+								onchange="getEventSource4month();">
+								<option value="0">--请在这里选择活动室--</option>
+								<s:iterator value="#houses">
+									<option value="<s:property value='hid'/>"><s:property
+											value="name" /></option>
+								</s:iterator>
+							</select>
+						</div>
+						<div id='calendar' hidden="true"></div>
+					</div>
+					<div class="col-md-1"></div>
+				</div>
+				<!-- FullCalendar结束 -->
+
 			</div>
 		</div>
+
+
 	</div>
 </body>
 <script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
@@ -109,7 +109,7 @@
 	src="${pageContext.request.contextPath}/js/zh-cn.js"></script>
 
 <script type="text/javascript">
-	'use strict'; // 使用严格模式
+	//'use strict'; // 使用严格模式
 
 	// 初始化FullCalendar
 	$(function() {

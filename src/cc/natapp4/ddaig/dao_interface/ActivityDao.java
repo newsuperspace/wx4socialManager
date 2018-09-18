@@ -36,4 +36,11 @@ public interface ActivityDao extends BaseDao<Activity>{
 	 */
 	public List<Activity> getAllActivities(String openid);
 	
+	/**
+	 * 获取在某一个房子中开展的，从明天到15天以后的全部活动
+	 * @param hid
+	 * @return
+	 */
+	public List<Activity> getActivities4House(String hid);
+	
 }

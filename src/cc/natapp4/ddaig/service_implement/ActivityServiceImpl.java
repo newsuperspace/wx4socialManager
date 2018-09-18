@@ -39,5 +39,10 @@ public class ActivityServiceImpl extends BaseServiceImpl<Activity> implements Ac
 		return dao.getJoinedActivityList(openid);
 	}
 
+	@Override
+	public List<Activity> getActivities4House(String hid) {
+		return dao.getActivities4House(hid);
+	}
+
 	
 }
