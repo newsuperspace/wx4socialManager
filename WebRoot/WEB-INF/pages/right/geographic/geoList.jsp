@@ -304,6 +304,17 @@
 								</div>
 							</div>
 
+							<div class="input-group input-group-sm mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><span
+										class="glyphicon glyphicon-glass"></span></span>
+								</div>
+								<input type="text" class="form-control" name="radus4update"
+									id="longitude4update">
+								<div class="input-group-prepend">
+									<span class="input-group-text">半径(米)</span>
+								</div>
+							</div>
 						</div>
 					</div>
 					<div class="modal-footer">

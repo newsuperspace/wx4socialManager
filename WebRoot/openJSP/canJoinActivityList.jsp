@@ -62,12 +62,23 @@
 						</div>
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动时间</label> <span
-								class="weui-form-preview__value" id="time"><s:property value="beginTimeStr"/>~<s:property value="endTimeStr"/></span>
+								class="weui-form-preview__value" id="time"><s:property value="beginTimeStr"/>到<s:property value="endTimeStr"/></span>
 						</div>
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动简介</label> 
 							<span class="weui-form-preview__value" id=”description“>
 								<s:property value="description"/>	
+							</span>
+						</div>
+						<div class="weui-form-preview__item">
+							<label class="weui-form-preview__label">活动地点</label> 
+							<span class="weui-form-preview__value" id="position">
+								<s:if test="activityType=='1'">
+									<s:property value="geographic.name"/>	
+								</s:if>
+								<s:elseif test="activityType=='2'">
+									<s:property value="house.name"/>	
+								</s:elseif>
 							</span>
 						</div>
 						<!-- <div class="weui-form-preview__item">

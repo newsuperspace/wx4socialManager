@@ -66,13 +66,24 @@
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动时间</label> <span
 								class="weui-form-preview__value" id="time"> <s:property
-									value="beginTimeStr" />~<s:property value="endTimeStr" />
+									value="beginTimeStr" />到<s:property value="endTimeStr" />
 							</span>
 						</div>
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动简介</label> <span
 								class="weui-form-preview__value" id=”description“><s:property
 									value="description" /></span>
+						</div>
+						<div class="weui-form-preview__item">
+							<label class="weui-form-preview__label">活动地点</label> 
+							<span class="weui-form-preview__value" id="position">
+								<s:if test="activityType=='1'">
+									<s:property value="geographic.name"/>	
+								</s:if>
+								<s:elseif test="activityType=='2'">
+									<s:property value="house.name"/>	
+								</s:elseif>
+							</span>
 						</div>
 						<!-- <div class="weui-form-preview__item">
                                 <label class="weui-form-preview__label">活动地点</label>
@@ -101,10 +112,14 @@
 						<s:elseif test="buttonState=='可签到'">
 							<s:a onclick="qianDao();" href="#"
 								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">扫码签到</s:a>
+							<s:a onclick="qianDao4Position('%{aid}');" href="#"
+								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">自主签到</s:a>
 						</s:elseif>
 						<s:elseif test="buttonState=='可签退'">
 							<s:a onclick="qianTui();" href="#"
 								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">扫码签退</s:a>
+							<s:a onclick="qianTui4Position('%{aid}');" href="#"
+								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">自主签退</s:a>
 						</s:elseif>
 						<s:elseif test="buttonState=='已签到'">
 							<s:a onclick="hasQianDao('%{theVisitor.startTimeStr}');" href="#"
@@ -196,6 +211,17 @@
 			}
 		});
 	}
+	
+	// 基于地理位置完成自主签到
+	function qianDao4Position(aid){
+		// TODO 首先通过微信的JS-SDK获取当前地理位置坐标（经纬度）
+		
+		let longitude = 0;
+		let latitude = 0;
+		// 准备路径跳转	
+		let url = "personalCenterAction_qianDao4Position.action?"+"aid="+aid+"&latitude="+latitude+"&longitude"+longitude;
+		$(location).attr("href",url);
+	}
 
 	function qianTui() {
 		wx.scanQRCode({
@@ -216,6 +242,17 @@
 				}
 			}
 		});
+	}
+	
+	// 基于地理位置的自主签退
+	function qianTui4Position(aid){
+		// TODO 首先通过微信的JS-SDK获取当前地理位置坐标（经纬度）
+		
+		let longitude = 0;
+		let latitude = 0;
+		// 准备路径跳转	
+		let url = "personalCenterAction_qianTui4Position.action?"+"aid="+aid+"&latitude="+latitude+"&longitude"+longitude;
+		$(location).attr("href",url);
 	}
 	
 	function hasQianDao(time){

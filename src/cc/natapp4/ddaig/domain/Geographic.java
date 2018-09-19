@@ -24,6 +24,8 @@ public class Geographic implements Serializable {
 	private double longitude;
 	// 纬度坐标
 	private double latitude;
+	// 有效签到半径
+	private int radus;
 	// 当前坐标是否可用，新建默认为true（可用），如果设置为false则在新建活动时将看不到该坐标
 	private boolean enable;
 	// 点位名称
@@ -46,6 +48,12 @@ public class Geographic implements Serializable {
 	
 	public boolean isEnable() {
 		return enable;
+	}
+	public int getRadus() {
+		return radus;
+	}
+	public void setRadus(int radus) {
+		this.radus = radus;
 	}
 	public void setEnable(boolean enable) {
 		this.enable = enable;

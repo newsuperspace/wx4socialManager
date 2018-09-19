@@ -86,7 +86,7 @@ public class Activity implements Serializable {
 	private String dpName;
 
 	/*
-	 * 为了方便JSP页面上Struts标签获取当前用户的visitor对象，这个属性就是用来做这个的，哈哈哈正方便呀
+	 * 为了方便joinedActivityList.jsp页面上Struts标签中获取当前用户的visitor对象，这个属性就是用来做这个的，哈哈哈正方便呀
 	 */
 	private Visitor theVisitor;
 	public Visitor getTheVisitor() {

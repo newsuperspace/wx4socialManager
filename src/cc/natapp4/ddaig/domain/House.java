@@ -9,6 +9,10 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 
 public class House implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// 【主键】
 	private String hid;
 	// 房间名称
@@ -19,6 +23,8 @@ public class House implements Serializable {
 	private double latitude = -1;
 	// 房间坐标位置（维度）
 	private double longitude = -1;
+	// 有效签到半径（单位 米）
+	private int radus;
 	// 房间所开展的活动
 	private List<Activity> activities;
 	// 所属社区
@@ -27,6 +33,12 @@ public class House implements Serializable {
 	private boolean enable = true;
 	
 	
+	public int getRadus() {
+		return radus;
+	}
+	public void setRadus(int radus) {
+		this.radus = radus;
+	}
 	public double getLatitude() {
 		return latitude;
 	}

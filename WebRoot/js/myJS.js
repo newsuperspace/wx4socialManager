@@ -1585,7 +1585,8 @@ var geoModal = {
 				name : $("#name4update").val(),
 				description : $("#description4update").val(),
 				longitude : $("#longitude4update").val(),
-				latitude : $("#latitude4update").val()
+				latitude : $("#latitude4update").val(),
+				radus: $("#radus4update").val()
 			}
 			let url = "geographicAction_updateGeo.action";
 			$.post(url, param, function(data, textStatus, req) {
@@ -1769,7 +1770,8 @@ var houseModal = {
 				name : $("#name4update").val(),
 				description : $("#description4update").val(),
 				longitude : $("#longitude4update").val(),
-				latitude : $("#latitude4update").val()
+				latitude : $("#latitude4update").val(),
+				radus4update: $("#radus4update").val()
 			}
 			let url = "houseAction_updateHouse.action";
 			$.post(url, param, function(data, textStatus, req) {

@@ -3,7 +3,7 @@ package cc.natapp4.ddaig.bean;
 import java.io.Serializable;
 
 /**
- * 本Bean用作PersonalCenterAction类的realName()方法进行实名认证时，封装回传给前端的信息
+ * 本Bean原本用作PersonalCenterAction类的realName()方法进行实名认证时，封装回传给前端的信息
  * 然后放入到值栈栈顶，然后通过结果集索引字符串跳转到消息页，提示用户。
  * @author Administrator
  *

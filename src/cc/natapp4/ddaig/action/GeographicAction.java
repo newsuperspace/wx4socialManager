@@ -358,6 +358,7 @@ public class GeographicAction extends ActionSupport implements ModelDriven<Geogr
 			g.setDescription(this.geographic.getDescription());
 			g.setLongitude(this.geographic.getLongitude());
 			g.setLatitude(this.geographic.getLatitude());
+			g.setRadus(geographic.getRadus());
 			geographicService.update(g);
 			result.setMessage("更新成功！");
 		}

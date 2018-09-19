@@ -19,7 +19,9 @@ import com.opensymphony.xwork2.ActionSupport;
 
 import cc.natapp4.ddaig.bean.Info4RealName;
 import cc.natapp4.ddaig.domain.Activity;
+import cc.natapp4.ddaig.domain.Geographic;
 import cc.natapp4.ddaig.domain.Grouping;
+import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.Visitor;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
@@ -27,6 +29,7 @@ import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.VisitorService;
+import cc.natapp4.ddaig.utils.PositionUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4RecallImpl;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
 import me.chanjar.weixin.common.bean.WxJsapiSignature;
@@ -79,6 +82,10 @@ import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
  */
 public class PersonalCenterAction extends ActionSupport {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// ================================== Spring的DI注入
 	// ==================================
 	@Resource(name = "weixinService4Recall")
@@ -100,7 +107,6 @@ public class PersonalCenterAction extends ActionSupport {
 	 * 换取来访者的真正openID，从而确定来访者身份。
 	 */
 	private String code;
-
 	public String getCode() {
 		return code;
 	}
@@ -108,18 +114,31 @@ public class PersonalCenterAction extends ActionSupport {
 	public void setCode(String code) {
 		this.code = code;
 	}
-
-	// 这个state是微信端服务器基于oauth2.0协议请求重定向时随同code属性一起发来的，一般情况下我们不会使用
+	// 这个state是微信端服务器基于oauth2.0协议请求重定向时随同code属性一起发来的，一般情况下我们不会用到
 	private String state;
-
 	public String getState() {
 		return state;
 	}
-
 	public void setState(String state) {
 		this.state = state;
 	}
-
+	// 基于位置的签到/签退，JS-SDK或获取签到/签退者的地理位置坐标，并以AJAX的post请求参数的形式传递过来，下面就是记录经度和纬度的属性驱动
+	// 纬度
+	private long latitude;
+	public long getLatitude() {
+		return latitude;
+	}
+	public void setLatitude(long latitude) {
+		this.latitude = latitude;
+	}
+	// 经度
+	private long longitude;
+	public long getLongitude() {
+		return longitude;
+	}
+	public void setLongitude(long longitude) {
+		this.longitude = longitude;
+	}
 	/*
 	 * checkRealName()进行实名认证时会通过表单形式提交来的请求参数
 	 */
@@ -216,7 +235,7 @@ public class PersonalCenterAction extends ActionSupport {
 		// 这里调用UserService，来完成实名制认证，并将结果返回
 		Info4RealName info = new Info4RealName();
 		info.setTotal("实名认证结果");
-		
+
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		System.out.println("提交实名制认证请求的用户的openID是:" + openid);
 		System.out.println("提交的username是：" + this.username);
@@ -442,14 +461,14 @@ public class PersonalCenterAction extends ActionSupport {
 	}
 
 	/**
-	 * AJAX 执行签到逻辑
+	 * AJAX 执行扫码签到逻辑
 	 * 
 	 * @return
 	 */
 	public String qianDao() {
 		Info4RealName info = new Info4RealName();
 		info.setTotal("签到结果");
-		
+
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		Activity activity = activityService.queryEntityById(this.aid);
 		List<Visitor> visitors = activity.getVisitors();
@@ -457,7 +476,7 @@ public class PersonalCenterAction extends ActionSupport {
 			if (v.getUser().getOpenid().equals(openid)) {
 				if (-1 == v.getStartTime()) {
 					long currentTimeMillis = System.currentTimeMillis();
-					SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
 					// 向visitor中记录签到时间
 					v.setStartTime(currentTimeMillis);
@@ -466,17 +485,17 @@ public class PersonalCenterAction extends ActionSupport {
 					info.setDetailsURL("");
 					info.setIcon("weui-icon-success");
 					info.setTitle("签到成功");
-					info.setMessage("您已于"+dateTimeStr+"完成签到，请准备参加活动过程中务必注意安全");
+					info.setMessage("您已于" + dateTimeStr + "完成签到!请准备参加活动，过程中务必注意安全");
 					// 向数据库中保存签到时间
 					visitorService.update(v);
-				}else{
-					SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+				} else {
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(v.getStartTime()));
 					info.setDetails("");
 					info.setDetailsURL("");
 					info.setIcon("weui-icon-warn-red");
 					info.setTitle("发生错误");
-					info.setMessage("您已于"+dateTimeStr+"完成签到，请勿重复操作");
+					info.setMessage("您已于" + dateTimeStr + "您已签到，请勿重复操作");
 				}
 
 			}
@@ -486,47 +505,131 @@ public class PersonalCenterAction extends ActionSupport {
 	}
 
 	/**
-	 * AJAX 执行签退逻辑
+	 * 执行基于地理位置的签到逻辑
+	 * 
+	 * @return
+	 */
+	public String qianDao4Position() {
+		Info4RealName info = new Info4RealName();
+		info.setTotal("签到结果");
+
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		Activity activity = activityService.queryEntityById(this.aid);
+		List<Visitor> visitors = activity.getVisitors();
+		for (Visitor v : visitors) {
+			if (v.getUser().getOpenid().equals(openid)) {
+				// 定位到了签到用户的visitor
+				if (-1 == v.getStartTime()) {
+					// 还没签到呢
+					long currentTimeMillis = System.currentTimeMillis();
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
+					// 判断用户当前签到位置是否在活动的房屋或地理位置的规定范围内
+					String positionName = "";
+					double olat = 0;
+					double olon = 0;
+					int orad = 0;
+					if(activity.getActivityType().equals("1")){
+						// 室外活动
+						Geographic g = activity.getGeographic();
+						olat = g.getLatitude();
+						olon = g.getLongitude();
+						orad = g.getRadus();
+						positionName = g.getName();
+					}else{
+						// 室内活动
+						House h = activity.getHouse();
+						olat = h.getLatitude();
+						olon = h.getLongitude();
+						orad = h.getRadus();
+						positionName = h.getName();
+					}
+					
+					if(PositionUtils.inTheAround(new double[]{olat,olon}, orad, new double[]{this.latitude,this.longitude})){
+						// 签到位置在有效签到范围内，允许签到
+						// 向visitor中记录签到时间
+						v.setStartTime(currentTimeMillis);
+						// 组织Info信息，用作msgPage页面显示
+						info.setDetails("");
+						info.setDetailsURL("");
+						info.setIcon("weui-icon-success");
+						info.setTitle("签到成功");
+						info.setMessage("您已于" + dateTimeStr + "完成签到！请准备参加活动，过程中务必注意安全");
+						// 向数据库中保存签到时间
+						visitorService.update(v);
+					}else{
+						// 签到位置不再有效签到范围额内，禁止签到
+						info.setDetails("");
+						info.setDetailsURL("");
+						info.setIcon("weui-icon-warn-red");
+						info.setTitle("出现问题");
+						
+						StringBuffer  sb  =  new  StringBuffer();
+						sb.append("您的当前位置不在活动地点 ");
+						sb.append(positionName);
+						sb.append(" 的有效签到范围(");
+						sb.append(orad+"米)内,请尽量靠近活动位置后再试");
+						info.setMessage(sb.toString());
+					}
+				} else {
+					// 已经签到了
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					String dateTimeStr = formatter.format(new Date(v.getStartTime()));
+					info.setDetails("");
+					info.setDetailsURL("");
+					info.setIcon("weui-icon-warn-red");
+					info.setTitle("出现问题");
+					info.setMessage("您已于" + dateTimeStr + "您已签到！请勿重复操作");
+				}
+			}
+		}
+		
+		ActionContext.getContext().getValueStack().push(info);
+		return "msgPage";
+	}
+
+	/**
+	 * AJAX 执行扫码签退逻辑
 	 * 
 	 * @return
 	 */
 	public String qianTui() {
 		Info4RealName info = new Info4RealName();
 		info.setTotal("签退结果");
-		
+
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
-		User user  =  userService.queryByOpenId(openid);
+		User user = userService.queryByOpenId(openid);
 		Activity activity = activityService.queryEntityById(this.aid);
 		List<Visitor> visitors = activity.getVisitors();
 		for (Visitor v : visitors) {
 			if (v.getUser().getOpenid().equals(openid)) {
 				if (-1 == v.getEndTime()) {
 					long currentTimeMillis = System.currentTimeMillis();
-					SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
-					// 向visitor中记录签到时间
+					// 向visitor中记录签退时间
 					v.setEndTime(currentTimeMillis);
 					// 给予用户积分
 					v.setScore(activity.getScore());
-					user.setScore(user.getScore()+activity.getScore());
+					user.setScore(user.getScore() + activity.getScore());
 					// 计算本次活动时常
-					v.setWorkTime(v.getEndTime()-v.getStartTime());
+					v.setWorkTime(v.getEndTime() - v.getStartTime());
 					// 组织Info信息，用作msgPage页面显示
 					info.setDetails("");
 					info.setDetailsURL("");
 					info.setIcon("weui-icon-success");
 					info.setTitle("签退成功");
-					info.setMessage("您已于"+dateTimeStr+"完成签退，感谢您对社区公益的支持，祝您生活愉快");
+					info.setMessage("您已于" + dateTimeStr + "完成签退，感谢您对社区公益的支持，祝您生活愉快");
 					// 向数据库中保存签到时间
 					visitorService.update(v);
-				}else{
-					SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+				} else {
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(v.getStartTime()));
 					info.setDetails("");
 					info.setDetailsURL("");
 					info.setIcon("weui-icon-warn-red");
 					info.setTitle("发生错误");
-					info.setMessage("您已于"+dateTimeStr+"完成签退，请勿重复操作");
+					info.setMessage("您已于" + dateTimeStr + "您已签退，请勿重复操作");
 				}
 			}
 		}
@@ -534,4 +637,98 @@ public class PersonalCenterAction extends ActionSupport {
 		return "msgPage";
 	}
 
+	/**
+	 * 执行基于地理位置的签退逻辑
+	 * 
+	 * @return
+	 */
+	public String qianTui4Position() {
+		Info4RealName info = new Info4RealName();
+		info.setTotal("签退结果");
+
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		Activity activity = activityService.queryEntityById(this.aid);
+		User user = userService.queryByOpenId(openid);
+		List<Visitor> visitors = activity.getVisitors();
+		
+		for (Visitor v : visitors) {
+			if (v.getUser().getOpenid().equals(openid)) {
+				// 定位到了签退用户的visitor
+				if (-1 == v.getEndTime()) {
+					// 还没签退呢
+					long currentTimeMillis = System.currentTimeMillis();
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
+					// 判断用户当前签退位置是否在活动的房屋或地理位置的规定范围内
+					String positionName = "";
+					double olat = 0;
+					double olon = 0;
+					int orad = 0;
+					if(activity.getActivityType().equals("1")){
+						// 室外活动
+						Geographic g = activity.getGeographic();
+						olat = g.getLatitude();
+						olon = g.getLongitude();
+						orad = g.getRadus();
+						positionName = g.getName();
+					}else{
+						// 室内活动
+						House h = activity.getHouse();
+						olat = h.getLatitude();
+						olon = h.getLongitude();
+						orad = h.getRadus();
+						positionName = h.getName();
+					}
+					
+					if(PositionUtils.inTheAround(new double[]{olat,olon}, orad, new double[]{this.latitude,this.longitude})){
+						// 签到位置在有效签到范围内，允许签到
+						// 向visitor中记录签退时间
+						v.setEndTime(currentTimeMillis);
+						// 给予用户积分
+						v.setScore(activity.getScore());
+						user.setScore(user.getScore() + activity.getScore());
+						// 计算本次活动时常
+						v.setWorkTime(v.getEndTime() - v.getStartTime());
+						// 组织Info信息，用作msgPage页面显示
+						info.setDetails("");
+						info.setDetailsURL("");
+						info.setIcon("weui-icon-success");
+						info.setTitle("签退成功");
+						info.setMessage("您已于" + dateTimeStr + "完成签退，感谢您对社区公益的支持，祝您生活愉快");
+						// 向数据库中保存签到时间
+						visitorService.update(v);
+					}else{
+						// 签到位置不再有效签到范围额内，禁止签到
+						info.setDetails("");
+						info.setDetailsURL("");
+						info.setIcon("weui-icon-warn-red");
+						info.setTitle("出现问题");
+						
+						StringBuffer  sb  =  new  StringBuffer();
+						sb.append("您的当前位置不在活动地点 ");
+						sb.append(positionName);
+						sb.append(" 的有效签退范围(");
+						sb.append(orad+"米)内,请尽量靠近活动位置后再试");
+						info.setMessage(sb.toString());
+					}
+				} else {
+					// 已经签退了
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					String dateTimeStr = formatter.format(new Date(v.getStartTime()));
+					info.setDetails("");
+					info.setDetailsURL("");
+					info.setIcon("weui-icon-warn-red");
+					info.setTitle("发生错误");
+					info.setMessage("您已于" + dateTimeStr + "您已签退，请勿重复操作");
+				}
+			}
+		}
+		
+		ActionContext.getContext().getValueStack().push(info);
+		return "msgPage";
+	}
+
+	
+	
+	
 }

@@ -199,6 +199,7 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 			h.setDescription(house.getDescription());
 			h.setLongitude(house.getLongitude());
 			h.setLatitude(house.getLatitude());
+			h.setRadus(house.getRadus());
 			houseService.update(h);
 			result.setMessage("更新成功！");
 		}

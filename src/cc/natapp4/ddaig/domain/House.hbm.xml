@@ -17,6 +17,7 @@
 		<property name="description" length="250"></property>
 		<property name="longitude" type="double"></property>
 		<property name="latitude" type="double"></property>
+		<property name="radus" type="integer"></property>
 		
 		<property name="enable" type="boolean" not-null="true">
 		</property>
