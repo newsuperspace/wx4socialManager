@@ -340,11 +340,17 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 		selfMenuButton2.getSubButtons().add(button);
 		// (2)获取积分
 		button = new  WxMenuButton();
-		button.setName("获取积分");
+		button.setName("获取积分分值");
 		button.setType(WxConsts.BUTTON_CLICK);
 		button.setKey("self_bm_score");
 		selfMenuButton2.getSubButtons().add(button);
-		// （3）....
+		// (3)获取积分
+		button = new  WxMenuButton();
+		button.setName("选择地理位置");
+		button.setType(WxConsts.BUTTON_LOCATION_SELECT);
+		button.setKey("self_bm_location");
+		selfMenuButton2.getSubButtons().add(button);
+		// （4）....
 		// ~~~~~~~~~~~~~~~~~设计“功能列表”~~~~~~~~~~~~~~~~~
 		// （1）扫码登录
 		button = new WxMenuButton();

@@ -51,7 +51,7 @@ public class CheckRealNameUtils {
 		User user = userService.queryByOpenId(openid);
 		if(user.getGrouping().getTag().equals("unreal")){
 			// 如果没有实名认证成功，则直接向用户微信端回复信息
-			String content = "您所使用的功能需要先完成实名认证 ，请点击“便民服务” → “实名制” 完成实名认证";
+			String content = "您所使用的功能需要先完成实名认证 ，请点击“便民服务” → “用户中心” 完成实名认证";
 			System.out.println(content);
 			TextBuilder  textBuilder  =  (TextBuilder) context.getBean("textBuilder");
 			outMessage = textBuilder.build(content, wxMessage, service);

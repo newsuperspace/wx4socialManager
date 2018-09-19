@@ -75,13 +75,12 @@
 									value="description" /></span>
 						</div>
 						<div class="weui-form-preview__item">
-							<label class="weui-form-preview__label">活动地点</label> 
-							<span class="weui-form-preview__value" id="position">
-								<s:if test="activityType=='1'">
-									<s:property value="geographic.name"/>	
-								</s:if>
-								<s:elseif test="activityType=='2'">
-									<s:property value="house.name"/>	
+							<label class="weui-form-preview__label">活动地点</label> <span
+								class="weui-form-preview__value" id="position"> <s:if
+									test="activityType=='1'">
+									<s:property value="geographic.name" />
+								</s:if> <s:elseif test="activityType=='2'">
+									<s:property value="house.name" />
 								</s:elseif>
 							</span>
 						</div>
@@ -141,7 +140,6 @@
 	</div>
 
 
-
 	<!--FOOT-->
 	<div class="weui-footer mt-5">
 		<p class="weui-footer__text">Copyright &copy; 2017-2019
@@ -170,8 +168,7 @@
 			buttons : [ {
 				label : '再想想',
 				type : 'default',
-				onClick : function() {
-				}
+				onClick : function() {}
 			}, {
 				label : '狠心取消',
 				type : 'primary',
@@ -179,9 +176,9 @@
 					// 执行报名逻辑ajax操作
 					let url = "personalCenterAction_cancelBaoMing.action";
 					let param = {
-						aid: aid
+						aid : aid
 					}
-					
+
 					$.post(url, param, function(data, textStatus, req) {
 						weui.alert(data.message);
 						window.location.reload();
@@ -200,8 +197,8 @@
 			success : function(res) {
 				// 通过res.resultStr 得到二维码的结果字符串
 				let aid = res.resultStr;
-				let url = "personalCenterAction_qianDao.action?"+"aid="+aid;
-				$(location).attr("href",url);
+				let url = "personalCenterAction_qianDao.action?" + "aid=" + aid;
+				$(location).attr("href", url);
 			},
 			// 扫码失败的回调
 			error : function(res) {
@@ -211,16 +208,39 @@
 			}
 		});
 	}
-	
+
 	// 基于地理位置完成自主签到
-	function qianDao4Position(aid){
-		// TODO 首先通过微信的JS-SDK获取当前地理位置坐标（经纬度）
-		
+	function qianDao4Position(aid) {
+		// 首先通过微信的JS-SDK获取当前地理位置坐标（经纬度）
+		let longitude = 0;
+		let latitude = 0;
+		let speed = 0;
+		let accuracy = 0;
+		wx.getLocation({
+			type : 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+			success : function(res) {
+				//使用微信内置地图查看位置接口
+				latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+				longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+				speed = res.speed; // 速度，以米/每秒计
+				accuracy = res.accuracy; // 位置精度
+			// 下面是打开腾讯地图的API，暂时不用
+			//wx.openLocation({
+			//latitude : res.latitude, // 纬度，浮点数，范围为90 ~ -90
+			//longitude : res.longitude, // 经度，浮点数，范围为180 ~ -180。
+			//name : '我的位置', // 位置名
+			//address : '329创业者社区', // 地址详情说明
+			//scale : 28, // 地图缩放级别,整形值,范围从1~28。默认为最大
+			//infoUrl : 'http://www.gongjuji.net' // 在查看位置界面底部显示的超链接,可点击跳转（测试好像不可用）
+			//});
+			},
+			cancel : function(res) {}
+		});
 		let longitude = 0;
 		let latitude = 0;
 		// 准备路径跳转	
-		let url = "personalCenterAction_qianDao4Position.action?"+"aid="+aid+"&latitude="+latitude+"&longitude"+longitude;
-		$(location).attr("href",url);
+		let url = "personalCenterAction_qianDao4Position.action?" + "aid=" + aid + "&latitude=" + latitude + "&longitude" + longitude;
+		$(location).attr("href", url);
 	}
 
 	function qianTui() {
@@ -232,8 +252,8 @@
 			success : function(res) {
 				// 通过res.resultStr 得到二维码的结果字符串
 				let aid = res.resultStr;
-				let url = "personalCenterAction_qianTui.action?"+"aid="+aid;
-				$(location).attr("href",url);
+				let url = "personalCenterAction_qianTui.action?" + "aid=" + aid;
+				$(location).attr("href", url);
 			},
 			// 扫码失败的回调
 			error : function(res) {
@@ -243,29 +263,49 @@
 			}
 		});
 	}
-	
+
 	// 基于地理位置的自主签退
-	function qianTui4Position(aid){
-		// TODO 首先通过微信的JS-SDK获取当前地理位置坐标（经纬度）
-		
+	function qianTui4Position(aid) {
+		// 首先通过微信的JS-SDK获取当前地理位置坐标（经纬度）
 		let longitude = 0;
 		let latitude = 0;
+		let speed = 0;
+		let accuracy = 0;
+		wx.getLocation({
+			type : 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+			success : function(res) {
+				//使用微信内置地图查看位置接口
+				latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+				longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+				speed = res.speed; // 速度，以米/每秒计
+				accuracy = res.accuracy; // 位置精度
+			// 下面是打开腾讯地图的API，暂时不用
+			//wx.openLocation({
+			//latitude : res.latitude, // 纬度，浮点数，范围为90 ~ -90
+			//longitude : res.longitude, // 经度，浮点数，范围为180 ~ -180。
+			//name : '我的位置', // 位置名
+			//address : '329创业者社区', // 地址详情说明
+			//scale : 28, // 地图缩放级别,整形值,范围从1~28。默认为最大
+			//infoUrl : 'http://www.gongjuji.net' // 在查看位置界面底部显示的超链接,可点击跳转（测试好像不可用）
+			//});
+			},
+			cancel : function(res) {}
+		});
 		// 准备路径跳转	
-		let url = "personalCenterAction_qianTui4Position.action?"+"aid="+aid+"&latitude="+latitude+"&longitude"+longitude;
-		$(location).attr("href",url);
+		let url = "personalCenterAction_qianTui4Position.action?" + "aid=" + aid + "&latitude=" + latitude + "&longitude" + longitude;
+		$(location).attr("href", url);
 	}
-	
-	function hasQianDao(time){
-		weui.alert("您已于"+time+"完成签到");
+
+	function hasQianDao(time) {
+		weui.alert("您已于" + time + "完成签到");
 	}
-	
-	function hasQianTui(time){
-		weui.alert("您已于"+time+"完成签退");
+
+	function hasQianTui(time) {
+		weui.alert("您已于" + time + "完成签退");
 	}
-	
-	function shuangYue(){
+
+	function shuangYue() {
 		weui.alert("由于你没有在活动开始后30分钟内签到，已被系统认定为爽约，如有疑问请联系管理员");
 	}
-	
 </script>
 </html>
