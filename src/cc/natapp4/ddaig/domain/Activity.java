@@ -35,20 +35,20 @@ public class Activity implements Serializable {
 	 */
 	private String activityType;
 	// 如果type类型是限定人数，则需要在这里设置最高报名人数
-	private int baoMingUplimit;
+	private int baoMingUplimit = -1;
 	/*
 	 * 通过endTime - beginTime，可以计算出活动的持续时间
 	 * 同时给予SimpleDateFormate类可以方便地将毫秒值转换成类似2018-1-2 19:23:30这样的时间格式字符串
 	 * 因此这个字段设置成long类型是最合适的
 	 */
-	private long activityBeginTime; // 活动的开始时间（以1970-1-1日为起点的毫秒值）
-	private long activityEndTime; // 活动的结束时间（以1970-1-1日为起点的毫秒值）
+	private long activityBeginTime = 0; // 活动的开始时间（以1970-1-1日为起点的毫秒值）
+	private long activityEndTime = 0; // 活动的结束时间（以1970-1-1日为起点的毫秒值）
 
 	/*
 	 * 默认报名开始时间为活动新建时 活动报名截止时间为活动那一天之前
 	 */
-	private long baoMingBeginTime; // 活动报名的开始时间
-	private long baoMingEndTime; // 活动报名的截止时间
+	private long baoMingBeginTime = 0; // 活动报名的开始时间
+	private long baoMingEndTime = 0; // 活动报名的截止时间
 
 	private int score; // 为开展当前活动所分配到的积分（足够平均分配给每位参与者）
 	private String qrcodeUrl; // 活动扫码签到所使用的二维码图片本地相对路径地址，内容为活动的ID
@@ -77,9 +77,9 @@ public class Activity implements Serializable {
 
 	// ===============================用于前端显示的字段（不与数据库关联）==============================
 	// 前端显示格式如 yyyy-MM-dd HH：mm:ss 的活动开始时间
-	private String beginTimeStr;
+	public String beginTimeStr;
 	// 前端显示格式如 yyyy-MM-dd HH：mm:ss 的活动结束时间
-	private String endTimeStr;
+	public String endTimeStr;
 	// 活动的总积分花费
 	private int scorePaid;
 	// 活动所属项目的项目名
@@ -90,7 +90,7 @@ public class Activity implements Serializable {
 	 */
 	private Visitor theVisitor;
 	public Visitor getTheVisitor() {
-		if (null == this.theVisitor) {
+		if (null != this.getVisitors()) {
 			// 先获取当前用户的openid
 			String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 			// 然后从当前Activity的visitors中遍历出当前用户的visitor
@@ -183,27 +183,42 @@ public class Activity implements Serializable {
 	}
 
 	public String getDpName() {
-		String dpName = project.getBesureProject().getName();
-		return dpName;
+		if(null==project){
+			return null;
+		}else{
+			String dpName = project.getBesureProject().getName();
+			return dpName;
+		}
 	}
 
 	public String getBeginTimeStr() {
 
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String format = formatter.format(new Date(this.getActivityBeginTime()));
-		return format;
+		if(0==this.getActivityBeginTime()){
+			return this.beginTimeStr;
+		}else{
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			String format = formatter.format(new Date(this.getActivityBeginTime()));
+			return format;
+		}
 	}
 
 	public String getEndTimeStr() {
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String format = formatter.format(new Date(this.getActivityEndTime()));
-		return format;
+		if(0==this.getActivityEndTime()){
+			return this.endTimeStr;
+		}else{
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			String format = formatter.format(new Date(this.getActivityEndTime()));
+			return format;
+		}
 	}
 
 	public int getScorePaid() {
-
-		int scorePaid = this.visitors.size() * score;
-		return scorePaid;
+		if(null==visitors){
+			return 0;
+		}else{
+			int scorePaid = this.visitors.size() * score;
+			return scorePaid;
+		}
 	}
 
 	// ============SETTERs/GETTERs===============

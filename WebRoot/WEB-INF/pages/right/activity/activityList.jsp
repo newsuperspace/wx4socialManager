@@ -94,7 +94,7 @@
 									<s:iterator value="#activities">
 										<tr>
 											<td><s:property value="dpName" /></td>
-											<td><s:property value="name" /></td>
+											<td><s:a href="#" onclick="activityModal.op.showDetialModal('%{aid}');"><s:property value="name" /></s:a></td>
 											<td><s:property value="description" /></td>
 											<td><s:property value="beginTimeStr" /></td>
 											<td><s:property value="endTimeStr" /></td>
@@ -117,10 +117,6 @@
 											</td>
 											<td>
 												<div class="btn-group" role="group">
-													<s:a cssClass="btn btn-sm btn-outline-secondary"
-														role="button"
-														onclick="activityModal.op.showVisitors('%{aid}');"
-														href="#">签到/离</s:a>
 													<s:a cssClass="btn btn-sm btn-outline-secondary"
 														role="button"
 														onclick="activityModal.op.showVisitors('%{aid}');"
@@ -161,13 +157,13 @@
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
 
-		<!-- Modal4用户详情 -->
-		<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
-			aria-labelledby="detialsModal" aria-hidden="true">
+		<!-- Modal4项目详情 -->
+		<div class="modal fade" id="detialModal" tabindex="-1" role="dialog"
+			aria-labelledby="detialModal" aria-hidden="true">
 			<div class="modal-dialog modal-lg" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title" id="detialsModal_title">张三-信息详情</h4>
+						<h4 class="modal-title" id="detial4title">活动A-信息详情</h4>
 						<button type="button" class="close" data-dismiss="modal"
 							aria-label="Close">
 							<span aria-hidden="true">&times;</span>
@@ -178,69 +174,45 @@
 							<div class="row">
 								<div class="col-lg-2 pr-0 col-xs-12">
 									<img src="./img/qrcode.gif" class="img-fluid"
-										id="detialsModal_qrcode" alt="二维码丢失">
+										id="detial4qrcode" alt="二维码丢失">
 								</div>
 								<div class="col-lg-10 pl-0 col-xs-12">
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
-											用户名:</div>
+											活动名:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_username">newsuperspace</div>
+											id="detial4Name">志愿者服务</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
-											UID:</div>
+											活动描述:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_uid">
+											id="detial4Description">项目描述</div>
+									</div>
+									<div class="row">
+										<div class="col-3 text-right font-weight-bold text-truncate">
+											活动地点:</div>
+											<div class="col-9 text-left text-truncate"
+											id="detial4PositionName">房屋名或地点名</div>
+									</div>
+									<div class="row">
+										<div class="col-3 text-right font-weight-bold text-truncate">
+											AID:</div>
+										<div class="col-9 text-left text-truncate"
+											id="detial4Aid">
 											5d7323e0-70b5-4ff6-9c77-3bdd70a507f1</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
-											OpenID:</div>
+											开始时间:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_openid">okNKU0Qdq6WC9bGO22gcp6tSCuJs</div>
+											id="detial4StartTime">2018-12-22 12:56:06</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
-											注册时间:</div>
+											结束时间:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_registrationTime">2018-12-22 12:56:06</div>
-									</div>
-									<div class="row">
-										<div class="col-3 text-right font-weight-bold text-truncate">
-											街道:</div>
-										<div class="col-9 text-left text-truncate"
-											id="detialsModal_minusFirst">呼家楼</div>
-									</div>
-									<div class="row">
-										<div class="col-3 text-right font-weight-bold text-truncate">
-											社区:</div>
-										<div class="col-9 text-left text-truncate"
-											id="detialsModal_zero">呼家楼北里</div>
-									</div>
-									<div class="row">
-										<div class="col-3 text-right font-weight-bold text-truncate">
-											第1层级:</div>
-										<div class="col-9 text-left text-truncate"
-											id="detialsModal_first">志愿者</div>
-									</div>
-									<div class="row">
-										<div class="col-3 text-right font-weight-bold text-truncate">
-											第2层级:</div>
-										<div class="col-9 text-left text-truncate"
-											id="detialsModal_second">为老志愿者</div>
-									</div>
-									<div class="row">
-										<div class="col-3 text-right font-weight-bold text-truncate">
-											第3层级:</div>
-										<div class="col-9 text-left text-truncate"
-											id="detialsModal_third">殷金凤工作室</div>
-									</div>
-									<div class="row">
-										<div class="col-3 text-right font-weight-bold text-truncate">
-											第4层级:</div>
-										<div class="col-9 text-left text-truncate"
-											id="detialsModal_fourth">第一支队</div>
+											id="detail4EndTime">2018-12-22 12:56:06</div>
 									</div>
 								</div>
 							</div>

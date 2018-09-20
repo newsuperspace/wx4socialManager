@@ -1568,6 +1568,7 @@ var geoModal = {
 					$("#description4update").val(data.geographic.description);
 					$("#longitude4update").val(data.geographic.longitude);
 					$("#latitude4update").val(data.geographic.latitude);
+					$("#radus4update").val(data.geographic.radus);
 					$("#updateModal").modal('show');
 				} else {
 					weui.alert("获取不到指定活动室的数据信息，请重试！");
@@ -1753,6 +1754,7 @@ var houseModal = {
 					$("#description4update").val(data.house.description);
 					$("#longitude4update").val(data.house.longitude);
 					$("#latitude4update").val(data.house.latitude);
+					$("#radus4update").val(data.house.radus);
 					$("#updateModal").modal('show');
 				} else {
 					weui.alert("获取不到指定活动室的数据信息，请重试！");
@@ -1771,7 +1773,7 @@ var houseModal = {
 				description : $("#description4update").val(),
 				longitude : $("#longitude4update").val(),
 				latitude : $("#latitude4update").val(),
-				radus4update: $("#radus4update").val()
+				radus: $("#radus4update").val()
 			}
 			let url = "houseAction_updateHouse.action";
 			$.post(url, param, function(data, textStatus, req) {
@@ -2136,6 +2138,36 @@ var activityModal = {
 	},
 	data : {},
 	op : {
+		
+		/*
+		 * 筹备某一activity的详情信息（主要是二维码）并显示Modal
+		 */
+		showDetialModal: function(aid){
+			let param = {
+				aid: aid
+			}
+			let url = "activityAction_showDetialModal.action";
+			$.post(url, param, function(data, textStatus, req) {
+				
+				$("#detial4title").text(data.name+"-详情信息");
+				$("#detial4qrcode").attr("src",data.qrcodeUrl);
+				$("#detial4Name").text(data.name);
+				$("#detial4Description").text(data.description);
+				if("1"==data.activityType){
+					// 室外活动
+					$("#detial4PositionName").text(data.geographic.name);
+				}else{
+					// 室内活动
+					$("#detial4PositionName").text(data.house.name);
+				}
+				$("#detial4Aid").text(data.aid);
+				$("#detial4StartTime").text(data.beginTimeStr);
+				$("#detail4EndTime").text(data.endTimeStr);
+				
+				$("#detialModal").modal("show");
+			});
+		},
+		
 		/*
 		 * 跳转到展示活动参与者的list列表页面
 		 */

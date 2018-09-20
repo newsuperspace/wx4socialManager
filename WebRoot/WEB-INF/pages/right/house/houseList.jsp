@@ -22,8 +22,6 @@
 	href="https://res.wx.qq.com/open/libs/weui/1.1.3/weui.min.css">
 </head>
 <body>
-
-
 	<!-- =================Navbar（动态include）=============== -->
 	<jsp:include page="/WEB-INF/pages/up/navbar.jsp"></jsp:include>
 	<div class="container-fluid">
@@ -361,7 +359,6 @@
 			},
 			cancel : function(res) {}
 		});
-	
 	}
 
 </script>

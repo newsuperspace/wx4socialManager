@@ -310,7 +310,7 @@
 										class="glyphicon glyphicon-glass"></span></span>
 								</div>
 								<input type="text" class="form-control" name="radus4update"
-									id="longitude4update">
+									id="radus4update">
 								<div class="input-group-prepend">
 									<span class="input-group-text">半径(米)</span>
 								</div>
@@ -320,6 +320,8 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary"
 							data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-info"
+							onclick="getPosition();">自动获取地理位置</button>
 						<!-- ● -->
 						<button type="button" class="btn btn-primary"
 							onclick="geoModal.op.updateGeo();">更新</button>
@@ -359,9 +361,38 @@
 <script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script type="text/javascript"
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
+<script type="text/javascript">
+	function getPosition(){
+		wx.getLocation({
+			type : 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+			success : function(res) {
+				//使用微信内置地图查看位置接口
+				latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+				longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+				speed = res.speed; // 速度，以米/每秒计
+				accuracy = res.accuracy; // 位置精度
+			// 下面是打开腾讯地图的API，暂时不用
+			//wx.openLocation({
+			//latitude : res.latitude, // 纬度，浮点数，范围为90 ~ -90
+			//longitude : res.longitude, // 经度，浮点数，范围为180 ~ -180。
+			//name : '我的位置', // 位置名
+			//address : '329创业者社区', // 地址详情说明
+			//scale : 28, // 地图缩放级别,整形值,范围从1~28。默认为最大
+			//infoUrl : 'http://www.gongjuji.net' // 在查看位置界面底部显示的超链接,可点击跳转（测试好像不可用）
+			//});
+				$("#longitude4update").val(longitude);
+				$("#latitude4update").val(latitude);
+			},
+			cancel : function(res) {}
+		});
+	}
+	
+	
+</script>
 </html>
 

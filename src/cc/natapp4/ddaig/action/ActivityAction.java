@@ -145,6 +145,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 
 	// ==============================模型驱动==============================
 	private Activity activity;
+
 	@Override
 	public Activity getModel() {
 		activity = new Activity();
@@ -278,7 +279,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			// 获取到当前层级对象的所有成员的集合
 			members = mfl.getMembers();
 			// TODO 如果街道有自己的活动室，那么应该哎后续工作中允许街道像社区一样设置自己的活动室
-			houses  =  null;
+			houses = null;
 			geos = mfl.getGeographics();
 			break;
 		case "zero":
@@ -332,8 +333,8 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			geos = fol.getGeographics();
 			break;
 		}
-		if(members==null){
-			members = new  HashSet<Member>();
+		if (members == null) {
+			members = new HashSet<Member>();
 		}
 		// 最终获知到当前层级对象的所有成员数量
 		int size = members.size();
@@ -341,17 +342,17 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		// value="%{'#size'}">' 使用
 		ActionContext.getContext().put("size", size);
 		// 过滤出可用的house
-		List<House> list  =  new ArrayList<House>();
-		for(House h:houses){
-			if(h.isEnable()){
+		List<House> list = new ArrayList<House>();
+		for (House h : houses) {
+			if (h.isEnable()) {
 				list.add(h);
 			}
 		}
 		ActionContext.getContext().put("houses", list);
 		// 过滤出可用的geo
-		List<Geographic> list2 = new  ArrayList<Geographic>();
-		for(Geographic g:geos){
-			if(g.isEnable()){
+		List<Geographic> list2 = new ArrayList<Geographic>();
+		for (Geographic g : geos) {
+			if (g.isEnable()) {
 				list2.add(g);
 			}
 		}
@@ -390,10 +391,10 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		ReturnMessage4CreateActivity message = new ReturnMessage4CreateActivity();
 
 		String s = ServletActionContext.getRequest().getParameter("score");
-		System.out.println("score:"+s);
+		System.out.println("score:" + s);
 		String n = ServletActionContext.getRequest().getParameter("name");
-		System.out.println("name:"+n);
-		
+		System.out.println("name:" + n);
+
 		String name = this.activity.getName();
 		String dpid = this.dpid;
 		String description = this.activity.getDescription();
@@ -430,12 +431,13 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		case "2":
 			if ("1".equals(type)) {
 				// 开放报名，不用校验baoMingUplimit
-				if ("".equals(name) || "".equals(description)|| "".equals(date4calendar) || "".equals(score)) {
-					hasEmpty= true;
+				if ("".equals(name) || "".equals(description) || "".equals(date4calendar) || "".equals(score)) {
+					hasEmpty = true;
 				}
 			} else {
 				// 限制人数报名，还需要校验baoMingUplimit
-				if ("".equals(name) || "".equals(description)|| "".equals(date4calendar) || "".equals(score)||"".equals(baoMingUplimit)) {
+				if ("".equals(name) || "".equals(description) || "".equals(date4calendar) || "".equals(score)
+						|| "".equals(baoMingUplimit)) {
 					hasEmpty = true;
 				}
 			}
@@ -473,7 +475,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			return "message";
 		}
 		long activityDateTimeMillis = 0;
-		if("1".equals(activityType)){
+		if ("1".equals(activityType)) {
 			// 室外活動
 			try {
 				activityDateTimeMillis = (formatter.parse(date4selector.split(" ")[0])).getTime();
@@ -484,7 +486,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				ActionContext.getContext().getValueStack().push(message);
 				return "message";
 			}
-		}else{
+		} else {
 			// 室內活動
 			try {
 				activityDateTimeMillis = formatter.parse(date4calendar.split("~")[0].split("T")[0]).getTime();
@@ -496,7 +498,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				return "message";
 			}
 		}
-		
+
 		if ((activityDateTimeMillis - currentTimeMillis) < (1000L * 60 * 60 * 24)) {
 			// 新建活动的日期距离今天不足1天，不予创建
 			message.setResult(false);
@@ -567,8 +569,8 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				members = fol.getMembers();
 				break;
 			}
-			if(null==members){
-				members = new  HashSet<Member>();
+			if (null == members) {
+				members = new HashSet<Member>();
 			}
 			// 最终获知到当前层级对象的所有成员数量
 			max = members.size();
@@ -589,7 +591,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		}
 
 		// ---------------校验活动持续时间——hour字段------------------
-		if("1".equals(activityType)){
+		if ("1".equals(activityType)) {
 			// 室外活動
 			if (hour < 1 || hour > 12) {
 				hour = 1;
@@ -615,12 +617,12 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		// 设置活动开始时间的yyyy-MM-dd HH:mm:ss 格式的准确时间的格里高利历偏移量
 		formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
-			if("1".equals(activityType)){
+			if ("1".equals(activityType)) {
 				// 室外活動
 				activityDateTimeMillis = (formatter.parse(date4selector)).getTime();
-			}else{
+			} else {
 				// 室內活動
-				StringBuffer sb =  new StringBuffer();
+				StringBuffer sb = new StringBuffer();
 				String[] split = date4calendar.split("~")[0].split("T");
 				sb.append(split[0]);
 				sb.append(" ");
@@ -637,12 +639,12 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		activity.setActivityBeginTime(activityDateTimeMillis);
 		// 设置活动结束时间的准确格里高利历偏移量
 		long activityEndTime = 0;
-		if("1".equals(activityType)){
+		if ("1".equals(activityType)) {
 			// 室外活動
 			activityEndTime = activityDateTimeMillis + 1000 * 60 * 60 * hour;
-		}else{
+		} else {
 			// 室內活動
-			StringBuffer sb =  new StringBuffer();
+			StringBuffer sb = new StringBuffer();
 			String[] split = date4calendar.split("~")[1].split("T");
 			sb.append(split[0]);
 			sb.append(" ");
@@ -659,7 +661,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		String qrcodeUri = QRCodeUtils.createActivityQR(aid);
 		activity.setQrcodeUrl(qrcodeUri);
 		activity.setAid(aid);
-		
+
 		// 设置剩余的其他内容
 		activity.setProject(doingProject);
 		/*
@@ -673,24 +675,49 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		 * 而不在主表的list容器中添加新建的从表对象，那么新建的从表对象的“index4主表名”的字段就会为null缺少排列序号。
 		 */
 		doingProject.getActivities().add(activity);
-		if("1".equals(activityType)){
+		if ("1".equals(activityType)) {
 			// 室外活动，关联Geo
 			Geographic geo = geographicService.queryEntityById(geoid);
 			activity.setGeographic(geo);
 			geo.getActivities().add(activity);
-		}else{
+		} else {
 			// 室内活动，关联House
 			House house = houseService.queryEntityById(hid);
 			activity.setHouse(house);
 			house.getActivities().add(activity);
 		}
-		
+
 		// activity的bean数据填装完成，与所属的doingProject也已经进来关联，现在可以级联向数据库保存activity了
 		activityService.save(activity);
 
 		message.setMessage("名为" + name + "的活动创建成功！");
 		message.setResult(true);
 		ActionContext.getContext().getValueStack().push(message);
+		return "json";
+	}
+
+	/**
+	 * AJAX
+	 * 获取指定activity的信息到前端显示
+	 * @return
+	 */
+	public String showDetialModal(){
+		
+		Activity a = activityService.queryEntityById(this.activity.getAid());
+		Activity ra  =  new Activity();
+		ra.setName(a.getName());
+		ra.setActivityType(a.getActivityType());
+		// 室外活动
+		ra.setGeographic(a.getGeographic());
+		// 室内活动
+		ra.setHouse(a.getHouse());
+		ra.setDescription(a.getDescription());
+		ra.beginTimeStr = a.getBeginTimeStr();
+		ra.endTimeStr = a.getEndTimeStr();
+		ra.setQrcodeUrl(ServletActionContext.getServletContext().getContextPath() + "/" + a.getQrcodeUrl());
+		ra.setAid(a.getAid());
+		
+		ActionContext.getContext().getValueStack().push(ra);
 		return "json";
 	}
 
@@ -707,17 +734,17 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 
 		// 由于创建活动页面是通过 层级对象 → 默认项目 → 新建活动 实现的，因此必定属于某个层级对象的
 		DoingProject doingProject = doingProjectService.queryEntityById(this.dpid);
-		if (null != doingProject.getMinusFirstLevel() && null==doingProject.getZeroLevel()) {
+		if (null != doingProject.getMinusFirstLevel() && null == doingProject.getZeroLevel()) {
 			// 新建活动的是街道层级对象
 			// TODO 街道只能使用街道自己的房屋，而其他层级对象只能使用社区的房屋
 
-		} else if (null != doingProject.getZeroLevel() && null==doingProject.getFirstLevel()) {
+		} else if (null != doingProject.getZeroLevel() && null == doingProject.getFirstLevel()) {
 			// 新建活动的是社区层级
 			result = ActivityUtils.getStartDayAndEndDay(0);
-		} else if (null != doingProject.getFirstLevel() && null==doingProject.getSecondLevel()) {
+		} else if (null != doingProject.getFirstLevel() && null == doingProject.getSecondLevel()) {
 			// 新建活动的是第一层级
 			result = ActivityUtils.getStartDayAndEndDay(1);
-		} else if (null != doingProject.getSecondLevel() && null==doingProject.getThirdLevel()) {
+		} else if (null != doingProject.getSecondLevel() && null == doingProject.getThirdLevel()) {
 			// 新建活动的是第二层级
 			result = ActivityUtils.getStartDayAndEndDay(2);
 		} else if (null != doingProject.getThirdLevel()) {
