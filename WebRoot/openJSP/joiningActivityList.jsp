@@ -77,9 +77,9 @@
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动地点</label> <span
 								class="weui-form-preview__value" id="position"> <s:if
-									test="activityType=='1'">
+									test="activityType==1">
 									<s:property value="geographic.name" />
-								</s:if> <s:elseif test="activityType=='2'">
+								</s:if> <s:elseif test="activityType==2">
 									<s:property value="house.name" />
 								</s:elseif>
 							</span>
@@ -212,10 +212,6 @@
 	// 基于地理位置完成自主签到
 	function qianDao4Position(aid) {
 		// 首先通过微信的JS-SDK获取当前地理位置坐标（经纬度）
-		let longitude = 0;
-		let latitude = 0;
-		let speed = 0;
-		let accuracy = 0;
 		wx.getLocation({
 			type : 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
 			success : function(res) {
@@ -236,10 +232,9 @@
 			},
 			cancel : function(res) {}
 		});
-		let longitude = 0;
-		let latitude = 0;
 		// 准备路径跳转	
-		let url = "personalCenterAction_qianDao4Position.action?" + "aid=" + aid + "&latitude=" + latitude + "&longitude" + longitude;
+		let url = "personalCenterAction_qianDao4Position.action?" + "aid=" + aid + "&latitude=" + latitude + "&longitude=" + longitude;
+		weui.alert(url);
 		$(location).attr("href", url);
 	}
 
@@ -267,10 +262,6 @@
 	// 基于地理位置的自主签退
 	function qianTui4Position(aid) {
 		// 首先通过微信的JS-SDK获取当前地理位置坐标（经纬度）
-		let longitude = 0;
-		let latitude = 0;
-		let speed = 0;
-		let accuracy = 0;
 		wx.getLocation({
 			type : 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
 			success : function(res) {
@@ -292,7 +283,7 @@
 			cancel : function(res) {}
 		});
 		// 准备路径跳转	
-		let url = "personalCenterAction_qianTui4Position.action?" + "aid=" + aid + "&latitude=" + latitude + "&longitude" + longitude;
+		let url = "personalCenterAction_qianTui4Position.action?" + "aid=" + aid + "&latitude=" + latitude + "&longitude=" + longitude;
 		$(location).attr("href", url);
 	}
 

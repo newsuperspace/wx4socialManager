@@ -124,19 +124,19 @@ public class PersonalCenterAction extends ActionSupport {
 	}
 	// 基于位置的签到/签退，JS-SDK或获取签到/签退者的地理位置坐标，并以AJAX的post请求参数的形式传递过来，下面就是记录经度和纬度的属性驱动
 	// 纬度
-	private long latitude;
-	public long getLatitude() {
+	private double latitude;
+	public double getLatitude() {
 		return latitude;
 	}
-	public void setLatitude(long latitude) {
+	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
 	// 经度
-	private long longitude;
-	public long getLongitude() {
+	private double longitude;
+	public double getLongitude() {
 		return longitude;
 	}
-	public void setLongitude(long longitude) {
+	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
 	/*

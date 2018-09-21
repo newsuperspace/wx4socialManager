@@ -77,10 +77,10 @@
                     <div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">活动地点</label> 
 							<span class="weui-form-preview__value" id="position">
-								<s:if test="activityType=='1'">
+								<s:if test="activityType==1">
 									<s:property value="geographic.name"/>	
 								</s:if>
-								<s:elseif test="activityType=='2'">
+								<s:elseif test="activityType==2">
 									<s:property value="house.name"/>	
 								</s:elseif>
 							</span>
