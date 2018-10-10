@@ -131,6 +131,7 @@
 														<s:a cssClass="btn btn-sm btn-outline-secondary"
 															role="button"
 															onclick="geoModal.op.deleteGeo('%{geoid}');" href="#">删除</s:a>
+														
 													</div>
 												</myShiro:hasAnyPermissions>
 											</td>

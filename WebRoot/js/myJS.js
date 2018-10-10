@@ -2093,6 +2093,9 @@ var aboutWeixin = {
 	}
 };
 
+/**
+ * 处理活动相关的前端逻辑
+ */
 var activityModal = {
 	init : {
 		// 对当前页面上的jQueryUI组件进行一些初始化工作

@@ -31,6 +31,8 @@
 	<mapping resource="cc/natapp4/ddaig/domain/Grouping.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/User.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Activity.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Article.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/ArticlePhoto.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Ware.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Exchange.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/BesureProject.hbm.xml" />

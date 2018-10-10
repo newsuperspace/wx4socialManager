@@ -640,7 +640,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		if (null == u) {
 			System.out.println("查找不到待修改的用户数据");
 		} else {
-			// 修改该用户的qrcode中保存的相对路径 → 拼接成绝对路径url，以此供后端页面上的infoModal对话框的<img
+			// 修改该用户的qrcode中保存的相对路径 → 拼接成绝对路径url，以此供前端页面上的infoModal对话框的<img
 			// src=""/>的src属性使用，以显示该用户的独有qrcode
 			String qrcodeUrl = ServletActionContext.getServletContext().getContextPath() + "/" + u.getQrcode();
 			u.setQrcode(qrcodeUrl);

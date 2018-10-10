@@ -74,7 +74,9 @@ public class Activity implements Serializable {
 	private House house;
 	// 【室外活动】，则这里需要关联指定Geographic对象（一对多外键关联）
 	private Geographic geographic;
-
+	// 本活动的文章
+	private Article article;
+	
 	// ===============================用于前端显示的字段（不与数据库关联）==============================
 	// 前端显示格式如 yyyy-MM-dd HH：mm:ss 的活动开始时间
 	public String beginTimeStr;
@@ -222,9 +224,19 @@ public class Activity implements Serializable {
 	}
 
 	// ============SETTERs/GETTERs===============
+	
+	public Article getArticle() {
+		return article;
+	}
+	
+	public void setArticle(Article article) {
+		this.article = article;
+	}
+	
 	public String getAid() {
 		return aid;
 	}
+
 
 	public void setAid(String aid) {
 		this.aid = aid;

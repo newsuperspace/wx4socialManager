@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="cc.natapp4.ddaig.domain.Activity">
+		<id name="artid" length="50">
+			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
+			<!-- 主键产生器设置成assigned，是有需要根据aid来生成专属qrcode，因此需要手动生成并设置到bean中 -->
+			<generator class="uuid"></generator>
+		</id>
+
+		<property name="content" length="500"></property>
+		<property name="title" length="50"></property>
+		<property name="readingNum" type="integer"></property>
+		<property name="forwardingNum" type="integer"></property>
+
+		<list name="photos" cascade="save-update" lazy="true">
+			<key column="artid"></key>
+			<list-index column="index4article"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.ArticlePhoto" />
+		</list>
+
+		<one-to-one name="activity" cascade="all" fetch="join" lazy="false"
+			class="cc.natapp4.ddaig.domain.Activity"></one-to-one>
+
+	</class>
+</hibernate-mapping>

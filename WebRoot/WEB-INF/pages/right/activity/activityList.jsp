@@ -123,6 +123,10 @@
 														href="#">补签</s:a>
 													<s:a cssClass="btn btn-sm btn-outline-secondary"
 														role="button"
+														onclick="toArticlePage('%{aid}');"
+														href="#">活动记录</s:a>
+													<s:a cssClass="btn btn-sm btn-outline-secondary"
+														role="button"
 														onclick="activityModal.op.showVisitors('%{aid}');"
 														href="#">取消</s:a>
 												</div>
@@ -261,4 +265,11 @@
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
 <script type="text/javascript"
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
+<script>
+	
+	function toArticlePage(aid){
+		$("location").attr("articleAction_getArticle.action?aid="+aid);
+	}
+	
+</script>
 </html>

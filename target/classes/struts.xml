@@ -19,6 +19,7 @@
 	<include file="struts/struts-user.xml"></include>
 	<include file="struts/struts-grouping.xml"></include>
 	<include file="struts/struts-activity.xml"></include>
+	<include file="struts/struts-article.xml"></include>
 	<include file="struts/struts-ajax4weixin.xml"></include>
 	<include file="struts/struts-directPage.xml"></include>
 	<include file="struts/struts-ware.xml"></include>

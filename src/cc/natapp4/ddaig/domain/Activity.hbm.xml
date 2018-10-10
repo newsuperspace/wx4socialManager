@@ -37,6 +37,8 @@
 		<many-to-one name="geographic" class="cc.natapp4.ddaig.domain.Geographic"
 			cascade="save-update" column="geoid" lazy="false"></many-to-one>
 
+		<one-to-one class="cc.natapp4.ddaig.domain.Article"  cascade="all"  lazy="false"
+			constrained="true" name="article" />
 
 	</class>
 </hibernate-mapping>
