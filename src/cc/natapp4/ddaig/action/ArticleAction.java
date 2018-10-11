@@ -108,21 +108,8 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 	 */
 	public String getArticle(){
 		Activity activity = activityService.queryEntityById(this.aid);
-		Article  article  =  null;
-		if(null==activity.getArticle()){
-			article  =  new  Article();
-			// 还没有文章，新建一个文章对象
-			article.setActivity(activity);
-			article.setContent("");
-			article.setForwardingNum(0);
-			article.setReadingNum(0);
-			article.setTitle(activity.getName()+"活动新闻稿");
-			// 向数据库中新建
-			articleService.save(article);
-		}else{
-			article = activity.getArticle();
-		}
-		ActionContext.getContext().getValueStack().push(article);
+		
+		ActionContext.getContext().getValueStack().push(activity.getArticle());
 		return SUCCESS;
 	}
 	
@@ -136,8 +123,9 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 	public String showInputPage(){
 		String artid  =  this.article.getArtid();
 		Article a = articleService.queryEntityById(artid);
+		System.out.println("文章所属活动的aid是："+a.getActivity().getAid());
 		
-		ActionContext.getContext().getValueStack().push(artid);
+		ActionContext.getContext().getValueStack().push(a);
 		return "inputPage";
 	}
 	

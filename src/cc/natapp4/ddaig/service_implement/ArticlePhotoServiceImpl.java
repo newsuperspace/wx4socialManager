@@ -10,7 +10,7 @@ import cc.natapp4.ddaig.service_interface.ArticlePhotoService;
 @Service("articlePhotoService")
 public class ArticlePhotoServiceImpl extends BaseServiceImpl<ArticlePhoto> implements ArticlePhotoService {
 
-	@Resource(name="activityPhotoDao")
+	@Resource(name="articlePhotoDao")
 	private ArticlePhotoDao  dao;
 	@Override
 	protected BaseDao<ArticlePhoto> getBaseDao() {

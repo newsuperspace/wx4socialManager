@@ -30,8 +30,6 @@
 			column="bpid"
 			lazy="false"> <!-- ★这里的lazy不能省略，莫非一对一默认懒加载？ -->
 		</many-to-one> 
-		
-
 
 		<many-to-one name="minusFirstLevel"
 			class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel" column="mflid"

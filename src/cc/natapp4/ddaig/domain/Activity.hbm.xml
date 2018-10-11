@@ -38,7 +38,7 @@
 			cascade="save-update" column="geoid" lazy="false"></many-to-one>
 
 		<one-to-one class="cc.natapp4.ddaig.domain.Article"  cascade="all"  lazy="false"
-			constrained="true" name="article" />
+			fetch="join" name="article" />
 
 	</class>
 </hibernate-mapping>

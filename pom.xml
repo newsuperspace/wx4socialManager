@@ -16,7 +16,14 @@
 
 
 	<dependencies>
-		
+
+		<!-- ===================================qrcode===================================== -->
+		<dependency>
+			<groupId>org.nutz</groupId>
+			<artifactId>nutz-plugins-qrcode</artifactId>
+			<version>1.r.60</version>
+		</dependency>
+
 		<!-- ===================================for Shiro===================================== -->
 		<!-- https://mvnrepository.com/artifact/org.apache.shiro/shiro-core -->
 		<dependency>

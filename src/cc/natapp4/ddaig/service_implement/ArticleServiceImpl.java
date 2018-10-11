@@ -13,7 +13,7 @@ import cc.natapp4.ddaig.service_interface.ArticleService;
 @Service("articleService")
 public class ArticleServiceImpl extends BaseServiceImpl<Article> implements ArticleService {
 
-	@Resource(name="activityDao")
+	@Resource(name="articleDao")
 	private ArticleDao  dao;
 	@Override
 	protected BaseDao<Article> getBaseDao() {

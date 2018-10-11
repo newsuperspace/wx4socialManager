@@ -27,6 +27,7 @@ import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 
 import cc.natapp4.ddaig.domain.Activity;
+import cc.natapp4.ddaig.domain.Article;
 import cc.natapp4.ddaig.domain.DoingProject;
 import cc.natapp4.ddaig.domain.Geographic;
 import cc.natapp4.ddaig.domain.House;
@@ -661,6 +662,15 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		String qrcodeUri = QRCodeUtils.createActivityQR(aid);
 		activity.setQrcodeUrl(qrcodeUri);
 		activity.setAid(aid);
+
+		// 由于Activity和Article是一一对应的关系，因此必须在数据库同时存在activity和article
+		Article art  =  new  Article();
+		art.setActivity(activity);
+		art.setContent("");
+		art.setForwardingNum(0);
+		art.setReadingNum(0);
+		art.setTitle("");
+		activity.setArticle(art);
 
 		// 设置剩余的其他内容
 		activity.setProject(doingProject);

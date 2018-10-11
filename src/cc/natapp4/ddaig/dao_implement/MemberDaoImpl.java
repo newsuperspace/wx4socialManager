@@ -6,9 +6,7 @@ import javax.annotation.Resource;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 
-import cc.natapp4.ddaig.dao_interface.ActivityDao;
 import cc.natapp4.ddaig.dao_interface.MemberDao;
-import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Member;
 
 @Repository("memberDao")

@@ -268,7 +268,7 @@
 <script>
 	
 	function toArticlePage(aid){
-		$("location").attr("articleAction_getArticle.action?aid="+aid);
+		$(location).attr("href","articleAction_getArticle.action?aid="+aid);
 	}
 	
 </script>
