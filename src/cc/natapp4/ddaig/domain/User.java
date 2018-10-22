@@ -9,7 +9,7 @@ import org.apache.struts2.json.annotations.JSON;
 public class User implements Serializable {
 	
 	//=====================通过Ajax向前端返回数据信息时使用属性============================
-	// 一下两个属性是在userAction.getUserInfo()中用来给前端myJS.userModal.op.userInfo()返回信息之用
+	// 一下两个属性是在userAction.getUserInfo()中用来给前端myJS.userModal.op.userInfo()返回信息之用,用来记载用户当前登陆的层级信息
 	private Member member4Ajax;
 	private Manager manager4Ajax;
 	
@@ -70,6 +70,7 @@ public class User implements Serializable {
 	 * 则可在此处找到与身为管理员的当前用户有关的数据信息
 	 */
 	private Manager manager;   
+	
 	/*
 	 * 作为一个通过扫码（可能是公众号二维码也可能是各个层级对象的带参二维码——直接加入到该层级对象的管辖下）
 	 * 加入公众号的用户势必会存在一个member对应数据，用来定位其在层级化结构中的位置
