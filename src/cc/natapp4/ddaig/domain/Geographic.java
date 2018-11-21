@@ -36,7 +36,7 @@ public class Geographic implements Serializable {
 	private List<Activity> activities;
 	// 该点位信息创建者的层级（-1、0、1、2、3、4）,用来快速定位从下面那个层级对象属性中找到归属层级
 	private int level;
-	// 点位所处层级对象
+	// 该点位由以下哪个层级对象所创建，由于每个层级都可以创建点位，因为需要结合level快速定位当前点位所属层级对象
 	private MinusFirstLevel minusFirstLevel;
 	private ZeroLevel zeroLevel;
 	private FirstLevel firstLevel;

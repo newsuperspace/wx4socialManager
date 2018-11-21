@@ -22,7 +22,7 @@ public class MyModularRealmAuthenticator extends ModularRealmAuthenticator {
         this.definedRealms = definedRealms;
     }
     /**
-     * 多个realm实现
+     * 多realm同时发生作用时实现
      */
     @Override
     protected AuthenticationInfo doMultiRealmAuthentication(Collection<Realm> realms, AuthenticationToken token) {
@@ -30,7 +30,8 @@ public class MyModularRealmAuthenticator extends ModularRealmAuthenticator {
     	return super.doMultiRealmAuthentication(realms, token);
     }
     /**
-     * 调用单个realm执行操作
+     * ★★★
+     * 单个realm时执行认证操作时调用本操作
      */
     @Override
     protected AuthenticationInfo doSingleRealmAuthentication(Realm realm,AuthenticationToken token) {
@@ -55,7 +56,7 @@ public class MyModularRealmAuthenticator extends ModularRealmAuthenticator {
 
 
     /**
-     * 判断登录类型执行操作
+     * 判断登录类型执行操作,并根据类型结果指派返回的realm负责处理认证操作和授权操作
      */
     @Override
     protected AuthenticationInfo doAuthenticate(AuthenticationToken authenticationToken)throws AuthenticationException {

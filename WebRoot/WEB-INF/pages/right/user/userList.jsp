@@ -33,7 +33,7 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2">总人员信息</h1>
+							<h1 class="h2">非直辖人员信息</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 									
@@ -80,7 +80,6 @@
 										<th>昵称</th>
 										<th>性别</th>
 										<th>年龄</th>
-										<th>分组</th>
 										<th>服务时长（时）</th>
 										<th>积分</th>
 										<th>电话</th>
@@ -103,47 +102,6 @@
 											<td><s:property value="sickname" /></td>
 											<td><s:property value="sex" /></td>
 											<td><s:property value="age" /></td>
-											<td><s:if test="grouping.tag=='common'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:if> <s:elseif test="grouping.tag=='unreal'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='admin'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='zero'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='first'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='second'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='third'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='fourth'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='minus_first'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='money'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif></td>
 											<td><s:property value="serveTime" /></td>
 											<td><s:property value="score" /></td>
 											<td><s:property value="phone" /></td>

@@ -58,10 +58,13 @@ public class MenuClickHandler extends AbstractHandler {
 
 	@Resource(name = "userService")
 	private UserService userService;
-
 	@Resource(name = "textBuilder")
 	private TextBuilder textBuilder;
-
+	@Resource(name="checkRealNameUtils")
+	private CheckRealNameUtils checkRealNameUtils;
+	
+	
+	
 	@Override
 	public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage, Map<String, Object> context, WxMpService wxMpService,
 			WxSessionManager sessionManager) throws WxErrorException {
@@ -71,7 +74,7 @@ public class MenuClickHandler extends AbstractHandler {
 		/**
 		 *  下面处理不同业务逻辑的case分支中可能某些分支需要用户预先进行实名认证，这里的ChekRealNameUtils.check()就是用来实名认证的
 		 */
-		WxMpXmlOutMessage outMessage = CheckRealNameUtils.check(wxMessage.getFromUser(), wxMessage, service);
+		WxMpXmlOutMessage outMessage = checkRealNameUtils.check(wxMessage.getFromUser(), wxMessage, service);
 
 		String eventKey = wxMessage.getEventKey();
 		switch (eventKey) {

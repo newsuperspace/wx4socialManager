@@ -39,8 +39,8 @@ public class ZeroLevel implements LevelInterface {
 	private MinusFirstLevel parent;
 	// 存放属于当前级别的下一级别的级别对象（一对多）
 	private Set<FirstLevel> children;
-	// 当前层级的管理者（一对一）
-	private Manager manager;
+	// 当前层级的管理者（一对多）
+	private List<Manager> managers;
 	// 当前层级对象所管辖的成员（一对多）
 	private Set<Member> members;
 	// 当前层级对象所能行使的权限（多对多）
@@ -107,7 +107,7 @@ public class ZeroLevel implements LevelInterface {
 		Iterator<FirstLevel> iterator = ch.iterator();
 		while (iterator.hasNext()) {
 			FirstLevel first = iterator.next();
-			if (null == first.getManager()) {
+			if (0 == first.getManagers().size()) {
 				first.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
 				list.add(first);
 			}
@@ -174,14 +174,6 @@ public class ZeroLevel implements LevelInterface {
 		this.children = children;
 	}
 
-	public Manager getManager() {
-		return manager;
-	}
-
-	public void setManager(Manager manager) {
-		this.manager = manager;
-	}
-
 	@JSON(serialize = false)
 	public Set<Member> getMembers() {
 		return members;
@@ -226,4 +218,12 @@ public class ZeroLevel implements LevelInterface {
 		this.qrcode = qrcode;
 	}
 
+	public List<Manager> getManagers() {
+		return managers;
+	}
+
+	public void setManagers(List<Manager> managers) {
+		this.managers = managers;
+	}
+	
 }

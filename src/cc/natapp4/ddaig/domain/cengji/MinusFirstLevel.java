@@ -25,7 +25,7 @@ import cc.natapp4.ddaig.domain.Permission;
 public class MinusFirstLevel implements LevelInterface {
 
 	// ---------------------基本信息--------------------
-	// 主键
+	// 主键（手动生成）
 	private String mflid;
 	// 当前类型或团队的名字
 	private String name;
@@ -38,10 +38,11 @@ public class MinusFirstLevel implements LevelInterface {
 	// private MinusFirstLevel parent;
 	// 存放属于当前级别的下一级别的级别对象（一对多）
 	private Set<ZeroLevel> children;
-	// 当前层级的管理者（一对一）
-	private Manager manager;
 	// 当前层级对象所管辖的成员（一对多）
 	private Set<Member> members;
+	// 当前层级的管理者们
+	private List<Manager> managers;
+	
 	// 当前层级对象所能行使的权限（多对多）
 	private Set<Permission> permissions;
 	// 该层级所创建的所有点位
@@ -58,7 +59,7 @@ public class MinusFirstLevel implements LevelInterface {
 	private Set<BesureProject> besureProjects;
 
 	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
-	private List<ZeroLevel> children4Ajax;    // 承装没有被委任的子层级对象
+	private List<ZeroLevel> children4Ajax;    // 承装没有被委任任何管理员的子层级对象（2018.11月更新的新版用不到了，因为层级可以委任多个管理员）
 	private List<ZeroLevel> allChildren4Ajax; // 承装全部子层级对象
 
 	// ==================================SETTERs/GETTERs=====================================
@@ -88,7 +89,7 @@ public class MinusFirstLevel implements LevelInterface {
 		while (iterator.hasNext()) {
 			ZeroLevel zero = iterator.next();
 			// 只选择没有被“委任”的层级对象，来向前端返回⭐
-			if (null == zero.getManager()) {
+			if (0 == zero.getManagers().size()) {
 				// 切断父子关系，防止@JSON解析的时候出现死循环⭐
 				zero.setParent(null);
 				list.add(zero);
@@ -155,14 +156,6 @@ public class MinusFirstLevel implements LevelInterface {
 		this.children = children;
 	}
 
-	public Manager getManager() {
-		return manager;
-	}
-
-	public void setManager(Manager manager) {
-		this.manager = manager;
-	}
-
 	@JSON(serialize = false)
 	public Set<Member> getMembers() {
 		return members;
@@ -206,6 +199,14 @@ public class MinusFirstLevel implements LevelInterface {
 
 	public void setGeographics(List<Geographic> geographics) {
 		this.geographics = geographics;
+	}
+
+	@Override
+	public List<Manager> getManagers() {
+		return managers;
+	}
+	public void setManagers(List<Manager> managers) {
+		this.managers = managers;
 	}
 	
 }

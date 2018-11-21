@@ -50,7 +50,7 @@ public class PermissionsAuthorizationFilter extends AuthorizationFilter {
 		 *  需要特别指出的是，如果anyPerms[]中包含的是其他权限，没问题只要subject中存在就放行，只是如果含有的权限是
 		 *  all:system:access4desk
 		 *  all:system:access4weixin
-		 *  需要进一步判断当前访问是来自微信还是桌面，如果是微信则在通过我们自定义的过滤器MyShiroFilter的时候会在session中留下wxURL的变量，
+		 *  需要进一步判断当前访问是确实来自微信或桌面，如果是微信则在通过我们自定义的过滤器MyShiroFilter的时候会在session中留下wxURL的变量，
 		 *  可通过查看是否存在该变量来判断访问是来子微信还是桌面。
 		 */
 		for(String p: perms){

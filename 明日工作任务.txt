@@ -1,9 +1,25 @@
+// ------------------------JUnit测试顺序----------------------------
+√（0）删除数据库weixin →  新建数据库weixin
+√（1）TestGroupingService.testBatchCreateGrouping()  
+① 根据hibernate配置文件完成数据库表的全部搭建
+② 初始化grouping中的数据（必要且优先）
+√（2）TestProjectType.testBatchCreateProjectType()
+初始化“项目类型”数据信息，这些信息将作为创建BesureProject（默认） → DoingProject（默认） → 各个层级对象的前提（必要且优先）
+√（3）TestBesureProject、 TestDoingProject
+√（4）TestXXXXLevelService
+√（5）User 和 Member(新建用户必须伴随创建一个默认member)
+√（6）Manager
+√（7）House 和  Geo
+（8）Activity、article、articlephoto
+
+
+
 // ------------------------------系统需要初始化的内容--------------------------
 （1）grouping表中的tag标签————initTag.properties  通过WeiXinAction.recall()在接受到与微信端的初次握手时在case "first":分支中通过调用WeixinService4Setting.InitPlatform() 实现
 （2）projectType表中的项目类型数据————projectTypes.properties  通过方式，同上
 （3）层级类型-权限类型-权限的初始化————permissionConfig/PermissionLevel_PermissionType_Permission.json 通过Admin权限登陆系统后，在权限页面下拉列表中批量创建。
 
-（4）如果希望清空系统中的所有数据库数据，只需要放心大胆的通过HeidiSQL，依次将每个数据库表中的所有数据删除就可以了
+（4）如果希望清空系统中的所有数据库数据，只需要放心大胆的通过HeidiSQL，依次将每个数据库表中的所有数据删除就可以了，然后再通过接入微信时通WeixinService4Setting.InitPlatform()完成grouping和projectType的创建，然后通过admin登陆系统后台完成权限系统的新建，整个系统就可用了。
 
 // ---------------------------数据库操作注意事项---------------------------
 （1）一对一表关系。 由于两个表的数据公用同一个主键，因此在实际通过Hibernate对持久化状态对象进行操作的时候一定要注意，在新建数据的时候，一对一的两个表新建的持久化状态对象，相互之间一定要都被引用，也就是A.B = B; B.A = A; 之后再级联地保存其中一个例如 Aservice.save(A); 或 Bservice.save(B); 就能建立关联了，否则会出现从表找不到主键的Hibernate异常。这是因为Hibernate在生成一对一关联数据的时候，从表的主键是通过主表对象的主键获取的，因此你必须向从表持久化状态对象的主表引用中引用主表对象，这样Hibernate才能通过该引用找到主表的持久化状态对象，然后得到主表的主键值。
@@ -47,6 +63,46 @@ org.hibernate.LazyInitializationException: failed to lazily initialize a collect
 			}
 		}
 
+// -------------------------定位当前操作者层级对象下的直属成员对应的member-----------------------------
+String  levelTag  = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+String  lid  = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+for(Member m : members){
+	switch(levelTag){
+	case "minus_first":
+		if(null!=m.getMinusFirstLevel() && m.getMinusFirstLevel().getMflid().equals(lid) && null==m.getZeroLevel()){
+			member = m;
+		}
+		break;
+	case "zero":
+		if(null!=m.getZeroLevel() && m.getZeroLevel().getZid().equals(lid) && null==m.getFirstLevel()){
+			member = m;
+		}
+		break;
+	case "first":
+		if(null!=m.getFirstLevel()&&m.getFirstLevel().getFlid().equals(lid) && null==m.getSecondLevel()){
+			member = m;
+		}
+		break;
+	case "second":
+		if(null!=m.getSecondLevel()&&m.getSecondLevel().getScid().equals(lid) && null==m.getThirdLevel()){
+			member = m;
+		}
+		break;
+	case "third":
+		if(null!=m.getThirdLevel() && m.getThirdLevel().getThid().equals(lid) && null==m.getFourthLevel()){
+			member = m;
+		}
+		break;
+	case "fourth":
+		if(null!=m.getFourthLevel()&&m.getFourthLevel().getFoid().equals(lid)){
+			member = m;
+		}
+		break;
+	}
+}		
+		
+		
+
 // ---------------------------系统登陆的逻辑流程---------------------------
 		
 前端来访 → MyShiroFilter将所请求的URL进行分析，如果发现名为code的请求参数就放到session域中命名为wxURL，也就是判定本次来访时来自微信端的 → Shiro的Filter过滤器链条 → 如果当前所请求的路径需要authc则转交给shiroFilter这个bean中配置的loginUrl属性所标定的Action处理 → shiroAction_login.action
@@ -67,7 +123,23 @@ org.hibernate.LazyInitializationException: failed to lazily initialize a collect
 3、在“用户中心”中增加“我的组织”选项，从中可以查看自己当前加入的所有层级对象，实现基本的退出组织功能
 
 4、在创建活动Activity是可选择是自动完成签退还是手动签退的选项
-5、
+5、【项目化管理方案】为DoingProject和BesureProject增加新的字段（minusFirstProject、zeroProjectLevel、firstProjectLevel、secondProjectLevel、thirdProjectLevel、fourthProjectLevel），将“组织层级化”管理理念引入到“项目管理”中。新字段与已有的层级化字段的区别是，
+/*
+ * ★★★
+ * 注意，不论是doingProject还是besureProject都与层级对象类似，
+ * 为了能够快速便利出某个层级对象之下所有子层级对象所执行的项目
+ * 也为了能够逐本溯源，找到项目的最初（通常是minusFirst或zeroLevel）
+ * 下发的层级对象，因此其中的MInusFirstLevel、ZeroLevel、FirstLevel、
+ * SecondLevel、ThirdLevel、FourthLevel都要从项目所属层级（当前就是ZeroLevel）
+ * 一直向上追溯到最顶层级（MinusFirstLevel）这样才能方便表现出项目的层级化关系
+ * 至少目前来说随层级创建的“默认项目”是这样的，
+ *
+ * 
+ */
+简单言之就是已有层级字段是用来指示该项目当前执行者是谁，以及属于哪个更高层级之下；
+而新建字段是用来独立表示一个项目的层级关系，因为之后推行项目化运作方案，从minus（联合会或街道）可以向各个社区摊派积分，就是要通过带积分的大项目包的形式分派给各个社区，然后各个社区再次拆包成小项目分派各自的子层级，然后再拆包。而且社区有自己的经费也可以创建自己的带积分项目向下进行分派。
+所以所有拆出来的子项目都应该能追根溯源到其所属于的父项目包，然后每个项目包又能通过旧字段定位到当前执行项目的层级对象。
+
 
 
 细节计划：
@@ -114,17 +186,6 @@ https://github.com/Tencent/weui/wiki/Cell
 
 // =================================线下工作=================================
 
-（8）创享计划项目设计材料总结
-
-
-
-
-会议费（签到表+物资申领单+照片+活动记录表+公众号新闻截图） =  水（1300元） +  办公用品
-办公用品（8*30人次）  =  60个放大镜（600元）+ 60个笔记本（600元）+ 60套签字笔（1500元）
-（1）信息安全+系统使用培训 × 2	√√
-（2）防火 × 2					√
-（3）急救 × 2					√
-（4）制度制定+制度学习 × 2		√√
 
 
 

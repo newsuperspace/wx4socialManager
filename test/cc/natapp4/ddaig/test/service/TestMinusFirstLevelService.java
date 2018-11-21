@@ -1,13 +1,9 @@
 package cc.natapp4.ddaig.test.service;
 
-import java.util.List;
+import java.util.UUID;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.orm.hibernate5.HibernateTemplate;
 
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
@@ -28,15 +24,15 @@ import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
 public class TestMinusFirstLevelService {
 
 	private ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-			"spring/applicationContext.xml");
+			"spring/applicationContext4Test.xml");
+	private  MinusFirstLevelService  service  =  (MinusFirstLevelService) context.getBean("minusFirstLevelService");
 
 	@Test  // pass
 	public void testSave() {
-		MinusFirstLevelService service = (MinusFirstLevelService) context.getBean("minusFirstLevelService");
 		MinusFirstLevel   mfl  =  new  MinusFirstLevel();
+		mfl.setMflid(UUID.randomUUID().toString());
 		mfl.setDescription("这是一个测试用MinusFirstLevel层级");
-		mfl.setLevel(LevelInterface.LEVEL_MINUS_FIRST);
-		mfl.setName("MinusFirstLevel000");
+		mfl.setName("MinusFirstLevel01");
 		
 		service.save(mfl);
 	}
@@ -45,7 +41,7 @@ public class TestMinusFirstLevelService {
 	public void testQueryAndUpdate(){
 		
 		MinusFirstLevelService  service   =  (MinusFirstLevelService) context.getBean("minusFirstLevelService");
-		MinusFirstLevel m = service.queryEntityById("402881fa61d0d1f90161d0d20d210000");
+		MinusFirstLevel m = service.queryEntityById("e60cec9c-52be-4dda-a8a2-f2bf0ccababe");
 		/*
 		 * Hibernate的关于查询数据的事务管理是这样
 		 * 由于正常情况下数据查询出来就完事儿了，不会涉及后续的数据库事务操作，因此在通过service执行查询操作后
@@ -61,32 +57,33 @@ public class TestMinusFirstLevelService {
 		 * 整个MVC层中 的任何位置随时获取到懒加载的数据库数据。
 		 * （2）修改Hibernate映射文件，将所有引用属性的懒加载关闭
 		 */
-		if(!m.getChildren().isEmpty()){
-			for(ZeroLevel  z: m.getChildren()){
-				System.out.println("Zero层级对象的ID是："+z.getZid());
-				if(!z.getChildren().isEmpty()){
-					for(FirstLevel f: z.getChildren()){
-						System.out.println("First层级对象的ID是："+f.getFlid());
-						if(!f.getChildren().isEmpty()){
-							for(SecondLevel s: f.getChildren()){
-								System.out.println("Second层级对象的ID是："+s.getScid());
-								if(!s.getChildren().isEmpty()){
-									for(ThirdLevel tl:s.getChildren()){
-										System.out.println("Third层级对象的ID是："+tl.getThid());
-										if(!tl.getChildren().isEmpty()){
-											for(FourthLevel fth: tl.getChildren()){
-												System.out.println("Fourth层级对象的ID是："+fth.getFoid());
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
+//		if(!m.getChildren().isEmpty()){
+//			for(ZeroLevel  z: m.getChildren()){
+//				System.out.println("Zero层级对象的ID是："+z.getZid());
+//				if(!z.getChildren().isEmpty()){
+//					for(FirstLevel f: z.getChildren()){
+//						System.out.println("First层级对象的ID是："+f.getFlid());
+//						if(!f.getChildren().isEmpty()){
+//							for(SecondLevel s: f.getChildren()){
+//								System.out.println("Second层级对象的ID是："+s.getScid());
+//								if(!s.getChildren().isEmpty()){
+//									for(ThirdLevel tl:s.getChildren()){
+//										System.out.println("Third层级对象的ID是："+tl.getThid());
+//										if(!tl.getChildren().isEmpty()){
+//											for(FourthLevel fth: tl.getChildren()){
+//												System.out.println("Fourth层级对象的ID是："+fth.getFoid());
+//											}
+//										}
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+		m.setDescription(m.getDescription()+System.currentTimeMillis());
+		service.update(m);
 	}
 
 	@Test  // test

@@ -13,28 +13,40 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.BesureProject;
 import cc.natapp4.ddaig.domain.DoingProject;
+import cc.natapp4.ddaig.domain.ProjectType;
 import cc.natapp4.ddaig.domain.Receipt4BesureProject;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.BesureProjectService;
+import cc.natapp4.ddaig.service_interface.ProjectTypeService;
 import cc.natapp4.ddaig.service_interface.UserService;
 
 
 
 public class TestBesureProjectService {
 
-	private static  ApplicationContext context  =  new  ClassPathXmlApplicationContext("spring/applicationContext.xml");
+	private static  ApplicationContext context  =  new  ClassPathXmlApplicationContext("spring/applicationContext4Test.xml");
+	private BesureProjectService  service  =  (BesureProjectService) context.getBean("besureProjectService");
+	private ProjectTypeService  projectTypeService  =  (ProjectTypeService) context.getBean("projectTypeService");
 	
 	@Test   // pass
 	public void testSave() {
 		// -------------------First
 		BesureProject  p=  new BesureProject();
+		p.setName("测试Bp");
+		p.setState("新立项");
 		p.setActivityTotal(10);
 		p.setCommitTime(System.currentTimeMillis());
 		p.setDescription("222222222222222222");
 		p.setLaborCost(10000);
 		
-		BesureProjectService  service  =  (BesureProjectService) context.getBean("besureProjectService");
+		List<ProjectType> projectTypes = projectTypeService.queryEntities();
+		for(ProjectType pt: projectTypes){
+			if("为老服务".equals(pt.getDescription())){
+				p.setProjectType(pt);
+			}
+		}
+		
 		List<Receipt4BesureProject>  list =  new  ArrayList<Receipt4BesureProject>();
 		for(int i=0;i<4;i++){
 			Receipt4BesureProject rp = new  Receipt4BesureProject();
@@ -42,6 +54,7 @@ public class TestBesureProjectService {
 			rp.setName(""+i);
 			rp.setTime(System.currentTimeMillis());
 			rp.setType("repeat");
+			rp.setBesureProject(p);
 			list.add(rp);
 		}
 		p.setReceipts(list);

@@ -19,6 +19,12 @@ public class MyUsernamePasswordToken extends UsernamePasswordToken {
 		this.loginType = loginType;
 	}
 
+	/**
+	 * 创建封装有登陆用的用户名和密码的token对象，第三参数用作指定验证器Realm的名称，本自定义token可以选择目标验证器
+	 * @param username
+	 * @param password
+	 * @param loginType
+	 */
 	public MyUsernamePasswordToken(String username, String password, String loginType) {
         super(username, password);
         this.loginType = loginType;

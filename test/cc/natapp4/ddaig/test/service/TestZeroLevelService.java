@@ -1,5 +1,7 @@
 package cc.natapp4.ddaig.test.service;
 
+import java.util.UUID;
+
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -26,18 +28,18 @@ import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 public class TestZeroLevelService {
 
 	private ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-			"spring/applicationContext.xml");
+			"spring/applicationContext4Test.xml");
 
 	@Test  // pass
 	public void testSave() {
 		ZeroLevelService service = (ZeroLevelService) context.getBean("zeroLevelService");
 		ZeroLevel   z  =  new  ZeroLevel();
+		z.setZid(UUID.randomUUID().toString());
 		z.setDescription("这是一个测试用ZeroLevel层级");
-		z.setLevel(LevelInterface.LEVEL_ZERO);
-		z.setName("ZeroLevel000");
+		z.setName("ZeroLevel1-2");
 		
 		MinusFirstLevelService  mService  =  (MinusFirstLevelService) context.getBean("minusFirstLevelService");
-		MinusFirstLevel m = mService.queryEntityById("402881fa61d0d1f90161d0d20d210000");
+		MinusFirstLevel m = mService.queryEntityById("e60cec9c-52be-4dda-a8a2-f2bf0ccababe");
 		z.setParent(m);
 		
 		service.save(z);

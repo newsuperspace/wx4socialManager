@@ -1,5 +1,7 @@
 package cc.natapp4.ddaig.test.service;
 
+import java.util.UUID;
+
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -20,32 +22,27 @@ import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 public class TestThirdLevelService {
 
 	private ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-			"spring/applicationContext.xml");
-
+			"spring/applicationContext4Test.xml");
+	private SecondLevelService secondLevelService = (SecondLevelService) context.getBean("secondLevelService");
+	private	ThirdLevelService thirdLevelService = (ThirdLevelService) context.getBean("thirdLevelService");
+	
+	
 	@Test  // pass
 	public void testSave() {
-		ThirdLevelService service = (ThirdLevelService) context.getBean("thirdLevelService");
 		ThirdLevel   th  =  new  ThirdLevel();
+		th.setThid(UUID.randomUUID().toString());
 		th.setDescription("这是一个测试用ThirdLevel层级");
-		th.setLevel(LevelInterface.LEVEL_THREE);
 		th.setName("SecondLevel000");
 		
-		service.save(th);
+		SecondLevel secondLevel = secondLevelService.queryEntityById("9f2d1d92-4ea4-400d-89b0-a444c1584836");
+		th.setParent(secondLevel);
+		
+		thirdLevelService.save(th);
 	}
 	
 	@Test  // pass
 	public void testQueryAndUpdate(){
-		FirstLevelService  flService  =  (FirstLevelService) context.getBean("firstLevelService");
-		SecondLevelService  scService  =  (SecondLevelService) context.getBean("secondLevelService");
-		ThirdLevelService  thService = (ThirdLevelService) context.getBean("thirdLevelService");
 		
-		FirstLevel fl = flService.queryEntityById("402881fa61d079800161d0799dce0000");
-		SecondLevel sc = scService.queryEntityById("402881fa61d08d970161d08dc8160000");
-		ThirdLevel th = thService.queryEntityById("402881fa61d0b6c70161d0b6e6950000");
-		
-		th.setParent(sc);
-		sc.setParent(fl);
-		thService.update(th);
 	}
 
 	@Test  // test

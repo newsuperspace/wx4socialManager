@@ -83,6 +83,10 @@ public class ScaneHandler extends AbstractHandler {
 	private WareService wareService;
 	@Resource(name = "exchangeService")
 	private ExchangeService exchangeService;
+	@Resource(name="checkRealNameUtils")
+	private CheckRealNameUtils checkRealNameUtils;
+	
+	
 	/*
 	 * 需要向微信服务器回传文本信息，则获取文本构造器
 	 */
@@ -121,8 +125,13 @@ public class ScaneHandler extends AbstractHandler {
 		/**
 		 *  下面处理不同业务逻辑的case分支中可能某些分支需要用户预先进行实名认证，这里的ChekRealNameUtils.check()就是用来实名认证的
 		 */
-		WxMpXmlOutMessage outMessage = CheckRealNameUtils.check(openID, wxMessage, service);
-		// 开始不同业务逻辑的分支
+		WxMpXmlOutMessage outMessage = checkRealNameUtils.check(openID, wxMessage, service);
+		if(null!=outMessage){
+			// 通过checkRealNameUtils返回的outMessage如果不是null说明该用户还没有实名认证
+			return  outMessage;
+		}
+		
+		// 已经通过实名认证了，开始不同业务逻辑的分支
 		switch (eventKey) {
 		case "self_gn_qdqt": // 处理扫码签到
 			if(null==outMessage){

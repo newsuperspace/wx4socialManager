@@ -20,12 +20,14 @@
 			<one-to-many class="cc.natapp4.ddaig.domain.Geographic" />
 		</list>
 
+		<list name="managers" cascade="save-update" lazy="true">
+			<key column="foid"></key>
+			<list-index column="index4fourth"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Manager" />
+		</list>
+
 		<many-to-one name="parent" column="thid" lazy="false"
 			class="cc.natapp4.ddaig.domain.cengji.ThirdLevel" cascade="save-update"></many-to-one>
-
-		<many-to-one name="manager" column="uid"  lazy="false"
-			class="cc.natapp4.ddaig.domain.Manager" cascade="save-update">
-		</many-to-one>
 
 		<set name="members" cascade="save-update" lazy="true">
 			<key>

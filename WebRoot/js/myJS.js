@@ -1,4 +1,43 @@
 /**
+ * ========================managerLevelList.jsp页面逻辑功能========================
+ */
+var managedLevelList = {
+	init : {},
+	data : {},
+	op : {
+		/**
+		 * 解除任命
+		 * level:  被解除任命的人所解除的层级对象的tag（minus_first、zero、first、second、third、fourth）
+		 * lid: 被解除任命的人所接触的层级对象的lid
+		 * 
+		 */
+		disappoint : function(managerid) {
+			var answer = confirm("是否真的要解除当用户对该层级的任命？");
+			if (answer) {
+				// 解除任命
+				var  param  = {
+					"managerid": managerid	
+				}
+				
+				$.post("userAction_doDisappoint.action", param, function(data, textStatus, req) {
+					if(data.result){
+						alert(data.message);
+						window.location.reload();
+					}else{
+						alert(data.message);
+					}
+				});
+			} else {
+				// 什么也不做
+			}
+		},
+	
+	
+	}
+}
+
+
+/**
  * ========================权限层级PermissionLevel========================
  */
 var permissionLevelModal = {
@@ -706,218 +745,217 @@ var managerModal = {
 	data : {},
 	op : {
 
+		/**
+		 * 根据某个用户的memberid
+		 * 跳转到其所管理的所有直接子层级列表页面
+		 * managedLevelList.jsp
+		 */
+		toManagedLevelList: function(memberid){
+			let url = "managerAction_toManagedLevelList.action";
+			$(location).attr("href", url+"?memberid="+memberid);
+		},
+		
+		/**
+		 * 根据在minus_first.jsp/zero.jsp/first.jsp/second.jsp/third.jsp/fourth.jsp页面上点击“管理者”
+		 * 则会将被点击的层级的levelLid和tag传递过来，用于跳转到managersOfLevel.jsp页面上用于展示该层级
+		 * 的所有管理者，并且在页面上可以执行卸任某个特定用户的操作。
+		 */
+		toManagersOfLevel: function(levelLid,tag){
+			let url = "managerAction_toManagersOfLevel.action"+"?levelLid="+levelLid+"&tag="+tag;
+			$(location).attr("href", url);
+		},
+		
 		/*
 		 * 判断指派人员的modal是否可以提交了（是否在select中选择了正确的option，value非0）
 		 */
-		showAssignedUserModalCanBeCommit : function(uid, level) {
-
-			var $select = $("#userAssigned" + level)
-
-			if ($select.val() == 0) {
-				// 用户没有选中正确的option，不予提交
-				// 设置按钮为不可用状态，并直接返回
-				$("#button4UserAssigned").attr("disabled", true);
-				return;
-			}
-			// 用户选择了 某个层级对象的option，可以执行指派操作了
-			$("#button4UserAssigned").unbind().bind("click", function() {
-				managerModal.op.assignedUser(uid, level, $select.val());
-			}).attr("disabled", false);
-		},
+//		showAssignedUserModalCanBeCommit : function(uid, level) {
+//
+//			var $select = $("#userAssigned" + level)
+//
+//			if ($select.val() == 0) {
+//				// 用户没有选中正确的option，不予提交
+//				// 设置按钮为不可用状态，并直接返回
+//				$("#button4UserAssigned").attr("disabled", true);
+//				return;
+//			}
+//			// 用户选择了 某个层级对象的option，可以执行指派操作了
+//			$("#button4UserAssigned").unbind().bind("click", function() {
+//				managerModal.op.assignedUser(uid, level, $select.val());
+//			}).attr("disabled", false);
+//		},
 
 
 		/*
 		 * 分配用户到子层级的“中间层&直属层”中
 		 * uid： 被分配的人员的uid
 		 */
-		showAssignedUserModal : function(uid) {
-
-			// 先要判断被操作用户的是否被委任了职责，其tag是否为common或unreal
-			var data = {
-				uid : uid
-			}
-
-			// 需要先等待下面的post请求从服务器获得返回的结果并判断后才能决定是否执行下面弹出Modal的操作，因此需要手动设置Ajax为同步执行（默认是异步执行）
-			$.ajaxSetup({
-				async : false // 全局设置Ajax为同步执行
-			});
-			var weContinue = true;
-			$.post("userAction_getUserInfo.action", data, function(data, textStatus, req) {
-				if (data.manager4Ajax != null) {
-					alert("该用户当前正在任职，请先将其卸任");
-					weContinue = false;
-				}
-				if (data.grouping.tag != "common" && data.grouping.tag != "unreal") {
-					alert("该用户当前的分组为管理者分组,请修改后再试");
-					weContinue = false;
-				}
-			});
-			// 重新设置Ajax为异步执行
-			$.ajaxSetup({
-				async : true
-			});
-			// 判断是否继续
-			if (!weContinue) {
-				return;
-			}
-
+//		showAssignedUserModal : function(uid) {
+//
+//			// 先要判断被操作用户的是否被委任了职责，其tag是否为common或unreal
+//			var data = {
+//				uid : uid
+//			}
+//
+//			// 需要先等待下面的post请求从服务器获得返回的结果并判断后才能决定是否执行下面弹出Modal的操作，因此需要手动设置Ajax为同步执行（默认是异步执行）
+//			$.ajaxSetup({
+//				async : false // 全局设置Ajax为同步执行
+//			});
+//			var weContinue = true;
+//			$.post("userAction_getUserInfo.action", data, function(data, textStatus, req) {
+//				if (data.managers!= null && data.managers.size()>0) {
+//					alert("该用户当前正在任职，请先将其卸任");
+//					weContinue = false;
+//				}
+//				if (data.member.grouping.tag != "common" && data.member.grouping.tag != "unreal") {
+//					alert("该用户当前的分组为管理者分组,请修改后再试");
+//					weContinue = false;
+//				}
+//			});
+//			// 重新设置Ajax为异步执行
+//			$.ajaxSetup({
+//				async : true
+//			});
+//			// 判断是否继续
+//			if (!weContinue) {
+//				return;
+//			}
 			/*
 			 * 通过Ajax可以从后端返回当前操作者的层级对象，
 			 * 从中我们可以通过 data.grouping.tag 分析出操作者的层级分组,进而得知在userAssignedModal中应该显示的是那个select
 			 * 然后从 data.children4Ajax 得到可以指派人员的直接子层级数据，用来组织select中的option
 			 *  
 			 */
-			$.post("userAction_showUserAssignedModal.action", null, function(data, textStatus, req) {
-				// 先隐藏userAssigned的Modal中的所有select
-				$("#userAssignedModal div.row").hide();
-				// 将提交按钮预制成“不可用状态”
-				$("#button4UserAssigned").attr("disabled", true)
-
-				let level = data.level;
-				switch (level) {
-				case -1:
-					// 操作者是街道层级，将直属人员分配到社区
-					var $select = $("#userAssigned0").empty();
-					console.log($select.attr("id"));
-					var $option = $("<option value='0' selected>--请选择--</option>");
-					$select.append($option);
-					$select.unbind().bind("change", function() {
-						managerModal.op.showAssignedUserModalCanBeCommit(uid, 0)
-					});
-					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
-						$option = $("<option></option>");
-						$option.attr("value", data.allChildren4Ajax[i].zid);
-						$option.text(data.allChildren4Ajax[i].name);
-						$select.append($option);
-					}
-					break;
-				case 0:
-					// 操作者是社区层级，将直属人员分配到第一级
-					var $select = $("#userAssigned1").empty();
-					var $option = $("<option value='0' selected>--请选择--</option>");
-					$select.append($option);
-					$select.unbind().bind("change", function() {
-						managerModal.op.showAssignedUserModalCanBeCommit(uid, 1);
-					});
-					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
-						var $option = $("<option></option>");
-						$option.attr("value", data.allChildren4Ajax[i].flid);
-						$option.text(data.allChildren4Ajax[i].name);
-						$select.append($option);
-					}
-					break;
-				case 1:
-					// 操作者是第一层级，将直属人员分配到第二级
-					var $select = $("#userAssigned2").empty();
-					var $option = $("<option value='0' selected>--请选择--</option>");
-					$select.append($option);
-					$select.unbind().bind("change", function() {
-						managerModal.op.showAssignedUserModalCanBeCommit(uid, 2);
-					});
-					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
-						var $option = $("<option></option>");
-						$option.attr("value", data.allChildren4Ajax[i].scid);
-						$option.text(data.allChildren4Ajax[i].name);
-						$select.append($option);
-					}
-					break;
-				case 2:
-					// 操作者是第二层层级，将直属人员分配到第三级
-					var $select = $("#userAssigned3").empty();
-					var $option = $("<option value='0' selected>--请选择--</option>");
-					$select.append($option);
-					$select.unbind().bind("change", function() {
-						managerModal.op.showAssignedUserModalCanBeCommit(uid, 3);
-					});
-					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
-						var $option = $("<option></option>");
-						$option.attr("value", data.allChildren4Ajax[i].thid);
-						$option.text(data.allChildren4Ajax[i].name);
-						$select.append($option);
-					}
-					break;
-				case 3:
-					// 操作者是第三层级，将直属人员分配到第四级
-					var $select = $("#userAssigned4").empty();
-					var $option = $("<option value='0' selected>--请选择--</option>");
-					$select.append($option);
-					$select.unbind().bind("change", function() {
-						managerModal.op.showAssignedUserModalCanBeCommit(uid, 4);
-					});
-					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
-						var $option = $("<option></option>");
-						$option.attr("value", data.allChildren4Ajax[i].foid);
-						$option.text(data.allChildren4Ajax[i].name);
-						$select.append($option);
-					}
-					break;
-				default:
-					// admin操作者会将用户分派到街道层级（-1）
-					var $select = $("#userAssigned-1").empty();
-					var $option = $("<option value='0' selected>--请选择--</option>");
-					$select.append($option);
-					$select.unbind().bind("change", function() {
-						managerModal.op.showAssignedUserModalCanBeCommit(uid, -1);
-					});
-					for (let i = 0; i < data.length; i++) {
-						$option = $("<option></option>");
-						$option.attr("value", data[i].mflid);
-						$option.text(data[i].name);
-						$select.append($option);
-					}
-					break;
-				}
-				$select.parent().parent().show();
-				$("#userAssignedModal").modal("show");
-			});
-		},
-
-		/*
-		 * 执行分配操作
-		 * uid : 待分配人的uid
-		 * level: 被分配到层级对象的层级数（-1，0，1，2，3，4）
-		 * lid: 被分配到的层级对象的lid
-		 */
-		assignedUser : function(uid, level, lid) {
-
-			var data = {
-				uid : uid,
-				level : level,
-				lid : lid
-			}
-
-			$.post("userAction_assignedUser.action", data, function(data, textStatus, req) {
-				if (data.result) {
-					// 人员派遣成功
-					alert(data.message);
-					window.location.reload();
-				} else {
-					alert(data.message);
-					$("#userAssignedModal").modal("hide");
-				}
-			});
-
-		},
-
-		/*
-		 * 卸任 
-		 */
-		disappoint : function(uid) {
-			var answer = confirm("即将解除该同志的任命，是否继续？");
-			if (answer) {
-				// 确定卸任
-				var data = {
-					uid : uid
-				};
-
-				$.post("userAction_doDisappoint.action", data, function(data, textStatus, req) {
-					alert(data.message);
-					window.location.reload();
-				});
-			} else {
-				// 什么也不做
-			}
-		},
+//			$.post("userAction_showUserAssignedModal.action", null, function(data, textStatus, req) {
+//				// 先隐藏userAssigned的Modal中的所有select
+//				$("#userAssignedModal div.row").hide();
+//				// 将提交按钮预制成“不可用状态”
+//				$("#button4UserAssigned").attr("disabled", true)
+//
+//				let level = data.level;
+//				switch (level) {
+//				case -1:
+//					// 操作者是街道层级，将直属人员分配到社区
+//					var $select = $("#userAssigned0").empty();
+//					console.log($select.attr("id"));
+//					var $option = $("<option value='0' selected>--请选择--</option>");
+//					$select.append($option);
+//					$select.unbind().bind("change", function() {
+//						managerModal.op.showAssignedUserModalCanBeCommit(uid, 0)
+//					});
+//					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
+//						$option = $("<option></option>");
+//						$option.attr("value", data.allChildren4Ajax[i].zid);
+//						$option.text(data.allChildren4Ajax[i].name);
+//						$select.append($option);
+//					}
+//					break;
+//				case 0:
+//					// 操作者是社区层级，将直属人员分配到第一级
+//					var $select = $("#userAssigned1").empty();
+//					var $option = $("<option value='0' selected>--请选择--</option>");
+//					$select.append($option);
+//					$select.unbind().bind("change", function() {
+//						managerModal.op.showAssignedUserModalCanBeCommit(uid, 1);
+//					});
+//					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
+//						var $option = $("<option></option>");
+//						$option.attr("value", data.allChildren4Ajax[i].flid);
+//						$option.text(data.allChildren4Ajax[i].name);
+//						$select.append($option);
+//					}
+//					break;
+//				case 1:
+//					// 操作者是第一层级，将直属人员分配到第二级
+//					var $select = $("#userAssigned2").empty();
+//					var $option = $("<option value='0' selected>--请选择--</option>");
+//					$select.append($option);
+//					$select.unbind().bind("change", function() {
+//						managerModal.op.showAssignedUserModalCanBeCommit(uid, 2);
+//					});
+//					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
+//						var $option = $("<option></option>");
+//						$option.attr("value", data.allChildren4Ajax[i].scid);
+//						$option.text(data.allChildren4Ajax[i].name);
+//						$select.append($option);
+//					}
+//					break;
+//				case 2:
+//					// 操作者是第二层层级，将直属人员分配到第三级
+//					var $select = $("#userAssigned3").empty();
+//					var $option = $("<option value='0' selected>--请选择--</option>");
+//					$select.append($option);
+//					$select.unbind().bind("change", function() {
+//						managerModal.op.showAssignedUserModalCanBeCommit(uid, 3);
+//					});
+//					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
+//						var $option = $("<option></option>");
+//						$option.attr("value", data.allChildren4Ajax[i].thid);
+//						$option.text(data.allChildren4Ajax[i].name);
+//						$select.append($option);
+//					}
+//					break;
+//				case 3:
+//					// 操作者是第三层级，将直属人员分配到第四级
+//					var $select = $("#userAssigned4").empty();
+//					var $option = $("<option value='0' selected>--请选择--</option>");
+//					$select.append($option);
+//					$select.unbind().bind("change", function() {
+//						managerModal.op.showAssignedUserModalCanBeCommit(uid, 4);
+//					});
+//					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
+//						var $option = $("<option></option>");
+//						$option.attr("value", data.allChildren4Ajax[i].foid);
+//						$option.text(data.allChildren4Ajax[i].name);
+//						$select.append($option);
+//					}
+//					break;
+//				default:
+//					// admin操作者会将用户分派到街道层级（-1）
+//					var $select = $("#userAssigned-1").empty();
+//					var $option = $("<option value='0' selected>--请选择--</option>");
+//					$select.append($option);
+//					$select.unbind().bind("change", function() {
+//						managerModal.op.showAssignedUserModalCanBeCommit(uid, -1);
+//					});
+//					for (let i = 0; i < data.length; i++) {
+//						$option = $("<option></option>");
+//						$option.attr("value", data[i].mflid);
+//						$option.text(data[i].name);
+//						$select.append($option);
+//					}
+//					break;
+//				}
+//				$select.parent().parent().show();
+//				$("#userAssignedModal").modal("show");
+//			});
+//		},
+//
+//		/*
+//		 * 执行分配操作
+//		 * uid : 待分配人的uid
+//		 * level: 被分配到层级对象的层级数（-1，0，1，2，3，4）
+//		 * lid: 被分配到的层级对象的lid
+//		 */
+//		assignedUser : function(uid, level, lid) {
+//
+//			var data = {
+//				uid : uid,
+//				level : level,
+//				lid : lid
+//			}
+//
+//			$.post("userAction_assignedUser.action", data, function(data, textStatus, req) {
+//				if (data.result) {
+//					// 人员派遣成功
+//					alert(data.message);
+//					window.location.reload();
+//				} else {
+//					alert(data.message);
+//					$("#userAssignedModal").modal("hide");
+//				}
+//			});
+//
+//		},
 
 		/*
 		 * 向后端发起正式的任命操作
@@ -932,7 +970,6 @@ var managerModal = {
 				level : level,
 				lid : lid
 			};
-
 			$.post("userAction_doAppoint.action", data, function(data, textStatus, req) {
 				if (data.result) {
 					alert(data.message);
@@ -954,7 +991,7 @@ var managerModal = {
 		 */
 		changeAppointSelect : function(level, lid, lowest, uid) {
 			/*
-			 *  判断是不是目标（与被任命对象的层级一致的）select被onchange了
+			 *  判断是不是目标（select呈现的可任命层级对象与被任命者的层级tag一致）select被onchange了
 			 *  如果是进一步判断其所选中的option的value是不是！=0 如果的确！=0
 			 *  那就说明可以提交“任命”
 			 */
@@ -979,7 +1016,7 @@ var managerModal = {
 			$("#button4appoint").attr("disabled", "disabled");
 			// 然后，开始通过Ajax从后端获取必要的层级对象的信息，用来组织MODAL的页面显示
 			var data = {
-				uid : uid, // 需要被任命的manager 的uid
+					uid : uid, // 需要被任命的manager 的uid
 			};
 
 			$.post("userAction_getAppointInfo.action", data, function(data, textStatus, req) {
@@ -1028,13 +1065,14 @@ var managerModal = {
 						// 先创建一个默认的option
 						$select.append($("<option value='0' selected>--请选择--</option>"));
 						// 分析操作者的层级
+						var level = null;
 						switch (controllerNum) {
 						case -1:
 							// 操作者是街道，则操作者的层级对象是data.minusFirst
-							var level = data.minusFirst;
-							for (let i = 0; i < level.children4Ajax.length; i++) {
+							level = data.minusFirst;
+							for (let i = 0; i < level.allChildren4Ajax.length; i++) {
 								// 获取次层级zeroLevel对象
-								var child = level.children4Ajax[i];
+								var child = level.allChildren4Ajax[i];
 								var option = $("<option></option>");
 								option.attr("value", child.zid).text(child.name);
 								$select.append(option);
@@ -1042,10 +1080,10 @@ var managerModal = {
 							break;
 						case 0:
 							// 操作者是社区，则操作者的层级对象是data.zero
-							var level = data.zero;
-							for (let i = 0; i < level.children4Ajax.length; i++) {
+							level = data.zero;
+							for (let i = 0; i < level.allChildren4Ajax.length; i++) {
 								// 获取次层级firstLevel对象
-								var child = level.children4Ajax[i];
+								var child = level.allChildren4Ajax[i];
 								var option = $("<option></option>");
 								option.attr("value", child.flid).text(child.name);
 								$select.append(option);
@@ -1053,10 +1091,10 @@ var managerModal = {
 							break;
 						case 1:
 							// 操作者是第一级，则操作者的层级对象是data.first
-							var level = data.first;
-							for (let i = 0; i < level.children4Ajax.length; i++) {
+							level = data.first;
+							for (let i = 0; i < level.allChildren4Ajax.length; i++) {
 								// 获取次层级secondLevel对象
-								var child = level.children4Ajax[i];
+								var child = level.allChildren4Ajax[i];
 								var option = $("<option></option>");
 								option.attr("value", child.scid).text(child.name);
 								$select.append(option);
@@ -1064,10 +1102,10 @@ var managerModal = {
 							break;
 						case 2:
 							// 操作者是第二级，则操作者的层级对象是data.second
-							var level = data.second;
-							for (let i = 0; i < level.children4Ajax.length; i++) {
+							level = data.second;
+							for (let i = 0; i < level.allChildren4Ajax.length; i++) {
 								// 获取次层级thirdLevel对象
-								var child = level.children4Ajax[i];
+								var child = level.allChildren4Ajax[i];
 								var option = $("<option></option>");
 								option.attr("value", child.thid).text(child.name);
 								$select.append(option);
@@ -1075,10 +1113,10 @@ var managerModal = {
 							break;
 						case 3:
 							// 操作者是第三级，则操作者的层级对象是data.third
-							var level = data.third;
-							for (let i = 0; i < level.children4Ajax.length; i++) {
+							level = data.third;
+							for (let i = 0; i < level.allChildren4Ajax.length; i++) {
 								// 获取次层级fourthLevel对象
-								var child = level.children4Ajax[i];
+								var child = level.allChildren4Ajax[i];
 								var option = $("<option></option>");
 								option.attr("value", child.foid).text(child.name);
 								$select.append(option);
@@ -1108,11 +1146,11 @@ var managerModal = {
 
 		},
 
-
 		/*
-		 * 当点击某个管理者的"绑定层级对象"的时候，会跳转到特定的Level的页面，用来显示该层级对象的详细信息。
+		 * 当点击某个管理者的"绑定层级对象"的时候，会跳转到managedLevelList.jsp的页面，用来展示该管理者所管理的所有层级
 		 */
-		jump2LevelPage : function(tag, lid) {
+		jump2LevelPage : function(tag) {
+			let lid = $("#levelID").text();
 			switch (tag) {
 			case "minus_first":
 				$(location).attr('href', 'minusFirstLevelAction_getLevelInfo.action?mflid=' + lid);
@@ -1135,6 +1173,7 @@ var managerModal = {
 
 			}
 		},
+		
 	}
 };
 
@@ -1223,10 +1262,10 @@ var userModal = {
 				// 清空select
 				$('#tag4update').empty();
 				// 根据被操作对象是否已经被委任 data.manager==null? 来确定select是否可以被设置
-				if (null != data.manager4Ajax) {
+				if (null != data.managers && 0 != data.managers.length) {
 					// 已被委任，不能选动select
 					let op = $("<option></option>");
-					switch (data.grouping.tag) {
+					switch (data.managers[0].member.grouping.tag) {
 					case "minus_first":
 						op.attr("value", data.grouping.tag).text("街道管理者");
 						break;
@@ -1282,7 +1321,7 @@ var userModal = {
 						$('#tag4update').append(op);
 						$("#tag4update").attr("disabled", false);
 					}
-					$('#tag4update').find("option[value='" + data.grouping.tag + "']").attr("selected", "selected");
+					$('#tag4update').find("option[value='" + data.member.grouping.tag + "']").attr("selected", "selected");
 				}
 
 				$("#updateUserModal").modal('show');
@@ -1332,45 +1371,45 @@ var userModal = {
 				$("#detialsModal_uid").text(data.uid);
 				$("#detialsModal_openid").text(data.openid);
 				$("#detialsModal_registrationTime").text(data.registrationTimeStr);
-				if (null == data.member4Ajax) {
-					$("#detialsModal_minusFirst").text("无");
-					$("#detialsModal_zero").text("无");
-					$("#detialsModal_first").text("无");
-					$("#detialsModal_second").text("无");
-					$("#detialsModal_third").text("无");
-					$("#detialsModal_fourth").text("无");
-				} else {
-					if (null == data.member4Ajax.minusFirstLevel) {
-						$("#detialsModal_minusFirst").text("无");
-					} else {
-						$("#detialsModal_minusFirst").text(data.member4Ajax.minusFirstLevel.name);
-					}
-					if (null == data.member4Ajax.zeroLevel) {
-						$("#detialsModal_zero").text("无");
-					} else {
-						$("#detialsModal_zero").text(data.member4Ajax.zeroLevel.name);
-					}
-					if (null == data.member4Ajax.firstLevel) {
-						$("#detialsModal_first").text("无");
-					} else {
-						$("#detialsModal_first").text(data.member4Ajax.firstLevel.name);
-					}
-					if (null == data.member4Ajax.secondLevel) {
-						$("#detialsModal_second").text("无");
-					} else {
-						$("#detialsModal_second").text(data.member4Ajax.secondLevel.name);
-					}
-					if (null == data.member4Ajax.thirdLevel) {
-						$("#detialsModal_third").text("无");
-					} else {
-						$("#detialsModal_third").text(data.member4Ajax.thirdLevel.name);
-					}
-					if (null == data.member4Ajax.fourthLevel) {
-						$("#detialsModal_fourth").text("无");
-					} else {
-						$("#detialsModal_fourth").text(data.member4Ajax.fourthLevel.name);
-					}
-				}
+//				if (null == data.member4Ajax) {
+//					$("#detialsModal_minusFirst").text("无");
+//					$("#detialsModal_zero").text("无");
+//					$("#detialsModal_first").text("无");
+//					$("#detialsModal_second").text("无");
+//					$("#detialsModal_third").text("无");
+//					$("#detialsModal_fourth").text("无");
+//				} else {
+//					if (null == data.member4Ajax.minusFirstLevel) {
+//						$("#detialsModal_minusFirst").text("无");
+//					} else {
+//						$("#detialsModal_minusFirst").text(data.member4Ajax.minusFirstLevel.name);
+//					}
+//					if (null == data.member4Ajax.zeroLevel) {
+//						$("#detialsModal_zero").text("无");
+//					} else {
+//						$("#detialsModal_zero").text(data.member4Ajax.zeroLevel.name);
+//					}
+//					if (null == data.member4Ajax.firstLevel) {
+//						$("#detialsModal_first").text("无");
+//					} else {
+//						$("#detialsModal_first").text(data.member4Ajax.firstLevel.name);
+//					}
+//					if (null == data.member4Ajax.secondLevel) {
+//						$("#detialsModal_second").text("无");
+//					} else {
+//						$("#detialsModal_second").text(data.member4Ajax.secondLevel.name);
+//					}
+//					if (null == data.member4Ajax.thirdLevel) {
+//						$("#detialsModal_third").text("无");
+//					} else {
+//						$("#detialsModal_third").text(data.member4Ajax.thirdLevel.name);
+//					}
+//					if (null == data.member4Ajax.fourthLevel) {
+//						$("#detialsModal_fourth").text("无");
+//					} else {
+//						$("#detialsModal_fourth").text(data.member4Ajax.fourthLevel.name);
+//					}
+//				}
 				$("#detialsModal").modal('show');
 			});
 			return false;
@@ -1380,7 +1419,7 @@ var userModal = {
 
 
 /**
- *========================用户User========================
+ *========================可能用到的全局配置都在这里========================
  */
 var overAll = {
 	init : {
@@ -1472,6 +1511,8 @@ var projectModal = {
 	}
 };
 
+
+// ===========================最上边工具条有关的业务========================
 var navbarModal = {
 	data : {},
 	init : {},
@@ -1587,7 +1628,7 @@ var geoModal = {
 				description : $("#description4update").val(),
 				longitude : $("#longitude4update").val(),
 				latitude : $("#latitude4update").val(),
-				radus: $("#radus4update").val()
+				radus : $("#radus4update").val()
 			}
 			let url = "geographicAction_updateGeo.action";
 			$.post(url, param, function(data, textStatus, req) {
@@ -1773,7 +1814,7 @@ var houseModal = {
 				description : $("#description4update").val(),
 				longitude : $("#longitude4update").val(),
 				latitude : $("#latitude4update").val(),
-				radus: $("#radus4update").val()
+				radus : $("#radus4update").val()
 			}
 			let url = "houseAction_updateHouse.action";
 			$.post(url, param, function(data, textStatus, req) {
@@ -2052,7 +2093,7 @@ var aboutWeixin = {
 		},
 
 		/*
-		 * 对于realName.jsp页面上提交表单时进行实名认证的Ajax操作
+		 * 执行realName.jsp页面上提交表单时进行实名认证的Ajax操作
 		 */
 		checkRealName : function() {
 			var url = "ajaxAction4weixin_checkRealName.action";
@@ -2141,36 +2182,36 @@ var activityModal = {
 	},
 	data : {},
 	op : {
-		
+
 		/*
 		 * 筹备某一activity的详情信息（主要是二维码）并显示Modal
 		 */
-		showDetialModal: function(aid){
+		showDetialModal : function(aid) {
 			let param = {
-				aid: aid
+				aid : aid
 			}
 			let url = "activityAction_showDetialModal.action";
 			$.post(url, param, function(data, textStatus, req) {
-				
-				$("#detial4title").text(data.name+"-详情信息");
-				$("#detial4qrcode").attr("src",data.qrcodeUrl);
+
+				$("#detial4title").text(data.name + "-详情信息");
+				$("#detial4qrcode").attr("src", data.qrcodeUrl);
 				$("#detial4Name").text(data.name);
 				$("#detial4Description").text(data.description);
-				if("1"==data.activityType){
+				if ("1" == data.activityType) {
 					// 室外活动
 					$("#detial4PositionName").text(data.geographic.name);
-				}else{
+				} else {
 					// 室内活动
 					$("#detial4PositionName").text(data.house.name);
 				}
 				$("#detial4Aid").text(data.aid);
 				$("#detial4StartTime").text(data.beginTimeStr);
 				$("#detail4EndTime").text(data.endTimeStr);
-				
+
 				$("#detialModal").modal("show");
 			});
 		},
-		
+
 		/*
 		 * 跳转到展示活动参与者的list列表页面
 		 */
@@ -2251,7 +2292,7 @@ var activityModal = {
 			$("#date4calendar").val("");
 			// 先隐藏日历
 			$('#calendar').attr("hidden", true);
-			$("#date4calendar").attr("disabled", true);		// 其实date4calendar一直是disabled，因为该input只能通过calendar日历选择填入
+			$("#date4calendar").attr("disabled", true); // 其实date4calendar一直是disabled，因为该input只能通过calendar日历选择填入
 			// 获取用户所选中的活动室的hid
 			let hid = $("#houseSelector").val();
 			// 如果用户选择的是"--请选择活动室--"，则
@@ -2272,8 +2313,8 @@ var activityModal = {
 				$('#calendar').fullCalendar('addEventSource', data);
 				// 显示日历
 				$('#calendar').attr("hidden", false);
-				$("[aria-label='next']").attr("hidden",true).click();
-				$("[aria-label='prev']").attr("hidden",true).click();
+				$("[aria-label='next']").attr("hidden", true).click();
+				$("[aria-label='prev']").attr("hidden", true).click();
 			});
 		},
 
@@ -2289,7 +2330,7 @@ var activityModal = {
 		 */
 		geoChangeListener : function() {
 			$("#date4selector").val("");
-//			$("#hourBar").slider("value", 1);
+			//			$("#hourBar").slider("value", 1);
 			let geoid = $("#geoSelector").val();
 			if ('0' == geoid) {
 				$("#date4selector").attr("hidden", true);
@@ -2303,7 +2344,7 @@ var activityModal = {
 		/*
 		 * 【完成】
 		 * 检查主要的幾個input是否为空，为空则commit提交按钮为disabled
-		 */ 
+		 */
 		checkInput : function() {
 			let aflag = true;
 			// 遍历每个拥有data-myInput="me" 的input，查看有没有值
@@ -2384,24 +2425,24 @@ var activityModal = {
 		 * 【完成】
 		 *AJAX 
 		 *创建活动
-		 */ 
+		 */
 		createActivity : function() {
 
 			var url = "activityAction_createActivity.action";
 			let dpid = $("#dpid").val();
-			let activityType =$("#activityType").val();
-			let type =$("#type").val();
+			let activityType = $("#activityType").val();
+			let type = $("#type").val();
 
-			let name =$("#name").val();
-			let description =$("#description").val();
-			let baoMingUplimit =$("#baoMingUplimit").val();
-			let hid=$("#houseSelector").val();   // 室内
-			let date4calendar =$("#date4calendar").val(); // 室内
-			let geoid=$("#geoSelector").val();	// 室外
-			let date4selector =$("#date4selector").val(); // 室外
-			let hour =$("#hour").val();     // 室外
-			let score =$("#score").val();
-			
+			let name = $("#name").val();
+			let description = $("#description").val();
+			let baoMingUplimit = $("#baoMingUplimit").val();
+			let hid = $("#houseSelector").val(); // 室内
+			let date4calendar = $("#date4calendar").val(); // 室内
+			let geoid = $("#geoSelector").val(); // 室外
+			let date4selector = $("#date4selector").val(); // 室外
+			let hour = $("#hour").val(); // 室外
+			let score = $("#score").val();
+
 			var param = {
 				"dpid" : dpid,
 				"activityType" : activityType,
@@ -2409,9 +2450,9 @@ var activityModal = {
 				"name" : name,
 				"description" : description,
 				"baoMingUplimit" : baoMingUplimit,
-				"hid": hid,   // 室内
+				"hid" : hid, // 室内
 				"date4calendar" : date4calendar, // 室内
-				"geoid": geoid,	// 室外
+				"geoid" : geoid, // 室外
 				"date4selector" : date4selector, // 室外
 				"hour" : hour, // 室外
 				"score" : score,

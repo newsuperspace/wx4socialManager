@@ -14,10 +14,16 @@ import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 
 /**
- * 该类与User类是一对一的关系，如果一个用户的grouping.tag是
- * minus_first/zero/first/second/third/fourth/admin 中的任何一个，则
- * 就会在当前Manager表中建立一条对应的数据，用来表示其作为社区管理参与者 的身份，同时有对应其管理层级的字段容器用来表示其在该管理层级上所管理的
- * 层级对象的数量（一个管理者可以管理数个同级层级对象）
+ * Manage  记录了其所属user（与user是多对一关系）对于某一层级的管理
+ * Manager  与层级对象是多对一关系，每个Manager标记着其唯一绑定的user对某个层级对象的管理权
+ * 一个user可以有多个Manager也就代表可以管理多个层级对象，这源自于一个user可以有多个member
+ * 也就代表一个user可以在层级金字塔中同时属于多个层级对象，只要是直属的对象（直属的意思是member中
+ * 所有层级对象外键，依照从minuse到fourth的顺序查找，最后一个非null的层级就是该对象直属的层级）都可以被
+ * 该层级任命为次层级的管理者，因此同一个user可以掌管多个manager对应的层级对象。
+ * 
+ * 这更符合客观实际，因为贾支书是一个支部书记是党组织的带头人，同时他也是一个文体队伍带头人
+ * 而党组织中的成员也有相当一部分是文体队伍的，这就出现了同一个人兼任两个职务和同一个人属于两只队伍
+ * 的现象。
  * 
  * @author Administrator
  *
@@ -25,27 +31,33 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 public class Manager implements Serializable {
 
 	// 主键
-	private String uid;
+	private int managerid;
 	// 与User表同步的信息
 	/*
 	 * 外键关联的容器（一对多） 借助user.grouping.tag 来确定从以下哪个集合中查找当前用户所管理的层级对象★
 	 */
-	private Set<MinusFirstLevel> mfls;
-	private Set<ZeroLevel> zls;
-	private Set<FirstLevel> fls;
-	private Set<SecondLevel> scls;
-	private Set<ThirdLevel> tls;
-	private Set<FourthLevel> fols;
-	// 当前管理者的具体用户信息
-	private User user;
+	private MinusFirstLevel minusFirstLevel;
+	private ZeroLevel zeroLevel;
+	private FirstLevel firstLevel;
+	private SecondLevel secondLevel;
+	private ThirdLevel thirdLevel;
+	private FourthLevel fourthLevel;
+	
+	// 当前管理者角色所一一对应的memeber对象，因为memeber中保存着grouping.tag信息，可以从minusFirstLevel~fourthLevel中精准定位具体的层级对象
+	private Member  member;
+	
+	
+	// ------------------------------------------非数据库字段--------------------------------------
+	
 	// 仅供給前端用來获知当前manager所绑定的层级对象的lid（包括六个层级的层级对象的主键，需要通过tag进一步确定）
 	public String lid;
-	// 仅提供给前端用来再managerList.jsp页面上显示所管理的层级对象的名称
+	// 仅提供给前端用来在managerList.jsp页面上显示所管理的层级对象的名称
 	public String levelName;
+	
 	// ===============================功能性的方法========================
 	
 	public String getLevelName() {
-		if(null==user){
+		if(null==member){
 			/*
 			 * 需要使用到levelName属性的是通过Struts2值栈组建的managerList.jsp页面，而ajax通讯并不需要用到本属性
 			 * 而Ajax通讯是是通过user.manager4Ajax来浅拷贝user.manager（因为manager的GETTER被@JSON掉了）
@@ -57,44 +69,26 @@ public class Manager implements Serializable {
 			 */
 			return null;
 		}
-		String tag = user.getGrouping().getTag();
+		String tag = member.getGrouping().getTag();
 		String level = "";
 		switch (tag) {
 		case "minus_first":
-			Iterator<MinusFirstLevel> iterator = mfls.iterator();
-			if(iterator.hasNext()){
-				level = iterator.next().getName();
-			}
+			level = minusFirstLevel.getName();
 			break;
 		case "zero":
-			Iterator<ZeroLevel> iterator0 = zls.iterator();
-			if(iterator0.hasNext()){
-				level = iterator0.next().getName();
-			}
+			level  = zeroLevel.getName();
 			break;
 		case "first":
-			Iterator<FirstLevel> iterator1 = fls.iterator();
-			if(iterator1.hasNext()){
-				level = iterator1.next().getName();
-			}
+			level = firstLevel.getName();
 			break;
 		case "second":
-			Iterator<SecondLevel> iterator2 = scls.iterator();
-			if(iterator2.hasNext()){
-				level = iterator2.next().getName();
-			}
+			level = secondLevel.getName();
 			break;
 		case "third":
-			Iterator<ThirdLevel> iterator3 = tls.iterator();
-			if(iterator3.hasNext()){
-				level = iterator3.next().getName();
-			}
+			level = thirdLevel.getName();
 			break;
 		case "fourth":
-			Iterator<FourthLevel> iterator4 = fols.iterator();
-			if(iterator4.hasNext()){
-				level = iterator4.next().getName();
-			}
+			level = fourthLevel.getName();
 			break;
 		}
 		return level;
@@ -108,7 +102,7 @@ public class Manager implements Serializable {
 	 * @return
 	 */
 	public String getLid() {
-		if(null==user){
+		if(null==member){
 			/*
 			 * 需要使用到levelName属性的是通过Struts2值栈组建的managerList.jsp页面，而ajax通讯并不需要用到本属性
 			 * 而Ajax通讯是是通过user.manager4Ajax来浅拷贝user.manager（因为manager的GETTER被@JSON掉了）
@@ -120,43 +114,25 @@ public class Manager implements Serializable {
 			 */
 			return null;
 		}
-		String tag = user.getGrouping().getTag();
+		String tag = member.getGrouping().getTag();
 		switch (tag) {
 		case "minus_first":
-			Iterator<MinusFirstLevel> iterator = mfls.iterator();
-			if(iterator.hasNext()){
-				lid = iterator.next().getMflid();
-			}
+			lid = minusFirstLevel.getMflid();
 			break;
 		case "zero":
-			Iterator<ZeroLevel> iterator0 = zls.iterator();
-			if(iterator0.hasNext()){
-				lid = iterator0.next().getZid();
-			}
+			lid = zeroLevel.getZid();
 			break;
 		case "first":
-			Iterator<FirstLevel> iterator1 = fls.iterator();
-			if(iterator1.hasNext()){
-				lid = iterator1.next().getFlid();
-			}
+			lid = firstLevel.getFlid();
 			break;
 		case "second":
-			Iterator<SecondLevel> iterator2 = scls.iterator();
-			if(iterator2.hasNext()){
-				lid = iterator2.next().getScid();
-			}
+			lid = secondLevel.getScid();
 			break;
 		case "third":
-			Iterator<ThirdLevel> iterator3 = tls.iterator();
-			if(iterator3.hasNext()){
-				lid =  iterator3.next().getThid();
-			}
+			lid = thirdLevel.getThid();
 			break;
 		case "fourth":
-			Iterator<FourthLevel> iterator4 = fols.iterator();
-			if(iterator4.hasNext()){
-				lid = iterator4.next().getFoid();
-			}
+			lid = fourthLevel.getFoid();
 			break;
 		}
 		return this.lid;
@@ -165,105 +141,65 @@ public class Manager implements Serializable {
 
 
 	// ===============================SETTERs/GETTERs================================
-	public String getUid() {
-		return uid;
-	}
-
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-
 	// 不设@JSON
-	public User getUser() {
-		return user;
+	public Member getMember() {
+		return member;
+	}
+	public void setMember(Member member) {
+		this.member = member;
+	}
+	
+	public MinusFirstLevel getMinusFirstLevel() {
+		return minusFirstLevel;
+	}
+	public void setMinusFirstLevel(MinusFirstLevel minusFirstLevel) {
+		this.minusFirstLevel = minusFirstLevel;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public ZeroLevel getZeroLevel() {
+		return zeroLevel;
+	}
+	public void setZeroLevel(ZeroLevel zeroLevel) {
+		this.zeroLevel = zeroLevel;
 	}
 
-	/**
-	 * 获取所管理的FirstLevel层级对象列表
-	 * 
-	 * @return
-	 */
-	@JSON(serialize = false)
-	public Set<FirstLevel> getFls() {
-		return fls;
+	public FirstLevel getFirstLevel() {
+		return firstLevel;
+	}
+	public void setFirstLevel(FirstLevel firstLevel) {
+		this.firstLevel = firstLevel;
 	}
 
-	/**
-	 * 获取所管理的MinusFirstLevel层级对象列表
-	 * 
-	 * @return
-	 */
-	@JSON(serialize = false)
-	public Set<MinusFirstLevel> getMfls() {
-		return mfls;
+	public SecondLevel getSecondLevel() {
+		return secondLevel;
+	}
+	public void setSecondLevel(SecondLevel secondLevel) {
+		this.secondLevel = secondLevel;
 	}
 
-	public void setMfls(Set<MinusFirstLevel> mfls) {
-		this.mfls = mfls;
+	public ThirdLevel getThirdLevel() {
+		return thirdLevel;
+	}
+	public void setThirdLevel(ThirdLevel thirdLevel) {
+		this.thirdLevel = thirdLevel;
 	}
 
-	/**
-	 * 获取所管理的ZeroLevel层级对象列表
-	 * 
-	 * @return
-	 */
-	@JSON(serialize = false)
-	public Set<ZeroLevel> getZls() {
-		return zls;
+	public FourthLevel getFourthLevel() {
+		return fourthLevel;
+	}
+	public void setFourthLevel(FourthLevel fourthLevel) {
+		this.fourthLevel = fourthLevel;
 	}
 
-	public void setZls(Set<ZeroLevel> zls) {
-		this.zls = zls;
+	public int getManagerid() {
+		return managerid;
+	}
+	public void setManagerid(int managerid) {
+		this.managerid = managerid;
 	}
 
-	public void setFls(Set<FirstLevel> fls) {
-		this.fls = fls;
-	}
-
-	/**
-	 * 获取所管理的SecondLevel层级对象列表
-	 * 
-	 * @return
-	 */
-	@JSON(serialize = false)
-	public Set<SecondLevel> getScls() {
-		return scls;
-	}
-
-	public void setScls(Set<SecondLevel> scls) {
-		this.scls = scls;
-	}
-
-	/**
-	 * 获取所管理的ThirdLevel层级对象列表
-	 * 
-	 * @return
-	 */
-	@JSON(serialize = false)
-	public Set<ThirdLevel> getTls() {
-		return tls;
-	}
-
-	public void setTls(Set<ThirdLevel> tls) {
-		this.tls = tls;
-	}
-
-	/**
-	 * 获取所管理的FourthLevel层级对象列表
-	 * 
-	 * @return
-	 */
-	@JSON(serialize = false)
-	public Set<FourthLevel> getFols() {
-		return fols;
-	}
-
-	public void setFols(Set<FourthLevel> fols) {
-		this.fols = fols;
-	}
-
+	
+	
+	
+	
 }

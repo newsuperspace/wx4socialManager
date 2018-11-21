@@ -20,6 +20,12 @@
 			<one-to-many class="cc.natapp4.ddaig.domain.Geographic" />
 		</list>
 		
+		<list name="managers" cascade="save-update" lazy="true">
+			<key column="zid"></key>
+			<list-index column="index4zero"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Manager" />
+		</list>
+		
 		<list name="houses" cascade="save-update" lazy="true">
 			<!-- 当前表(ZeroLevel)为主表，被从表house所引用作为外键的是当前主表的名为zid的键（也就是主键） -->
 			<key column="zid"></key>
@@ -40,10 +46,6 @@
 			<!-- 当前表中数据与secondLevel映射类表中数据的关系是——一对多 -->
 			<one-to-many class="cc.natapp4.ddaig.domain.cengji.FirstLevel" />
 		</set>
-
-		<many-to-one name="manager" column="uid"
-			class="cc.natapp4.ddaig.domain.Manager" cascade="save-update" lazy="false">
-		</many-to-one>
 
 		<set name="members" cascade="save-update" lazy="true">
 			<key>

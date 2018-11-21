@@ -20,6 +20,12 @@
 			<one-to-many class="cc.natapp4.ddaig.domain.Geographic" />
 		</list>
 
+		<list name="managers" cascade="save-update" lazy="true">
+			<key column="mflid"></key>
+			<list-index column="index4minus"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Manager" />
+		</list>
+		
 		<set name="children" cascade="save-update" lazy="true">
 			<key>
 				<!-- 当前表中被引用为外键的字段是主键 -->
@@ -28,10 +34,6 @@
 			<!-- 当前表中数据与secondLevel映射类表中数据的关系是——一对多 -->
 			<one-to-many class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" />
 		</set>
-
-		<many-to-one name="manager" column="uid"	lazy="false"
-			class="cc.natapp4.ddaig.domain.Manager" cascade="save-update">
-		</many-to-one>
 
 		<set name="members" cascade="save-update" lazy="true">
 			<key>

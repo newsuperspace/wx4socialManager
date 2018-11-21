@@ -43,9 +43,9 @@
 				</div>
 				<div class="weui-actionsheet__menu">
 
-					<s:iterator value="levels">
+					<s:iterator value="%{#managers}">
 						<div class="weui-actionsheet__cell" onclick="selector(this);"
-							id="lid">社区层级</div>
+							id='<s:property value="lid"/>'  data-tag='<s:property value="member.grouping.tag"/>'><s:property value="levelName"/></div>
 					</s:iterator>
 
 				</div>
@@ -93,7 +93,13 @@
 				label : '确定',
 				type : 'primary',
 				onClick : function() {
-					console.log("确定登陆");
+					let  param  = {
+						lid: $self.attr("id"),
+						tag: $self.attr("data-tag"),
+					}
+					$.post("shiroAction_authenticationByRealms.action", param, function(data, textStatus, req) {
+						$(location).attr("href","index.jsp");
+					});
 				}
 			} ]
 		});

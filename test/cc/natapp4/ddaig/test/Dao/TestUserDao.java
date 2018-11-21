@@ -22,14 +22,14 @@ public class TestUserDao {
 
 	private static final ApplicationContext  context =  new ClassPathXmlApplicationContext("spring/applicationContext.xml");
 
-	@Test
-	public void  testQueryManagerByTag(){
-		UserDao  dao =(UserDao)context.getBean("userDao");
-		List<User> users = dao.getManagers("zero");
-		for(User  u: users){
-			System.out.println(u.getUsername());
-		}
-	}
+//	@Test
+//	public void  testQueryManagerByTag(){
+//		UserDao  dao =(UserDao)context.getBean("userDao");
+//		List<User> users = dao.getManagers("zero");
+//		for(User  u: users){
+//			System.out.println(u.getUsername());
+//		}
+//	}
 	
 	@Test
 	public void testQueryByUsername(){

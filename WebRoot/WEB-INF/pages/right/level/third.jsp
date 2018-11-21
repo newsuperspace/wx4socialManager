@@ -104,11 +104,38 @@
 													value="thid" /></td>
 											<td><s:property value="description" /></td>
 											<td><s:property value="level" /></td>
-											<td><s:if test="null==manager || null==manager.user">
+											<td>
+											
+												<s:if test="null==managers || 0==managers.size()">
 													<a href="#">未分配</a>
-												</s:if> <s:else>
-													<a href="#"><s:property value="manager.user.username" /></a>
-												</s:else></td>
+												</s:if> 
+												<s:else>
+													<s:a href="#"
+														onclick="managerModal.op.toManagersOfLevel('%{thid}','third');">
+														<s:if test="managers.size()<3">
+															<s:iterator  value="managers" status="status">
+																	<s:if test="(#status.index+1)==managers.size()">
+																			<s:property value="member.user.username" />
+																	</s:if>
+																	<s:else>
+																			<s:property value="member.user.username" />，
+																	</s:else>
+															</s:iterator>
+														</s:if>
+														<s:else>
+															<s:iterator>
+																	<s:if	test="#status.index==2">
+																			<s:property value="member.user.username" />...
+																	</s:if>
+																	<s:else>
+																			<s:property value="member.user.username" />，
+																	</s:else>
+															</s:iterator>
+														</s:else>
+													</s:a>
+												</s:else>
+											
+											</td>
 											<!-- ● -->
 											<td><s:property value="parent.parent.parent.parent.name" />
 											</td>

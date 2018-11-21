@@ -15,11 +15,11 @@
 		<property name="tag" length="20"></property>
 		<property name="tagid" length="20" ></property>
 		
-		<set name="users"  cascade="save-update"  lazy="true">   
+		<set name="members"  cascade="save-update"  lazy="true">   
 			<key>
 				<column name="gid" ></column>
 			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.User"/>
+			<one-to-many class="cc.natapp4.ddaig.domain.Member"/>
 		</set>
 		
 	</class>

@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.ProjectType;
-import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCreatingTag;
 import cc.natapp4.ddaig.service_interface.GroupingService;
 import cc.natapp4.ddaig.service_interface.ProjectTypeService;
@@ -519,64 +518,64 @@ public class WeixinService4SettingImpl extends WeixinServiceAbstract implements 
 	/**
 	 * STEP4 同步公众号与本地数据中的用户数据
 	 */
-	private void synchronizeUserInfo() {
-		WxMpUserList mpUserList = null;
-		try {
-			// 获取公众号中的全部用户对象
-			mpUserList = this.getUserService().userList(null);
-		} catch (WxErrorException e) {
-			e.printStackTrace();
-		}
-		// 先将本地数据库中所有User的isHere标志设置成false
-		List<User> users = this.userService.queryEntities();
-		for (User user : users) {
-			user.setIshere(false);
-			this.userService.update(user);
-		}
-		// 然后再看看公众号中存在的用户
-		if (null != mpUserList && mpUserList.getCount() > 0) {
-			// 说明此时公众号中存在用户，则应该同步用户数据到本地数据库（老用户修改ishere，新用户新建User）
-			List<String> openids = mpUserList.getOpenids();
-			for (String openid : openids) {
-				User user = userService.queryByOpenId(openid);
-				if (null != user) {
-					// 说明该用户在公众号和本地都存在，是老用户，则需要对其进行tag同步
-					long tagid = user.getGrouping().getTagid();
-					String[] ids = { openid };
-					try {
-						this.getUserTagService().batchTagging(tagid, ids);
-					} catch (WxErrorException e) {
-						e.printStackTrace();
-					}
-					// 该用户还在公众平台，因此同步本地数据库的ishere标志
-					user.setIshere(true);
-					this.userService.update(user);
-				} else {
-					// 说明这是在服务器离线的时候新加入的用户，应该对其标签设置成"未认证"——no_real_name_user
-					user = new User();
-					user.setOpenid(openid);
-					user.setIshere(true);
-					List<Grouping> list = this.groupingService.queryEntities();
-					for (Grouping g : list) {
-						if (g.getTag().equals("no_real_name_user")) {
-
-							// 新建User对象到本地数据库保存
-							user.setGrouping(g); // 新建User一定要与Grouping进行绑定
-							this.userService.saveInInit(user);
-
-							// 最后在公众号中设置"非认证用户"的tag就可以了
-							String[] ids = { openid };
-							try {
-								this.getUserTagService().batchTagging(g.getTagid(), ids);
-							} catch (WxErrorException e) {
-								e.printStackTrace();
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+//	private void synchronizeUserInfo() {
+//		WxMpUserList mpUserList = null;
+//		try {
+//			// 获取公众号中的全部用户对象
+//			mpUserList = this.getUserService().userList(null);
+//		} catch (WxErrorException e) {
+//			e.printStackTrace();
+//		}
+//		// 先将本地数据库中所有User的isHere标志设置成false
+//		List<User> users = this.userService.queryEntities();
+//		for (User user : users) {
+//			user.setIshere(false);
+//			this.userService.update(user);
+//		}
+//		// 然后再看看公众号中存在的用户
+//		if (null != mpUserList && mpUserList.getCount() > 0) {
+//			// 说明此时公众号中存在用户，则应该同步用户数据到本地数据库（老用户修改ishere，新用户新建User）
+//			List<String> openids = mpUserList.getOpenids();
+//			for (String openid : openids) {
+//				User user = userService.queryByOpenId(openid);
+//				if (null != user) {
+//					// 说明该用户在公众号和本地都存在，是老用户，则需要对其进行tag同步
+//					long tagid = user.getGrouping().getTagid();
+//					String[] ids = { openid };
+//					try {
+//						this.getUserTagService().batchTagging(tagid, ids);
+//					} catch (WxErrorException e) {
+//						e.printStackTrace();
+//					}
+//					// 该用户还在公众平台，因此同步本地数据库的ishere标志
+//					user.setIshere(true);
+//					this.userService.update(user);
+//				} else {
+//					// 说明这是在服务器离线的时候新加入的用户，应该对其标签设置成"未认证"——no_real_name_user
+//					user = new User();
+//					user.setOpenid(openid);
+//					user.setIshere(true);
+//					List<Grouping> list = this.groupingService.queryEntities();
+//					for (Grouping g : list) {
+//						if (g.getTag().equals("no_real_name_user")) {
+//
+//							// 新建User对象到本地数据库保存
+//							user.setGrouping(g); // 新建User一定要与Grouping进行绑定
+//							this.userService.saveInInit(user);
+//
+//							// 最后在公众号中设置"非认证用户"的tag就可以了
+//							String[] ids = { openid };
+//							try {
+//								this.getUserTagService().batchTagging(g.getTagid(), ids);
+//							} catch (WxErrorException e) {
+//								e.printStackTrace();
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	/**
 	 * STEP2 同步本地数据库（Grouping）与公众号中的tag

@@ -22,6 +22,7 @@ import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Geographic;
 import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.House;
+import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.Visitor;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
@@ -146,19 +147,15 @@ public class PersonalCenterAction extends ActionSupport {
 	private String phone;
 	private String birth;
 	private String sex;
-
 	public void setUsername(String username) {
 		this.username = username;
 	}
-
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-
 	public void setSex(String sex) {
 		this.sex = sex;
 	}
-
 	public void setBirth(String birth) {
 		this.birth = birth;
 	}
@@ -167,11 +164,9 @@ public class PersonalCenterAction extends ActionSupport {
 	 * 活动报名/活动取消/扫码签到等有关Activity的属性驱动
 	 */
 	private String aid;
-
 	public String getAid() {
 		return aid;
 	}
-
 	public void setAid(String aid) {
 		this.aid = aid;
 	}
@@ -216,7 +211,17 @@ public class PersonalCenterAction extends ActionSupport {
 		}
 
 		User user = userService.queryByOpenId(openid);
-		if ("unreal".equals(user.getGrouping().getTag())) {
+		// 获取该用户的所有members信息
+		List<Member> members = user.getMembers();
+		// 从中筛选出默认member,因为只有默认member中可以存放unreal这个tag，作为该用户是否实名认证的唯一依据
+		Member  member  =  null;
+		for(Member m: members){
+			if(null==m.getMinusFirstLevel()){
+				member  = m;
+			}
+		}
+		// 查看来访者是否已经实名认证
+		if ("unreal".equals(member.getGrouping().getTag())) {
 			// 如果来访用户的tag标签还是unreal，说明是还未实名认证的用户，需要跳转到实名认证页面
 			result = "realName";
 		} else {
@@ -244,13 +249,22 @@ public class PersonalCenterAction extends ActionSupport {
 		System.out.println("提交的phone是：" + this.phone);
 
 		/*
-		 * 检查这次实名认证是不是重复提交，由于微信存在缓存机制，导致即便已经就该了用户的tag，
+		 * 检查这次实名认证是不是重复提交，由于微信存在缓存机制，导致即便已经在本地服务器修改了用户的tag，
 		 * 但是其在一段时间内所看到的Menu菜单仍然是之前的tag对应的菜单，这个时候用户可能就会
 		 * 迫不及待的尝试重复提交验证，这里就是验证防止重复提交的。
 		 */
 		User user = userService.queryByOpenId(openid);
-		Grouping grouping = user.getGrouping();
-		String tag = grouping.getTag();
+		// 获取该用户的所有members信息
+		List<Member> members = user.getMembers();
+		// 从中筛选出默认member,因为只有默认member中可以存放unreal这个tag，作为该用户是否实名认证的唯一依据
+		Member  member  =  null;
+		for(Member m: members){
+			if(null==m.getMinusFirstLevel()){
+				member  = m;
+			}
+		}
+		// 查看用户是否已经实名认证
+		String tag = member.getGrouping().getTag();
 		if (!tag.equals("unreal")) {
 			// 已经实名认证的用户,给予必要的信息提示
 			info.setDetails("");

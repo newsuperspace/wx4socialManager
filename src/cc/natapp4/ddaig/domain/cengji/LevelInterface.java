@@ -1,6 +1,7 @@
 package cc.natapp4.ddaig.domain.cengji;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 import cc.natapp4.ddaig.domain.Manager;
@@ -44,7 +45,7 @@ public interface LevelInterface extends Serializable {
 	 * 获取当前类型或团队的管理者
 	 * @return
 	 */
-	public Manager getManager();
+	public List<Manager> getManagers();
 
 	
 	

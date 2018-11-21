@@ -3,51 +3,29 @@
                                    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 	<class name="cc.natapp4.ddaig.domain.Manager">
-		<id length="50" name="uid">
+		<id length="50" name="managerid">
 			<!-- 这个foreign主键产生器与以往我一直使用的uuid和assign不一样 它的作用是共用user属性（当前ORM映射类中的一个属性叫user）的类（也是一个ORM类） 
 				映射的数据库表的主键。 也就是实现了Manager“跟随”User使用相同主键的效果 -->
-			<generator class="foreign">
-				<param name="property">user</param>
-			</generator>
+			<generator class="increment"></generator>
 		</id>
-		<set cascade="save-update" lazy="true" name="mfls" sort="unsorted">
-			<key>
-				<column name="uid" />
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel" />
-		</set>
-		<set cascade="save-update" lazy="true" name="zls" sort="unsorted">
-			<key>
-				<column name="uid" />
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" />
-		</set>
-		<set cascade="save-update" lazy="true" name="fls" sort="unsorted">
-			<key>
-				<column name="uid" />
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.FirstLevel" />
-		</set>
-		<set cascade="save-update" lazy="true" name="scls" sort="unsorted">
-			<key>
-				<column name="uid" />
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.SecondLevel" />
-		</set>
-		<set cascade="save-update" lazy="true" name="tls" sort="unsorted">
-			<key>
-				<column name="uid" />
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.ThirdLevel" />
-		</set>
-		<set cascade="save-update" lazy="true" name="fols" sort="unsorted">
-			<key>
-				<column name="uid" />
-			</key>
-			<one-to-many class="cc.natapp4.ddaig.domain.cengji.FourthLevel" />
-		</set>
-		<!-- 一对一的关键就是借助unique=true实现manager、member表外键的唯一性 -->
-		<one-to-one class="cc.natapp4.ddaig.domain.User"  lazy="false"
-			constrained="true" name="user" />
+		
+		<many-to-one cascade="save-update" class="cc.natapp4.ddaig.domain.Member"
+			column="memberid" lazy="proxy" name="member" />
+		
+		<many-to-one cascade="save-update" class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel"
+			column="mflid" lazy="proxy" name="minusFirstLevel" />
+		<many-to-one cascade="save-update" class="cc.natapp4.ddaig.domain.cengji.ZeroLevel"
+			column="zid" lazy="proxy" name="zeroLevel" />
+		<many-to-one cascade="save-update" class="cc.natapp4.ddaig.domain.cengji.FirstLevel"
+			column="flid" lazy="proxy" name="firstLevel" />
+		<many-to-one cascade="save-update" class="cc.natapp4.ddaig.domain.cengji.SecondLevel"
+			column="scid" lazy="proxy" name="secondLevel" />
+		<many-to-one cascade="save-update" class="cc.natapp4.ddaig.domain.cengji.ThirdLevel"
+			column="thid" lazy="proxy" name="thirdLevel" />
+		<many-to-one cascade="save-update" class="cc.natapp4.ddaig.domain.cengji.FourthLevel"
+			column="foid" lazy="proxy" name="fourthLevel" />
+		
+		
+		
 	</class>
 </hibernate-mapping>

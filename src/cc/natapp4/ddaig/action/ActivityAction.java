@@ -43,9 +43,15 @@ import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4CreateActivity;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4StartDayAndEndDay;
 import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.DoingProjectService;
+import cc.natapp4.ddaig.service_interface.FirstLevelService;
+import cc.natapp4.ddaig.service_interface.FourthLevelService;
 import cc.natapp4.ddaig.service_interface.GeographicService;
 import cc.natapp4.ddaig.service_interface.HouseService;
+import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
+import cc.natapp4.ddaig.service_interface.SecondLevelService;
+import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.ActivityUtils;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 
@@ -69,7 +75,19 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	private HouseService houseService;
 	@Resource(name = "geographicService")
 	private GeographicService geographicService;
-
+	@Resource(name = "minusFirstLevelService")
+	private MinusFirstLevelService minusFirstLevelService;
+	@Resource(name = "zeroLevelService")
+	private ZeroLevelService zeroLevelService;
+	@Resource(name = "firstLevelService")
+	private FirstLevelService firstLevelService;
+	@Resource(name = "secondLevelService")
+	private SecondLevelService secondLevelService;
+	@Resource(name = "thirdLevelService")
+	private ThirdLevelService thirdLevelService;
+	@Resource(name = "fourthLevelService")
+	private FourthLevelService fourthLevelService;
+	
 	// ==============================属性驱动==============================
 	private String hid;
 	private String geoid;
@@ -266,75 +284,53 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		// 把活动所属的doingProject的dpid放入到map栈空间中，供给createActivity.jsp页面上通过struts的<s:property>标签显示在页面上
 		ActionContext.getContext().put("dpid", this.getDpid());
 		// 確定当前操作者（doingMan）所管理的层级对象，查找该层级对象之下的全部人员数量
-		String tag = doingMan.getGrouping().getTag();
 		Set<Member> members = null;
 		List<House> houses = null;
 		List<Geographic> geos = null;
-		switch (tag) {
+		String  levelTag  = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+		String  lid  = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+		switch (levelTag) {
 		case "minus_first":
-			Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
-			MinusFirstLevel mfl = null;
-			for (MinusFirstLevel m : mfls) {
-				mfl = m;
-			}
+			MinusFirstLevel mfl = minusFirstLevelService.queryEntityById(lid);
 			// 获取到当前层级对象的所有成员的集合
 			members = mfl.getMembers();
-			// TODO 如果街道有自己的活动室，那么应该哎后续工作中允许街道像社区一样设置自己的活动室
+			// TODO 如果街道有自己的活动室，那么应该在后续工作中允许街道像社区一样设置自己的活动室
 			houses = null;
 			geos = mfl.getGeographics();
 			break;
 		case "zero":
-			Set<ZeroLevel> zls = doingMan.getManager().getZls();
-			ZeroLevel zl = null;
-			for (ZeroLevel l : zls) {
-				zl = l;
-			}
+			ZeroLevel zl = zeroLevelService.queryEntityById(lid);
 			members = zl.getMembers();
 			houses = zl.getHouses();
 			geos = zl.getGeographics();
 			break;
 		case "first":
-			Set<FirstLevel> fls = doingMan.getManager().getFls();
-			FirstLevel fl = null;
-			for (FirstLevel l : fls) {
-				fl = l;
-			}
+			FirstLevel fl = firstLevelService.queryEntityById(lid);
 			members = fl.getMembers();
 			houses = fl.getParent().getHouses();
 			geos = fl.getGeographics();
 			break;
 		case "second":
-			Set<SecondLevel> scls = doingMan.getManager().getScls();
-			SecondLevel sc = null;
-			for (SecondLevel l : scls) {
-				sc = l;
-			}
+			SecondLevel sc = secondLevelService.queryEntityById(lid);
 			members = sc.getMembers();
 			houses = sc.getParent().getParent().getHouses();
 			geos = sc.getGeographics();
 			break;
 		case "third":
-			Set<ThirdLevel> tls = doingMan.getManager().getTls();
-			ThirdLevel tl = null;
-			for (ThirdLevel l : tls) {
-				tl = l;
-			}
+			ThirdLevel tl = thirdLevelService.queryEntityById(lid);
 			members = tl.getMembers();
 			houses = tl.getParent().getParent().getParent().getHouses();
 			geos = tl.getGeographics();
 			break;
 		case "fourth":
-			Set<FourthLevel> fols = doingMan.getManager().getFols();
-			FourthLevel fol = null;
-			for (FourthLevel l : fols) {
-				fol = l;
-			}
+			FourthLevel fol = fourthLevelService.queryEntityById(lid);
 			members = fol.getMembers();
 			houses = fol.getParent().getParent().getParent().getParent().getHouses();
 			geos = fol.getGeographics();
 			break;
 		}
 		if (members == null) {
+			// 这个步骤主要是为了防止在获取集合数量时出现空指针异常
 			members = new HashSet<Member>();
 		}
 		// 最终获知到当前层级对象的所有成员数量
@@ -517,60 +513,39 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			// 进一步验证人数限制是否在1~当前层级的max人数上限
 			int min = 1;
 			int max = 0;
-			String tag = doingMan.getGrouping().getTag();
 			Set<Member> members = null;
-			switch (tag) {
+
+			String  levelTag  = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+			String  lid  = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+			switch (levelTag) {
 			case "minus_first":
-				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
-				MinusFirstLevel mfl = null;
-				for (MinusFirstLevel m : mfls) {
-					mfl = m;
-				}
+				MinusFirstLevel mfl = minusFirstLevelService.queryEntityById(lid);
 				// 获取到当前层级对象的所有成员的集合
 				members = mfl.getMembers();
 				break;
 			case "zero":
-				Set<ZeroLevel> zls = doingMan.getManager().getZls();
-				ZeroLevel zl = null;
-				for (ZeroLevel l : zls) {
-					zl = l;
-				}
+				ZeroLevel zl = zeroLevelService.queryEntityById(lid);
 				members = zl.getMembers();
 				break;
 			case "first":
-				Set<FirstLevel> fls = doingMan.getManager().getFls();
-				FirstLevel fl = null;
-				for (FirstLevel l : fls) {
-					fl = l;
-				}
+				FirstLevel fl = firstLevelService.queryEntityById(lid);
 				members = fl.getMembers();
 				break;
 			case "second":
-				Set<SecondLevel> scls = doingMan.getManager().getScls();
-				SecondLevel sc = null;
-				for (SecondLevel l : scls) {
-					sc = l;
-				}
+				SecondLevel sc = secondLevelService.queryEntityById(lid);
 				members = sc.getMembers();
 				break;
 			case "third":
-				Set<ThirdLevel> tls = doingMan.getManager().getTls();
-				ThirdLevel tl = null;
-				for (ThirdLevel l : tls) {
-					tl = l;
-				}
+				ThirdLevel tl = thirdLevelService.queryEntityById(lid);
 				members = tl.getMembers();
 				break;
 			case "fourth":
-				Set<FourthLevel> fols = doingMan.getManager().getFols();
-				FourthLevel fol = null;
-				for (FourthLevel l : fols) {
-					fol = l;
-				}
+				FourthLevel fol = fourthLevelService.queryEntityById(lid);
 				members = fol.getMembers();
 				break;
 			}
 			if (null == members) {
+				// 防止出现空指针异常
 				members = new HashSet<Member>();
 			}
 			// 最终获知到当前层级对象的所有成员数量

@@ -26,7 +26,10 @@
 
 	<!-- =========================================SHIRO=========================================== -->
 	<!-- 下面需要用到logout过滤器，因此要提前配置logout过滤器，用来指定Shiro退出登录后的跳转连接 -->
-	<bean id="logoutFilter" class="org.apache.shiro.web.filter.authc.LogoutFilter">
+	<!--  <bean id="logoutFilter" class="org.apache.shiro.web.filter.authc.LogoutFilter">
+		<property name="redirectUrl" value="/openJSP/signin.jsp" />
+	</bean> -->
+	<bean id="logoutFilter" class="cc.natapp4.ddaig.security.MyLogoutFilter">
 		<property name="redirectUrl" value="/openJSP/signin.jsp" />
 	</bean>
 	<!-- Shiro功能的主控发起点，该Bean实例内会DI注入一个Shiro容器实例——SecurityManager从而实现全部Shiro安全管控功能 -->
@@ -51,7 +54,7 @@
 				<entry key="anyPerms"  value-ref="permissionsAuthorizationFilter"></entry>
 			</map>
 		</property>
-		<!-- 配置 外部访问特定URL时，需要经过的过滤器、需要的“角色”或“权限”。这是Shiro进行权限配置的核心点 ★ -->
+		<!-- 配置 外部访问特定URL时，需要经过的过滤器、需要的“角色”或“权限”。这是Shiro进行权限配置的核心要点 ★ -->
 		<property name="filterChainDefinitions">
 			<value>
 				<!-- 
@@ -113,7 +116,7 @@
 				最后跳转到redirectUrl所配置的页面上（通常是登录页面或者主页）。
 				非常方便的就完成了注销和退出系统的操作。
 			 -->
-				/logout=logout
+				/logout = logout
 			<!-- 
 				为了系统安全，外部任何请求本系统的操作都需要通过认证，例如：
 				localhost/weixin/**  包含了对如下形式的请求匹配
@@ -141,7 +144,7 @@
 			  	对于当前访问是从微信端还是桌面端发来的，并且实际访问方式是否与来访者相符的判断都是通过我们自定义的shiro过滤器 permissionsAuthorizationFilter
 			  	完成的。
 			   -->
-				/**=authc,anyPerms[admin,all:system:access4desk,all:system:access4weixin]
+				/**= authc,anyPerms[admin,all:system:access4desk,all:system:access4weixin]
 			</value>
 		</property>
 	</bean>
@@ -240,7 +243,7 @@
 	<!-- ★★注解解析器（声明式事务处理）★★ 基于AOP技术实现的声明式事务处理策略的类扫描 当在工程中的某个类或某个方法上添加@Transactional(readOnly=true); 
 		该注解可以放在单独的方法上（只对该方法执行事务处理），也可以放在类上（对类中的所有方法执行事务处理）
 		注解的时候，就会被当前这个事务处理扫描器，扫描下来。 类似于通过类扫描配合注解（@Service、@Controller、@Repository）可以自动建立IOC和DI注入（无需在当前配置文件中手动添加Bean）， 
-		通过@Transaction和本扫描器也可以瞬间完成对“声明式事务处理策略”的配置。 凡事有该注解的类或继承拥有该注解类的子类作为Spring容器的Bean被创建的时候，会以动态代理将其封装，并对类中所有方法（注解在类上）或标注有 
+		通过@Transaction和本扫描器也可以瞬间完成对“声明式事务处理策略”的配置。 凡事有该注解的类或继承拥有该注解类的子类作为Spring容器的Bean被创建的时候，会以动态代理将其封装，并对类中所有方法（如果注解在类上）或标注有 
 		该注解的方法在被调用的时候进行AOP编程，将其中的逻辑代码夹在session.beginTransaction()和transaction.Commit()的事务管理之下，从而完成 
 		基于注解和类扫描的“声明式事务处理”。 AOP编程的基础就是——动态代理或静态代理（装饰或适配器） -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
@@ -256,7 +259,7 @@
 
 	<bean id="webSocketHandler4Login" class="cc.natapp4.ddaig.websocket.WebSocketHandler4Login" />
 	<websocket:handlers allowed-origins="*">
-		<!-- 对于请求路径是 /ws/login 的websocket请求，将交由名叫webSocketHandler4Login的处理类处理 -->
+		<!-- 对于请求路径是 "ws://ddaig.nat200.top/ws/login" 的websocket请求，将交由名叫webSocketHandler4Login的处理类处理 -->
 		<websocket:mapping path="/login" handler="webSocketHandler4Login" />
 		<!-- 在交给该处理类处理webSocket请求之前，需要先经过特定拦截器，在该拦截器中可以做预先和善后准备工作 -->
 		<websocket:handshake-interceptors>

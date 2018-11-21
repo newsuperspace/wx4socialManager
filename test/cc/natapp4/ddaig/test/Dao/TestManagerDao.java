@@ -20,13 +20,13 @@ public class TestManagerDao {
 
 	private static final ApplicationContext  context =  new ClassPathXmlApplicationContext("spring/applicationContext.xml");
 
-	@Test
-	public void  testQuery(){
-		ManagerDao  dao =(ManagerDao)context.getBean("managerDao");
-		List<Manager> managers = dao.getManagers("zero");
-		for(Manager  m: managers){
-			System.out.println(m.getUser().getUsername());
-		}
-	}
+//	@Test
+//	public void  testQuery(){
+//		ManagerDao  dao =(ManagerDao)context.getBean("managerDao");
+//		List<Manager> managers = dao.getManagers("zero");
+//		for(Manager  m: managers){
+//			System.out.println(m.getUser().getUsername());
+//		}
+//	}
 	
 }

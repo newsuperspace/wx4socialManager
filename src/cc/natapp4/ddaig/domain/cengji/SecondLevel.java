@@ -38,7 +38,7 @@ public class SecondLevel implements LevelInterface {
 	// 存放属于当前级别的下一级别的级别对象（一对多）
 	private Set<ThirdLevel> children;
 	// 当前层级的管理者（一对一）
-	private Manager manager;
+	private List<Manager> managers;
 	// 当前层级对象所管辖的成员（一对多）
 	private Set<Member> members;
 	// 当前层级对象所能行使的权限（多对多）
@@ -96,7 +96,7 @@ public class SecondLevel implements LevelInterface {
 		Iterator<ThirdLevel> iterator = ch.iterator();
 		while (iterator.hasNext()) {
 			ThirdLevel third = iterator.next();
-			if (null == third.getManager()) {
+			if (0 == third.getManagers().size()) {
 				third.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
 				list.add(third);
 			}
@@ -171,14 +171,6 @@ public class SecondLevel implements LevelInterface {
 	 * 而应该在Manager类中对应Set<FirstLevel>获取的GETTER方法上添加@JSON注解
 	 * 以防止在struts-json-plugin.jar插件组织JSON字符串时出现死循环
 	 */
-	public Manager getManager() {
-		return manager;
-	}
-
-	public void setManager(Manager manager) {
-		this.manager = manager;
-	}
-
 	/*
 	 * 层级对象的成员，无需随时都跟随着层级对象返回到前端，需要的时候 在临时获取然后将Set<Member>返回到前端即可，因此需要添加@JSON
 	 * 注解提高struts-json-plugin.jar的执行效率
@@ -245,4 +237,12 @@ public class SecondLevel implements LevelInterface {
 		this.qrcode = qrcode;
 	}
 
+	public List<Manager> getManagers() {
+		return managers;
+	}
+
+	public void setManagers(List<Manager> managers) {
+		this.managers = managers;
+	}
+	
 }

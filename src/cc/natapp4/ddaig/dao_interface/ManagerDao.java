@@ -1,7 +1,5 @@
 package cc.natapp4.ddaig.dao_interface;
 
-import java.util.List;
-
 import cc.natapp4.ddaig.domain.Manager;
 
 public interface ManagerDao extends BaseDao<Manager> {
@@ -12,5 +10,5 @@ public interface ManagerDao extends BaseDao<Manager> {
 	 * 获取管理者列表
 	 * @return
 	 */
-	public List<Manager> getManagers(String tag);
+//	public List<Manager> getManagers(String tag);
 }

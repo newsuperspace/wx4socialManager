@@ -1,8 +1,6 @@
 package cc.natapp4.ddaig.service_implement;
 
 
-import java.util.List;
-
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -22,11 +20,11 @@ public class ManagerServiceImpl extends BaseServiceImpl<Manager> implements Mana
 	protected BaseDao<Manager> getBaseDao() {
 		return this.managerDao;
 	}
-
-	@Override
-	public List<Manager> getManagers(String tag) {
-		return managerDao.getManagers(tag);
-	}
+//
+//	@Override
+//	public List<Manager> getManagers(String tag) {
+//		return managerDao.getManagers(tag);
+//	}
 	
 	
 }

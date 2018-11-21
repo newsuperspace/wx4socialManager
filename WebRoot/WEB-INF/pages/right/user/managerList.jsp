@@ -33,7 +33,7 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2">直辖人员管理</h1>
+							<h1 class="h2">直辖人员信息</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 
@@ -86,88 +86,187 @@
 										<th>openID</th>
 										<th>分组</th>
 
-										<th>绑定层级对象</th>
+										<th>管理的组织</th>
 
 										<th>电话</th>
 										<th>操作</th>
 									</tr>
 								</thead>
 								<tbody>
-									<s:iterator value="#users">
+									<s:iterator value="#members">
 										<tr>
 											<td><s:a href="#"
-													onclick="userModal.op.userInfo('%{uid}')">
-													<s:property value="username" />
+													onclick="userModal.op.userInfo('%{user.uid}')">
+													<s:property value="user.username" />
 												</s:a></td>
-											<td><s:property value="sickname" /></td>
+											<td><s:property value="user.sickname" /></td>
 											<td class="text-truncate" data-toggle="tooltip"
 												title="<s:property value='openid'/>"><s:property
 													value="openid" /></td>
-											<td><s:if test="grouping.tag=='common'">
+											<td>
+											
+												<s:if test="grouping.tag=='common'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:if> <s:elseif test="grouping.tag=='unreal'">
+												</s:if> 
+												<s:elseif test="grouping.tag=='unreal'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='admin'">
+												</s:elseif> 
+												<s:elseif test="grouping.tag=='admin'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='zero'">
+												</s:elseif>
+												<s:elseif test="grouping.tag=='zero'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='first'">
+												</s:elseif>
+												<s:elseif test="grouping.tag=='first'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> <s:elseif test="user.grouping.tag=='second'">
-													<span class="badge badge-success"> <s:property
-															value="user.grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='third'">
+												</s:elseif> 
+												<s:elseif test="grouping.tag=='second'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='fourth'">
+												</s:elseif> 
+												<s:elseif test="grouping.tag=='third'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='minus_first'">
+												</s:elseif> 
+												<s:elseif test="grouping.tag=='fourth'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='money'">
+												</s:elseif> 
+												<s:elseif test="grouping.tag=='minus_first'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif></td>
-											<td><s:if test="null==manager">
+												</s:elseif> 
+												<s:elseif test="grouping.tag=='money'">
+													<span class="badge badge-success"> <s:property
+															value="grouping.groupName" />
+													</span>
+												</s:elseif>
+												
+											</td>
+											<td><s:if test="null==managers || 0==managers.size()">
 													未匹配
-												</s:if> <s:elseif test="null!=manager">
+												</s:if> <s:else>
 													<s:a href="#"
-														onclick="managerModal.op.jump2LevelPage('%{grouping.tag}','%{manager.lid}')">
-														<s:property value="manager.levelName" />
+														onclick="managerModal.op.toManagedLevelList('%{memberid}');">
+														<s:if test="managers.size()>3">
+															<s:iterator value="managers" status="status" begin="0"
+																end="2">
+																<s:if
+																	test="#status.index==2">
+																	<s:if test="'minus_first'==grouping.tag">
+																		<s:property value="minusFirstLevel.name" />...
+																	</s:if>
+																	<s:elseif test="'zero'==grouping.tag">
+																		<s:property value="zeroLevel.name" />...
+																	</s:elseif>
+																	<s:elseif test="'first'==grouping.tag">
+																		<s:property value="firstLevel.name" />...
+																	</s:elseif>
+																	<s:elseif test="'second'==grouping.tag">
+																		<s:property value="secondLevel.name" />...
+																	</s:elseif>
+																	<s:elseif test="'third'==grouping.tag">
+																		<s:property value="thirdLevel.name" />...
+																	</s:elseif>
+																	<s:elseif test="'fourth'==grouping.tag">
+																		<s:property value="fourthLevel.name" />...
+																	</s:elseif>
+																</s:if>
+																<s:else>
+																	<s:if test="'minus_first'==grouping.tag">
+																		<s:property value="minusFirstLevel.name" />，
+																	</s:if>
+																	<s:elseif test="'zero'==grouping.tag">
+																		<s:property value="zeroLevel.name" />,
+																	</s:elseif>
+																	<s:elseif test="'first'==grouping.tag">
+																		<s:property value="firstLevel.name" />,
+																	</s:elseif>
+																	<s:elseif test="'second'==grouping.tag">
+																		<s:property value="secondLevel.name" />,
+																	</s:elseif>
+																	<s:elseif test="'third'==grouping.tag">
+																		<s:property value="thirdLevel.name" />,
+																	</s:elseif>
+																	<s:elseif test="'fourth'==grouping.tag">
+																		<s:property value="fourthLevel.name" />,
+																	</s:elseif>
+																</s:else>
+															</s:iterator>
+														</s:if>
+														<s:else>
+															<s:iterator value="managers" status="status">
+																<s:if
+																	test="(#status.index+1)==managers.size()">
+																	<s:if test="'minus_first'==grouping.tag">
+																		<s:property value="minusFirstLevel.name" />
+																	</s:if>
+																	<s:elseif test="'zero'==grouping.tag">
+																		<s:property value="zeroLevel.name" />
+																	</s:elseif>
+																	<s:elseif test="'first'==grouping.tag">
+																		<s:property value="firstLevel.name" />
+																	</s:elseif>
+																	<s:elseif test="'second'==grouping.tag">
+																		<s:property value="secondLevel.name" />
+																	</s:elseif>
+																	<s:elseif test="'third'==grouping.tag">
+																		<s:property value="thirdLevel.name" />
+																	</s:elseif>
+																	<s:elseif test="'fourth'==grouping.tag">
+																		<s:property value="fourthLevel.name" />
+																	</s:elseif>
+																</s:if>
+																<s:else>
+																	<s:if test="'minus_first'==grouping.tag">
+																		<s:property value="minusFirstLevel.name" />，
+																	</s:if>
+																	<s:elseif test="'zero'==grouping.tag">
+																		<s:property value="zeroLevel.name" />,
+																	</s:elseif>
+																	<s:elseif test="'first'==grouping.tag">
+																		<s:property value="firstLevel.name" />,
+																	</s:elseif>
+																	<s:elseif test="'second'==grouping.tag">
+																		<s:property value="secondLevel.name" />,
+																	</s:elseif>
+																	<s:elseif test="'third'==grouping.tag">
+																		<s:property value="thirdLevel.name" />,
+																	</s:elseif>
+																	<s:elseif test="'fourth'==grouping.tag">
+																		<s:property value="fourthLevel.name" />,
+																	</s:elseif>
+																</s:else>
+															</s:iterator>
+														</s:else>
 													</s:a>
-												</s:elseif></td>
-											<td><s:property value="phone" /></td>
-
+												</s:else></td>
+											<td><s:property value="user.phone" /></td>
 											<td>
 												<div class="btn-group" role="group">
 													<s:if test="null==manager">
 														<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
-														onclick="managerModal.op.showAppointModal('%{uid}');">任命</s:a>
+															onclick="managerModal.op.showAppointModal('%{user.uid}');">任命</s:a>
 													</s:if>
-													<s:else>
-														<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
-														onclick="managerModal.op.disappoint('%{uid}');">卸任</s:a>
-													</s:else>
 													<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
-														onclick="userModal.op.showUpdateUserModal('%{uid}')">修改</s:a>
-													<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
-														onclick="managerModal.op.showAssignedUserModal('%{uid}')">分配</s:a>
+														onclick="userModal.op.showUpdateUserModal('%{user.uid}');">修改</s:a>
+
+													<!--<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
+														onclick="managerModal.op.showAssignedUserModal('%{uid}')">分配</s:a> -->
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">其他</button>
 												</div>
@@ -201,10 +300,10 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
-		
+
 		<!-- 人员分配 -->
-		<div class="modal fade" id="userAssignedModal" tabindex="-1" role="dialog"
-			aria-labelledby="userAssigned" aria-hidden="true">
+		<div class="modal fade" id="userAssignedModal" tabindex="-1"
+			role="dialog" aria-labelledby="userAssigned" aria-hidden="true">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -220,8 +319,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">街道层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm" name="userAssigned-1"
-										id="userAssigned-1">
+									<select class="form-control form-control-sm"
+										name="userAssigned-1" id="userAssigned-1">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -229,8 +328,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">社区层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm" name="userAssigned0"
-										id="userAssigned0">
+									<select class="form-control form-control-sm"
+										name="userAssigned0" id="userAssigned0">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -238,8 +337,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">第一层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm" name="userAssigned1"
-										id="userAssigned1">
+									<select class="form-control form-control-sm"
+										name="userAssigned1" id="userAssigned1">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -247,8 +346,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">第二层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm" name="userAssigned2"
-										id="userAssigned2">
+									<select class="form-control form-control-sm"
+										name="userAssigned2" id="userAssigned2">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -256,8 +355,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">第三层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm" name="userAssigned3"
-										id="userAssigned3">
+									<select class="form-control form-control-sm"
+										name="userAssigned3" id="userAssigned3">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -265,8 +364,8 @@
 							<div class="row mb-3">
 								<div class="col-auto">第四层级:</div>
 								<div class="col-auto">
-									<select class="form-control form-control-sm" name="userAssigned4"
-										id="userAssigned4">
+									<select class="form-control form-control-sm"
+										name="userAssigned4" id="userAssigned4">
 										<option>--请选择--</option>
 									</select>
 								</div>
@@ -277,14 +376,15 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary"
 							data-dismiss="modal">关闭</button>
-						<button type="button" class="btn btn-primary" id="button4UserAssigned">确定</button>
+						<button type="button" class="btn btn-primary"
+							id="button4UserAssigned">确定</button>
 					</div>
 				</div>
 			</div>
 		</div>
-		
-		
-		
+
+
+
 		<!-- Modal 4 新建用户 -->
 		<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog"
 			aria-labelledby="createUser" aria-hidden="true">
@@ -403,7 +503,7 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<!-- Modal 4 任命 -->
 		<div class="modal fade" id="appoint" tabindex="-1" role="dialog"
 			aria-labelledby="appoint" aria-hidden="true">
@@ -655,69 +755,70 @@
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											用户名:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_username">newsuperspace</div>
+											id="detialsModal_username">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											UID:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_uid">
-											5d7323e0-70b5-4ff6-9c77-3bdd70a507f1</div>
+											id="detialsModal_uid">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											OpenID:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_openid">okNKU0Qdq6WC9bGO22gcp6tSCuJs</div>
+											id="detialsModal_openid">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											注册时间:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_registrationTime">2018-12-22 12:56:06</div>
+											id="detialsModal_registrationTime">XX</div>
 									</div>
+									<!-- 
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											街道:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_minusFirst">呼家楼</div>
+											id="detialsModal_minusFirst">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											社区:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_zero">呼家楼北里</div>
+											id="detialsModal_zero">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											第1层级:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_first">志愿者</div>
+											id="detialsModal_first">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											第2层级:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_second">为老志愿者</div>
+											id="detialsModal_second">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											第3层级:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_third">殷金凤工作室</div>
+											id="detialsModal_third">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											第4层级:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_fourth">第一支队</div>
+											id="detialsModal_fourth">XX</div>
 									</div>
+									 -->
 								</div>
 							</div>
 						</div>
 						<div class="modal-footer">
 							<button type="button" class="btn btn-secondary"
-								data-dismiss="modal">Close</button>
+								data-dismiss="modal">关闭</button>
 						</div>
 					</div>
 				</div>

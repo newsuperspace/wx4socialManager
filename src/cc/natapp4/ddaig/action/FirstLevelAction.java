@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -24,12 +25,17 @@ import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
+import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
+import cc.natapp4.ddaig.service_interface.FourthLevelService;
+import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
 import cc.natapp4.ddaig.service_interface.ProjectTypeService;
 import cc.natapp4.ddaig.service_interface.SecondLevelService;
+import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 
 @Controller("firstLevelAction") // <!-- ● -->
@@ -84,10 +90,18 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 	}
 
 	// =================DI注入================= <!-- ● -->
+	@Resource(name = "minusFirstLevelService")
+	private MinusFirstLevelService minusFirstLevelService;
+	@Resource(name = "zeroLevelService")
+	private ZeroLevelService zeroLevelService;
 	@Resource(name = "firstLevelService")
 	private FirstLevelService firstLevelService;
 	@Resource(name = "secondLevelService")
 	private SecondLevelService secondLevelService;
+	@Resource(name = "thirdLevelService")
+	private ThirdLevelService thirdLevelService;
+	@Resource(name = "fourthLevelService")
+	private FourthLevelService fourthLevelService;
 
 	// ====================Actions================
 	/**
@@ -98,37 +112,17 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 	 */
 	public String createLevel() { // <!-- ● -->
 
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
-		ZeroLevel parent = null;
-		for (ZeroLevel l : doingMan.getManager().getZls()) {
-			parent = l;
-			break;
-		}
+		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+		ZeroLevel parent = zeroLevelService.queryEntityById(lid);
 
 		ReturnMessage4Common r = new ReturnMessage4Common();
 
 		if ("".equals(firstLevel.getDescription()) || "".equals(firstLevel.getName())) {
 			r.setMessage("关键数据为null，新建层级失败");
 			r.setResult(false);
+		} else if(null==parent){
+			r.setResult(false);
+			r.setMessage("在session域中未发现当前操作者的lid或当前操作者不存在于ThirdLevel目录中，创建失败");
 		} else {
 			FirstLevel l = new FirstLevel();
 
@@ -333,17 +327,16 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 		}else{
 			list = new ArrayList<FirstLevel>();
 			// 当前查访者是非Admin管理者，进一步分析当前操作者执行者的层级位置，然后从children属性结构中获取当前操作者下属的层级对象
-			switch (doingMan.getGrouping().getTag()) {
+			String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+			String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+			
+			switch (tag) {
 			// 对于非Admin用户来说，能够获取到FirstLevel层级对象信息的只可能是街道和社区层级的管理者
 			case "minus_first":
 				// 当前操作者是街道层级对象，要获取它下属的所有第一层级对象
-				Set<MinusFirstLevel> mfls = doingMan.getManager().getMfls();
-				MinusFirstLevel  level = null;
-				for(MinusFirstLevel l:mfls){
-					level = l;
-				}
+				MinusFirstLevel minusFirstLevel = (MinusFirstLevel) minusFirstLevelService.queryEntityById(lid);
 				// 然后获取到该街道层级下属的所有社区层级
-				Set<ZeroLevel> children = level.getChildren();
+				Set<ZeroLevel> children = minusFirstLevel.getChildren();
 				// 从下属的社区层级中遍历出来的第一层级对象，就是当前操作者（街道层级）所管辖的全部第一层级对象
 				for(ZeroLevel l: children){
 					Set<FirstLevel> children2 = l.getChildren();
@@ -354,11 +347,7 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 				break;
 			case "zero":
 				// 当前操作者是社区测功机对象，要获取它下属的所有第一层级对象
-				Set<ZeroLevel> zls = doingMan.getManager().getZls();
-				ZeroLevel  level2 = null;
-				for(ZeroLevel l:zls){
-					level2 = l;
-				}
+				ZeroLevel level2 = zeroLevelService.queryEntityById(lid);
 				Set<FirstLevel> children2 = level2.getChildren();
 				for(FirstLevel l:children2){
 					list.add(l);

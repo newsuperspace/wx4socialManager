@@ -52,7 +52,7 @@
                             <p id="desc">二维码有效期60秒</p>
                         </div>
                         <div class="d-flex justify-content-center">
-                            <p class="mt-1 mb-3 text-muted" style="font-size: 12px">&copy; 2017-2018 承载社会工作创新</p>
+                            <p class="mt-1 mb-3 text-muted" style="font-size: 12px">&copy; 2017-2018 联合会提供技术支持</p>
                         </div>
                     </div>
                     
@@ -61,7 +61,7 @@
                         <!-- 
                         	★★★method必须为get请求，不然我们在表单中填写的中文提交到服务器端时会成为乱码★★★
                          -->
-                        <form action="shiroAction_login4Input.action" method="get" onsubmit="wsModal.op.wsOP.loginFromInput()">
+                        <form action="${pageContext.request.contextPath}/shiroAction_login4Input.action" method="get" onsubmit="wsModal.op.wsOP.loginFromInput()">
 	                        <input type="text" id="username" name="username" class="form-control" placeholder="用户名" required autofocus>
 	                        <input type="password" id="password" name="password" class="form-control mt-1" placeholder="密码" required>
 	                        <div class="checkbox mb-3">
@@ -72,7 +72,7 @@
 	                        <button class="btn btn-lg btn-warning btn-block" type="submit">登录</button>
                         </form>
                         <div class="d-flex justify-content-center">
-                            <p class="mt-5 mb-3 text-muted" style="font-size: 12px">&copy; 2017-2018 承载社会工作创新</p>
+                            <p class="mt-5 mb-3 text-muted" style="font-size: 12px">&copy; 2017-2018 联合会提供技术支持</p>
                         </div>
                     </div>
                 </div>

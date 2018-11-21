@@ -20,7 +20,7 @@
 		<action name="shiroAction_*" method="{1}" class="shiroAction">
 
 			<!-- 身份认证 成功→ 通过动态结果集跳转原本所请求的URL上，剩下的就是权限认证(分拣权限到当前用户的subject中备用)的事儿了 -->
-			<result type="redirect">${wxURL}</result>
+			<!--  <result type="redirect">${wxURL}</result> -->
 
 			<!-- 身份认证 失败→跳转到指定JSP页面上，用来向该用户提示错误信息 -->
 			<result name="failure">/openJSP/shiroAuthenticationMessage.jsp
@@ -29,12 +29,13 @@
 			<!-- TODO 这里的page4login用于转向桌面登陆的JSP页面 正式发布版本应该使用的是二维码登陆————/openJSP/login.jsp 
 				而在测试阶段使用的是表单登陆—————/openJSP/signin.jsp -->
 			<result name="page4login">/openJSP/signin.jsp</result>
+			<result name="access">/index.jsp</result>
 
 			<!-- 用户回复前端的AJAX请求 -->
 			<result name="json" type="json"></result>
 		
 			<!-- 桌面端登录成功后就会请求转发到本路径，该JSP页面上有请求重定向标签会自动重定向到系统后台的用户列表页面 -->
-			<result name="login4Input">/index.jsp</result>
+			<result name="selectManager">/openJSP/managerSelect.jsp</result>
 			
 			<!-- 
 			<allowed-methods>login4Input</allowed-methods>

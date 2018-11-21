@@ -1,20 +1,12 @@
 package cc.natapp4.ddaig.weixin.handler;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletContext;
 
-import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
-import cc.natapp4.ddaig.domain.Exchange;
-import cc.natapp4.ddaig.domain.User;
-import cc.natapp4.ddaig.domain.Ware;
 import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.ExchangeService;
 import cc.natapp4.ddaig.service_interface.UserService;
@@ -73,6 +65,8 @@ public class LocationSelectHandler extends AbstractHandler {
 	private WareService wareService;
 	@Resource(name = "exchangeService")
 	private ExchangeService exchangeService;
+	@Resource(name="checkRealNameUtils")
+	private CheckRealNameUtils checkRealNameUtils;
 	/*
 	 * 需要向微信服务器回传文本信息，则获取文本构造器
 	 */
@@ -96,16 +90,13 @@ public class LocationSelectHandler extends AbstractHandler {
 
 		// 首先要将wxMpService转化成咱们自己定义的service类型，这样才能调用咱们自定义的函数
 		WeixinService4RecallImpl service = (WeixinService4RecallImpl) wxMpService;
-		// 获取触发当前信息的用户的openID
-		String openID = wxMessage.getFromUser();
-		// 通过openID从本地数据库查找到该用户，备用
-		User user = userService.queryByOpenId(openID);
 		// 分析用户按下的扫码按钮究竟是(self_gn_qdqt/self_gn_dl/self_gn_dh)
 		String eventKey = wxMessage.getEventKey();
 		System.out.println("key是：" + eventKey);
 		// 校验用户是否已经实名认证
-		WxMpXmlOutMessage outMessage = CheckRealNameUtils.check(wxMessage.getFromUser(), wxMessage, service);
+		WxMpXmlOutMessage outMessage = checkRealNameUtils.check(wxMessage.getFromUser(), wxMessage, service);
 		if(null!=outMessage){
+			// 通过checkRealNameUtils返回的outMessage如果不是null说明该用户还没有实名认证
 			return outMessage;
 		}
 		// ----------------------------------------------正式业务逻辑--------------------------------------------

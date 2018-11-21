@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import cc.natapp4.ddaig.dao_interface.BaseDao;
 import cc.natapp4.ddaig.dao_interface.UserDao;
 import cc.natapp4.ddaig.domain.Grouping;
+import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
 import cc.natapp4.ddaig.service_interface.GroupingService;
@@ -80,7 +82,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	@Override
 	public void checkRealName(String openID, String username, String sex, String birth, String phone)
 			throws WeixinExceptionWhenCheckRealName {
-
+		
 		// TODO 这里还是有问题的，因为必须要先检测是否有后台添加用户，这里为了尽快检测系统可用性而选择只有微信公众号添加用户这一种方式
 		// TODO 因此这里需要在UserDao中添加根据cardid查找用户的方法，然后确认实名认证是否是相同用户
 		User user = dao.queryByOpenId(openID);
@@ -112,19 +114,15 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		// 变更该用户的标签
 		List<Grouping> list = this.groupingService.queryEntities();
 		for (Grouping g : list) {
+			// 实名认证后的用户其member.grouping.tag = common
 			if (g.getTag().equals("common")) {
-
-				// 新建User对象到本地数据库保存
-				user.setGrouping(g); // 新建User一定要与Grouping进行绑定
+				// 遍历待实名认证用户的所有member，找到默认member并修改其grouping.tag从unreal到common
+				for(Member m: user.getMembers()){
+					if(null==m.getMinusFirstLevel()){
+						m.setGrouping(g);
+					}
+				}
 				this.update(user);
-				// TODO 如果需要在公众号中配合设置tag从而实现个性化菜单，则还需要下面向公众号进行设置的逻辑
-//				String[] ids = { openID };
-//				try {
-//					wxService4Setting.getUserTagService().batchTagging(g.getTagid(), ids);
-//				} catch (WxErrorException e) {
-//					e.printStackTrace();
-//					throw new WeixinExceptionWhenCheckRealName();
-//				}
 			}
 		}
 	}
@@ -192,13 +190,18 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	}
 
 	@Override
-	public List<User> getManagers(String tag) {
-		return dao.getManagers(tag);
+	public List<Member> getManagers(String tag, String levelTag, String lid) {
+		return dao.getManagers(tag, levelTag, lid);
 	}
 
 	@Override
 	public User getUserByUsername(String username) {
 		return dao.getUserByUsername(username);
+	}
+
+	@Override
+	public List<User> getChildrenLevelUsers(String tag, String lid) {
+		return dao.getChildrenLevelUsers(tag, lid);
 	}
 
 }

@@ -40,7 +40,7 @@ public class FirstLevel implements LevelInterface {
 	// 存放属于当前级别的下一级别的级别对象（一对多）
 	private Set<SecondLevel> children;
 	// 当前层级的管理者（一对多）
-	private Manager manager;
+	private List<Manager> managers;
 	// 当前层级对象所管辖的成员（一对多）
 	private Set<Member> members;
 	// 当前层级对象所能行使的权限（多对多）
@@ -66,7 +66,7 @@ public class FirstLevel implements LevelInterface {
 	// ==================================SETTERs/GETTERs=====================================
 	
 	
-	// AJAX
+	// AJAX   获取所有子层级
 	public List<SecondLevel> getAllChildren4Ajax() {
 		List<SecondLevel> list = new ArrayList<SecondLevel>();
 
@@ -88,7 +88,7 @@ public class FirstLevel implements LevelInterface {
 		this.geographics = geographics;
 	}
 
-	// AJAX
+	// AJAX   获取所有还未分配管理者的子层级
 	public List<SecondLevel> getChildren4Ajax() {
 
 		List<SecondLevel> list = new ArrayList<SecondLevel>();
@@ -97,7 +97,7 @@ public class FirstLevel implements LevelInterface {
 		Iterator<SecondLevel> iterator = ch.iterator();
 		while (iterator.hasNext()) {
 			SecondLevel second = iterator.next();
-			if (null == second.getManager()) {
+			if (0 == second.getManagers().size()) {
 				second.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
 				list.add(second);
 			}
@@ -173,14 +173,14 @@ public class FirstLevel implements LevelInterface {
 	 * 而应该在Manager类中对应Set<FirstLevel>获取的GETTER方法上添加@JSON注解
 	 * 以防止在struts-json-plugin.jar插件组织JSON字符串时出现死循环
 	 */
-	public Manager getManager() {
-		return manager;
+	public List<Manager> getManagers() {
+		return managers;
 	}
-
-	public void setManager(Manager manager) {
-		this.manager = manager;
+	public void setManagers(List<Manager> managers) {
+		this.managers = managers;
 	}
-
+	
+	
 	/*
 	 * 层级对象的成员，无需随时都跟随着层级对象返回到前端，需要的时候 在临时获取然后将Set<Member>返回到前端即可，因此需要添加@JSON
 	 * 注解提高struts-json-plugin.jar的执行效率
@@ -189,6 +189,7 @@ public class FirstLevel implements LevelInterface {
 	public Set<Member> getMembers() {
 		return members;
 	}
+
 
 	public void setMembers(Set<Member> members) {
 		this.members = members;

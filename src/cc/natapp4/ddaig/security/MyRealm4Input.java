@@ -1,12 +1,15 @@
 package cc.natapp4.ddaig.security;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -15,7 +18,6 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -25,6 +27,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import cc.natapp4.ddaig.domain.Manager;
@@ -36,15 +40,21 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
+import cc.natapp4.ddaig.service_interface.FirstLevelService;
+import cc.natapp4.ddaig.service_interface.FourthLevelService;
+import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
 import cc.natapp4.ddaig.service_interface.PermissionLevelService;
 import cc.natapp4.ddaig.service_interface.PermissionService;
 import cc.natapp4.ddaig.service_interface.PermissionTypeService;
+import cc.natapp4.ddaig.service_interface.SecondLevelService;
+import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.service_interface.ZeroLevelService;
+import cc.natapp4.ddaig.utils.ConfigUtils;
 
 /**
  * 本Realm是配合/WEB-INF/openJSP/signin.jsp使用的，主要的功能还是为了开发阶段测试使用
- * 因为开发阶段不可能接入微信，因此运行阶段是基于微信完成授权登录操作的，因此本Realm是免去使用微信端
- * 而专门设计的。
+ * 因为开发阶段不可能接入微信，因此运行阶段是基于微信完成授权登录操作的，因此本Realm是免去使用微信端 而专门设计的。
  * 
  * @author Administrator
  *
@@ -60,152 +70,198 @@ public class MyRealm4Input extends AuthorizingRealm {
 	private PermissionTypeService permissionTypeService;
 	@Resource(name = "permissionLevelService")
 	private PermissionLevelService permissionLevelService;
+	@Resource(name = "minusFirstLevelService")
+	private MinusFirstLevelService minusFirstLevelService;
+	@Resource(name = "zeroLevelService")
+	private ZeroLevelService zeroLevelService;
+	@Resource(name = "firstLevelService")
+	private FirstLevelService firstLevelService;
+	@Resource(name = "secondLevelService")
+	private SecondLevelService secondLevelService;
+	@Resource(name = "thirdLevelService")
+	private ThirdLevelService thirdLevelService;
+	@Resource(name = "fourthLevelService")
+	private FourthLevelService fourthLevelService;
 
+	/**
+	 * 这里的两个属性是基于在web.xml中设置了监听器
+	 * <listener>
+	 *		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	 *	</listener>
+	 *然后我们在任何类中通过如下方式都可以获取到当前容器的session和request了
+	 */
+//	@Autowired  
+//	private HttpSession session;  
+//	@Autowired  
+//	private HttpServletRequest request;  
 	/**
 	 * 该方法应该是有Shiro的SecurityManager 自动调用（在需要进行身份认证的时候？）？
 	 */
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection pc) {
+		HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		HttpSession session = request.getSession();
+		
+		// 当前登陆这是否是admin
+		boolean isAdmin = false;
 		// 授权操作
-		String username = (String) pc.getPrimaryPrincipal();
-		
-		// Admin用户只有一个通用权限——————admin
-		if(username.equals("admin")){
-			SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-			List<String>  list  =  new  ArrayList<String>();
-			list.add("admin");
-			info.addStringPermissions(list);
-			return info;
-		}
-		
-		// 非Admin用户的权限获取
-		if (StringUtils.isEmpty(username))
-			return null;
-
-		if (null == userService) {
-			// 从Spring容器中获取Bean——userService，但再此之前需要先获取Spring容器对象
-			ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
-			WebApplicationContext webApplicationContext = WebApplicationContextUtils
-					.getWebApplicationContext(servletContext);
-			userService = (UserService) webApplicationContext.getBean("userService");
-		}
-
-		User user = userService.getUserByUsername(username);
-		
-		if(null==user){
+		if (null == session) {
 			return null;
 		}
-		
-		Manager manager =  user.getManager();
-		
-		if (null == manager)
+		// 从session域中取出在shiroAction.authenticationByRealms()
+		// 时通过managerSelect.jsp页面传来并放入到session域中的关于当前要登录层级的两个关键信息
+		String lid = (String) session.getAttribute("lid");
+		String tag = (String) session.getAttribute("tag");
+		if ("".equals(tag)) {
 			return null;
-
-		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-//		// 添加 角色 信息[新系统下已经没有角色这一说法了]
-//		info.addRole(role.getRole());
-		
-		// 开始获取权限对象
-		Set<Permission> permissions = null;
-		switch (user.getGrouping().getTag()) {
-		case "minus_first":
-			Set<MinusFirstLevel> mfls = manager.getMfls();
-			Iterator<MinusFirstLevel> iterator = mfls.iterator();
-			MinusFirstLevel minusFirst = null;
-			if(iterator.hasNext()){
-				minusFirst = iterator.next();
-			}
-			// 获取该层级对象所拥有的所有权限对象
-			permissions = minusFirst.getPermissions();
-			break;
-		case "zero":
-			Set<ZeroLevel> zls = manager.getZls();
-			Iterator<ZeroLevel> iterator0 = zls.iterator();
-			ZeroLevel zero = null;
-			if(iterator0.hasNext()){
-				zero = iterator0.next();
-			}
-			// 获取该层级对象所拥有的所有权限对象
-			permissions = zero.getPermissions();
-			break;
-		case "first":
-			Set<FirstLevel> fls = manager.getFls();
-			Iterator<FirstLevel> iterator1 = fls.iterator();
-			FirstLevel first = null;
-			if(iterator1.hasNext()){
-				first = iterator1.next();
-			}
-			// 获取该层级对象所拥有的所有权限对象
-			permissions = first.getPermissions();
-			break;
-		case "second":
-			Set<SecondLevel> scls = manager.getScls();
-			Iterator<SecondLevel> iterator2 = scls.iterator();
-			SecondLevel second = null;
-			if(iterator2.hasNext()){
-				second = iterator2.next();
-			}
-			// 获取该层级对象所拥有的所有权限对象
-			permissions = second.getPermissions();
-			break;
-		case "third":
-			Set<ThirdLevel> tls = manager.getTls();
-			Iterator<ThirdLevel> iterator3 = tls.iterator();
-			ThirdLevel third = null;
-			if(iterator3.hasNext()){
-				third = iterator3.next();
-			}
-			// 获取该层级对象所拥有的所有权限对象
-			permissions = third.getPermissions();
-			break;
-		case "fourth":
-			Set<FourthLevel> fols = manager.getFols();
-			Iterator<FourthLevel> iterator4 = fols.iterator();
-			FourthLevel fourth = null;
-			if(iterator4.hasNext()){
-				fourth = iterator4.next();
-			}
-			// 获取该层级对象所拥有的所有权限对象
-			permissions = fourth.getPermissions();
-			break;
 		}
-		
-		// 根据【PermissionLevel:PermissionType:Permission】规则解析并组装 权限名称，然后放入到list容器中
+		// 判断当前登陆着是不是admin
+		if ("admin".equals(tag)) {
+			isAdmin = true;
+		}
+
+		// --------------------开始解析权限-------------------
+		// 存放权限名称的list容器，该容器充满权限名字符串后腰交予info
 		List<String> list = new ArrayList<String>();
-//		Iterator<Permission> iterator = permissions.iterator();
-//		while(iterator.hasNext()){
-//			Permission p = iterator.next();
-//			StringBuffer  sb  =  new  StringBuffer();
-//			sb.append(p.getPermissionType().getPermissionLevel().getPermissionLevelName());
-//			sb.append(":");
-//			sb.append(p.getPermissionType().getPermissionTypeName());
-//			sb.append(":");
-//			sb.append(p.getPermissionName());
-//			System.out.println("当前用户所拥有的权限："+sb.toString());
-//			list.add(sb.toString());
-//		}
-		for(Permission p:permissions){
-			StringBuffer  sb  =  new  StringBuffer();
-			sb.append(p.getPermissionType().getPermissionLevel().getPermissionLevelName());
-			sb.append(":");
-			sb.append(p.getPermissionType().getPermissionTypeName());
-			sb.append(":");
-			sb.append(p.getPermissionName());
-			System.out.println("当前用户所拥有的权限："+sb.toString());
-			list.add(sb.toString());
+		// 包含所有权限名的容器的返回对象
+		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+		/*
+		 *  admin用户只有一个名叫admin的权限，非admin用户需要根据【projectLevel:projectType:project】
+		 *  三段式命名规则从数据库中获取数据并组装成"aaa:bbb:ccc"样式的字符串放入到list容器中
+		 */
+		if (isAdmin) {
+			// Admin的权限只有一个——————就是admin
+			list.add("admin");
+		} else {
+			// 对于非admin登陆，要根据tag和lib获取登陆的层级对象并进一步获取权限对象
+			// // 添加 角色 信息[新系统下已经没有角色这一说法了]
+			// info.addRole(role.getRole());
+			// 依据tag确定管理者本次选择登陆的层级对象，然后从中解析出权限
+			// 开始获取权限对象
+			Set<Permission> permissions = null;
+			switch (tag) {
+			case "minus_first":
+				if (null == minusFirstLevelService) {
+					// 从Spring容器中获取Bean——userService，但再此之前需要先获取Spring容器对象
+					ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+					WebApplicationContext webApplicationContext = WebApplicationContextUtils
+							.getWebApplicationContext(servletContext);
+					userService = (UserService) webApplicationContext.getBean("minusFirstLevelService");
+				}
+				// 从数据库中定位到层级对象
+				MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
+				// 获取该层级对象所拥有的所有权限对象
+				if (null != minusFirstLevel) {
+					permissions = minusFirstLevel.getPermissions();
+				}
+				break;
+			case "zero":
+				if (null == zeroLevelService) {
+					// 从Spring容器中获取Bean——userService，但再此之前需要先获取Spring容器对象
+					ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+					WebApplicationContext webApplicationContext = WebApplicationContextUtils
+							.getWebApplicationContext(servletContext);
+					userService = (UserService) webApplicationContext.getBean("zeroLevelService");
+				}
+				// 从数据库中定位到层级对象
+				ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
+				// 获取该层级对象所拥有的所有权限对象
+				if (null != zeroLevel) {
+					permissions = zeroLevel.getPermissions();
+				}
+				break;
+			case "first":
+				if (null == firstLevelService) {
+					// 从Spring容器中获取Bean——userService，但再此之前需要先获取Spring容器对象
+					ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+					WebApplicationContext webApplicationContext = WebApplicationContextUtils
+							.getWebApplicationContext(servletContext);
+					userService = (UserService) webApplicationContext.getBean("firstLevelService");
+				}
+				// 从数据库中定位到层级对象
+				FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
+				// 获取该层级对象所拥有的所有权限对象
+				if (null != firstLevel) {
+					permissions = firstLevel.getPermissions();
+				}
+				break;
+			case "second":
+				if (null == secondLevelService) {
+					// 从Spring容器中获取Bean——userService，但再此之前需要先获取Spring容器对象
+					ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+					WebApplicationContext webApplicationContext = WebApplicationContextUtils
+							.getWebApplicationContext(servletContext);
+					userService = (UserService) webApplicationContext.getBean("secondLevelService");
+				}
+				// 从数据库中定位到层级对象
+				SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
+				// 获取该层级对象所拥有的所有权限对象
+				if (null != secondLevel) {
+					permissions = secondLevel.getPermissions();
+				}
+				break;
+			case "third":
+				if (null == thirdLevelService) {
+					// 从Spring容器中获取Bean——userService，但再此之前需要先获取Spring容器对象
+					ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+					WebApplicationContext webApplicationContext = WebApplicationContextUtils
+							.getWebApplicationContext(servletContext);
+					userService = (UserService) webApplicationContext.getBean("thirdLevelService");
+				}
+				// 从数据库中定位到层级对象
+				ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
+				// 获取该层级对象所拥有的所有权限对象
+				if (null != thirdLevel) {
+					permissions = thirdLevel.getPermissions();
+				}
+				break;
+			case "fourth":
+				if (null == fourthLevelService) {
+					// 从Spring容器中获取Bean——userService，但再此之前需要先获取Spring容器对象
+					ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+					WebApplicationContext webApplicationContext = WebApplicationContextUtils
+							.getWebApplicationContext(servletContext);
+					userService = (UserService) webApplicationContext.getBean("fourthLevelService");
+				}
+				// 从数据库中定位到层级对象
+				FourthLevel fourthLevel = fourthLevelService.queryEntityById(lid);
+				// 获取该层级对象所拥有的所有权限对象
+				if (null != fourthLevel) {
+					permissions = fourthLevel.getPermissions();
+				}
+				break;
+			}
+
+			if (null == permissions) {
+				return null;
+			}
+
+			// 根据【PermissionLevel:PermissionType:Permission】规则解析并组装
+			// 遍历所有权限拼装成完成的权限字符串
+			for (Permission p : permissions) {
+				StringBuffer sb = new StringBuffer();
+				sb.append(p.getPermissionType().getPermissionLevel().getPermissionLevelName());
+				sb.append(":");
+				sb.append(p.getPermissionType().getPermissionTypeName());
+				sb.append(":");
+				sb.append(p.getPermissionName());
+				System.out.println("当前用户所拥有的权限：" + sb.toString());
+				list.add(sb.toString());
+			}
 		}
-		System.out.println("当前用户权限数量是："+list.size());
+		
+		// ----------------------结尾---------------------
+		System.out.println("当前用户权限数量是：" + list.size());
 		info.addStringPermissions(list);
 		// 返回AuthorizationInfo，完成权限的获取
 		return info;
 	}
 
-	
 	@Override
 	public boolean supports(AuthenticationToken token) {
-	    return token instanceof MyUsernamePasswordToken;
+		return token instanceof MyUsernamePasswordToken;
 	}
-	
+
 	/**
 	 * 在ShiroAction.login4Input()方法中 → subject.login(token); 方法的调用 而进入当前方法
 	 * 进行身份认证的逻辑
@@ -213,19 +269,22 @@ public class MyRealm4Input extends AuthorizingRealm {
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 		// 身份认证操作
-		String username = (String)token.getPrincipal();
-		
+		String username = (String) token.getPrincipal();
+
 		if (StringUtils.isEmpty(username)) {
 			// 如果username是null或“” 则直接抛出异常, 向ShiroAction.login() 报告“账号不存在”
 			throw new UnknownAccountException();
 		}
 
 		// -----------判断是不是Admin用户————————用户名和密码都是admin------------
-		if(username.equals("admin")){
-			AuthenticationInfo info = new SimpleAuthenticationInfo(username, "admin", getName());
+		Properties p = ConfigUtils.getProperties("wxConfig" + File.separator + "admins.properties");
+		String pwd = p.getProperty("pwd4admin");
+
+		if (username.equals("admin")) {
+			AuthenticationInfo info = new SimpleAuthenticationInfo(username, pwd, getName());
 			return info;
 		}
-		
+
 		// ----------------------判断非Admin用户--------------------------
 		if (null == userService) {
 			// 从Spring容器中获取Bean——userService，但再此之前需要先获取Spring容器对象
@@ -237,12 +296,10 @@ public class MyRealm4Input extends AuthorizingRealm {
 
 		// 现在根据username从数据库中查找到了对应的用户对象,并且判断TA是不是一个管理员（manager是否为null）
 		User user = userService.getUserByUsername(username);
-		System.out.println("当前用户所管理的层级对象是："+user.getManager().getLevelName());
-		if(null==user || null == user.getManager()){
-			// 查找不到该对象
-//			throw new UnknownAccountException();
+		if (null == user) {
 			return null;
-		}else if (user.isLocked()) {
+		}
+		if (user.isLocked()) {
 			// 用户被锁定
 			throw new LockedAccountException();
 		}
@@ -251,11 +308,10 @@ public class MyRealm4Input extends AuthorizingRealm {
 		 * 席间AuthenticationInfo对象，封装从User对象中获取的principal信息和credentials信息，
 		 * 然后在当前方法返回的时候 将封装着必要信息的AuthenticationInfo做返回值交给Matcher密码匹配器，
 		 * 匹配器会自动根据token和AuthenticationInfo 中的principal和credential
-		 * 进行比对，匹配则正常返回到ShiroAction.login4Input()方法继续程序流程，不匹配则抛出响应异常，这些
-		 * 异常也会被ShiroAction.login4Input()中的try...catch代码段捕获，并做分支处理。
+		 * 进行比对，匹配则正常返回到ShiroAction.login()方法继续程序流程，不匹配则抛出响应异常，这些
+		 * 异常也会被ShiroAction.login()中的try...catch代码段捕获，并做分支处理。
 		 */
-		// 第三个参数getName()是调用当前Realm的getName()方法用来获取当前Realm的名字，用以在多个Realm中进行区分
-		AuthenticationInfo info = new SimpleAuthenticationInfo(user.getUsername(), "123", getName()); 
+		AuthenticationInfo info = new SimpleAuthenticationInfo(user.getUsername(), user.getPassword(), getName()); // 第三个参数getName()是调用当前Realm的getName()方法用来获取当前Realm的名字，用以在多个Realm中进行区分
 		return info;
 	}
 

@@ -34,12 +34,12 @@ public class ReturnMessage4Appoint implements Serializable {
 	private int lowest;   // 被任命的管理者级别（controllerNum+1,遵循“不在其位，不谋其政”原则使得当前层次管理者只能委任次一级的层次，不能越级委任）
 	private int controllerNum;   // 执行任命操作的管理者的级别（-1、0、1、2、3、4、10086）
 	
-	// 对于Admin来说，系统中所有 街道层级对象（未绑定管理者的）都在这个容器里
+	// 对于Admin来说，系统中所有 街道层级对象都在这个容器里
 	List<MinusFirstLevel>  minusLevels;
 	
 	/*
-	 * 功能1： 对于非Admin来说，他绑定的层级对象会保存在下列属性中的一个里，根据controllerNum确定操作者的层级对象
-	 * 		进而通过children4Ajax（）就能获取到可供任命的次一级层级对象了。
+	 * 功能1： 对于非Admin的操作者来说，当前操作者的层级对象会保存在下列属性中的一个里，
+	 * 并根据controllerNum来定位
 	 * 功能2： 供给userAction.getAppointSelectInfo()中存放被查找的层级对象
 	 */
 	MinusFirstLevel  minusFirst;

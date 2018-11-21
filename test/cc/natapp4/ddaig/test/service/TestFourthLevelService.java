@@ -1,5 +1,7 @@
 package cc.natapp4.ddaig.test.service;
 
+import java.util.UUID;
+
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -22,17 +24,22 @@ import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 public class TestFourthLevelService {
 
 	private ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-			"spring/applicationContext.xml");
-
+			"spring/applicationContext4Test.xml");
+	private	ThirdLevelService thirdLevelService = (ThirdLevelService) context.getBean("thirdLevelService");
+	private	FourthLevelService fourthLevelService = (FourthLevelService) context.getBean("fourthLevelService");
+	
+	
 	@Test  // pass
 	public void testSave() {
-		FourthLevelService service = (FourthLevelService) context.getBean("fourthLevelService");
 		FourthLevel   fl  =  new  FourthLevel();
+		fl.setFoid(UUID.randomUUID().toString());
 		fl.setDescription("这是一个测试用FourthLevel层级");
-		fl.setLevel(LevelInterface.LEVEL_FOUR);
 		fl.setName("FourthLevel000");
 		
-		service.save(fl);
+		ThirdLevel thirdLevel = thirdLevelService.queryEntityById("ad50e453-d037-4d5f-9737-7de5ffd823fc");
+		fl.setParent(thirdLevel);
+		
+		fourthLevelService.save(fl);
 	}
 	
 	@Test  // pass

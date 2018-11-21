@@ -1,7 +1,5 @@
 package cc.natapp4.ddaig.service_interface;
 
-import java.util.List;
-
 import cc.natapp4.ddaig.domain.Manager;
 
 public interface ManagerService extends BaseService<Manager> {
@@ -12,5 +10,5 @@ public interface ManagerService extends BaseService<Manager> {
 	 * @param tag
 	 * @return
 	 */
-	public List<Manager> getManagers(String tag);
+//	public List<Manager> getManagers(String tag);
 }

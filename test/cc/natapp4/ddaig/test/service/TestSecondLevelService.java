@@ -1,5 +1,7 @@
 package cc.natapp4.ddaig.test.service;
 
+import java.util.UUID;
+
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -8,6 +10,7 @@ import cc.natapp4.ddaig.domain.cengji.LevelInterface;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.SecondLevelService;
+import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 
 /**
  * 测试与FirstLevel层级对象操作有关的业务方法
@@ -18,17 +21,22 @@ import cc.natapp4.ddaig.service_interface.SecondLevelService;
 public class TestSecondLevelService {
 
 	private ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-			"spring/applicationContext.xml");
+			"spring/applicationContext4Test.xml");
+	private	FirstLevelService firstLevelService = (FirstLevelService) context.getBean("firstLevelService");
+	private SecondLevelService secondLevelService = (SecondLevelService) context.getBean("secondLevelService");
+	
 
 	@Test  // pass
 	public void testSave() {
-		SecondLevelService service = (SecondLevelService) context.getBean("secondLevelService");
 		SecondLevel   sc  =  new  SecondLevel();
+		sc.setScid(UUID.randomUUID().toString());
 		sc.setDescription("这是一个测试用SecondLevel层级");
-		sc.setLevel(LevelInterface.LEVEL_TWO);
-		sc.setName("SecondLevel000");
+		sc.setName("SecondLevel1-1-1-1");
 		
-		service.save(sc);
+		FirstLevel firstLevel = firstLevelService.queryEntityById("25a81d2f-9090-4711-bd46-681b1df2c5d0");
+		sc.setParent(firstLevel);
+		
+		secondLevelService.save(sc);
 	}
 	
 	@Test  // pass

@@ -57,11 +57,19 @@ public abstract class BaseDaoImpl<T> implements BaseDao<T> {
 	public void save(T t) {
 		this.getHibernateTemplate().save(t);
 	}
+//	@Override
+//	public void save(T t) {
+//		this.getHibernateTemplate().merge(t);
+//	}
 
 	@Override
 	public void update(T t) {
 		this.getHibernateTemplate().update(t);
 	}
+//	@Override
+//	public void update(T t) {
+//		this.getHibernateTemplate().merge(t);
+//	}
 
 	@Override
 	public void delete(T t) {

@@ -12,17 +12,23 @@ public class Grouping implements Serializable {
 	private String groupName;  // 组名
 	private String description;  // 服务功能描述
 	private String logoPath;     // logo的url
-	private String tag;     // 在微信公众号中的标签名（已经预定义在/wxConfig/initTags.properties文件中了）
+	
+	/*
+	 * ★★★
+	 * 在微信公众号和本地系统中最主要使用的标签名（已经预定义在/wxConfig/initTags.properties文件中了）
+	 */
+	private String tag;  
+	
 	private long tagid; // 在微信公众号中的标签的ID值
 	
-	private Set<User> users;    // 当前分组（标签）中的所有成员
+	private Set<Member> members;    // 当前分组（标签）中的所有成员
 	
 	@JSON(serialize=false)
-	public Set<User> getUsers() {
-		return users;
+	public Set<Member> getMembers() {
+		return members;
 	}
-	public void setUsers(Set<User> users) {
-		this.users = users;
+	public void setMembers(Set<Member> members) {
+		this.members = members;
 	}
 	
 	public String getTag() {
