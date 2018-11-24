@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -22,6 +23,8 @@ import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
@@ -29,6 +32,7 @@ import com.opensymphony.xwork2.ActionSupport;
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
+import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.security.MyUsernamePasswordToken;
 import cc.natapp4.ddaig.service_interface.ManagerService;
 import cc.natapp4.ddaig.service_interface.UserService;
@@ -441,6 +445,35 @@ public class ShiroAction extends ActionSupport {
 			return "failure";
 		}
 	}
+	
+	/**
+	 * 当微信端关闭页面或桌面端关闭页面的前端jQuery会接收监听该到该行为，并通过ajax请求本
+	 * 方法，本法只需要请求转发到applicationContext.xml中关于shiro配置好的用于触发系统退出登录
+	 * 的logout过滤器的路径/logout 即可实现退出。
+	 * @return
+	 */
+	public String logout(){
+		
+		HttpSession session = ServletActionContext.getRequest().getSession();
+		ReturnMessage4Common  result  =  new  ReturnMessage4Common();
+		Subject currentUser = SecurityUtils.getSubject();
+		/*
+		 *  通过Shiro的API手动执行退出操作，但不会经过我们自定义的用于退出的拦截器
+		 *  			——MyLogoutFilter
+		 *  但有一点我们仍然需要知道的是，一旦执行logout()方法就会让当前HttpSession失效，
+		 *  这是因为在applicationContext.xml中配置的Shiro中我们的设置使用的就是web的session
+		 *  因此无需手动清除session中的诸如username、password、openid等内容，因为这些数据
+		 *  已经随session本身的失效而失效了。
+		 */
+		currentUser.logout();
+		System.out.println("前端用户关闭了页面，本地服务器自动完成退出操作");
+		
+		result.setResult(true);
+		result.setMessage("shiro退出成功");
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+	
 
 	/**
 	 * openJSP/signin.jsp页面在$.ready() 中通过Ajax向服务器端所要当前这次用于登录 的QRCODE的相对路径URI

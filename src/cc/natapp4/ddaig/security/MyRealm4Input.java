@@ -84,21 +84,17 @@ public class MyRealm4Input extends AuthorizingRealm {
 	private FourthLevelService fourthLevelService;
 
 	/**
-	 * 这里的两个属性是基于在web.xml中设置了监听器
-	 * <listener>
-	 *		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-	 *	</listener>
-	 *然后我们在任何类中通过如下方式都可以获取到当前容器的session和request了
-	 */
-//	@Autowired  
-//	private HttpSession session;  
-//	@Autowired  
-//	private HttpServletRequest request;  
-	/**
 	 * 该方法应该是有Shiro的SecurityManager 自动调用（在需要进行身份认证的时候？）？
 	 */
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection pc) {
+		/**
+		 * 这里的作为普通类中获取Servlet容器中的HttpSession、HttpServletRequest等是基于在web.xml中设置了监听器
+		 * <listener>
+		 *		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+		 *	</listener>
+		 * 为前提的，然后我们在任何类中通过如下方式都可以获取到当前servlet容器的session和request了
+		 */
 		HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpSession session = request.getSession();
 		

@@ -38,14 +38,18 @@ public class MyLogoutFilter extends LogoutFilter {
 		HttpServletRequest req = (HttpServletRequest)request;
 		HttpSession session = req.getSession();
 		
-		
 		// 以下几个字段是涉及shiro认证、当前操作者层级定位的关键信息，为了防止对以后的认证产生干扰，必须在退出时清空数据
+		System.out.println("打印session中的lid："+session.getAttribute("lid"));
 		session.setAttribute("lid", "");
+		System.out.println("打印session中的tag："+session.getAttribute("tag"));
 		session.setAttribute("tag", "");
+		System.out.println("打印session中的username："+session.getAttribute("username"));
 		session.setAttribute("username", "");
+		System.out.println("打印session中的password："+session.getAttribute("password"));
 		session.setAttribute("password", "");
+		System.out.println("打印session中的openid："+session.getAttribute("openid"));
 		session.setAttribute("openid", "");
-		
+		System.out.println("===session数据清空完毕，已完成退出操作===");
 		return super.preHandle(request, response);
 	}
 

@@ -36,7 +36,7 @@
 		
 			<!-- 桌面端登录成功后就会请求转发到本路径，该JSP页面上有请求重定向标签会自动重定向到系统后台的用户列表页面 -->
 			<result name="selectManager">/openJSP/managerSelect.jsp</result>
-			
+						
 			<!-- 
 			<allowed-methods>login4Input</allowed-methods>
 			 -->
