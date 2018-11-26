@@ -1,11 +1,13 @@
 package cc.natapp4.ddaig.action;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -43,8 +45,6 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 	// =================DI注入=================
 	@Resource(name = "userService")
 	private UserService userService;
-	@Resource(name = "zeroLevelAction")
-	private ZeroLevelAction zeroLevelAction;
 
 	// =================模型驱动================= <!-- ● -->
 	private FourthLevel fourthLevel;
@@ -121,31 +121,27 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 		} else {
 			FourthLevel l = new FourthLevel();
 
-			/*
-			 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-			 * 将该参数提交给微信端后会生成“带参数二维码”，
-			 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-			 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-			 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-			 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-			 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-			 */
+			// 准备用于拼装二维码内容的StringBuffer
 			StringBuffer sb = new StringBuffer();
-			sb.append("level$");
-			sb.append(FourthLevel.LEVEL_FOUR);
-			sb.append("_");
-			sb.append("id$");
+			// 随机生成新建层级的主键id
 			String id = UUID.randomUUID().toString();
-			sb.append(id);
 			// 添加层级对象的id
 			l.setFoid(id);
-
+			// 拼装形如： tag=fourth&lid=xjoduf7293jf2wjf9jd9suf9uw
+			// 的字符串用作新建层级的带参数二维码的内容
+			sb.append("tag=");
+			sb.append("fourth");
+			sb.append("&");
+			sb.append("lid=");
+			sb.append(id);
 			/*
-			 * 通过调用getQrcodeFromWeixin方法获取带参数二维码，并将二维码图片保存到本地磁盘，在数据库保存函数 所返回的形如：
+			 * 通过QRCodeUtils.createLevelQR(code) 创建唯一标志当前新建层级的二维码 所返回的形如：
 			 * "qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
 			 */
-			String codePath = zeroLevelAction.getQrcodeFromWeixin(id, sb.toString(), r);
+			String codePath = QRCodeUtils.createLevelQR(sb.toString());
 			if ("".equals(codePath)) {
+				r.setResult(false);
+				r.setMessage("通过微信服务器创建新建层级的带参数二维码时出现异常，创建失败");
 				ActionContext.getContext().getValueStack().push(r);
 				return "json";
 			} else {
@@ -240,10 +236,31 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 		}
 
 		List<FourthLevel> list = null;
+		ServletContext context = ServletActionContext.getServletContext();
+		StringBuffer sb = null;
+		File file = null;
 		// 分辨当前操作者是Admin还是非Admin
 		if (isAdmin) {
 			// 当前查访者是Admin,获取数据库中的所有ThirdLevel对象
 			list = fourthLevelService.queryEntities();
+			for (FourthLevel fl : list) {
+				file = new File(context.getRealPath(File.separator + fl.getQrcode()));
+				if (!file.exists()) {
+					// 如果不存在二维码文件，则重新创建二维码文件
+					File parentFile = file.getParentFile();
+					// 判断二维码图片的路径是否存在，不存在就逐层创建
+					if (!parentFile.exists()) {
+						parentFile.mkdirs();
+					}
+					sb = new StringBuffer();
+					sb.append("tag=");
+					sb.append("fourth");
+					sb.append("&");
+					sb.append("lid=");
+					sb.append(fl.getFoid());
+					QRCodeUtils.createQRcode(context.getRealPath(File.separator + fl.getQrcode()), sb.toString());
+				}
+			}
 		} else {
 			list = new ArrayList<FourthLevel>();
 			// 当前查访者是非Admin管理者，进一步分析当前操作者执行者的层级位置，然后从children属性结构中获取当前操作者下属的层级对象
@@ -264,6 +281,22 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 						for (SecondLevel l3 : l2.getChildren()) {
 							for (ThirdLevel l4 : l3.getChildren()) {
 								for (FourthLevel l5 : l4.getChildren()) {
+									file = new File(context.getRealPath(File.separator + l5.getQrcode()));
+									if (!file.exists()) {
+										// 如果不存在二维码文件，则重新创建二维码文件
+										File parentFile = file.getParentFile();
+										// 判断二维码图片的路径是否存在，不存在就逐层创建
+										if (!parentFile.exists()) {
+											parentFile.mkdirs();
+										}
+										sb  =  new StringBuffer();
+										sb.append("tag=");
+										sb.append("fourth");
+										sb.append("&");
+										sb.append("lid=");
+										sb.append(l5.getFoid());
+										QRCodeUtils.createQRcode(context.getRealPath(File.separator + l5.getQrcode()), sb.toString());
+									}
 									list.add(l5);
 								}
 							}
@@ -279,6 +312,22 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 					for (SecondLevel l2 : l.getChildren()) {
 						for (ThirdLevel l3 : l2.getChildren()) {
 							for (FourthLevel l4 : l3.getChildren()) {
+								file = new File(context.getRealPath(File.separator + l4.getQrcode()));
+								if (!file.exists()) {
+									// 如果不存在二维码文件，则重新创建二维码文件
+									File parentFile = file.getParentFile();
+									// 判断二维码图片的路径是否存在，不存在就逐层创建
+									if (!parentFile.exists()) {
+										parentFile.mkdirs();
+									}
+									sb  =  new StringBuffer();
+									sb.append("tag=");
+									sb.append("fourth");
+									sb.append("&");
+									sb.append("lid=");
+									sb.append(l4.getFoid());
+									QRCodeUtils.createQRcode(context.getRealPath(File.separator + l4.getQrcode()), sb.toString());
+								}
 								list.add(l4);
 							}
 						}
@@ -290,6 +339,22 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 				for (SecondLevel l : level3.getChildren()) {
 					for (ThirdLevel l2 : l.getChildren()) {
 						for (FourthLevel l3 : l2.getChildren()) {
+							file = new File(context.getRealPath(File.separator + l3.getQrcode()));
+							if (!file.exists()) {
+								// 如果不存在二维码文件，则重新创建二维码文件
+								File parentFile = file.getParentFile();
+								// 判断二维码图片的路径是否存在，不存在就逐层创建
+								if (!parentFile.exists()) {
+									parentFile.mkdirs();
+								}
+								sb  =  new StringBuffer();
+								sb.append("tag=");
+								sb.append("fourth");
+								sb.append("&");
+								sb.append("lid=");
+								sb.append(l3.getFoid());
+								QRCodeUtils.createQRcode(context.getRealPath(File.separator + l3.getQrcode()), sb.toString());
+							}
 							list.add(l3);
 						}
 					}
@@ -299,6 +364,22 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 				SecondLevel level4 = secondLevelService.queryEntityById(lid);
 				for (ThirdLevel l : level4.getChildren()) {
 					for (FourthLevel l2 : l.getChildren()) {
+						file = new File(context.getRealPath(File.separator + l2.getQrcode()));
+						if (!file.exists()) {
+							// 如果不存在二维码文件，则重新创建二维码文件
+							File parentFile = file.getParentFile();
+							// 判断二维码图片的路径是否存在，不存在就逐层创建
+							if (!parentFile.exists()) {
+								parentFile.mkdirs();
+							}
+							sb  =  new StringBuffer();
+							sb.append("tag=");
+							sb.append("fourth");
+							sb.append("&");
+							sb.append("lid=");
+							sb.append(l2.getFoid());
+							QRCodeUtils.createQRcode(context.getRealPath(File.separator + l2.getQrcode()), sb.toString());
+						}
 						list.add(l2);
 					}
 				}
@@ -306,12 +387,27 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 			case "third":
 				ThirdLevel level5 = thirdLevelService.queryEntityById(lid);
 				for (FourthLevel l : level5.getChildren()) {
+					file = new File(context.getRealPath(File.separator + l.getQrcode()));
+					if (!file.exists()) {
+						// 如果不存在二维码文件，则重新创建二维码文件
+						File parentFile = file.getParentFile();
+						// 判断二维码图片的路径是否存在，不存在就逐层创建
+						if (!parentFile.exists()) {
+							parentFile.mkdirs();
+						}
+						sb  =  new StringBuffer();
+						sb.append("tag=");
+						sb.append("fourth");
+						sb.append("&");
+						sb.append("lid=");
+						sb.append(l.getFoid());
+						QRCodeUtils.createQRcode(context.getRealPath(File.separator + l.getQrcode()), sb.toString());
+					}
 					list.add(l);
 				}
 				break;
 			}
 		}
-
 		ActionContext.getContext().put("levels", list);
 		return "list";
 	}
@@ -328,6 +424,25 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 		String id = fourthLevel.getFoid();
 		FourthLevel l = fourthLevelService.queryEntityById(id);
 
+		ServletContext context = ServletActionContext.getServletContext();
+		StringBuffer  sb  =  null;
+		File file =  new File(context.getRealPath(File.separator + l.getQrcode()));
+		if (!file.exists()) {
+			// 如果不存在二维码文件，则重新创建二维码文件
+			File parentFile = file.getParentFile();
+			// 判断二维码图片的路径是否存在，不存在就逐层创建
+			if (!parentFile.exists()) {
+				parentFile.mkdirs();
+			}
+			sb  =  new StringBuffer();
+			sb.append("tag=");
+			sb.append("fourth");
+			sb.append("&");
+			sb.append("lid=");
+			sb.append(l.getFoid());
+			QRCodeUtils.createQRcode(context.getRealPath(File.separator+l.getQrcode()), sb.toString());
+		}
+		
 		List<FourthLevel> list = new ArrayList<FourthLevel>();
 		list.add(l);
 

@@ -25,7 +25,6 @@ public class QRCodeUtils {
 	public static String createActivityQR(String aid) {
 
 		String codePath = "";
-		BufferedImage image = QRCode.toQRCode(aid);
 		codePath = "qrcode";
 		int hashCode = aid.hashCode();
 		int first = hashCode & 0xf;
@@ -48,6 +47,7 @@ public class QRCodeUtils {
 		// 接下来我们通过File来逐层创建该文件目录结构，保证生成二维码图片的时候，该路径确实存在
 		File file = new File(realPath);
 		if (!file.exists()) {
+			// 如果该文件路径不存在，则先逐层创建路径中的所有文件夹
 			file.mkdirs();
 		}
 		// 然后我们创建二维码图片的文件对象，文件名仍然以书籍的bid为名字，然后拓展名为gif
@@ -55,30 +55,61 @@ public class QRCodeUtils {
 		System.out.println("最终的codePath：" + codePath);
 		realPath = realPath + File.separator + aid + ".gif";
 		System.out.println("最终的realPath:" + realPath);
-		file = new File(realPath);
+		
+		// 开始生成二维码图片文件
+		boolean result = createQRcode(realPath,aid);
+		if(result){
+			System.out.println("新建层级对象的二维码生成完毕");
+		}else{
+			System.out.println("新建层级对象的二维码生成失败");
+		}
+		// 返回相对路径（可以保存在数据库中）
+		return codePath;
+	}
+
+	/**
+	 * 直接根据给定的完整路径创建二维码，并返回创建结果
+	 * 调用本方法前一定要首先保证realPath（本地服务器的磁盘路径）一定存在，
+	 * 因为方法会直接使用realPath创建文件。
+	 * 
+	 * @param realPath   形如：E:\新建文件夹\qrcode\0\13\9a7cc0d6-36bc-4905-b63a-0f5de9962654.gif 的完整路径
+	 * @param content   形如：tag=minus_first&lid=xjoduf7293jf2wjf9jd9suf9uw  的二维码内容
+	 * @return  true  创建成功   false 创建失败
+	 */
+	public  static  boolean   createQRcode(String  realPath, String content){
+		boolean  result  =  false;
+		// 创建二维码图片到BufferedImage图形二进制缓存中
+		BufferedImage image = QRCode.toQRCode(content);
+		// 创建用于生成二维码图片文件的File对象
+		File file = new File(realPath);
 		FileOutputStream fos;
 		try {
+			// 创建指定路径的输出流
 			fos = new FileOutputStream(file);
+			// 通过专门用于创建图片文件的ImageIO写出二维码图片
 			ImageIO.write(image, "GIF", fos);
+			// 关闭输出流
 			fos.close();
+			result  = true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("二维码生成完毕");
-		return codePath;
+		return result;
 	}
-
+	
+	
 	/**
-	 * 创建各个层级管理对象的ID的qrcode
+	 * 创建各个层级对象时的qrcode之用
 	 * 
-	 * @param lid
-	 * @return 返回qrcode的相对路径
+	 * @param code  形如： tag=minus_first&lid=xjoduf7293jf2wjf9jd9suf9uw
+	 * 									tag用来标记该层级的类型（minus_first、zero、first、second、third、fourth）
+	 * 									lid 就是通过UUID.Random()生成的随机id字符串
+	 * @return
 	 */
-	public static String createLevelQR(String lid) {
-
-		return createActivityQR(lid);
+	public static String createLevelQR(String code) {
+		return createActivityQR(code);
 	}
 
 	/**
@@ -103,6 +134,12 @@ public class QRCodeUtils {
 		return createActivityQR(wid);
 	}
 
+	/**
+	 * 创建临时用二维码
+	 * 本方法用于桌面端扫描二维码登录系统后台时生成存放在/temp目录下的临时二维码密钥
+	 * @param uuid 密钥内容
+	 * @return 存放密钥二维码图片的临时相对路径，用于前端拼接成<img></img>标签的src属性显示图片之用
+	 */
 	public static String createQR2Temp(String uuid) {
 
 		String codePath = "";

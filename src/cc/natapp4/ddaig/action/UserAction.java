@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -51,6 +52,7 @@ import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.ConfigUtils;
 import cc.natapp4.ddaig.utils.FileController;
+import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
 import me.chanjar.weixin.common.exception.WxErrorException;
 
@@ -119,9 +121,11 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	 * 通过AJAX传递来的请求参数，用于标定被“解除任命”的manager对象 本属性由doDisappoint()使用
 	 */
 	private int managerid;
+
 	public int getManagerid() {
 		return managerid;
 	}
+
 	public void setManagerid(int managerid) {
 		this.managerid = managerid;
 	}
@@ -218,137 +222,86 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		String levelName = "";
 		String levelDescription = "";
 		String qrcode = "";
-		String realPath = "";
-
+		// 当前操作者层级的关键数据（从登陆开始用户在managerSelect.jsp页面选定所要登录的层级对象后就一直存放在session域中）
 		String t = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
-		long month = 2592000; // 30天的秒数
-		long qrcodeTime = -1; // 记录微信带参数二维码生成的格里高利偏移量（毫秒值）
+		long qrcodeTime = -1;
+		// servletContext域对象
+		ServletContext context = ServletActionContext.getServletContext();
+		StringBuffer sb = null;
+		File file = null;
 		switch (t) {
 		case "minus_first":
 			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
 			levelName = minusFirstLevel.getName();
 			levelDescription = minusFirstLevel.getDescription();
-
 			qrcodeTime = minusFirstLevel.getQrcodeTime();
 			qrcode = minusFirstLevel.getQrcode();
-			realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
-
-			if ((System.currentTimeMillis() - qrcodeTime) / 1000L >= month || !new File(realPath).isDirectory()) {
-				// 带参数的临时二维码已经过期，需要更换
-				// 获取过期qrcode在服务器磁盘上的真实路径
-				// 删除该失效二维码
-				if (new File(realPath).isDirectory()) {
-					// 如果二维码图片存在，则删除该图片
-					FileController.deleteFile(realPath);
+			// 查看当前操作者层级的二维码是否存在，如果不存在自动创建
+			file = new File(context.getRealPath(File.separator + minusFirstLevel.getQrcode()));
+			if (!file.exists()) {
+				// 如果不存在二维码文件，则重新创建二维码文件
+				File parentFile = file.getParentFile();
+				// 判断二维码图片的路径是否存在，不存在就逐层创建
+				if (!parentFile.exists()) {
+					parentFile.mkdirs();
 				}
-				/*
-				 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-				 * 将该参数提交给微信端后会生成“带参数二维码”，
-				 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-				 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-				 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-				 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-				 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-				 */
-				StringBuffer sb = new StringBuffer();
-				sb.append("level$");
-				sb.append(MinusFirstLevel.LEVEL_MINUS_FIRST);
-				sb.append("_");
-				sb.append("id$");
-				sb.append(minusFirstLevel.getMflid());
-				// 重新从微信端服务器获取当前层级对象的带参数二维码，并且更新数据库中qrcode和qrcodeTime字段
-				qrcode = zeroLevelAction.getQrcodeFromWeixin(minusFirstLevel.getMflid(), sb.toString(),
-						new ReturnMessage4Common());
-				qrcodeTime = System.currentTimeMillis();
-				// 向数据库中更新数据
-				minusFirstLevel.setQrcode(qrcode);
-				minusFirstLevel.setQrcodeTime(qrcodeTime);
-				minusFirstLevelService.update(minusFirstLevel);
+				sb = new StringBuffer();
+				sb.append("tag=");
+				sb.append("minus_first");
+				sb.append("&");
+				sb.append("lid=");
+				sb.append(lid);
+				QRCodeUtils.createQRcode(context.getRealPath(File.separator + minusFirstLevel.getQrcode()),
+						sb.toString());
 			}
 			break;
 		case "zero":
 			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
 			levelName = zeroLevel.getName();
 			levelDescription = zeroLevel.getDescription();
-
 			qrcodeTime = zeroLevel.getQrcodeTime();
 			qrcode = zeroLevel.getQrcode();
-			if ((System.currentTimeMillis() - qrcodeTime) / 1000L >= month || !new File(realPath).isDirectory()) {
-				// 带参数的临时二维码已经过期，需要更换
-				System.out.println("当前日期毫秒：" + System.currentTimeMillis());
-				System.out.println("生成二维码日期：" + qrcodeTime);
-				// 获取过期qrcode在服务器磁盘上的真实路径
-				realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
-				// 删除该失效二维码
-				if (new File(realPath).isDirectory()) {
-					// 如果二维码图片存在，则删除该图片
-					FileController.deleteFile(realPath);
+			// 查看当前操作者层级的二维码是否存在，如果不存在自动创建
+			file = new File(context.getRealPath(File.separator + zeroLevel.getQrcode()));
+			if (!file.exists()) {
+				// 如果不存在二维码文件，则重新创建二维码文件
+				File parentFile = file.getParentFile();
+				// 判断二维码图片的路径是否存在，不存在就逐层创建
+				if (!parentFile.exists()) {
+					parentFile.mkdirs();
 				}
-				/*
-				 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-				 * 将该参数提交给微信端后会生成“带参数二维码”，
-				 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-				 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-				 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-				 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-				 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-				 */
-				StringBuffer sb = new StringBuffer();
-				sb.append("level$");
-				sb.append(ZeroLevel.LEVEL_ZERO);
-				sb.append("_");
-				sb.append("id$");
-				sb.append(zeroLevel.getZid());
-				// 重新从微信端服务器获取当前层级对象的带参数二维码，并且更新数据库中qrcode和qrcodeTime字段
-				qrcode = zeroLevelAction.getQrcodeFromWeixin(zeroLevel.getZid(), sb.toString(),
-						new ReturnMessage4Common());
-				qrcodeTime = System.currentTimeMillis();
-				// 向数据库中更新数据
-				zeroLevel.setQrcode(qrcode);
-				zeroLevel.setQrcodeTime(qrcodeTime);
-				zeroLevelService.update(zeroLevel);
+				sb = new StringBuffer();
+				sb.append("tag=");
+				sb.append("zero");
+				sb.append("&");
+				sb.append("lid=");
+				sb.append(lid);
+				QRCodeUtils.createQRcode(context.getRealPath(File.separator + zeroLevel.getQrcode()), sb.toString());
 			}
 			break;
 		case "first":
 			FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
 			levelName = firstLevel.getName();
 			levelDescription = firstLevel.getDescription();
-
 			qrcodeTime = firstLevel.getQrcodeTime();
 			qrcode = firstLevel.getQrcode();
-			if ((System.currentTimeMillis() - qrcodeTime) / 1000L >= month || !new File(realPath).isDirectory()) {
-				// 带参数的临时二维码已经过期，需要更换
-				// 获取过期qrcode在服务器磁盘上的真实路径
-				realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
-				// 删除该失效二维码
-				if (new File(realPath).isDirectory()) {
-					// 如果二维码图片存在，则删除该图片
-					FileController.deleteFile(realPath);
+			// 查看当前操作者层级的二维码是否存在，如果不存在自动创建
+			file = new File(context.getRealPath(File.separator + firstLevel.getQrcode()));
+			if (!file.exists()) {
+				// 如果不存在二维码文件，则重新创建二维码文件
+				File parentFile = file.getParentFile();
+				// 判断二维码图片的路径是否存在，不存在就逐层创建
+				if (!parentFile.exists()) {
+					parentFile.mkdirs();
 				}
-				/*
-				 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-				 * 将该参数提交给微信端后会生成“带参数二维码”，
-				 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-				 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-				 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-				 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-				 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-				 */
-				StringBuffer sb = new StringBuffer();
-				sb.append("level$");
-				sb.append(FirstLevel.LEVEL_ONE);
-				sb.append("_");
-				sb.append("id$");
-				sb.append(firstLevel.getFlid());
-				// 重新从微信端服务器获取当前层级对象的带参数二维码，并且更新数据库中qrcode和qrcodeTime字段
-				qrcode = zeroLevelAction.getQrcodeFromWeixin(firstLevel.getFlid(), sb.toString(),
-						new ReturnMessage4Common());
-				qrcodeTime = System.currentTimeMillis();
-				// 向数据库中更新数据
-				firstLevel.setQrcode(qrcode);
-				firstLevel.setQrcodeTime(qrcodeTime);
-				firstLevelService.update(firstLevel);
+				sb = new StringBuffer();
+				sb.append("tag=");
+				sb.append("first");
+				sb.append("&");
+				sb.append("lid=");
+				sb.append(lid);
+				QRCodeUtils.createQRcode(context.getRealPath(File.separator + firstLevel.getQrcode()), sb.toString());
 			}
 			break;
 		case "second":
@@ -356,123 +309,72 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
 			levelName = secondLevel.getName();
 			levelDescription = secondLevel.getDescription();
-
 			qrcodeTime = secondLevel.getQrcodeTime();
 			qrcode = secondLevel.getQrcode();
-			if ((System.currentTimeMillis() - qrcodeTime) / 1000L >= month || !new File(realPath).isDirectory()) {
-				// 带参数的临时二维码已经过期，需要更换
-				// 获取过期qrcode在服务器磁盘上的真实路径
-				realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
-				// 删除该失效二维码
-				if (new File(realPath).isDirectory()) {
-					// 如果二维码图片存在，则删除该图片
-					FileController.deleteFile(realPath);
+			// 查看当前操作者层级的二维码是否存在，如果不存在自动创建
+			file = new File(context.getRealPath(File.separator + secondLevel.getQrcode()));
+			if (!file.exists()) {
+				// 如果不存在二维码文件，则重新创建二维码文件
+				File parentFile = file.getParentFile();
+				// 判断二维码图片的路径是否存在，不存在就逐层创建
+				if (!parentFile.exists()) {
+					parentFile.mkdirs();
 				}
-				/*
-				 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-				 * 将该参数提交给微信端后会生成“带参数二维码”，
-				 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-				 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-				 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-				 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-				 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-				 */
-				StringBuffer sb = new StringBuffer();
-				sb.append("level$");
-				sb.append(SecondLevel.LEVEL_TWO);
-				sb.append("_");
-				sb.append("id$");
-				sb.append(secondLevel.getScid());
-				// 重新从微信端服务器获取当前层级对象的带参数二维码，并且更新数据库中qrcode和qrcodeTime字段
-				qrcode = zeroLevelAction.getQrcodeFromWeixin(secondLevel.getScid(), sb.toString(),
-						new ReturnMessage4Common());
-				qrcodeTime = System.currentTimeMillis();
-				// 向数据库中更新数据
-				secondLevel.setQrcode(qrcode);
-				secondLevel.setQrcodeTime(qrcodeTime);
-				secondLevelService.update(secondLevel);
+				sb = new StringBuffer();
+				sb.append("tag=");
+				sb.append("second");
+				sb.append("&");
+				sb.append("lid=");
+				sb.append(lid);
+				QRCodeUtils.createQRcode(context.getRealPath(File.separator + secondLevel.getQrcode()), sb.toString());
 			}
 			break;
 		case "third":
 			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
 			levelName = thirdLevel.getName();
 			levelDescription = thirdLevel.getDescription();
-
 			qrcodeTime = thirdLevel.getQrcodeTime();
 			qrcode = thirdLevel.getQrcode();
-			if ((System.currentTimeMillis() - qrcodeTime) / 1000L >= month || !new File(realPath).isDirectory()) {
-				// 带参数的临时二维码已经过期，需要更换
-				// 获取过期qrcode在服务器磁盘上的真实路径
-				realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
-				// 删除该失效二维码
-				if (new File(realPath).isDirectory()) {
-					// 如果二维码图片存在，则删除该图片
-					FileController.deleteFile(realPath);
+			// 查看当前操作者层级的二维码是否存在，如果不存在自动创建
+			file = new File(context.getRealPath(File.separator + thirdLevel.getQrcode()));
+			if (!file.exists()) {
+				// 如果不存在二维码文件，则重新创建二维码文件
+				File parentFile = file.getParentFile();
+				// 判断二维码图片的路径是否存在，不存在就逐层创建
+				if (!parentFile.exists()) {
+					parentFile.mkdirs();
 				}
-				/*
-				 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-				 * 将该参数提交给微信端后会生成“带参数二维码”，
-				 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-				 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-				 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-				 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-				 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-				 */
-				StringBuffer sb = new StringBuffer();
-				sb.append("level$");
-				sb.append(ThirdLevel.LEVEL_THREE);
-				sb.append("_");
-				sb.append("id$");
-				sb.append(thirdLevel.getThid());
-				// 重新从微信端服务器获取当前层级对象的带参数二维码，并且更新数据库中qrcode和qrcodeTime字段
-				qrcode = zeroLevelAction.getQrcodeFromWeixin(thirdLevel.getThid(), sb.toString(),
-						new ReturnMessage4Common());
-				qrcodeTime = System.currentTimeMillis();
-				// 向数据库中更新数据
-				thirdLevel.setQrcode(qrcode);
-				thirdLevel.setQrcodeTime(qrcodeTime);
-				thirdLevelService.update(thirdLevel);
+				sb = new StringBuffer();
+				sb.append("tag=");
+				sb.append("third");
+				sb.append("&");
+				sb.append("lid=");
+				sb.append(lid);
+				QRCodeUtils.createQRcode(context.getRealPath(File.separator + thirdLevel.getQrcode()), sb.toString());
 			}
 			break;
 		case "fourth":
 			FourthLevel fourthLevel = fourthLevelService.queryEntityById(lid);
 			levelName = fourthLevel.getName();
 			levelDescription = fourthLevel.getDescription();
-
 			qrcodeTime = fourthLevel.getQrcodeTime();
 			qrcode = fourthLevel.getQrcode();
-			if ((System.currentTimeMillis() - qrcodeTime) / 1000L >= month) {
-				// 带参数的临时二维码已经过期，需要更换
-				// 获取过期qrcode在服务器磁盘上的真实路径
-				realPath = ServletActionContext.getServletContext().getRealPath(qrcode);
-				// 删除该失效二维码
-				if (new File(realPath).isDirectory()) {
-					// 如果二维码图片存在，则删除该图片
-					FileController.deleteFile(realPath);
+			// 查看当前操作者层级的二维码是否存在，如果不存在自动创建
+			file = new File(context.getRealPath(File.separator + fourthLevel.getQrcode()));
+			if (!file.exists()) {
+				// 如果不存在二维码文件，则重新创建二维码文件
+				File parentFile = file.getParentFile();
+				// 判断二维码图片的路径是否存在，不存在就逐层创建
+				if (!parentFile.exists()) {
+					parentFile.mkdirs();
 				}
-				/*
-				 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-				 * 将该参数提交给微信端后会生成“带参数二维码”，
-				 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-				 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-				 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-				 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-				 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-				 */
-				StringBuffer sb = new StringBuffer();
-				sb.append("level$");
-				sb.append(FourthLevel.LEVEL_FOUR);
-				sb.append("_");
-				sb.append("id$");
-				sb.append(fourthLevel.getFoid());
-				// 重新从微信端服务器获取当前层级对象的带参数二维码，并且更新数据库中qrcode和qrcodeTime字段
-				qrcode = zeroLevelAction.getQrcodeFromWeixin(fourthLevel.getFoid(), sb.toString(),
-						new ReturnMessage4Common());
-				qrcodeTime = System.currentTimeMillis();
-				// 向数据库中更新数据
-				fourthLevel.setQrcode(qrcode);
-				fourthLevel.setQrcodeTime(qrcodeTime);
-				fourthLevelService.update(fourthLevel);
+				sb = new StringBuffer();
+				sb.append("tag=");
+				sb.append("fourth");
+				sb.append("&");
+				sb.append("lid=");
+				sb.append(lid);
+				QRCodeUtils.createQRcode(context.getRealPath(File.separator + fourthLevel.getQrcode()), sb.toString());
 			}
 			break;
 		}
@@ -490,8 +392,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	}
 
 	/**
-	 * 该方法是目前本系统的入口方法 与getManagerList()方法相对 
-	 * 供给后台用户管理系统使用，获取所有用户群体（包括直辖和子孙层级的直辖）
+	 * 该方法是目前本系统的入口方法 与getManagerList()方法相对 供给后台用户管理系统使用，获取所有用户群体（包括直辖和子孙层级的直辖）
 	 * 
 	 * @return 结果集索引字符串
 	 */

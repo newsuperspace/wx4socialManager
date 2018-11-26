@@ -1,7 +1,13 @@
 package cc.natapp4.ddaig.action;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +30,7 @@ import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
 import me.chanjar.weixin.common.bean.WxJsapiSignature;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
+import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 
 @Controller("ajaxAction4weixin")
 /*
@@ -79,11 +86,16 @@ public class AjaxAction4weixin extends ActionSupport {
 	protected UserService userService;
 	@Resource(name = "activityService")
 	protected ActivityService activityService;
+	// 因为需要通过微信公众号服务器生成带参数二维码，这里需要DI注入WeixinService4Setting用来与微信服务器交互
+	@Resource(name = "weixinService4Setting")
+	private WeixinService4SettingImpl mpService;
 
 	// ==============================JS-SKD认证=============================
 	/**
-	 * 【已使用】
-	 * 供给前端获取调用微信JS-SDK权限的签名的方法
+	 * 【已使用】 供给前端获取调用微信JS-SDK权限的签名的方法
+	 * 在微信端的每次页面调用都会在DOM元素加载完毕后通过jQuery的$(function(){}); 调用JS-SDK的初始化方法
+	 * 并向我们的服务器请求本方法（通过AJAX），作为在微信端的前端页面调用JS-SDK功能（如：获取坐标/扫描二维码）
+	 * 的前提，因此本方法非常常用且重要。
 	 * 
 	 * @return
 	 */
@@ -178,30 +190,31 @@ public class AjaxAction4weixin extends ActionSupport {
 
 	// ==============================微信web认证授权=============================
 	/**
-	 * 【已使用】
-	 * 用来通过前端页面传递过来的code码来换取究竟是哪个用户openID访问的该页面
+	 * 【已使用】 用来通过前端页面传递过来的code码来换取究竟是哪个用户openID访问的该页面
 	 * 
 	 * @return
 	 */
 	public String getOpenIdthroughCode() {
 		Result4GetOpenIdthouroughCode result = new Result4GetOpenIdthouroughCode();
 		WxMpOAuth2AccessToken token = null;
-		if(null==code || "".equals(code)){
+		if (null == code || "".equals(code)) {
 			// 如果来访连接没有带着code参数，说明不是从微信端来访的页面，直接PASS即可
 			return null;
 		}
 		/*
-		 * 检测该code是否是之前已经兑换过openid，如果兑换过还用相同code向微信端兑换，则会爆出 
-		 * me.chanjar.weixin.common.exception.WxErrorException: {"errcode":40163,"errmsg":"code been used, hints: [ req_id: ZT.I300234116 ]"}
-		 * 的异常。
+		 * 检测该code是否是之前已经兑换过openid，如果兑换过还用相同code向微信端兑换，则会爆出
+		 * me.chanjar.weixin.common.exception.WxErrorException:
+		 * {"errcode":40163,"errmsg":
+		 * "code been used, hints: [ req_id: ZT.I300234116 ]"} 的异常。
 		 * 
-		 * 解决办法是,由于整个系统中所以涉及通过code兑换openid的逻辑中都会首先检测session域中的名为“openid”的字段是否已经有了openid，如果存在openid
-		 * 直接使用即可（对于一个公众号来说，同一个用户的openid用换不会改变，一旦获取到可以在session有效期内永久使用），就不用再麻烦使用code向微信服务器
-		 * 兑换了。
+		 * 解决办法是,由于整个系统中所以涉及通过code兑换openid的逻辑中都会首先检测session域中的名为“openid”
+		 * 的字段是否已经有了openid，如果存在openid
+		 * 直接使用即可（对于一个公众号来说，同一个用户的openid用换不会改变，一旦获取到可以在session有效期内永久使用），
+		 * 就不用再麻烦使用code向微信服务器 兑换了。
 		 */
 		HttpSession session = ServletActionContext.getRequest().getSession();
 		String storagedOpenid = (String) session.getAttribute("openid");
-		if(StringUtils.isEmpty(storagedOpenid)){
+		if (StringUtils.isEmpty(storagedOpenid)) {
 			try {
 				token = mpService4Recall.oauth2getAccessToken(this.code);
 				String openId = token.getOpenId();
@@ -216,12 +229,12 @@ public class AjaxAction4weixin extends ActionSupport {
 				result.setResult(false);
 				result.setMessage("openID兑换时出现异常！");
 			}
-		}else{
+		} else {
 			result.setOpenid(storagedOpenid);
 			result.setResult(true);
 			result.setMessage("该code已经在之前兑换过openID，该openID已经保存到服务器的session域中了，无需重复兑换");
 		}
-		
+
 		ActionContext.getContext().getValueStack().push(result);
 		return SUCCESS;
 	}
@@ -237,33 +250,144 @@ public class AjaxAction4weixin extends ActionSupport {
 		private boolean result;
 		private String openid;
 		private String message;
+
 		public boolean isResult() {
 			return result;
 		}
+
 		public void setResult(boolean result) {
 			this.result = result;
 		}
+
 		public String getMessage() {
 			return message;
 		}
+
 		public void setMessage(String message) {
 			this.message = message;
 		}
+
 		public String getOpenid() {
 			return openid;
 		}
+
 		public void setOpenid(String openid) {
 			this.openid = openid;
 		}
+
 		public Result4GetOpenIdthouroughCode(String openid) {
 			this.openid = openid;
 		}
+
 		public Result4GetOpenIdthouroughCode() {
 		}
 	}
 
+	// =========================获取“带参数（场景值）二维码”==========================
+	/**
+	 * 	
+	 * 【微信端交互】
+	 *  由各个层级Action中的createLevel和createSonLevel调用，用于从微信端服务器获取带参数二维码（30天有效期），
+	 *  这样当用户扫描带参数二维码加入公众号的时候就会自动划归到该层级对象的直接管理层之下。
+	 *  【TODO 已弃用】
+	 *  考虑到：
+	 *  （1）只有服务号才有权创建带参数二维码，普通订阅号不能创建带参数二维码
+	 *  （2）原计划是用户扫描各个层级的带参数二维码可以实现关注公众号（没有关注的）和加入层级之下的供呢个
+	 *  但实际情况是，如果已经关注公众号的用户扫描一个还未加入的层级对象的带参数二维码的时候，只会打开公众号
+	 *  而不会调用SubScribeHander中加入该层级对象（创建member等操作），因此这个功能目的已经失去价值
+	 *  （3）会增加本地服务器与微信服务器交互压力
+	 *  综上所述弃用本方法，但方法中与微信端交互获取带参数二维码的业务逻辑可以在今后有需要的时候修改重用
+	 *  因此保留本方法。
+	 * 
+	 * @param lid
+	 *            层级对象的ID
+	 * @param param
+	 *            形如:"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的参数字符串
+	 * @param r
+	 *            用来保存通过AJAX向前端返回JSON信息的RetrunMessage4Common类型对象
+	 * @return 形如：
+	 *         "qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"本地带参数二维码图片相对路径
+	 */
+	public String getQrcodeFromWeixin(String lid, String param, ReturnMessage4Common r) {
+
+		// 与微信服务器进行交互
+		WxMpQrCodeTicket qrTicket = null;
+		File inFile = null;
+		try {
+			// 将参数文本提交给微信服务器，微信会生成带参数的临时二维码（30天）
+			qrTicket = mpService.getQrcodeService().qrCodeCreateTmpTicket(param, 2592000);
+			// 通过票据换取指定带参数二维码的File
+			inFile = mpService.getQrcodeService().qrCodePicture(qrTicket);
+			if (null == inFile) {
+				throw new RuntimeException("从微信端获取的带参数二维码的File是null");
+			}
+		} catch (WxErrorException e1) {
+			e1.printStackTrace();
+			String message = "从微信端获取带参数二维码时出现异常,层级对象创建失败";
+			System.out.println(message);
+			r.setMessage(message);
+			r.setResult(false);
+			return "";
+		}
+		// 将带参数二维码图片的File保存到本地，备用
+		String codePath = "";
+		codePath = "qrcode";
+		int hashCode = lid.hashCode();
+		int first = hashCode & 0xf;
+		int second = (hashCode & 0xf0) >> 4;
+		// 由于不同文件系统的层级分隔符不一样（/正斜线或\反斜线），可以通过File.separator来自动适配分隔符，保证当前应用在任何操作系统中都能使用
+		codePath = codePath + File.separator + first + File.separator + second;
+		ServletContext context = ServletActionContext.getServletContext();
+		// realPath就是服务器本地的真实路径，形如：C:\Android\apache-tomcat-9.0.0.M8\webapps\library\qrcode\12\2
+		String realPath = context.getRealPath(File.separator + codePath);
+		// 接下来我们通过File来逐层创建该文件目录结构，保证生成二维码图片的时候，该路径确实存在
+		File outFile = new File(realPath); // 路径，而非文件
+		if (!outFile.exists()) {
+			// 如果该路径不存在，则逐层创建路径
+			outFile.mkdirs();
+		}
+		// 然后我们创建二维码图片的文件对象，文件名仍然以层级对象的id值为名字，然后拓展名为jpg
+		codePath = codePath + File.separator + lid + ".jpg";
+		System.out.println("最终的codePath：" + codePath);
+		realPath = realPath + File.separator + lid + ".jpg";
+		System.out.println("最终的realPath:" + realPath);
+		outFile = new File(realPath); // 文件，而非路径
+		// 创建输入流和输出流，准备开始流对接
+		FileOutputStream fos = null;
+		FileInputStream fis = null;
+		try {
+			fos = new FileOutputStream(outFile);
+			fis = new FileInputStream(inFile);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			String message = "在将从微信服务器获取的存有二维码jpq图片的File保存到本次磁盘时，创建输入或输出流出现异常,层级对象创建失败";
+			System.out.println(message);
+			r.setMessage(message);
+			r.setResult(false);
+			return "";
+		}
+		// 开始流对接，temp为字节缓冲（1024B=1KB）————字节数组就是缓冲区，8位（bit）=1字节（B），因此字节是仅次于位的最小信息单位，用它存放二进制数据最合适
+		byte[] temp = new byte[1024];
+		// 记录每次从输入流转入到输出流中的字节数
+		int len = 0;
+		// 开始流对接
+		try {
+			while ((len = fis.read(temp)) != -1) {
+				// 边读边写，一旦len=-1表明输入流中的数据全都读入了，没有额外数据可供读入了
+				fos.write(temp, 0, len);
+			}
+			fis.close();
+			fos.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		return codePath;
+	}
+
+	// =========================其他方法==========================
 	/**
 	 * 属性驱动 承接从前端通过ajax传递过来的名为code的请求参数的值
+	 * 作为getOpenIdthroughCode()方法向微信端服务器换取来访者用户的openid之用
 	 */
 	private String code;
 
@@ -275,64 +399,70 @@ public class AjaxAction4weixin extends ActionSupport {
 		this.code = code;
 	}
 
-
-	// ===========================对没有加入公众号的用户的提供的活动签到功能=======================
+	/**
+	 * 【TODO 暂时停用】 对没有加入公众号的用户的提供的活动签到功能
+	 * 
+	 * @return
+	 */
 	public String signIn() {
 
-//		Activity activity = activityService.queryEntityById(this.aid);
-//		User user = userService.queryEntityById(this.uid);
-//
-//		// 判断当前用户是不是重复签到★
-//		if (activity.getUsers() != null) {
-//			// 当前活动中已经有人参与了，则
-//			for (User u : activity.getUsers()) {
-//				if (u.getUid().equals(user.getUid())) {
-//					// 如果当前扫码用户已经存在于参与当前活动的用户集合中，那么应该终止后续积分逻辑，并告知该用户
-//					ReturnMessage4Common  result = new ReturnMessage4Common("该用户已签到成功，请勿重复签到。", false); 
-//					ActionContext.getContext().getValueStack().push(result);
-//					return SUCCESS;
-//				}
-//			}
-//		}
-//
-//		// 将用户添加到当前活动activity的uses集合中，以此可以方便的通过user查找到该用户参与活动的历史和当前活动的参与者，以及防止相同user重复扫码参与
-//		Set<User> users = activity.getUsers();
-//		if (null == users) {
-//			// 如果该activity的users集合是null，则说明当前扫码用户是第一个活动参与者
-//			users = new HashSet<User>();
-//			users.add(user);
-//			activity.setUsers(users);
-//		} else {
-//			// 不是第一个扫码的，则直接添加到该activity的set集合中即可
-//			activity.getUsers().add(user);
-//		}
-//
-//		// 添加积分
-//		if (StringUtils.isEmpty(user.getScore())) {
-//			user.setScore(activity.getScore());
-//		} else {
-//			int total = Integer.valueOf(user.getScore());
-//			int score = Integer.valueOf(activity.getScore());
-//			total += score;
-//			user.setScore("" + total);
-//		}
-//
-//		// 保存user
-//		userService.update(user);
-//		// 保存activity
-//		activityService.update(activity);
-//
-//		// 签到成功，回复信息
-//		StringBuffer sb = new StringBuffer();
-//		sb.append(user.getUsername());
-//		sb.append("在");
-//		sb.append(activity.getName());
-//		sb.append("中签到成功,");
-//		sb.append("其当前积分是：");
-//		sb.append(user.getScore()+"。");
-//
-//		ReturnMessage4Common  result = new ReturnMessage4Common(sb.toString(), true); 
-//		ActionContext.getContext().getValueStack().push(result);
+		// Activity activity = activityService.queryEntityById(this.aid);
+		// User user = userService.queryEntityById(this.uid);
+		//
+		// // 判断当前用户是不是重复签到★
+		// if (activity.getUsers() != null) {
+		// // 当前活动中已经有人参与了，则
+		// for (User u : activity.getUsers()) {
+		// if (u.getUid().equals(user.getUid())) {
+		// // 如果当前扫码用户已经存在于参与当前活动的用户集合中，那么应该终止后续积分逻辑，并告知该用户
+		// ReturnMessage4Common result = new
+		// ReturnMessage4Common("该用户已签到成功，请勿重复签到。", false);
+		// ActionContext.getContext().getValueStack().push(result);
+		// return SUCCESS;
+		// }
+		// }
+		// }
+		//
+		// //
+		// 将用户添加到当前活动activity的uses集合中，以此可以方便的通过user查找到该用户参与活动的历史和当前活动的参与者，以及防止相同user重复扫码参与
+		// Set<User> users = activity.getUsers();
+		// if (null == users) {
+		// // 如果该activity的users集合是null，则说明当前扫码用户是第一个活动参与者
+		// users = new HashSet<User>();
+		// users.add(user);
+		// activity.setUsers(users);
+		// } else {
+		// // 不是第一个扫码的，则直接添加到该activity的set集合中即可
+		// activity.getUsers().add(user);
+		// }
+		//
+		// // 添加积分
+		// if (StringUtils.isEmpty(user.getScore())) {
+		// user.setScore(activity.getScore());
+		// } else {
+		// int total = Integer.valueOf(user.getScore());
+		// int score = Integer.valueOf(activity.getScore());
+		// total += score;
+		// user.setScore("" + total);
+		// }
+		//
+		// // 保存user
+		// userService.update(user);
+		// // 保存activity
+		// activityService.update(activity);
+		//
+		// // 签到成功，回复信息
+		// StringBuffer sb = new StringBuffer();
+		// sb.append(user.getUsername());
+		// sb.append("在");
+		// sb.append(activity.getName());
+		// sb.append("中签到成功,");
+		// sb.append("其当前积分是：");
+		// sb.append(user.getScore()+"。");
+		//
+		// ReturnMessage4Common result = new ReturnMessage4Common(sb.toString(),
+		// true);
+		// ActionContext.getContext().getValueStack().push(result);
 		return SUCCESS;
 	}
 

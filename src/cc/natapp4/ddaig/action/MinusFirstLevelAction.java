@@ -1,5 +1,6 @@
 package cc.natapp4.ddaig.action;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -7,9 +8,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -21,7 +24,6 @@ import cc.natapp4.ddaig.domain.BesureProject;
 import cc.natapp4.ddaig.domain.DoingProject;
 import cc.natapp4.ddaig.domain.ProjectType;
 import cc.natapp4.ddaig.domain.User;
-import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
@@ -41,8 +43,6 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 	private UserService userService;
 	@Resource(name = "projectTypeService")
 	private ProjectTypeService projectTypeService;
-	@Resource(name="zeroLevelAction")
-	private ZeroLevelAction zeroLevelAction;
 
 	// =================模型驱动=================
 	private MinusFirstLevel minusFirstLevel;
@@ -97,40 +97,36 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 			// 准备新建的层级对象
 			MinusFirstLevel m = new MinusFirstLevel();
 
-			/*
-			 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-			 * 将该参数提交给微信端后会生成“带参数二维码”，
-			 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-			 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-			 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-			 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-			 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-			 */
 			StringBuffer sb = new StringBuffer();
-			sb.append("level$");
-			sb.append(MinusFirstLevel.LEVEL_MINUS_FIRST);
-			sb.append("_");
-			sb.append("id$");
 			String id = UUID.randomUUID().toString();
-			sb.append(id);
 			// 添加层级对象的id
 			m.setMflid(id);
+			// 拼装形如： tag=minus_first&lid=xjoduf7293jf2wjf9jd9suf9uw
+			// 的字符串用作新建层级的带参数二维码的内容
+			sb.append("tag=");
+			sb.append("minus_first");
+			sb.append("&");
+			sb.append("lid=");
+			sb.append(id);
 
 			/*
-			 * 通过调用getQrcodeFromWeixin方法获取带参数二维码，并将二维码图片保存到本地磁盘，在数据库保存函数
-			 * 所返回的形如："qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
+			 * 通过QRCodeUtils.createLevelQR(code) 创建唯一标志当前新建层级的二维码 所返回的形如：
+			 * "qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
 			 */
-			String codePath = zeroLevelAction.getQrcodeFromWeixin(id, sb.toString(), r);
-			if("".equals(codePath)){
+			String codePath = QRCodeUtils.createLevelQR(sb.toString());
+			if ("".equals(codePath)) {
+				r.setResult(false);
+				r.setMessage("创建层级对象二维码时出现异常");
+
 				ActionContext.getContext().getValueStack().push(r);
 				return "json";
-			}else{
+			} else {
 				// 数据库要保存层级对象二维码的图片位置
 				m.setQrcode(codePath);
-				// 保存当前时刻的时间戳，用来记录临时带参数二维码的有效期
+				// 保存当前时刻的时间戳，用来记录临时带参数二维码的创建时间（格里高利历偏移量）
 				m.setQrcodeTime(System.currentTimeMillis());
 			}
-			
+
 			m.setDescription(minusFirstLevel.getDescription());
 			m.setName(minusFirstLevel.getName());
 
@@ -187,37 +183,33 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 			sonLevel.setDescription(getSonDescription());
 			sonLevel.setName(getSonName());
 
-			/*
-			 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-			 * 将该参数提交给微信端后会生成“带参数二维码”，
-			 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-			 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-			 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-			 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-			 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-			 */
 			StringBuffer sb = new StringBuffer();
-			sb.append("level$");
-			sb.append(ZeroLevel.LEVEL_ZERO);
-			sb.append("_");
-			sb.append("id$");
 			String id = UUID.randomUUID().toString();
-			sb.append(id);
 			// 添加层级对象的id
 			sonLevel.setZid(id);
+			// 拼装形如： tag=zero&lid=xjoduf7293jf2wjf9jd9suf9uw
+			// 的字符串用作新建层级的带参数二维码的内容
+			sb.append("tag=");
+			sb.append("zero");
+			sb.append("&");
+			sb.append("lid=");
+			sb.append(id);
 
 			/*
-			 * 通过调用getQrcodeFromWeixin方法获取带参数二维码，并将二维码图片保存到本地磁盘，在数据库保存函数
-			 * 所返回的形如："qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
+			 * 通过QRCodeUtils.createLevelQR(code) 创建唯一标志当前新建层级的二维码 所返回的形如：
+			 * "qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
 			 */
-			String codePath = zeroLevelAction.getQrcodeFromWeixin(id, sb.toString(), r);
-			if("".equals(codePath)){
+			String codePath = QRCodeUtils.createLevelQR(sb.toString());
+			if ("".equals(codePath)) {
+				r.setResult(false);
+				r.setMessage("创建层级对象二维码时出现异常");
+
 				ActionContext.getContext().getValueStack().push(r);
 				return "json";
-			}else{
+			} else {
 				// 数据库要保存层级对象二维码的图片位置
 				sonLevel.setQrcode(codePath);
-				// 保存当前时刻的时间戳，用来记录临时带参数二维码的有效期
+				// 保存当前时刻的时间戳，用来记录临时带参数二维码的创建时间（格里高利偏移量）
 				sonLevel.setQrcodeTime(System.currentTimeMillis());
 			}
 
@@ -257,6 +249,12 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 		return "json";
 	}
 
+	/**
+	 * 获取当前操作者层级所管辖的minus_first层级对象数据
+	 * 增加了新功能，判断二维码是否还存在（重新部署项目的时候存放二维码的qrcode会被删除）如果不存就自动重新创建二维码
+	 * 
+	 * @return
+	 */
 	public String getLevelList() {
 
 		// ---------------------------Shiro认证操作者身份---------------------------
@@ -280,12 +278,33 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 			}
 		}
 
+		ServletContext context = ServletActionContext.getServletContext();
 		List<MinusFirstLevel> list = null;
-		if(isAdmin){
+		StringBuffer  sb  =  null;
+		File file = null;
+		if (isAdmin) {
 			// 要获取到街道层级的数据信息，只能是Admin管理员，如果不是就是非法访问，应该直接返回空数据
 			list = minusFirstLevelService.queryEntities();
+			// 检查所有待展示层级的qrcode是否还存在，不存在的自动重新生成
+			for (MinusFirstLevel mfl : list) {
+				file = new File(context.getRealPath(File.separator + mfl.getQrcode()));
+				if (!file.exists()) {
+					// 如果不存在二维码文件，则重新创建二维码文件
+					File parentFile = file.getParentFile();
+					// 判断二维码图片的路径是否存在，不存在就逐层创建
+					if (!parentFile.exists()) {
+						parentFile.mkdirs();
+					}
+					sb  =  new StringBuffer();
+					sb.append("tag=");
+					sb.append("minus_first");
+					sb.append("&");
+					sb.append("lid=");
+					sb.append(mfl.getMflid());
+					QRCodeUtils.createQRcode(context.getRealPath(File.separator+mfl.getQrcode()), sb.toString());
+				}
+			}
 		}
-
 		ActionContext.getContext().put("levels", list);
 		return "list";
 	}
@@ -302,7 +321,27 @@ public class MinusFirstLevelAction implements ModelDriven<MinusFirstLevel> {
 		String id = minusFirstLevel.getMflid();
 		MinusFirstLevel m = minusFirstLevelService.queryEntityById(id);
 
-		List<MinusFirstLevel> list = new ArrayList<MinusFirstLevel>();
+		ServletContext context = ServletActionContext.getServletContext();
+		List<MinusFirstLevel> list = null;
+		StringBuffer  sb  =  null;
+		File file =  new File(context.getRealPath(File.separator + m.getQrcode()));
+		if (!file.exists()) {
+			// 如果不存在二维码文件，则重新创建二维码文件
+			File parentFile = file.getParentFile();
+			// 判断二维码图片的路径是否存在，不存在就逐层创建
+			if (!parentFile.exists()) {
+				parentFile.mkdirs();
+			}
+			sb  =  new StringBuffer();
+			sb.append("tag=");
+			sb.append("minus_first");
+			sb.append("&");
+			sb.append("lid=");
+			sb.append(m.getMflid());
+			QRCodeUtils.createQRcode(context.getRealPath(File.separator+m.getQrcode()), sb.toString());
+		}
+		
+		list = new ArrayList<MinusFirstLevel>();
 		list.add(m);
 
 		ActionContext.getContext().put("levels", list);

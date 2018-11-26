@@ -22,15 +22,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 public class MyLogoutFilter extends LogoutFilter {
 
-	/**
-	 * 这里的两个属性是基于在web.xml中设置了监听器
-	 * <listener>
-	 *		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-	 *	</listener>
-	 *然后我们在任何类中通过如下方式都可以获取到当前容器的session和request了
-	 */
-//	@Autowired
-//	private HttpSession session;
 	
 	@Override
 	protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {

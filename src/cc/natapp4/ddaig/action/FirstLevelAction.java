@@ -1,5 +1,6 @@
 package cc.natapp4.ddaig.action;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -48,7 +50,7 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 	private UserService userService;
 	@Resource(name = "projectTypeService")
 	private ProjectTypeService projectTypeService;
-	@Resource(name="zeroLevelAction")
+	@Resource(name = "zeroLevelAction")
 	private ZeroLevelAction zeroLevelAction;
 
 	// =================模型驱动================= <!-- ● -->
@@ -120,46 +122,41 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 		if ("".equals(firstLevel.getDescription()) || "".equals(firstLevel.getName())) {
 			r.setMessage("关键数据为null，新建层级失败");
 			r.setResult(false);
-		} else if(null==parent){
+		} else if (null == parent) {
 			r.setResult(false);
 			r.setMessage("在session域中未发现当前操作者的lid或当前操作者不存在于ThirdLevel目录中，创建失败");
 		} else {
 			FirstLevel l = new FirstLevel();
-
-			/*
-			 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-			 * 将该参数提交给微信端后会生成“带参数二维码”，
-			 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-			 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-			 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-			 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-			 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-			 */
+			// 准备用于拼装二维码内容的StringBuffer
 			StringBuffer sb = new StringBuffer();
-			sb.append("level$");
-			sb.append(FirstLevel.LEVEL_ONE);
-			sb.append("_");
-			sb.append("id$");
+			// 随机生成新建层级的主键id
 			String id = UUID.randomUUID().toString();
-			sb.append(id);
 			// 添加层级对象的id
 			l.setFlid(id);
-
+			// 拼装形如： tag=first&lid=xjoduf7293jf2wjf9jd9suf9uw
+			// 的字符串用作新建层级的带参数二维码的内容
+			sb.append("tag=");
+			sb.append("first");
+			sb.append("&");
+			sb.append("lid=");
+			sb.append(id);
 			/*
-			 * 通过调用getQrcodeFromWeixin方法获取带参数二维码，并将二维码图片保存到本地磁盘，在数据库保存函数
-			 * 所返回的形如："qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
+			 * 通过QRCodeUtils.createLevelQR(code) 创建唯一标志当前新建层级的二维码 所返回的形如：
+			 * "qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
 			 */
-			String codePath = zeroLevelAction.getQrcodeFromWeixin(id, sb.toString(), r);
-			if("".equals(codePath)){
+			String codePath = QRCodeUtils.createLevelQR(sb.toString());
+			if ("".equals(codePath)) {
+				r.setResult(false);
+				r.setMessage("通过微信服务器创建新建层级的带参数二维码时出现异常，创建失败");
 				ActionContext.getContext().getValueStack().push(r);
 				return "json";
-			}else{
+			} else {
 				// 数据库要保存层级对象二维码的图片位置
 				l.setQrcode(codePath);
 				// 保存当前时刻的时间戳，用来记录临时带参数二维码的有效期
 				l.setQrcodeTime(System.currentTimeMillis());
 			}
-			
+
 			l.setDescription(firstLevel.getDescription());
 			l.setName(firstLevel.getName());
 			l.setParent(parent);
@@ -222,40 +219,36 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 			sonLevel.setDescription(getSonDescription());
 			sonLevel.setName(getSonName());
 
-			/*
-			 * 参数是形如"level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1"的字符串
-			 * 将该参数提交给微信端后会生成“带参数二维码”，
-			 * 用户扫码加入公众号后我们的服务器收到并转交由SubscribeHandler句柄处理的字符串信息是
-			 * "qrscene_level$0_id$f55669aa-b039-4919-ae23-7c15472e29b1",
-			 * 我们通过解析该字符串就能获知用户扫码加入的是哪个层级对象
-			 * split("_")分割出qrscene、level$0和id$f55669aa-b039-4919-ae23-
-			 * 7c15472e29b1 三部分 再次split("$")第二段和第三段就可以获取到用户加入的是哪一层级的哪个层级对象了。
-			 */
 			StringBuffer sb = new StringBuffer();
-			sb.append("level$");
-			sb.append(SecondLevel.LEVEL_TWO);
-			sb.append("_");
-			sb.append("id$");
 			String id = UUID.randomUUID().toString();
-			sb.append(id);
 			// 添加层级对象的id
 			sonLevel.setScid(id);
+			// 拼装形如： tag=second&lid=xjoduf7293jf2wjf9jd9suf9uw
+			// 的字符串用作新建层级的带参数二维码的内容
+			sb.append("tag=");
+			sb.append("second");
+			sb.append("&");
+			sb.append("lid=");
+			sb.append(id);
 
 			/*
-			 * 通过调用getQrcodeFromWeixin方法获取带参数二维码，并将二维码图片保存到本地磁盘，在数据库保存函数
-			 * 所返回的形如："qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
+			 * 通过QRCodeUtils.createLevelQR(code) 创建唯一标志当前新建层级的二维码 所返回的形如：
+			 * "qrcode\8\10\5e0224c6-482b-4f2a-bc09-5d21b5bd7761.jpg"相对路径。
 			 */
-			String codePath = zeroLevelAction.getQrcodeFromWeixin(id, sb.toString(), r);
-			if("".equals(codePath)){
+			String codePath = QRCodeUtils.createLevelQR(sb.toString());
+			if ("".equals(codePath)) {
+				r.setResult(false);
+				r.setMessage("创建层级对象二维码时出现异常");
+
 				ActionContext.getContext().getValueStack().push(r);
 				return "json";
-			}else{
+			} else {
 				// 数据库要保存层级对象二维码的图片位置
 				sonLevel.setQrcode(codePath);
 				// 保存当前时刻的时间戳，用来记录临时带参数二维码的有效期
 				sonLevel.setQrcodeTime(System.currentTimeMillis());
 			}
-			
+
 			sonLevel.setParent(parentLevel);
 
 			// 准备层级对象的“默认项目”，用来该层级对象创建默认活动
@@ -320,16 +313,38 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 		}
 
 		List<FirstLevel> list = null;
+		ServletContext context = ServletActionContext.getServletContext();
+		StringBuffer sb = null;
+		File file = null;
 		// 分辨当前操作者是Admin还是非Admin
-		if(isAdmin){
+		if (isAdmin) {
 			// 当前查访者是Admin,获取数据库中的所有FirstLevel对象
 			list = firstLevelService.queryEntities();
-		}else{
+			// 检查所有待展示层级的qrcode是否还存在，不存在的自动重新生成
+			for (FirstLevel fl : list) {
+				file = new File(context.getRealPath(File.separator + fl.getQrcode()));
+				if (!file.exists()) {
+					// 如果不存在二维码文件，则重新创建二维码文件
+					File parentFile = file.getParentFile();
+					// 判断二维码图片的路径是否存在，不存在就逐层创建
+					if (!parentFile.exists()) {
+						parentFile.mkdirs();
+					}
+					sb = new StringBuffer();
+					sb.append("tag=");
+					sb.append("first");
+					sb.append("&");
+					sb.append("lid=");
+					sb.append(fl.getFlid());
+					QRCodeUtils.createQRcode(context.getRealPath(File.separator + fl.getQrcode()), sb.toString());
+				}
+			}
+		} else {
 			list = new ArrayList<FirstLevel>();
 			// 当前查访者是非Admin管理者，进一步分析当前操作者执行者的层级位置，然后从children属性结构中获取当前操作者下属的层级对象
 			String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 			String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
-			
+
 			switch (tag) {
 			// 对于非Admin用户来说，能够获取到FirstLevel层级对象信息的只可能是街道和社区层级的管理者
 			case "minus_first":
@@ -338,9 +353,25 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 				// 然后获取到该街道层级下属的所有社区层级
 				Set<ZeroLevel> children = minusFirstLevel.getChildren();
 				// 从下属的社区层级中遍历出来的第一层级对象，就是当前操作者（街道层级）所管辖的全部第一层级对象
-				for(ZeroLevel l: children){
+				for (ZeroLevel l : children) {
 					Set<FirstLevel> children2 = l.getChildren();
-					for(FirstLevel l2: children2){
+					for (FirstLevel l2 : children2) {
+						file = new File(context.getRealPath(File.separator + l2.getQrcode()));
+						if (!file.exists()) {
+							// 如果不存在二维码文件，则重新创建二维码文件
+							File parentFile = file.getParentFile();
+							// 判断二维码图片的路径是否存在，不存在就逐层创建
+							if (!parentFile.exists()) {
+								parentFile.mkdirs();
+							}
+							sb  =  new StringBuffer();
+							sb.append("tag=");
+							sb.append("first");
+							sb.append("&");
+							sb.append("lid=");
+							sb.append(l2.getFlid());
+							QRCodeUtils.createQRcode(context.getRealPath(File.separator + l2.getQrcode()), sb.toString());
+						}
 						list.add(l2);
 					}
 				}
@@ -349,13 +380,28 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 				// 当前操作者是社区测功机对象，要获取它下属的所有第一层级对象
 				ZeroLevel level2 = zeroLevelService.queryEntityById(lid);
 				Set<FirstLevel> children2 = level2.getChildren();
-				for(FirstLevel l:children2){
+				for (FirstLevel l : children2) {
+					file = new File(context.getRealPath(File.separator + l.getQrcode()));
+					if (!file.exists()) {
+						// 如果不存在二维码文件，则重新创建二维码文件
+						File parentFile = file.getParentFile();
+						// 判断二维码图片的路径是否存在，不存在就逐层创建
+						if (!parentFile.exists()) {
+							parentFile.mkdirs();
+						}
+						sb  =  new StringBuffer();
+						sb.append("tag=");
+						sb.append("first");
+						sb.append("&");
+						sb.append("lid=");
+						sb.append(l.getFlid());
+						QRCodeUtils.createQRcode(context.getRealPath(File.separator + l.getQrcode()), sb.toString());
+					}
 					list.add(l);
 				}
 				break;
 			}
 		}
-
 		ActionContext.getContext().put("levels", list);
 		return "list";
 	}
@@ -372,6 +418,25 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 		String id = firstLevel.getFlid();
 		FirstLevel l = firstLevelService.queryEntityById(id);
 
+		ServletContext context = ServletActionContext.getServletContext();
+		StringBuffer  sb  =  null;
+		File file =  new File(context.getRealPath(File.separator + l.getQrcode()));
+		if (!file.exists()) {
+			// 如果不存在二维码文件，则重新创建二维码文件
+			File parentFile = file.getParentFile();
+			// 判断二维码图片的路径是否存在，不存在就逐层创建
+			if (!parentFile.exists()) {
+				parentFile.mkdirs();
+			}
+			sb  =  new StringBuffer();
+			sb.append("tag=");
+			sb.append("first");
+			sb.append("&");
+			sb.append("lid=");
+			sb.append(l.getFlid());
+			QRCodeUtils.createQRcode(context.getRealPath(File.separator+l.getQrcode()), sb.toString());
+		}
+		
 		List<FirstLevel> list = new ArrayList<FirstLevel>();
 		list.add(l);
 
