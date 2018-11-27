@@ -286,7 +286,7 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 			break;
 		case "fourth":
 			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.fourthLevel fl where fl.mflid=?",
+					"from User u inner join fetch u.members m inner join fetch m.fourthLevel fl where fl.foid=?",
 					lid);
 			break;
 		}

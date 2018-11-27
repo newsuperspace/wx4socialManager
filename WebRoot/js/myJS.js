@@ -1149,7 +1149,7 @@ var managerModal = {
 		 * 当点击某个管理者的"绑定层级对象"的时候，会跳转到managedLevelList.jsp的页面，用来展示该管理者所管理的所有层级
 		 */
 		jump2LevelPage : function(tag) {
-			let lid = $("#levelID").text();
+			let lid = $.trim($("#levelID").text());
 			switch (tag) {
 			case "minus_first":
 				$(location).attr('href', 'minusFirstLevelAction_getLevelInfo.action?mflid=' + lid);
