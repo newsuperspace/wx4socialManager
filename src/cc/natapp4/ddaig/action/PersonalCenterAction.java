@@ -25,12 +25,25 @@ import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.Visitor;
+import cc.natapp4.ddaig.domain.cengji.FirstLevel;
+import cc.natapp4.ddaig.domain.cengji.FourthLevel;
+import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
+import cc.natapp4.ddaig.domain.cengji.SecondLevel;
+import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
+import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.ActivityService;
+import cc.natapp4.ddaig.service_interface.FirstLevelService;
+import cc.natapp4.ddaig.service_interface.FourthLevelService;
+import cc.natapp4.ddaig.service_interface.GroupingService;
 import cc.natapp4.ddaig.service_interface.MemberService;
+import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
+import cc.natapp4.ddaig.service_interface.SecondLevelService;
+import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.VisitorService;
+import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.PositionUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4RecallImpl;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
@@ -96,14 +109,27 @@ public class PersonalCenterAction extends ActionSupport {
 	protected WeixinService4SettingImpl mpService4Setting; // 用来主动向指定用户发送Text消息
 	@Resource(name = "userService")
 	protected UserService userService;
+	@Resource(name="groupingService")
+	protected GroupingService groupingService;
 	@Resource(name = "activityService")
 	protected ActivityService activityService;
 	@Resource(name = "visitorService")
 	protected VisitorService visitorService;
-	@Resource(name="memberService")
+	@Resource(name = "memberService")
 	protected MemberService memberService;
-	
-	
+	@Resource(name = "minusFirstLevelService")
+	private MinusFirstLevelService minusFirstLevelService;
+	@Resource(name = "zeroLevelService")
+	private ZeroLevelService zeroLevelService;
+	@Resource(name = "firstLevelService")
+	private FirstLevelService firstLevelService;
+	@Resource(name = "secondLevelService")
+	private SecondLevelService secondLevelService;
+	@Resource(name = "thirdLevelService")
+	private ThirdLevelService thirdLevelService;
+	@Resource(name = "fourthLevelService")
+	private FourthLevelService fourthLevelService;
+
 	// ================================== 属性驱动
 	// ==================================
 	/*
@@ -193,7 +219,7 @@ public class PersonalCenterAction extends ActionSupport {
 	}
 
 	/*
-	 * tuichu() 方法使用的属性驱动
+	 * tuichu() 、joinByScanQRCode() 使用的属性驱动
 	 */
 	private String tag;
 	private String lid;
@@ -216,6 +242,7 @@ public class PersonalCenterAction extends ActionSupport {
 
 	// ================================== ACTIONS
 	// ==================================
+
 	/**
 	 * 【已使用】 微信端的 “用户中心”
 	 * 按钮（EVENT_VIEW类型）点击后就会请求personalCenterAction_accessPersonalCenter.action
@@ -406,12 +433,130 @@ public class PersonalCenterAction extends ActionSupport {
 	}
 
 	/**
+	 * 
+	 * @return
+	 */
+	public String joinByScanQRCode() {
+
+		// 获取到用户扫码加入的层级对象的 级别和lid
+		String tag = this.tag;
+		String lid = this.lid;
+		// 重新获取当前用户的member信息，然后显示在joiningLevelList.jsp页面上
+		String result = "joiningLevelList";
+		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		// 查找到用户对象
+		User user = userService.queryByOpenId(openid);
+		// 从数据库中查找到要加入的层级对象
+		Member member = null;
+		switch (tag) {
+		case "minus_first":
+			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
+			if(null==minusFirstLevel){
+				System.out.println("用户要加入的层级不存在");
+			}else{
+				// 新建member
+				member  =  new  Member();
+				// 与user建立关系
+				member.setUser(user);
+				user.getMembers().add(member);
+				// 设置member的必要数据
+				member.setGrouping(groupingService.queryByTagName("common"));
+				member.setMinusFirstLevel(minusFirstLevel);
+			}
+			break;
+		case "zero":
+			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
+			if(null==zeroLevel){
+				System.out.println("用户要加入的层级不存在");
+			}else{
+				member =  new  Member();
+				member.setUser(user);
+				user.getMembers().add(member);
+				member.setGrouping(groupingService.queryByTagName("common"));
+				member.setZeroLevel(zeroLevel);
+				member.setMinusFirstLevel(zeroLevel.getParent());
+			}
+			break;
+		case "first":
+			FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
+			if(null==firstLevel){
+				System.out.println("用户要加入的层级不存在");
+			}else{
+				member =  new  Member();
+				member.setUser(user);
+				user.getMembers().add(member);
+				member.setGrouping(groupingService.queryByTagName("common"));
+				member.setFirstLevel(firstLevel);
+				member.setZeroLevel(firstLevel.getParent());
+				member.setMinusFirstLevel(firstLevel.getParent().getParent());
+			}
+			break;
+		case "second":
+			SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
+			if(null==secondLevel){
+				System.out.println("用户要加入的层级不存在");
+			}else{
+				member =  new  Member();
+				member.setUser(user);
+				user.getMembers().add(member);
+				member.setGrouping(groupingService.queryByTagName("common"));
+				member.setSecondLevel(secondLevel);
+				member.setFirstLevel(secondLevel.getParent());
+				member.setZeroLevel(secondLevel.getParent().getParent());
+				member.setMinusFirstLevel(secondLevel.getParent().getParent().getParent());
+			}
+			break;
+		case "third":
+			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
+			if(null==thirdLevel){
+				System.out.println("用户要加入的层级不存在");
+			}else{
+				member =  new  Member();
+				member.setUser(user);
+				user.getMembers().add(member);
+				member.setGrouping(groupingService.queryByTagName("common"));
+				member.setThirdLevel(thirdLevel);
+				member.setSecondLevel(thirdLevel.getParent());
+				member.setFirstLevel(thirdLevel.getParent().getParent());
+				member.setZeroLevel(thirdLevel.getParent().getParent().getParent());
+				member.setMinusFirstLevel(thirdLevel.getParent().getParent().getParent().getParent());
+			}
+			break;
+		case "fourth":
+			FourthLevel fourthLevel = fourthLevelService.queryEntityById(lid);
+			if(null==fourthLevel){
+				System.out.println("用户要加入的层级不存在");
+			}else{
+				member =  new  Member();
+				member.setUser(user);
+				user.getMembers().add(member);
+				member.setGrouping(groupingService.queryByTagName("common"));
+				member.setFourthLevel(fourthLevel);
+				member.setThirdLevel(fourthLevel.getParent());
+				member.setSecondLevel(fourthLevel.getParent().getParent());
+				member.setFirstLevel(fourthLevel.getParent().getParent().getParent());
+				member.setZeroLevel(fourthLevel.getParent().getParent().getParent().getParent());
+				member.setMinusFirstLevel(fourthLevel.getParent().getParent().getParent().getParent().getParent());
+			}
+			break;
+		}
+		// 向数据库存储数据
+		if(null!=member){
+			memberService.save(member);
+			userService.update(user);
+		}
+		// 下面的结果集索引使用的并非默认的dispatcher而是redirectAction
+		return "joinByScanQRCode";
+	}
+
+	/**
 	 * 【AJAX】 接收来自joiningLevelList.jsp页面上的tuichu()方法的ajax请求 当前用户用于退出指定组织层级
 	 */
 	public String tuichu() {
 		// 准备向前端反馈处理结果信息的JavaBean
-		ReturnMessage4Common  result  = new ReturnMessage4Common();
-		
+		ReturnMessage4Common result = new ReturnMessage4Common();
+
 		// 当前用户想要退出的层级的tag和lid
 		String tag = this.tag;
 		String lid = this.lid;
@@ -421,54 +566,54 @@ public class PersonalCenterAction extends ActionSupport {
 		// 获取该用户的所有member
 		List<Member> members = user.getMembers();
 		// 存放要退出的member对象
-		Member   member  = null;
+		Member member = null;
 		// 从members中筛选出对应想要退出的层级的member
-		for(Member m: members){
+		for (Member m : members) {
 			switch (tag) {
 			case "minus_first":
-				if(null==m.getZeroLevel()&&lid.equals(m.getMinusFirstLevel().getMflid())){
-					member  =  m;
+				if (null == m.getZeroLevel() && null!=m.getMinusFirstLevel() && lid.equals(m.getMinusFirstLevel().getMflid())) {
+					member = m;
 				}
 				break;
 			case "zero":
-				if(null==m.getFirstLevel()&&lid.equals(m.getZeroLevel().getZid())){
-					member  =  m;
+				if (null == m.getFirstLevel() && null!=m.getZeroLevel() &&lid.equals(m.getZeroLevel().getZid())) {
+					member = m;
 				}
 				break;
 			case "first":
-				if(null==m.getSecondLevel()&&lid.equals(m.getFirstLevel().getFlid())){
+				if (null == m.getSecondLevel() && null!=m.getFirstLevel() && lid.equals(m.getFirstLevel().getFlid())) {
 					member = m;
 				}
 				break;
 			case "second":
-				if(null==m.getThirdLevel()&&lid.equals(m.getSecondLevel().getScid())){
+				if (null == m.getThirdLevel() && null!=m.getSecondLevel() && lid.equals(m.getSecondLevel().getScid())) {
 					member = m;
 				}
 				break;
 			case "third":
-				if(null==m.getFourthLevel()&&lid.equals(m.getThirdLevel().getThid())){
+				if (null == m.getFourthLevel() && null!=m.getThirdLevel() && lid.equals(m.getThirdLevel().getThid())) {
 					member = m;
 				}
 				break;
 			case "fourth":
-				if(null!=m.getFourthLevel()&&lid.equals(m.getFourthLevel().getFoid())){
+				if (null != m.getFourthLevel() && lid.equals(m.getFourthLevel().getFoid())) {
 					member = m;
 				}
 				break;
 			}
 		}
 		// 判断是否找到了目标member
-		if(null==member){
+		if (null == member) {
 			// 没找到目标member，返回信息即可
 			result.setMessage("未找到指定Member");
 			result.setResult(false);
-		}else{
+		} else {
 			// 已经找到目标member，开始执行退出操作逻辑
 			// 先判断该用户在退出层级中是否是管理员
-			if(null!=member.getManagers()&&0!=member.getManagers().size()){
+			if (null != member.getManagers() && 0 != member.getManagers().size()) {
 				result.setResult(false);
 				result.setMessage("您当前为该组织之下的管理者，请联系您的上级解任后再试。");
-			}else{
+			} else {
 				// 开始正式的推出逻辑
 				// 解除该member与user用户的关系
 				members.remove(member);
@@ -481,7 +626,7 @@ public class PersonalCenterAction extends ActionSupport {
 				result.setMessage("退出成功！");
 			}
 		}
-		
+
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}

@@ -40,7 +40,7 @@
 							</button>
 							<div class="dropdown-menu dropdown-menu-right"
 								aria-labelledby="others">
-								<a class="dropdown-item" href="#" onclick="weui.alert('扫码成功');">扫码加入</a>
+								<a class="dropdown-item" href="#" onclick="joinByScanQRCode();">扫码加入</a>
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item" href="#">其他功能</a>
 							</div>
@@ -184,6 +184,31 @@
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
 <script>
+	// -------------扫码加入------------
+	function joinByScanQRCode() {
+		wx.scanQRCode({
+			desc : '扫描组织层级二维码来加入该组织',
+			needResult : 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+			scanType : [ "qrCode", "barCode" ], // 可以指定扫二维码还是一维码，默认二者都有
+			// 扫码成功的回调
+			success : function(res) {
+				// 通过res.resultStr 得到二维码的结果字符串
+				// 层级对象二维码的格式形如:"tag=fourth&lid=abb8c3b7-ad77-4730-aedb-1475dcaa0772" 可直接用作url的GET请求参数拼接在URL之后
+				let result = res.resultStr;
+				let url = "personalCenterAction_joinByScanQRCode.action?" + result;
+				$(location).attr("href", url);
+			},
+			// 扫码失败的回调
+			error : function(res) {
+				if (res.errMsg.indexOf('function_not_exist') > 0) {
+					weui.alert('版本过低请升级');
+				}
+			}
+		});
+	}
+
+
+	// -------------退出组织------------
 	function tuichu(tag, lid) {
 		weui.confirm('自定义按钮的confirm', {
 			title : '是否确定退出该组织？',
@@ -195,7 +220,7 @@
 					console.log("不退出了");
 				}
 			}, {
-				label : '确定报名',
+				label : '确定退出',
 				type : 'primary',
 				onClick : function() {
 					// 执行报名逻辑ajax操作

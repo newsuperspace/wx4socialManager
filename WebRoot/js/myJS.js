@@ -1169,9 +1169,9 @@ var managerModal = {
 			case "fourth":
 				$(location).attr('href', 'fourthLevelAction_getLevelInfo.action?foid=' + lid);
 				break;
-
 			}
 		},
+		
 	}
 };
 

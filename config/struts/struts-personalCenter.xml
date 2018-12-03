@@ -31,7 +31,8 @@
 				<result name="joiningActivityList">/openJSP/joiningActivityList.jsp</result>
 				<result name="joinedActivityList">/openJSP/joinedActivityList.jsp</result>
 				<result name="joiningLevelList">/openJSP/joiningLevelList.jsp</result>
-				
+				<!-- 请求重定向到相同namespace 中的某个action中的某个方法（记住不能带上.action后缀） -->
+				<result name="joinByScanQRCode"  type="redirectAction">personalCenterAction_getJoiningLevelList</result>
 		</action>
 	</package>
 </struts>
