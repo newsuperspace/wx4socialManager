@@ -20,7 +20,7 @@
 <body style="background-color: #efeff4;">
 
 	<div class="weui-panel weui-panel_access">
-		<div class="weui-panel__hd">个人信息</div>
+		<div class="weui-panel__hd">用户中心</div>
 		<div class="weui-panel__bd">
 			<div class="weui-media-box weui-media-box_appmsg">
 				<div class="weui-media-box__hd">
@@ -63,6 +63,16 @@
 			<div class="weui-cell__ft"></div>
 		</a>
 	</div>
+	
+	<div class="weui-cells__title">组织信息</div>
+	<div class="weui-cells">
+		<a class="weui-cell weui-cell_access" href="javascript:joiningLevelList();">
+			<div class="weui-cell__bd">
+				<span style="vertical-align: middle">我的组织</span> 
+			</div>
+			<div class="weui-cell__ft"></div>
+		</a> 
+	</div>
 
 	<div class="weui-cells__title">积分信息</div>
 	<div class="weui-cells">
@@ -72,7 +82,8 @@
 				<span style="vertical-align: middle">我的积分</span>
 			</div>
 			<div class="weui-cell__ft"><s:property value="score"/></div>
-		</a> <a class="weui-cell weui-cell_access" href="javascript:;">
+		</a> 
+		<a class="weui-cell weui-cell_access" href="javascript:;">
 			<div class="weui-cell__bd">
 				<span style="vertical-align: middle">公益商城</span> <span
 					class="weui-badge" style="margin-left: 5px;">New!</span>
@@ -116,7 +127,7 @@
 	<!--FOOT-->
 	<div class="weui-footer mt-5">
 		<p class="weui-footer__text">Copyright &copy; 2017-2019
-			承载社会工作创新发展中心</p>
+			联合会提供技术支持</p>
 		<p class="weui-footer__links">
 			<a href="javascript:void(0);" class="weui-footer__link">访问我们</a>
 		</p>
@@ -134,15 +145,21 @@
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
 <script>
-	
+	// 跳转到历史活动页	
 	function joinedActivityList(){
 		$(location).attr("href","personalCenterAction_getJoinedActivityList.action");
 	}
+	// 跳转到正在参加活动页
 	function joiningActivityList(){
 		$(location).attr("href","personalCenterAction_getJoiningActivityList.action");
 	}
+	// 跳转到可报名活动页
 	function canJoinActivityList(){
 		$(location).attr("href","personalCenterAction_getCanJoinActivityList.action");
+	}
+	// 跳转到“我得组织”活动页面 
+	function joiningLevelList(){
+		$(location).attr("href","personalCenterAction_getJoiningLevelList.action");
 	}
 
 

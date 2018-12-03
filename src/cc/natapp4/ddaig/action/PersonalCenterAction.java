@@ -28,6 +28,7 @@ import cc.natapp4.ddaig.domain.Visitor;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.ActivityService;
+import cc.natapp4.ddaig.service_interface.MemberService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.VisitorService;
 import cc.natapp4.ddaig.utils.PositionUtils;
@@ -99,7 +100,10 @@ public class PersonalCenterAction extends ActionSupport {
 	protected ActivityService activityService;
 	@Resource(name = "visitorService")
 	protected VisitorService visitorService;
-
+	@Resource(name="memberService")
+	protected MemberService memberService;
+	
+	
 	// ================================== 属性驱动
 	// ==================================
 	/*
@@ -108,6 +112,7 @@ public class PersonalCenterAction extends ActionSupport {
 	 * 换取来访者的真正openID，从而确定来访者身份。
 	 */
 	private String code;
+
 	public String getCode() {
 		return code;
 	}
@@ -115,31 +120,41 @@ public class PersonalCenterAction extends ActionSupport {
 	public void setCode(String code) {
 		this.code = code;
 	}
+
 	// 这个state是微信端服务器基于oauth2.0协议请求重定向时随同code属性一起发来的，一般情况下我们不会用到
 	private String state;
+
 	public String getState() {
 		return state;
 	}
+
 	public void setState(String state) {
 		this.state = state;
 	}
+
 	// 基于位置的签到/签退，JS-SDK或获取签到/签退者的地理位置坐标，并以AJAX的post请求参数的形式传递过来，下面就是记录经度和纬度的属性驱动
 	// 纬度
 	private double latitude;
+
 	public double getLatitude() {
 		return latitude;
 	}
+
 	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
+
 	// 经度
 	private double longitude;
+
 	public double getLongitude() {
 		return longitude;
 	}
+
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
+
 	/*
 	 * checkRealName()进行实名认证时会通过表单形式提交来的请求参数
 	 */
@@ -147,15 +162,19 @@ public class PersonalCenterAction extends ActionSupport {
 	private String phone;
 	private String birth;
 	private String sex;
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
+
 	public void setSex(String sex) {
 		this.sex = sex;
 	}
+
 	public void setBirth(String birth) {
 		this.birth = birth;
 	}
@@ -164,11 +183,35 @@ public class PersonalCenterAction extends ActionSupport {
 	 * 活动报名/活动取消/扫码签到等有关Activity的属性驱动
 	 */
 	private String aid;
+
 	public String getAid() {
 		return aid;
 	}
+
 	public void setAid(String aid) {
 		this.aid = aid;
+	}
+
+	/*
+	 * tuichu() 方法使用的属性驱动
+	 */
+	private String tag;
+	private String lid;
+
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+
+	public String getLid() {
+		return lid;
+	}
+
+	public void setLid(String lid) {
+		this.lid = lid;
 	}
 
 	// ================================== ACTIONS
@@ -214,10 +257,10 @@ public class PersonalCenterAction extends ActionSupport {
 		// 获取该用户的所有members信息
 		List<Member> members = user.getMembers();
 		// 从中筛选出默认member,因为只有默认member中可以存放unreal这个tag，作为该用户是否实名认证的唯一依据
-		Member  member  =  null;
-		for(Member m: members){
-			if(null==m.getMinusFirstLevel()){
-				member  = m;
+		Member member = null;
+		for (Member m : members) {
+			if (null == m.getMinusFirstLevel()) {
+				member = m;
 			}
 		}
 		// 查看来访者是否已经实名认证
@@ -257,10 +300,10 @@ public class PersonalCenterAction extends ActionSupport {
 		// 获取该用户的所有members信息
 		List<Member> members = user.getMembers();
 		// 从中筛选出默认member,因为只有默认member中可以存放unreal这个tag，作为该用户是否实名认证的唯一依据
-		Member  member  =  null;
-		for(Member m: members){
-			if(null==m.getMinusFirstLevel()){
-				member  = m;
+		Member member = null;
+		for (Member m : members) {
+			if (null == m.getMinusFirstLevel()) {
+				member = m;
 			}
 		}
 		// 查看用户是否已经实名认证
@@ -333,6 +376,114 @@ public class PersonalCenterAction extends ActionSupport {
 		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
 		ActionContext.getContext().put("list", joiningActivityList);
 		return result;
+	}
+
+	/**
+	 * 获取当前用户所加入的所有层级的信息
+	 * 
+	 * @return
+	 */
+	public String getJoiningLevelList() {
+		String result = "joiningLevelList";
+		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		// 查找到用户对象
+		User user = userService.queryByOpenId(openid);
+		// 更新一下每个活动的state状态
+		List<Member> members = new ArrayList<Member>();
+		members.addAll(user.getMembers());
+		Member member = null;
+		for (Member m : members) {
+			if (null == m.getMinusFirstLevel()) {
+				member = m;
+				break;
+			}
+		}
+		members.remove(member);
+		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
+		ActionContext.getContext().put("members", members);
+		return result;
+	}
+
+	/**
+	 * 【AJAX】 接收来自joiningLevelList.jsp页面上的tuichu()方法的ajax请求 当前用户用于退出指定组织层级
+	 */
+	public String tuichu() {
+		// 准备向前端反馈处理结果信息的JavaBean
+		ReturnMessage4Common  result  = new ReturnMessage4Common();
+		
+		// 当前用户想要退出的层级的tag和lid
+		String tag = this.tag;
+		String lid = this.lid;
+		// 获取当前用户对象
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		User user = userService.queryByOpenId(openid);
+		// 获取该用户的所有member
+		List<Member> members = user.getMembers();
+		// 存放要退出的member对象
+		Member   member  = null;
+		// 从members中筛选出对应想要退出的层级的member
+		for(Member m: members){
+			switch (tag) {
+			case "minus_first":
+				if(null==m.getZeroLevel()&&lid.equals(m.getMinusFirstLevel().getMflid())){
+					member  =  m;
+				}
+				break;
+			case "zero":
+				if(null==m.getFirstLevel()&&lid.equals(m.getZeroLevel().getZid())){
+					member  =  m;
+				}
+				break;
+			case "first":
+				if(null==m.getSecondLevel()&&lid.equals(m.getFirstLevel().getFlid())){
+					member = m;
+				}
+				break;
+			case "second":
+				if(null==m.getThirdLevel()&&lid.equals(m.getSecondLevel().getScid())){
+					member = m;
+				}
+				break;
+			case "third":
+				if(null==m.getFourthLevel()&&lid.equals(m.getThirdLevel().getThid())){
+					member = m;
+				}
+				break;
+			case "fourth":
+				if(null!=m.getFourthLevel()&&lid.equals(m.getFourthLevel().getFoid())){
+					member = m;
+				}
+				break;
+			}
+		}
+		// 判断是否找到了目标member
+		if(null==member){
+			// 没找到目标member，返回信息即可
+			result.setMessage("未找到指定Member");
+			result.setResult(false);
+		}else{
+			// 已经找到目标member，开始执行退出操作逻辑
+			// 先判断该用户在退出层级中是否是管理员
+			if(null!=member.getManagers()&&0!=member.getManagers().size()){
+				result.setResult(false);
+				result.setMessage("您当前为该组织之下的管理者，请联系您的上级解任后再试。");
+			}else{
+				// 开始正式的推出逻辑
+				// 解除该member与user用户的关系
+				members.remove(member);
+				// 从数据库中删除member
+				memberService.delete(member);
+				// 更新user完成退出操作
+				userService.update(user);
+				// 组织向前端反馈的信息bean
+				result.setResult(true);
+				result.setMessage("退出成功！");
+			}
+		}
+		
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
 	}
 
 	/**
@@ -543,14 +694,14 @@ public class PersonalCenterAction extends ActionSupport {
 					double olat = 0;
 					double olon = 0;
 					int orad = 0;
-					if(activity.getActivityType().equals("1")){
+					if (activity.getActivityType().equals("1")) {
 						// 室外活动
 						Geographic g = activity.getGeographic();
 						olat = g.getLatitude();
 						olon = g.getLongitude();
 						orad = g.getRadus();
 						positionName = g.getName();
-					}else{
+					} else {
 						// 室内活动
 						House h = activity.getHouse();
 						olat = h.getLatitude();
@@ -558,8 +709,9 @@ public class PersonalCenterAction extends ActionSupport {
 						orad = h.getRadus();
 						positionName = h.getName();
 					}
-					
-					if(PositionUtils.inTheAround(new double[]{olat,olon}, orad, new double[]{this.latitude,this.longitude})){
+
+					if (PositionUtils.inTheAround(new double[] { olat, olon }, orad,
+							new double[] { this.latitude, this.longitude })) {
 						// 签到位置在有效签到范围内，允许签到
 						// 向visitor中记录签到时间
 						v.setStartTime(currentTimeMillis);
@@ -571,18 +723,18 @@ public class PersonalCenterAction extends ActionSupport {
 						info.setMessage("您已于" + dateTimeStr + "完成签到！请准备参加活动，过程中务必注意安全");
 						// 向数据库中保存签到时间
 						visitorService.update(v);
-					}else{
+					} else {
 						// 签到位置不再有效签到范围额内，禁止签到
 						info.setDetails("");
 						info.setDetailsURL("");
 						info.setIcon("weui-icon-warn-red");
 						info.setTitle("出现问题");
-						
-						StringBuffer  sb  =  new  StringBuffer();
+
+						StringBuffer sb = new StringBuffer();
 						sb.append("您的当前位置不在活动地点 ");
 						sb.append(positionName);
 						sb.append(" 的有效签到范围(");
-						sb.append(orad+"米)内,请尽量靠近活动位置后再试");
+						sb.append(orad + "米)内,请尽量靠近活动位置后再试");
 						info.setMessage(sb.toString());
 					}
 				} else {
@@ -597,7 +749,7 @@ public class PersonalCenterAction extends ActionSupport {
 				}
 			}
 		}
-		
+
 		ActionContext.getContext().getValueStack().push(info);
 		return "msgPage";
 	}
@@ -664,7 +816,7 @@ public class PersonalCenterAction extends ActionSupport {
 		Activity activity = activityService.queryEntityById(this.aid);
 		User user = userService.queryByOpenId(openid);
 		List<Visitor> visitors = activity.getVisitors();
-		
+
 		for (Visitor v : visitors) {
 			if (v.getUser().getOpenid().equals(openid)) {
 				// 定位到了签退用户的visitor
@@ -678,14 +830,14 @@ public class PersonalCenterAction extends ActionSupport {
 					double olat = 0;
 					double olon = 0;
 					int orad = 0;
-					if(activity.getActivityType().equals("1")){
+					if (activity.getActivityType().equals("1")) {
 						// 室外活动
 						Geographic g = activity.getGeographic();
 						olat = g.getLatitude();
 						olon = g.getLongitude();
 						orad = g.getRadus();
 						positionName = g.getName();
-					}else{
+					} else {
 						// 室内活动
 						House h = activity.getHouse();
 						olat = h.getLatitude();
@@ -693,8 +845,9 @@ public class PersonalCenterAction extends ActionSupport {
 						orad = h.getRadus();
 						positionName = h.getName();
 					}
-					
-					if(PositionUtils.inTheAround(new double[]{olat,olon}, orad, new double[]{this.latitude,this.longitude})){
+
+					if (PositionUtils.inTheAround(new double[] { olat, olon }, orad,
+							new double[] { this.latitude, this.longitude })) {
 						// 签到位置在有效签到范围内，允许签到
 						// 向visitor中记录签退时间
 						v.setEndTime(currentTimeMillis);
@@ -711,18 +864,18 @@ public class PersonalCenterAction extends ActionSupport {
 						info.setMessage("您已于" + dateTimeStr + "完成签退，感谢您对社区公益的支持，祝您生活愉快");
 						// 向数据库中保存签到时间
 						visitorService.update(v);
-					}else{
+					} else {
 						// 签到位置不再有效签到范围额内，禁止签到
 						info.setDetails("");
 						info.setDetailsURL("");
 						info.setIcon("weui-icon-warn-red");
 						info.setTitle("出现问题");
-						
-						StringBuffer  sb  =  new  StringBuffer();
+
+						StringBuffer sb = new StringBuffer();
 						sb.append("您的当前位置不在活动地点 ");
 						sb.append(positionName);
 						sb.append(" 的有效签退范围(");
-						sb.append(orad+"米)内,请尽量靠近活动位置后再试");
+						sb.append(orad + "米)内,请尽量靠近活动位置后再试");
 						info.setMessage(sb.toString());
 					}
 				} else {
@@ -737,12 +890,9 @@ public class PersonalCenterAction extends ActionSupport {
 				}
 			}
 		}
-		
+
 		ActionContext.getContext().getValueStack().push(info);
 		return "msgPage";
 	}
 
-	
-	
-	
 }

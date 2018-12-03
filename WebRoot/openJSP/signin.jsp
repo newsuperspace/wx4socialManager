@@ -52,7 +52,7 @@
                             <p id="desc">二维码有效期60秒</p>
                         </div>
                         <div class="d-flex justify-content-center">
-                            <p class="mt-1 mb-3 text-muted" style="font-size: 12px">&copy; 2017-2018 联合会提供技术支持</p>
+                            <p class="mt-1 mb-3 text-muted" style="font-size: 12px">&copy; 2017-2019 联合会提供技术支持</p>
                         </div>
                     </div>
                     
@@ -72,7 +72,7 @@
 	                        <button class="btn btn-lg btn-warning btn-block" type="submit">登录</button>
                         </form>
                         <div class="d-flex justify-content-center">
-                            <p class="mt-5 mb-3 text-muted" style="font-size: 12px">&copy; 2017-2018 联合会提供技术支持</p>
+                            <p class="mt-5 mb-3 text-muted" style="font-size: 12px">&copy; 2017-2019 联合会提供技术支持</p>
                         </div>
                     </div>
                 </div>

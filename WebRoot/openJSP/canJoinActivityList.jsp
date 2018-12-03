@@ -118,7 +118,7 @@
 	<!--FOOT-->
 	<div class="weui-footer mt-5">
 		<p class="weui-footer__text">Copyright &copy; 2017-2019
-			承载社会工作创新发展中心</p>
+			联合会提供技术支持</p>
 		<p class="weui-footer__links">
 			<a href="javascript:void(0);" class="weui-footer__link">访问我们</a>
 		</p>

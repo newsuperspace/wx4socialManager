@@ -30,6 +30,7 @@
 				<result name="canJoinActivityList">/openJSP/canJoinActivityList.jsp</result>
 				<result name="joiningActivityList">/openJSP/joiningActivityList.jsp</result>
 				<result name="joinedActivityList">/openJSP/joinedActivityList.jsp</result>
+				<result name="joiningLevelList">/openJSP/joiningLevelList.jsp</result>
 				
 		</action>
 	</package>
