@@ -110,10 +110,16 @@
 												</s:a></td>
 											<td>
 												<div class="btn-group" role="group">
-													<s:a cssClass="btn btn-sm btn-outline-secondary"
+													<!-- 
+														<s:a cssClass="btn btn-sm btn-outline-secondary"
 														role="button"
 														onclick="projectModal.op.createActivity('%{dpid}');"
 														href="#">新活动</s:a>
+													 -->
+													<s:a cssClass="btn btn-sm btn-outline-secondary"
+														role="button" type="button"
+														data-toggle="modal" data-target="#modelId"
+														onclick="dpid='%{dpid}';" href="#">新活动</s:a>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">其他</button>
 												</div>
@@ -147,6 +153,74 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
+		<!-- 创建活动前需要 同意的《志愿者安全行为守则》条款的Modal -->
+		<div class="modal fade" id="modelId" tabindex="-1" role="dialog"
+			aria-labelledby="modelTitleId" aria-hidden="true">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<h4 class="modal-title" id="modelTitleId">社区志愿服务安全行为守则</h4>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+
+					<div class="modal-body">
+						<div class="container-fluid">
+
+							<div class="row">
+								<div id="ruler" data-spy="scroll" data-target="#navbar-example"
+									data-offset="0"
+									style="color: #24bcbd;height:250px;overflow:auto;position:relative;text-indent:35px">
+									<p>为丰富社区居民日常文化生活，促进和加强居民之间健康交流，小红帆驿站活动室特提供日常居民文化活动服务功能。为保障活动室人员健康安全，维护公共财产现制定相关安全管理制度如下，请广大居民遵照执行。</p>
+									1、文体活动室由东大桥社区居委会和小红帆驿站负责全面管理和协调，社区拥有对活动室的最终解释权。<br>
+									2、活动室的开放时间为：工作日上午9：00—11：00， 下午
+									14：00-16：00，晚上开放。活动室使用者须严格遵守开放时间，如无特殊情况不得随意要求提前或延长开放时间。<br>
+									3、所有活动室使用团队在正式开展活动之前必须进行规定时长的包括防火、防盗、紧急救护、制度学习等安全教育，否则不予批准使用。室内包括电灯、水源开关、网络、音响等机械和电子设备使用方法须对各个领队进行培训，确保其独立使用时安全合规。<br>
+									4、请自行保管好随身携带的物品，避免携带贵重物品或现金参加活动，防止遗失或被窃。<br>
+									5、禁止携带易燃易爆、尖锐、有毒、生物威胁等危险品进入，请活动室参与者相互监督彼此提醒，一旦发现将立刻取消该团队的活动室使用权限。<br>
+									6、成年人活动禁止带领婴幼儿和宠物参加，防止发生走失、意外伤害等突发情况。<br>
+									7、活动室内禁止开展登高、跳远、搏击、球类等剧烈对抗运动，防止意外事故发生。<br>
+									8、对于活动室内出现诸如灯泡、水管、暖气、线路等设施损坏的情况，禁止居民和志愿者擅自更换和维修，应立刻向小红帆和社区负责人报告及时维修。<br>
+									9、文体活动室主要为社区居民和小红帆志愿服务团队服务，原则上不对外开放。如需邀请外部人员参与活动，需经提前与社区负责人沟通在获得同意的情况下方可使用。<br>
+									凡在活动室开展活动，须遵守活动规则，讲求文明礼貌，注意公共卫生；不随地吐痰、乱丢垃圾；不在室内争吵打闹，不大声喧哗；不在墙壁、
+									地面、桌面上涂抹乱画、便溺等；不在室内吸烟、酗酒；不在室内进行赌博等违法活动。以上情况一经发现，取消其以后使用活动室的权利。<br>
+									10、活动室内一切设施、设备、器具，仅供就地使用，除桌椅板凳外的器械设备不得随意挪动或带离。否则将按照带出设备、器具的实际价格给予相应罚款。<br>
+									11、活动人员须按照设施、设备、器具使用规则安全使用，使用完毕须归放原处，不得随意摆放影响后来者使用。活动人员须爱护室内设施、设备、器具，如有人为损坏，照价赔偿。<br>
+									12、活动人员离场时，务必由专人负责切断电源、水源、关闭门窗、打扫卫生。<br>
+									13、在活动室内开展志愿服务活动，除遵守本管理制度外，还应严格遵守《小红帆社区志愿者安全行为守则》以保护服务对象和志愿者自身安全。<br>
+									14、违反以上规定的团队，一经发现按照情节严重程度给予记过，屡犯或情节特别严重者将被立刻剥夺活动室使用权利。<br>
+								</div>
+							</div>
+							<div class="row mt-4">
+								<div class="form-check">
+									<label class="form-check-label">
+										<div id="agreeDiv" hidden="true">
+											<input type="checkbox" class="form-check-input" name="agree"
+												id="agree" value="1" > <span
+												style="color: #8e8e8e">认真贯彻志愿者安全行为规范</span>
+										</div>
+									</label>
+								</div>
+							</div>
+
+
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">取消</button>
+						<button type="button" id="nextBtn" class="btn btn-primary"
+							disabled="true" onclick="createActivity();">继续</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
 
 		<!-- Modal4用户详情 -->
 		<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
@@ -280,5 +354,37 @@
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
+<script>
+	var nScrollHight = 0; //滚动距离总长(注意不是滚动条的长度)
+	var nScrollTop = 0; //滚动到的当前位置
+	var nDivHight = $("#ruler").height(); // 当前div的height像素值
+	var dpid = ""; // 存放需要新建活动的doingProject的id值
+	$(function() {
+		$("#ruler").scroll(function() {
+			nScrollHight = $(this)[0].scrollHeight;
+			nScrollTop = $(this)[0].scrollTop;
+			if (nScrollTop + nDivHight >= nScrollHight) {
+				console.log("滚动条到底部了")
+				$("#agreeDiv").attr("hidden", false);
+			}
+		});
+
+		$("#agree").change(function() {
+			var self = $(this).get(0);
+			console.log("复选框选中状态为：" + self.checked);
+			if (self.checked) {
+				$("#nextBtn").attr("disabled", false);
+			} else {
+				$("#nextBtn").attr("disabled", true);
+			}
+		});
+	});
 	
+	function createActivity(){
+		console.log("新建活动的dpid是："+dpid);
+		projectModal.op.createActivity(dpid);
+	}
+	
+</script>
+
 </html>
