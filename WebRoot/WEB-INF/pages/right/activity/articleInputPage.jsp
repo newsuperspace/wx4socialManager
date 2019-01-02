@@ -39,11 +39,11 @@
 
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#selectProjects">
-										<span class="glyphicon glyphicon-search"></span> 模态1
+										<span class="glyphicon glyphicon-search"></span> 功能A
 									</button>
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#orderProjects">
-										<span class="glyphicon glyphicon-sort-by-order"></span> 模态2
+										<span class="glyphicon glyphicon-sort-by-order"></span> 功能B
 									</button>
 									<div class="dropdown ml-1">
 										<button
@@ -54,22 +54,20 @@
 										</button>
 										<div class="dropdown-menu dropdown-menu-right"
 											aria-labelledby="others">
-											<a class="dropdown-item" href="#" onclick="alert('功能待开放');">功能1</a>
-											<a class="dropdown-item disabled" href="#">功能2 action</a>
+											<a class="dropdown-item" href="#" onclick="alert('功能待开放');">功能C</a>
+											<a class="dropdown-item disabled" href="#">功能D action</a>
 											<h6 class="dropdown-header">特殊功能</h6>
-											<a class="dropdown-item" href="#">功能3</a>
+											<a class="dropdown-item" href="#">功能E</a>
 											<div class="dropdown-divider"></div>
-											<a class="dropdown-item" href="#">功能4</a>
+											<a class="dropdown-item" href="#">功能F</a>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 						<!-- =============文章编辑开始=========== -->
-						<input type="hidden" name="artid" id="artid"
-							value="<s:property value='artid'/>" /> <input type="hidden"
-							name="aid" id="aid" value='<s:property value="activity.aid"/>' />
-
+						<input type="hidden" name="artid" id="artid"  value="<s:property value='artid'/>" />
+						<input type="hidden" name="aid"  id="aid"  value='<s:property value="activity.aid"/>' />
 
 						<div class="weui-cells__title">文章标题</div>
 						<div class="weui-cells">

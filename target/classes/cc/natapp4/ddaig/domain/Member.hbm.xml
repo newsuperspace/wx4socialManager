@@ -3,10 +3,10 @@
                                    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 	<class name="cc.natapp4.ddaig.domain.Member">
-		<id length="50" name="memberid" type="integer">
+		<id length="50" name="memberid" >
 			<!-- 这个foreign主键产生器与以往我一直使用的uuid和assign不一样 它的作用是共用user属性（当前ORM映射类中的一个属性叫user）的类（也是一个ORM类） 
 				映射的数据库表的主键。 也就是实现了Manager“跟随”User使用相同主键的效果 -->
-			<generator class="increment"></generator>
+			<generator class="uuid"></generator>
 		</id>
 		<many-to-one cascade="save-update"
 			class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel" column="mflid"

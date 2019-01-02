@@ -21,7 +21,7 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 public class Member implements Serializable {
 
 	// 主键
-	private int memberid;
+	private String memberid;
 	/*
 	 * 以下就是用来描述该用户作为层级化结构中的成员 其所在的具体位置的。 假设该用户属于third层级的成员，但不属于具体的fourth层级，那么
 	 * 他的fourthLevel = null 而thirdLevel、secondLevel、firstLevle和
@@ -130,16 +130,17 @@ public class Member implements Serializable {
 		this.managers = managers;
 	}
 
-	public int getMemberid() {
+	public String getMemberid() {
 		return memberid;
 	}
-	public void setMemberid(int memberid) {
+	
+	public void setMemberid(String memberid) {
 		this.memberid = memberid;
 	}
 	
 	
 	// ====================业务逻辑方法=====================
-	
+
 	/*
 	 * 
 	 * ★★★

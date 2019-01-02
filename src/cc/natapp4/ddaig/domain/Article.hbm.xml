@@ -17,7 +17,7 @@
 		<property name="readingNum" type="integer"></property>
 		<property name="forwardingNum" type="integer"></property>
 
-		<list name="photos" cascade="save-update" lazy="true">
+		<list name="photos" cascade="save-update" lazy="false">
 			<key column="artid"></key>
 			<list-index column="index4article"></list-index>
 			<one-to-many class="cc.natapp4.ddaig.domain.ArticlePhoto" />

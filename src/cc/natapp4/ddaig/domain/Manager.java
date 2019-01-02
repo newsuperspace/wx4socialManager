@@ -31,7 +31,7 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 public class Manager implements Serializable {
 
 	// 主键
-	private int managerid;
+	private String managerid;
 	// 与User表同步的信息
 	/*
 	 * 外键关联的容器（一对多） 借助user.grouping.tag 来确定从以下哪个集合中查找当前用户所管理的层级对象★
@@ -191,12 +191,14 @@ public class Manager implements Serializable {
 		this.fourthLevel = fourthLevel;
 	}
 
-	public int getManagerid() {
+
+	public String getManagerid() {
 		return managerid;
 	}
-	public void setManagerid(int managerid) {
+	public void setManagerid(String managerid) {
 		this.managerid = managerid;
 	}
+
 
 	
 	

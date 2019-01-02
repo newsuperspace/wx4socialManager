@@ -132,9 +132,6 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 	/**
 	 * 【完成】
 	 * 在articleInput页面点击“保存”按钮时调用本方法
-	 * 检索被创建文章的活动是否已经有文章，
-	 * 如果有文章则执行dao的update()
-	 * 如果没有文章则执行dao的save()
 	 * @return
 	 */
 	public String  saveActicle(){
@@ -159,7 +156,15 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 	public String deletePhoto(){
 		
 		ReturnMessage4Common  result  =  new  ReturnMessage4Common();
-		articlePhotoService.deleteById(this.apid);
+		ArticlePhoto ap = articlePhotoService.queryEntityById(this.apid);
+		Article article2 = ap.getArticle();
+		article2.getPhotos().remove(ap);
+		articleService.update(article2);
+		
+		ap.setArticle(null);
+		articlePhotoService.update(ap);
+		articlePhotoService.delete(ap);
+		
 		result.setResult(true);
 		result.setMessage("删除成功！");
 		
@@ -176,6 +181,9 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 		System.out.println("fileName=" + this.fileName);
 		System.out.println("aid="+this.aid);
 		ReturnMessage4UploadPhoto  result   =  new ReturnMessage4UploadPhoto();
+		
+		// 如果fileName文件名中存在空格，则应该主动替换成为"_"
+		fileName = fileName.replace(" ", "_");
 		
 		// 检查用于存放上传图片的/upload路径是否存在，不存在则创建出来
 		String uuid  =  UUID.randomUUID().toString();

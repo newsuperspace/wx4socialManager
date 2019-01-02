@@ -120,13 +120,11 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	 * managedLevelList.jsp → myJS.managedLevelList.disappoint() 中
 	 * 通过AJAX传递来的请求参数，用于标定被“解除任命”的manager对象 本属性由doDisappoint()使用
 	 */
-	private int managerid;
-
-	public int getManagerid() {
+	private String managerid;
+	public String getManagerid() {
 		return managerid;
 	}
-
-	public void setManagerid(int managerid) {
+	public void setManagerid(String managerid) {
 		this.managerid = managerid;
 	}
 
@@ -1384,7 +1382,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	public String doDisappoint() {
 		ReturnMessage4Common result = new ReturnMessage4Common("解任成功！", true);
 
-		int managerid = this.managerid;
+		String managerid = this.managerid;
 		Manager manager = managerService.queryEntityById(managerid);
 		Member member = manager.getMember();
 		boolean removeResult = member.getManagers().remove(manager);

@@ -64,13 +64,14 @@ public class ManagerAction extends ActionSupport implements ModelDriven<Manager>
 	 * 从managerList.jsp页面中，通过调用myJS.managerModal.op.toManagedLevelList（）
 	 * 传递过来的请求参与，用来告知需要获取该member成员对象之下的所有manager列表
 	 */
-	private  int memberid;
-	public int getMemberid() {
+	private  String memberid;
+	public String getMemberid() {
 		return memberid;
 	}
-	public void setMemberid(int memberid) {
+	public void setMemberid(String memberid) {
 		this.memberid = memberid;
 	}
+	
 	
 	/*
 	 * 接收来自myJS→managerModal.toManagersOfLevel()方法传递过来的来自minus_first.jsp/zero.jsp/first.jsp/second.jsp/thrid.jsp/fourth.jsp
