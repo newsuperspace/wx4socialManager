@@ -34,7 +34,8 @@ public class User implements Serializable {
 	private List<Visitor> visits; // 该用户个人参加活动的信息列表
 //	private Set<Exchange> exchanges; // 当前用户的消分记录
 	private List<Exchange> exchanges; // 当前用户的消分记录
-	
+	// 用户申请加入某些层级组织时提交的申请数据对象
+	private List<UserApply4JoinLevel> userApply4JoinLevels;
 	
 	/*
 	 * 作为一个通过扫码（可能是公众号二维码也可能是各个层级对象的带参二维码——直接加入到该层级对象的管辖下）
@@ -230,5 +231,19 @@ public class User implements Serializable {
 	public void setRegistrationTimeStr(String registrationTimeStr) {
 		this.registrationTimeStr = registrationTimeStr;
 	}
+
+	/**
+	 * 这是设置JSON理由同上
+	 * @return
+	 */
+	@JSON(serialize=false)
+	public List<UserApply4JoinLevel> getUserApply4JoinLevels() {
+		return userApply4JoinLevels;
+	}
+	public void setUserApply4JoinLevels(List<UserApply4JoinLevel> userApply4JoinLevels) {
+		this.userApply4JoinLevels = userApply4JoinLevels;
+	}
+	
+	
 	
 }

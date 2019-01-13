@@ -11,6 +11,10 @@ import org.apache.struts2.json.annotations.JSON;
 
 public class Activity implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// 【主键】
 	private String aid;
 	/*

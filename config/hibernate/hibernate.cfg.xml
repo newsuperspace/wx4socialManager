@@ -53,6 +53,9 @@
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/SecondLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/ThirdLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/ZeroLevel.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Reply4UserJoinLevelApprove.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Approve4UserJoinLevel.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/UserApply4JoinLevel.hbm.xml" />
 	
 </session-factory>
 

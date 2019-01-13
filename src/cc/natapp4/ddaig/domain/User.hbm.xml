@@ -36,6 +36,16 @@
 			<one-to-many class="cc.natapp4.ddaig.domain.Visitor" />
 		</list>
 
+		<list name="userApply4JoinLevels" cascade="save-update" lazy="true">
+			<!-- 当前表为主表，被从表visitor所引用作为外键的是当前主表的名为uid的键（也就是主键） -->
+			<key column="uid"></key>
+			<!-- 在从表中设置一个名叫index4user的字段，用来存放从表对象的先后次序（从0开始的数字） -->
+			<list-index column="index4user"></list-index>
+			<!-- 当前主表与从表的多表关系是一（主）对多（从），且从表的持久化类是cc.natapp4.ddaig.domain.Visitor -->
+			<one-to-many class="cc.natapp4.ddaig.domain.UserApply4JoinLevel" />
+		</list>
+
+
 		<list name="exchanges" cascade="save-update" lazy="true">
 			<!-- 当前表为主表，被从表Exchange所引用作为外键的是当前主表的名为uid的键（也就是主键） -->
 			<key column="uid"></key>
