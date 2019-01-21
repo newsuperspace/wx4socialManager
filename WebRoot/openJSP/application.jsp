@@ -15,6 +15,9 @@
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
 <link rel="stylesheet"
 	href="https://res.wx.qq.com/open/libs/weui/1.1.3/weui.min.css">
+<!-- jqueryWEUI 中 -->
+<link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+<link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
 </head>
 
 <body style="background-color: #efeff4;">
@@ -82,6 +85,8 @@
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
+<!-- jqueryWEUI 最后 -->
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
 <script>
 
 	// 用户点击提交application按钮后调用本方法，停用button防止重复提交
@@ -89,6 +94,8 @@
 		let $self = $(this);
 		// 让按钮失效防止重复提交
 		$self.addClass("weui-btn_disabled");
+		// 通过jqueryWEUI实现永久显示 loading的toast
+		$.showLoading("提交申请中...");
 	}
 	
 	function canSubmit(){

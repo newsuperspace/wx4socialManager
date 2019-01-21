@@ -5,10 +5,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
@@ -50,17 +47,15 @@ import cc.natapp4.ddaig.service_interface.SecondLevelService;
 import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
-import cc.natapp4.ddaig.utils.ConfigUtils;
-import cc.natapp4.ddaig.utils.FileController;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
-import me.chanjar.weixin.common.exception.WxErrorException;
 
 @Controller("userAction")
 @Scope("prototype")
 @Lazy(true)
 public class UserAction extends ActionSupport implements ModelDriven<User> {
 
+	private static final long serialVersionUID = 600271725750065543L;
 	// ==========================================================DI注入Aspect
 	@Resource(name = "zeroLevelAction")
 	private ZeroLevelAction zeroLevelAction;
