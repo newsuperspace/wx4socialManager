@@ -25,13 +25,18 @@
 				<!-- 让用户的微信端跳转到realName.jsp页面 -->
 				<result name="realName">/openJSP/realName.jsp</result>
 				<!-- 跳转到消息页面 -->
-				<result name="msgPage">/openJSP/msgPage4realName.jsp</result>
-				<!-- 跳转到与活动列表相关的页面 -->
+				<result name="msgPage">/openJSP/msgPage.jsp</result>
+				<!-- 跳转到可选择加入的活动页面 -->
 				<result name="canJoinActivityList">/openJSP/canJoinActivityList.jsp</result>
+				<!-- 跳转到已经报名加入的活动页面 -->
 				<result name="joiningActivityList">/openJSP/joiningActivityList.jsp</result>
+				<!-- 跳转到历史活动页面 -->
 				<result name="joinedActivityList">/openJSP/joinedActivityList.jsp</result>
+				<!-- 跳转到用户当前归属组织的列表页面 -->
 				<result name="joiningLevelList">/openJSP/joiningLevelList.jsp</result>
-				<!-- 请求重定向到相同namespace 中的某个action中的某个方法（记住不能带上.action后缀） -->
+				<!-- 跳转到申请加入组织的申请表页面 -->
+				<result name="application">/openJSP/application.jsp</result>
+				<!-- ★★请求重定向到相同namespace 中的某个action中的某个方法（记住不能带上.action后缀）★★ -->
 				<result name="joinByScanQRCode"  type="redirectAction">personalCenterAction_getJoiningLevelList</result>
 		</action>
 	</package>

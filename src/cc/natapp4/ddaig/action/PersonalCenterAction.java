@@ -17,13 +17,17 @@ import org.springframework.stereotype.Controller;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 
+import cc.natapp4.ddaig.bean.Info4Application;
 import cc.natapp4.ddaig.bean.Info4RealName;
 import cc.natapp4.ddaig.domain.Activity;
+import cc.natapp4.ddaig.domain.Approve4UserJoinLevel;
 import cc.natapp4.ddaig.domain.Geographic;
 import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.Member;
+import cc.natapp4.ddaig.domain.Reply4UserJoinLevelApprove;
 import cc.natapp4.ddaig.domain.User;
+import cc.natapp4.ddaig.domain.UserApply4JoinLevel;
 import cc.natapp4.ddaig.domain.Visitor;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
@@ -34,13 +38,16 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.ActivityService;
+import cc.natapp4.ddaig.service_interface.Approve4UserJoinLevelService;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.FourthLevelService;
 import cc.natapp4.ddaig.service_interface.GroupingService;
 import cc.natapp4.ddaig.service_interface.MemberService;
 import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
+import cc.natapp4.ddaig.service_interface.Reply4UserJoinLevelApproveService;
 import cc.natapp4.ddaig.service_interface.SecondLevelService;
 import cc.natapp4.ddaig.service_interface.ThirdLevelService;
+import cc.natapp4.ddaig.service_interface.UserApply4JoinLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.VisitorService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
@@ -98,7 +105,7 @@ import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 public class PersonalCenterAction extends ActionSupport {
 
 	/**
-	 * 
+	 * 版本号
 	 */
 	private static final long serialVersionUID = 1L;
 	// ================================== Spring的DI注入
@@ -109,7 +116,7 @@ public class PersonalCenterAction extends ActionSupport {
 	protected WeixinService4SettingImpl mpService4Setting; // 用来主动向指定用户发送Text消息
 	@Resource(name = "userService")
 	protected UserService userService;
-	@Resource(name="groupingService")
+	@Resource(name = "groupingService")
 	protected GroupingService groupingService;
 	@Resource(name = "activityService")
 	protected ActivityService activityService;
@@ -129,6 +136,12 @@ public class PersonalCenterAction extends ActionSupport {
 	private ThirdLevelService thirdLevelService;
 	@Resource(name = "fourthLevelService")
 	private FourthLevelService fourthLevelService;
+	@Resource(name = "userApply4JoinLevelService")
+	private UserApply4JoinLevelService userApply4JoinLevelService;
+	@Resource(name = "approve4UserJoinLevelService")
+	private Approve4UserJoinLevelService approve4UserJoinLevelService;
+	@Resource(name = "reply4UserJoinLevelApproveService")
+	private Reply4UserJoinLevelApproveService reply4UserJoinLevelApproveService;
 
 	// ================================== 属性驱动
 	// ==================================
@@ -221,8 +234,8 @@ public class PersonalCenterAction extends ActionSupport {
 	/*
 	 * tuichu() 、joinByScanQRCode() 使用的属性驱动
 	 */
-	private String tag;
-	private String lid;
+	private String tag; // 形如minus_first、zero、first、second、third、fourth
+	private String lid; // 层级对象的主键ID
 
 	public String getTag() {
 		return tag;
@@ -240,8 +253,36 @@ public class PersonalCenterAction extends ActionSupport {
 		this.lid = lid;
 	}
 
-	// ================================== ACTIONS
-	// ==================================
+	// -----------application()方法，用于用户提交“加入组织申请”时所提交的数据
+	private String theExpertise;
+	private String theDesire;
+	private String theReason;
+
+	public String getTheExpertise() {
+		return theExpertise;
+	}
+
+	public void setTheExpertise(String theExpertise) {
+		this.theExpertise = theExpertise;
+	}
+
+	public String getTheDesire() {
+		return theDesire;
+	}
+
+	public void setTheDesire(String theDesire) {
+		this.theDesire = theDesire;
+	}
+
+	public String getTheReason() {
+		return theReason;
+	}
+
+	public void setTheReason(String theReason) {
+		this.theReason = theReason;
+	}
+
+	// ======================== ACTIONS=======================
 
 	/**
 	 * 【已使用】 微信端的 “用户中心”
@@ -433,121 +474,149 @@ public class PersonalCenterAction extends ActionSupport {
 	}
 
 	/**
+	 * 在前端joiningLevelList.jsp页面上的下拉菜单中，用户通过扫描二维码扫描组织层级的专属二维码实现报名功能
+	 * 通过AJAX的方式，前端会将用户目标申请的组织层级对象的分级（minus_first/zero/first/second/third/
+	 * fourth） 以及层级对象的主键ID回传回来，方便我们知道用户要申请加入的目标层级对象。
+	 * 
+	 * 本方法要做的就是通过tag和lid获取用户目标申请加入的层级对象，然后获取必要信息（层级名、描述等）
+	 * 用来组织表单页面————————application.jsp
+	 * 用户需要在该表单上填写正式的申请并提交后，才能等该层级管理者的受理结果（通过或不通过）
+	 * 
+	 * 这个方法要组织application.jsp页面
 	 * 
 	 * @return
 	 */
 	public String joinByScanQRCode() {
-
-		// 获取到用户扫码加入的层级对象的 级别和lid
-		String tag = this.tag;
-		String lid = this.lid;
-		// 重新获取当前用户的member信息，然后显示在joiningLevelList.jsp页面上
-		String result = "joiningLevelList";
-		// 从当前用户的Servlet会话（session）中得到该用户的openid，该openid是accessPersonalCenter()方法在用户第一次通过微信端来访时通过code获取并放入到session域中的
-		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
-		// 查找到用户对象
-		User user = userService.queryByOpenId(openid);
-		// 从数据库中查找到要加入的层级对象
-		Member member = null;
+		// 用于向前端application.jsp页面回显数据之用的bean
+		Info4Application  info  =  new Info4Application();
+		// 先定位用户所要加入的目标层级对象
 		switch (tag) {
 		case "minus_first":
 			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
-			if(null==minusFirstLevel){
+			if (null == minusFirstLevel) {
 				System.out.println("用户要加入的层级不存在");
-			}else{
-				// 新建member
-				member  =  new  Member();
-				// 与user建立关系
-				member.setUser(user);
-				user.getMembers().add(member);
-				// 设置member的必要数据
-				member.setGrouping(groupingService.queryByTagName("common"));
-				member.setMinusFirstLevel(minusFirstLevel);
+			} else {
+				info.setLid(lid);
+				info.setTag(tag);
 			}
 			break;
 		case "zero":
 			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
-			if(null==zeroLevel){
+			if (null == zeroLevel) {
 				System.out.println("用户要加入的层级不存在");
-			}else{
-				member =  new  Member();
-				member.setUser(user);
-				user.getMembers().add(member);
-				member.setGrouping(groupingService.queryByTagName("common"));
-				member.setZeroLevel(zeroLevel);
-				member.setMinusFirstLevel(zeroLevel.getParent());
+			} else {
+				info.setLid(lid);
+				info.setTag(tag);
 			}
 			break;
 		case "first":
 			FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
-			if(null==firstLevel){
+			if (null == firstLevel) {
 				System.out.println("用户要加入的层级不存在");
-			}else{
-				member =  new  Member();
-				member.setUser(user);
-				user.getMembers().add(member);
-				member.setGrouping(groupingService.queryByTagName("common"));
-				member.setFirstLevel(firstLevel);
-				member.setZeroLevel(firstLevel.getParent());
-				member.setMinusFirstLevel(firstLevel.getParent().getParent());
+			} else {
+				info.setLid(lid);
+				info.setTag(tag);
 			}
 			break;
 		case "second":
 			SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
-			if(null==secondLevel){
+			if (null == secondLevel) {
 				System.out.println("用户要加入的层级不存在");
-			}else{
-				member =  new  Member();
-				member.setUser(user);
-				user.getMembers().add(member);
-				member.setGrouping(groupingService.queryByTagName("common"));
-				member.setSecondLevel(secondLevel);
-				member.setFirstLevel(secondLevel.getParent());
-				member.setZeroLevel(secondLevel.getParent().getParent());
-				member.setMinusFirstLevel(secondLevel.getParent().getParent().getParent());
+			} else {
+				info.setLid(lid);
+				info.setTag(tag);
 			}
 			break;
 		case "third":
 			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
-			if(null==thirdLevel){
+			if (null == thirdLevel) {
 				System.out.println("用户要加入的层级不存在");
-			}else{
-				member =  new  Member();
-				member.setUser(user);
-				user.getMembers().add(member);
-				member.setGrouping(groupingService.queryByTagName("common"));
-				member.setThirdLevel(thirdLevel);
-				member.setSecondLevel(thirdLevel.getParent());
-				member.setFirstLevel(thirdLevel.getParent().getParent());
-				member.setZeroLevel(thirdLevel.getParent().getParent().getParent());
-				member.setMinusFirstLevel(thirdLevel.getParent().getParent().getParent().getParent());
+			} else {
+				info.setLid(lid);
+				info.setTag(tag);
 			}
 			break;
 		case "fourth":
 			FourthLevel fourthLevel = fourthLevelService.queryEntityById(lid);
-			if(null==fourthLevel){
+			if (null == fourthLevel) {
 				System.out.println("用户要加入的层级不存在");
-			}else{
-				member =  new  Member();
-				member.setUser(user);
-				user.getMembers().add(member);
-				member.setGrouping(groupingService.queryByTagName("common"));
-				member.setFourthLevel(fourthLevel);
-				member.setThirdLevel(fourthLevel.getParent());
-				member.setSecondLevel(fourthLevel.getParent().getParent());
-				member.setFirstLevel(fourthLevel.getParent().getParent().getParent());
-				member.setZeroLevel(fourthLevel.getParent().getParent().getParent().getParent());
-				member.setMinusFirstLevel(fourthLevel.getParent().getParent().getParent().getParent().getParent());
+			} else {
+				info.setLid(lid);
+				info.setTag(tag);
 			}
 			break;
 		}
-		// 向数据库存储数据
-		if(null!=member){
-			memberService.save(member);
-			userService.update(user);
+
+		ActionContext.getContext().getValueStack().push(info);
+		return "application";
+	}
+
+	/**
+	 * 接收用户在前端通过application.jsp页面点击“提交”所提交过来的数据，从而完成创建“加入组织申请”的申请对象
+	 * 
+	 * @return 提交完加入组织的申请后，跳转到msgPage.jsp 向用户反馈提交结果
+	 */
+	public String submitApplication() {
+
+		String lid = this.lid;
+		String tag = this.tag;
+		String expertise = this.theExpertise;
+		String desire = this.theDesire;
+		String reason = this.theReason;
+
+		// 新建用户申请对象
+		UserApply4JoinLevel apply = new UserApply4JoinLevel();
+		// 新建层级管理者审核对象
+		Approve4UserJoinLevel approve = new Approve4UserJoinLevel();
+		// 查找一个当前数据库中真是存在的user对象
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		User user = userService.queryByOpenId(openid);
+
+		// -----------------------开始组装数据--------------------
+		// 建立外键关联
+		apply.setApprove4UserJoinLevel(approve);
+		approve.setUserApply4JoinLevel(apply);
+		apply.setUser(user);
+		List<UserApply4JoinLevel> applies = user.getUserApply4JoinLevels();
+		if (null == applies) {
+			applies = new ArrayList<UserApply4JoinLevel>();
+			user.setUserApply4JoinLevels(applies);
 		}
-		// 下面的结果集索引使用的并非默认的dispatcher而是redirectAction
-		return "joinByScanQRCode";
+		applies.add(apply);
+
+		// 设置apply的所有值
+		apply.setBeread(false);
+		apply.setStatus(0);
+		apply.setTheDesire(desire);
+		apply.setTheExpertise(expertise);
+		apply.setTheReason(reason);
+		// 得到当前时间的格里高利历偏移量毫秒值
+		long timeStamp = System.currentTimeMillis();
+		SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String timeStr = formater.format(new Date(timeStamp));
+		apply.setTimeStr(timeStr);
+		apply.setTimeStamp(timeStamp);
+		// 设置approve的所有值
+		approve.setBeread(false);
+		approve.setLid(lid);
+		approve.setReplies(new ArrayList<Reply4UserJoinLevelApprove>());
+		approve.setTag(tag);
+
+		// 将数据更新到数据库
+		userApply4JoinLevelService.save(apply);
+		userService.update(user);
+
+		// 开始组织回复页面所用的数据内容
+		Info4RealName info = new Info4RealName();
+		info.setTotal("申请结果");
+		info.setDetails("");
+		info.setDetailsURL("");
+		info.setIcon("weui-icon-success");
+		info.setTitle("申请成功");
+		info.setMessage("您已于" + timeStr + "提交申请，审核结果将以公众号信息形式推送给您，在此之前有些组织负责人可能会主动联系您做进一步面试安排，请留意。");
+		
+		ActionContext.getContext().getValueStack().push(info);
+		return "msgPage";
 	}
 
 	/**
@@ -571,27 +640,31 @@ public class PersonalCenterAction extends ActionSupport {
 		for (Member m : members) {
 			switch (tag) {
 			case "minus_first":
-				if (null == m.getZeroLevel() && null!=m.getMinusFirstLevel() && lid.equals(m.getMinusFirstLevel().getMflid())) {
+				if (null == m.getZeroLevel() && null != m.getMinusFirstLevel()
+						&& lid.equals(m.getMinusFirstLevel().getMflid())) {
 					member = m;
 				}
 				break;
 			case "zero":
-				if (null == m.getFirstLevel() && null!=m.getZeroLevel() &&lid.equals(m.getZeroLevel().getZid())) {
+				if (null == m.getFirstLevel() && null != m.getZeroLevel() && lid.equals(m.getZeroLevel().getZid())) {
 					member = m;
 				}
 				break;
 			case "first":
-				if (null == m.getSecondLevel() && null!=m.getFirstLevel() && lid.equals(m.getFirstLevel().getFlid())) {
+				if (null == m.getSecondLevel() && null != m.getFirstLevel()
+						&& lid.equals(m.getFirstLevel().getFlid())) {
 					member = m;
 				}
 				break;
 			case "second":
-				if (null == m.getThirdLevel() && null!=m.getSecondLevel() && lid.equals(m.getSecondLevel().getScid())) {
+				if (null == m.getThirdLevel() && null != m.getSecondLevel()
+						&& lid.equals(m.getSecondLevel().getScid())) {
 					member = m;
 				}
 				break;
 			case "third":
-				if (null == m.getFourthLevel() && null!=m.getThirdLevel() && lid.equals(m.getThirdLevel().getThid())) {
+				if (null == m.getFourthLevel() && null != m.getThirdLevel()
+						&& lid.equals(m.getThirdLevel().getThid())) {
 					member = m;
 				}
 				break;

@@ -85,14 +85,14 @@ public class WeiXinAction extends ActionSupport implements ModelDriven<SignBean>
 				
 				@Override
 				public void run() {
-					// 先睡眠5秒 = 5000毫秒，确保微信官方服务器已经与当前第三方服务器建立关系
+					// 先睡眠10秒 = 10000毫秒，确保微信官方服务器已经与当前第三方服务器建立关系
 					try {
 						Thread.sleep(10000);
 					} catch (InterruptedException e) {
 						logger.error("WeixinAction中执行初始化公众号配置的线程出现问题");
 						e.printStackTrace();
 					}
-					// 执行初始化设置公众号的逻辑
+					// 然后执行初始化设置公众号的逻辑
 					mpService4Setting.InitPlatform();
 				}
 			}).start();

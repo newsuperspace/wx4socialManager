@@ -1434,12 +1434,12 @@ var overAll = {
 			 */
 			screenIsBigOrSmall : function() {
 				if (window.screen.availWidth >= 768) {
-					// 来自桌面端，设置isWeixin标记为false不初始化JS-SDK，设置card4op卡不可见
+					// 来自桌面端，设置isWeixin标记为false不初始化JS-SDK，设置card4operation卡不可见
 					$('#contentId').collapse({
 						toggle : true
 					});
 					overAll.init.data.isWeixin = false;
-					$("#card4op").attr("hidden", true);
+					$("#card4operation").attr("hidden", true);
 				} else {
 					overAll.init.data.isWeixin = true;
 				}

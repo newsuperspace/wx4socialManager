@@ -222,7 +222,18 @@ reply4UserJoinLevelApprove：
 
 
 
-
+// =========================================明日工作内容===========================================
+明天的工作就是：
+（1）开始设计后台审核用户提交申请的申请列表页面——-————userApply4JoinLevel.jsp 
+（2）在myJS上设计配套的前端功能
+（3）所有层级管理者对用户提交的“加入申请”的处理功能（通过页面userApply4JoinLevel.jsp为接口调用）的业务逻辑都在ApproveAction中，目前已经完成了
+<1> 获取当前层级管理者管理的层级的所有加入申请到列表页面 userApply4JoinLevel.jsp
+<2> 同意申请→ 完成用户加入层级的业务逻辑 → 完成apply和reply等一系列的设置 → 通过微信公众号向用户发送通知
+<3> 不同意申请 → 完成apply和reply等一系列的设置 → 通过微信公众号向用户发送通知
+（4）更新Menu.jsp页面，在该页面上添加如下内容：
+<1> 进入userApply4JoinLevel.jsp呈现的入口菜单（通过请求approveAction_allList2UserApply4JoinLevel.action 实现）
+<2> 当加载menu.jsp页面上的有关申请的collapse的时候，应该提前考察approve数据库数据，从找挑选出beread为false的，统计出数字后作为span显示在菜单的一旁，用来提醒
+管理者有新的审批提早处理
 
 
 

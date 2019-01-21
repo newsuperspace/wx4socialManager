@@ -1,6 +1,8 @@
 package cc.natapp4.ddaig.service_implement;
 
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -22,4 +24,9 @@ public class UserApply4JoinLevelServiceImpl extends BaseServiceImpl<UserApply4Jo
 	}
 
 	// =========================个性化方法=====================
+	@Override
+	public List<UserApply4JoinLevel> getUserApplyList(String tag, String lid, int status) {
+		return userApply4JoinLevelDao.getUserApplyList(tag, lid, status);
+	}
+
 }

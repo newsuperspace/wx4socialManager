@@ -17,6 +17,7 @@ import cc.natapp4.ddaig.domain.UserApply4JoinLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.service_implement.TestUserServiceImpl;
 import cc.natapp4.ddaig.service_interface.Approve4UserJoinLevelService;
+import cc.natapp4.ddaig.service_interface.Reply4UserJoinLevelApproveService;
 import cc.natapp4.ddaig.service_interface.UserApply4JoinLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
@@ -38,6 +39,7 @@ public class TestUserApply4JoinLevelService {
 	private static ApplicationContext context = new ClassPathXmlApplicationContext("spring/applicationContext4Test.xml");
 	private UserApply4JoinLevelService  applyService  =  (UserApply4JoinLevelService) context.getBean("userApply4JoinLevelService");
 	private Approve4UserJoinLevelService  approveService  =  (Approve4UserJoinLevelService) context.getBean("approve4UserJoinLevelService");
+	private Reply4UserJoinLevelApproveService replyService = (Reply4UserJoinLevelApproveService) context.getBean("reply4UserJoinLevelApproveService");
 	
 	private ZeroLevelService  zeroLevelService  =  (ZeroLevelService) context.getBean("zeroLevelService");
 	// 之所以使用testUserService而不直接使用UserService是因为，userService需要DI注入weixinService4Setting而该bean需要servlet环境支持
@@ -88,6 +90,24 @@ public class TestUserApply4JoinLevelService {
 		applyService.save(apply);
 	}
 	
-	
+	@Test
+	public void testDelete(){
+		UserApply4JoinLevel apply = applyService.queryEntityById("402881e4684638090168463826930000");
+		User  user  =  apply.getUser();
+		System.out.println("待删除的申请是来自——"+user.getUsername());
+		Approve4UserJoinLevel approve = apply.getApprove4UserJoinLevel();
+		System.out.println("待删除的申请的审核者的层级是——"+approve.getTag());
+		System.out.println("开始删除");
+		user.getUserApply4JoinLevels().remove(apply);
+		userService.update(user);
+		applyService.delete(apply);
+		if(null!=approve.getReplies() && 0!=approve.getReplies().size()){
+			// 先删除approve中的所有回复reply记录
+			for(Reply4UserJoinLevelApprove r: approve.getReplies()){
+				replyService.delete(r);
+			}
+		}
+		approveService.delete(approve);
+	}
 	
 }

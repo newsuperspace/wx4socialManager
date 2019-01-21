@@ -44,12 +44,15 @@
 				</button>
 			</div>
 		</div>
+		
 		<div class="row mt-3 ">
 			<div class="col-12 pr-0 pl-0">
 
 				<div class="collapse mx-0" id="contentId">
 					<div id="accordianId" role="tablist" aria-multiselectable="true">
-						<div class="card">
+					
+						<!--【【【【【【【人员管理】】】】】】】 -->
+						<div class="card4user">
 							<div class="card-header px-0 py-1" role="tab"
 								id="section1HeaderId">
 								<a class="nav-link" data-toggle="collapse" href="#userContent"
@@ -76,7 +79,34 @@
 								</div>
 							</div>
 						</div>
-						<div class="card">
+						
+						<!--【【【【【【【申请管理】】】】】】】 -->
+						<div class="card" id="card4apply">
+							<div class="card-header px-0 py-1" role="tab"
+								id="section2HeaderId">
+								<a class="nav-link" data-toggle="collapse"
+									href="#applyContent" aria-expanded="false"
+									aria-controls="permissionContent"> 处理申请 </a>
+							</div>
+							<!--
+                                        注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
+                                        并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
+                                        因此同一时间只能打开其中一个card
+                                    -->
+							<div id="applyContent" class="collapse in" role="tabpanel"
+								data-parent="#accordianId" aria-labelledby="section2HeaderId">
+								<div class="card-body py-1">
+
+									<ul class="navbar-nav mr-auto mt-0 pt-0">
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("applyContent","approveAction_allList2UserApply4JoinLevel.action");'>处理加入申请</a></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						
+						<!--【【【【【【【项目管理】】】】】】】 -->
+						<div class="card4project">
 							<div class="card-header px-0 py-1" role="tab"
 								id="section3HeaderId">
 								<a class="nav-link" data-toggle="collapse"
@@ -144,7 +174,9 @@
 								</div>
 							</div>
 						</div>
-						<div class="card">
+						
+						<!--【【【【【【【组织层级管理】】】】】】】 -->
+						<div class="card4level">
 							<div class="card-header px-0 py-1" role="tab"
 								id="section2HeaderId">
 								<a class="nav-link" data-toggle="collapse" href="#levelContent"
@@ -207,12 +239,11 @@
 							</div>
 						</div>
 
-
-
+						<!--【【【【【【【活动室管理】】】】】】】 -->
 						<myShiro:hasAnyPermissions
 							name="admin,zero:house:retrieveHouse,zero:house:retrieveActivity">
 
-							<div class="card">
+							<div class="card4house">
 								<div class="card-header px-0 py-1" role="tab"
 									id="houseContentHeaderId">
 									<a class="nav-link" data-toggle="collapse" href="#houseContent"
@@ -252,11 +283,11 @@
 							</div>
 						</myShiro:hasAnyPermissions>
 
-
+						<!--【【【【【【【位置管理】】】】】】】 -->
 						<myShiro:hasAnyPermissions
 							name="admin,minus_first:geo:retrieveGeo,zero:geo:retrieveGeo,first:geo:retrieveGeo,second:geo:retrieveGeo,third:geo:retrieveGeo,fourth:geo:retrieveGeo">
 
-							<div class="card">
+							<div class="card4geo">
 								<div class="card-header px-0 py-1" role="tab"
 									id="geoContentHeaderId">
 									<a class="nav-link" data-toggle="collapse" href="#geoContent"
@@ -285,9 +316,9 @@
 							</div>
 						</myShiro:hasAnyPermissions>
 
-
+						<!--【【【【【【【权限管理】】】】】】】 -->
 						<shiro:hasPermission name="admin">
-							<div class="card">
+							<div class="card4permission">
 								<div class="card-header px-0 py-1" role="tab"
 									id="section2HeaderId">
 									<a class="nav-link" data-toggle="collapse"
@@ -316,11 +347,12 @@
 							</div>
 						</shiro:hasPermission>
 
-						<div class="card" id="card4op">
+						<!--【【【【【【【微信端才能见到的操作】】】】】】】 -->
+						<div class="card" id="card4operation">
 							<div class="card-header px-0 py-1" role="tab"
 								id="section2HeaderId">
 								<a class="nav-link" data-toggle="collapse"
-									href="#permissionContent" aria-expanded="false"
+									href="#operationContent" aria-expanded="false"
 									aria-controls="permissionContent"> 其他操作 </a>
 							</div>
 							<!--
@@ -328,7 +360,7 @@
                                         并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
                                         因此同一时间只能打开其中一个card
                                     -->
-							<div id="permissionContent" class="collapse in" role="tabpanel"
+							<div id="operationContent" class="collapse in" role="tabpanel"
 								data-parent="#accordianId" aria-labelledby="section2HeaderId">
 								<div class="card-body py-1">
 
