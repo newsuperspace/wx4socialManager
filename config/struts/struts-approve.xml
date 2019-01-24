@@ -16,6 +16,7 @@
 			<result name="allListUserApply4JoinLevel">/WEB-INF/pages/right/apply/userApply4JoinLevel.jsp</result>
 			<!-- ★★请求重定向到相同namespace 中的某个action中的某个方法（记住不能带上.action后缀）★★ -->
 			<result name="redirectUserApply4JoinLevel" type="redirectAction">approveAction_allList2UserApply4JoinLevel</result>
+			<result name="json" type="json"></result>
 		</action>
 	</package>
 </struts>

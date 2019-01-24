@@ -3,6 +3,8 @@ package cc.natapp4.ddaig.domain;
 import java.io.Serializable;
 import java.util.List;
 
+import org.apache.struts2.json.annotations.JSON;
+
 public class Approve4UserJoinLevel implements Serializable {
 
 	/**
@@ -65,6 +67,8 @@ public class Approve4UserJoinLevel implements Serializable {
 	public void setUserApply4JoinLevel(UserApply4JoinLevel userApply4JoinLevel) {
 		this.userApply4JoinLevel = userApply4JoinLevel;
 	}
+	
+	// @JSON(serialize=false)   由于一般的加入申请的回复只有一条，因此这里并不需要防止死循环解析
 	public List<Reply4UserJoinLevelApprove> getReplies() {
 		return replies;
 	}

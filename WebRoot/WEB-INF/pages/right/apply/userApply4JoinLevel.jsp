@@ -13,6 +13,8 @@
 <!-- Bootstrap CSS -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
+<link rel="stylesheet"
+	href="https://res.wx.qq.com/open/libs/weui/1.1.3/weui.min.css">
 </head>
 <body>
 
@@ -83,7 +85,8 @@
 										<th>电话</th>
 										<th>住址</th>
 										<th>邮箱</th>
-										<th>注册日期</th>
+										<th>申请日期</th>
+										<th>状态</th>
 										<th>操作</th>
 									</tr>
 								</thead>
@@ -100,12 +103,26 @@
 												title="<s:property value='user.address'/>"><s:property
 													value="user.address" /></td>
 											<td><s:property value="user.email" /></td>
-											<td><s:property value="timeStamp" /></td>
+											<td><s:property value="timeStr" /></td>
 
+											<td>
+												<s:if test="status==0">
+													<span class="badge badge-primary">未审核</span>
+												</s:if>
+												<s:elseif test="status==1">
+													<span class="badge badge-secondary">已拒绝</span>
+												</s:elseif>
+												<s:elseif test="status==2">
+													<span class="badge badge-success">已通过</span>
+												</s:elseif>
+											</td>
+											
 											<td>
 												<div class="btn-group" role="group">
 													<s:a class="btn btn-outline-secondary btn-sm" href="#"
 														onclick="showInfoModal4Apply('%{ua4jlid}')">申请详情</s:a>
+													<s:a class="btn btn-outline-secondary btn-sm" href="#"
+														onclick="weui.alert('%{ua4jlid}');">weui</s:a>
 												</div>
 											</td>
 
@@ -185,19 +202,18 @@
 
 							<div class="form-group">
 								<label for="message-text" class="col-form-label">回复信息:</label>
-								<textarea class="form-control" id="message-text" cols="3"
-									id="message"></textarea>
+								<textarea class="form-control" cols="3"  value="message"  id="message">111</textarea>
 							</div>
 						</form>
 
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-success"
+						<button type="button" class="btn btn-success" id="button4agree"
 							onclick="theMessageIsEmpty();agree();">同意</button>
 						<button type="button" class="btn btn-danger"
-							onclick="theMessageIsEmpty();disagree();">不同意</button>
+							onclick="theMessageIsEmpty();disagree();" id="button4disagree">不同意</button>
 						<button type="button" class="btn btn-secondary"
-							data-dismiss="modal">关闭</button>
+							data-dismiss="modal" id="button4close">关闭</button>
 					</div>
 				</div>
 			</div>
@@ -226,7 +242,11 @@
 			'ua4jlid' : ua4jlid
 		}
 		$.post(url, param, function(data, textStatus, req) {
+			$("#button4agree").attr("disabled", false);
+			$("#button4disagree").attr("disabled", false);
 			// 返回的data就是一个完整UserApply4JoinLevel对象，抽取数据显示到Modal上
+			$("#infoModal4ApplyTitle").text(data.user.username + "提交的加入申请");
+
 			$("#tag").val(data.approve4UserJoinLevel.tag);
 			$("#lid").val(data.approve4UserJoinLevel.lid);
 			$("#username").val(data.user.username);
@@ -238,6 +258,14 @@
 			$("#theReason").text(data.theReason);
 			$("#theExpertise").text(data.theExpertise);
 			$("#theDesire").text(data.theDesire);
+
+			if (data.status == '1' || data.status == "2") {
+				// 说明该申请已经处理过了， 则应该让“同意”和“不同意”两个按钮完全失效，并且恢复显示message
+				$("#button4agree").attr("disabled", true);
+				$("#button4disagree").attr("disabled", true);
+				let message = $("#message");
+				message.val(data.approve4UserJoinLevel.replies[0].message);
+			}
 		});
 
 		// 最后在通过jQuery打开Modal显示数据
@@ -246,8 +274,10 @@
 
 	// 当用户点击Modal上的“同意”或“不同意”的时候会先出发本判断方法，用来判断message是否填写了审核意见
 	function theMessageIsEmpty() {
-		let $message = $("#message");
-		if ("" == $message.text() || null == $message.text()) {
+		let message = $("#message");
+		console.log("value:" + message.val());
+		console.log("text:" + message.text());
+		if ("" == message.val() || null == message.val()) {
 			weui.alert("请在“回复信息”中填写审核意见后再试。");
 		}
 	}
@@ -275,6 +305,7 @@
 					let url = "approveAction_agreeUserApply4JoinLevel.action";
 					let param = {
 						'ua4jlid' : $("#ua4jlid").val(),
+						'message': $("#message").val(),
 					}
 					$.post(url, param, function(data, textStatus, req) {
 						// 显示后台回复的message的信息
@@ -310,6 +341,7 @@
 					let url = "approveAction_refuseUserApply4JoinLevel.action";
 					let param = {
 						'ua4jlid' : $("#ua4jlid").val(),
+						'message': $("#message").val(),
 					}
 					$.post(url, param, function(data, textStatus, req) {
 						// 显示后台回复的message的信息

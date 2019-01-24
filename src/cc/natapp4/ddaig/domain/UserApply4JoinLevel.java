@@ -23,7 +23,8 @@ public class UserApply4JoinLevel implements Serializable {
 	// ----------------------外键----------------------
 	private User user;  // 多对一
 	private Approve4UserJoinLevel approve4UserJoinLevel; // 一对一
-
+	
+	
 	
 	// ==================SETTER/GETTER==============
 	public String getUa4jlid() {
@@ -80,6 +81,7 @@ public class UserApply4JoinLevel implements Serializable {
 	public void setUser(User user) {
 		this.user = user;
 	}
+	
 	public Approve4UserJoinLevel getApprove4UserJoinLevel() {
 		return approve4UserJoinLevel;
 	}
