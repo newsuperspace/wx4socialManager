@@ -41,6 +41,7 @@
 							<div class="dropdown-menu dropdown-menu-right"
 								aria-labelledby="others">
 								<a class="dropdown-item" href="#" onclick="joinByScanQRCode();">扫码加入</a>
+								<a class="dropdown-item" href="#" onclick="myApplies();">我的申请</a>
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item" href="#">其他功能</a>
 							</div>
@@ -207,6 +208,10 @@
 		});
 	}
 
+	// -------------跳转到当前用户所提交的加入组织的所有申请列表页面------------
+	function myApplies(){
+		$(location).attr("href","personalCenterAction_applies4JoinLevel.action");
+	}
 
 	// -------------退出组织------------
 	function tuichu(tag, lid) {

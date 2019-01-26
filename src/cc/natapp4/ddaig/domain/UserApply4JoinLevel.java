@@ -20,6 +20,9 @@ public class UserApply4JoinLevel implements Serializable {
 	private String theExpertise; // 前端表单获取：你的专长
 	private String theDesire; // 前端表单获取：你的期许
 	
+	private String levelName;   // 存放本申请的目标层级的名称，仅用于微信端显示；
+	private String levelDescription;  // 存放本申请的目标层级的描述，仅用于微信端显示；
+	
 	// ----------------------外键----------------------
 	private User user;  // 多对一
 	private Approve4UserJoinLevel approve4UserJoinLevel; // 一对一
@@ -89,6 +92,18 @@ public class UserApply4JoinLevel implements Serializable {
 		this.approve4UserJoinLevel = approve4UserJoinLevel;
 	}
 	
+	public String getLevelName() {
+		return levelName;
+	}
+	public void setLevelName(String levelName) {
+		this.levelName = levelName;
+	}
+	public String getLevelDescription() {
+		return levelDescription;
+	}
+	public void setLevelDescription(String levelDescription) {
+		this.levelDescription = levelDescription;
+	}
 	
 	
 }

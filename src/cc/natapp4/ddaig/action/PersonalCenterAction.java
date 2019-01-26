@@ -596,6 +596,41 @@ public class PersonalCenterAction extends ActionSupport {
 		String timeStr = formater.format(new Date(timeStamp));
 		apply.setTimeStr(timeStr);
 		apply.setTimeStamp(timeStamp);
+		
+		// 向apply中保存申请加入的层级的名称和描述信息，方便微信端显示之用
+		switch (tag) {
+		case "minus_first":
+			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
+			apply.setLevelName(minusFirstLevel.getName());
+			apply.setLevelDescription(minusFirstLevel.getDescription());
+			break;
+		case "zero":
+			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
+			apply.setLevelName(zeroLevel.getName());
+			apply.setLevelDescription(zeroLevel.getDescription());
+			break;
+		case "first":
+			FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
+			apply.setLevelName(firstLevel.getName());
+			apply.setLevelDescription(firstLevel.getDescription());
+			break;
+		case "second":
+			SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
+			apply.setLevelName(secondLevel.getName());
+			apply.setLevelDescription(secondLevel.getDescription());
+			break;
+		case "third":
+			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
+			apply.setLevelName(thirdLevel.getName());
+			apply.setLevelDescription(thirdLevel.getDescription());
+			break;
+		case "fourth":
+			FourthLevel fourthLevel = fourthLevelService.queryEntityById(lid);
+			apply.setLevelName(fourthLevel.getName());
+			apply.setLevelDescription(fourthLevel.getDescription());
+			break;
+		}
+		
 		// 设置approve的所有值
 		approve.setBeread(false);
 		approve.setLid(lid);
@@ -619,6 +654,21 @@ public class PersonalCenterAction extends ActionSupport {
 		return "msgPage";
 	}
 
+	/**
+	 *  在微信端通过joiningLevelList.jsp页面的下来菜单点击“我的申请”按钮会调用本方法
+	 *  然后会将数据显示在applyList4JoinLevel.jsp页
+	 * @return
+	 */
+	public  String  applies4JoinLevel(){
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		User user = userService.queryByOpenId(openid);
+		List<UserApply4JoinLevel> applies = user.getUserApply4JoinLevels();
+		
+		ActionContext.getContext().put("applies", applies);
+		return "applies4JoinLevel";
+	}
+	
+	
 	/**
 	 * 【AJAX】 接收来自joiningLevelList.jsp页面上的tuichu()方法的ajax请求 当前用户用于退出指定组织层级
 	 */

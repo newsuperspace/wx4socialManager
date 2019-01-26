@@ -18,6 +18,9 @@
 		<property name="theExpertise" length="200"></property>
 		<property name="theDesire" length="200"></property>
 
+		<property name="levelName" length="200"></property>
+		<property name="levelDescription" length="200"></property>
+
 		<many-to-one name="user" class="cc.natapp4.ddaig.domain.User"
 			column="uid" cascade="save-update" lazy="false"></many-to-one>
 		<one-to-one class="cc.natapp4.ddaig.domain.Approve4UserJoinLevel"  cascade="all"  lazy="false"

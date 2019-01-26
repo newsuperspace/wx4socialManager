@@ -26,6 +26,8 @@
 				<result name="realName">/openJSP/realName.jsp</result>
 				<!-- 跳转到消息页面 -->
 				<result name="msgPage">/openJSP/msgPage.jsp</result>
+				<!-- 跳转到用户关于加入组织层级的所有申请的列表页面 -->
+				<result name="applies4JoinLevel">/openJSP/applies4JoinLevel.jsp</result>
 				<!-- 跳转到可选择加入的活动页面 -->
 				<result name="canJoinActivityList">/openJSP/canJoinActivityList.jsp</result>
 				<!-- 跳转到已经报名加入的活动页面 -->
