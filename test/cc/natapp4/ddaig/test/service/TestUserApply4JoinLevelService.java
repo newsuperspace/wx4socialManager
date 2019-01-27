@@ -109,5 +109,21 @@ public class TestUserApply4JoinLevelService {
 		}
 		approveService.delete(approve);
 	}
+
+	
+	@Test
+	public void testQueryByTagAndLid(){
+		String openid = "okNKU0Vb9EQtWTfteAyS3nVMd0Iw";
+		String tag = "first";
+		String lid= "a2828df0-7155-4005-afa3-7f694b75a1af";
+		
+		UserApply4JoinLevel apply = applyService.getUserApplyByTagAndLid(openid, tag, lid);
+		System.out.println("获取的申请的组织层级的名称是："+apply.getLevelName());
+		
+	}	
+		
+
+	
 	
 }
+	

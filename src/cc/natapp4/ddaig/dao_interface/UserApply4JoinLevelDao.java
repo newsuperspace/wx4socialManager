@@ -20,6 +20,17 @@ public interface UserApply4JoinLevelDao extends BaseDao<UserApply4JoinLevel> {
 	 */
 	public List<UserApply4JoinLevel> getUserApplyList(String tag, String lid, int status);
 	
-	
+	/**
+	 * 【用户调用】 根据tag和lid，获取当前用户对某个特定层级对象的加入申请对象（历史申请——未通过和已通过是不算的，只有status=0也就是未处理的申请才算）
+	 * 
+	 * @param openid
+	 *            用户的OPENID（因为必定通过扫描二维码提交组织申请，因此该用户必定有OPENID）
+	 * @param tag
+	 *            层级的类别（minus_first、zero、first、second、third、fourth）
+	 * @param lid
+	 *            层级的主键ID
+	 * @return
+	 */
+	public UserApply4JoinLevel getUserApplyByTagAndLid(String openid, String tag, String lid);
 	
 }

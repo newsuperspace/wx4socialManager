@@ -232,7 +232,7 @@ public class PersonalCenterAction extends ActionSupport {
 	}
 
 	/*
-	 * tuichu() 、joinByScanQRCode() 使用的属性驱动
+	 * tuichu() 、joinByScan() 使用的属性驱动
 	 */
 	private String tag; // 形如minus_first、zero、first、second、third、fourth
 	private String lid; // 层级对象的主键ID
@@ -487,8 +487,105 @@ public class PersonalCenterAction extends ActionSupport {
 	 * @return
 	 */
 	public String joinByScanQRCode() {
+
+		// ⭐ 防止重复提交加入组织的申请的判断处理 ⭐
+		// 该标记为用于判定用户是否已经是目标申请加入层级的成员了
+		boolean hasJoined = false;
+		// 该标记用于判定用户之前是否已经提交过申请（申请还未审核）
+		boolean hasCommit = false;
+
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		UserApply4JoinLevel apply = userApply4JoinLevelService.getUserApplyByTagAndLid(openid, this.tag, this.lid);
+		if (null == apply) {
+			// 并不存在"未受理"的针对于目标层级的加入申请，需要进一步判断该用户是否已经是该组织的成员
+			User user = userService.queryByOpenId(openid);
+			List<Member> members = user.getMembers();
+			for (Member m : members) {
+				switch (tag) {
+				case "minus_first":
+					if (null != m.getMinusFirstLevel() && null == m.getZeroLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getMinusFirstLevel().getMflid().equals(lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				case "zero":
+					if (null != m.getZeroLevel() && null == m.getFirstLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getZeroLevel().getZid().equals(lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				case "first":
+					if (null != m.getFirstLevel() && null == m.getSecondLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getFirstLevel().getFlid().equals(lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				case "second":
+					if (null != m.getSecondLevel() && null == m.getThirdLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getSecondLevel().getScid().equals(lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				case "third":
+					if (null != m.getThirdLevel() && null == m.getFourthLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getThirdLevel().getThid().equals(lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				case "fourth":
+					if (null != m.getFourthLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getFourthLevel().getFoid().equals(lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				}
+			}
+		} else {
+			// 存在"未受理"的针对于目标层级的加入申请
+			hasCommit = true;
+		}
+
+		// 如果已是该组织成员或已经提交过申请，那么开始向用户返回msg信息
+		// 开始组织回复页面所用的数据内容
+		if (hasJoined) {
+			Info4RealName info = new Info4RealName();
+			info.setTotal("当前问题");
+			info.setDetails("");
+			info.setDetailsURL("");
+			info.setIcon("weui-icon-info");
+			info.setTitle("您已是该组织成员");
+			info.setMessage("您已经是该组织成员正式成员，请勿重复申请。");
+
+			ActionContext.getContext().getValueStack().push(info);
+			return "msgPage";
+		}else if(hasCommit){
+			Info4RealName info = new Info4RealName();
+			info.setTotal("当前问题");
+			info.setDetails("");
+			info.setDetailsURL("");
+			info.setIcon("weui-icon-info");
+			info.setTitle("您已提交过申请");
+			info.setMessage("您已于 " + apply.getTimeStr() + " 提交过申请，请耐心等待。");
+
+			ActionContext.getContext().getValueStack().push(info);
+			return "msgPage";
+		}
+
+		// --------------------------------------------下面就是正常的准备提交申请页面的逻辑了--------------------------------------
 		// 用于向前端application.jsp页面回显数据之用的bean
-		Info4Application  info  =  new Info4Application();
+		Info4Application info = new Info4Application();
 		// 先定位用户所要加入的目标层级对象
 		switch (tag) {
 		case "minus_first":
@@ -596,7 +693,7 @@ public class PersonalCenterAction extends ActionSupport {
 		String timeStr = formater.format(new Date(timeStamp));
 		apply.setTimeStr(timeStr);
 		apply.setTimeStamp(timeStamp);
-		
+
 		// 向apply中保存申请加入的层级的名称和描述信息，方便微信端显示之用
 		switch (tag) {
 		case "minus_first":
@@ -630,7 +727,7 @@ public class PersonalCenterAction extends ActionSupport {
 			apply.setLevelDescription(fourthLevel.getDescription());
 			break;
 		}
-		
+
 		// 设置approve的所有值
 		approve.setBeread(false);
 		approve.setLid(lid);
@@ -649,26 +746,26 @@ public class PersonalCenterAction extends ActionSupport {
 		info.setIcon("weui-icon-success");
 		info.setTitle("申请成功");
 		info.setMessage("您已于" + timeStr + "提交申请，审核结果将以公众号信息形式推送给您，在此之前有些组织负责人可能会主动联系您做进一步面试安排，请留意。");
-		
+
 		ActionContext.getContext().getValueStack().push(info);
 		return "msgPage";
 	}
 
 	/**
-	 *  在微信端通过joiningLevelList.jsp页面的下来菜单点击“我的申请”按钮会调用本方法
-	 *  然后会将数据显示在applyList4JoinLevel.jsp页
+	 * 在微信端通过joiningLevelList.jsp页面的下来菜单点击“我的申请”按钮会调用本方法
+	 * 然后会将数据显示在applyList4JoinLevel.jsp页
+	 * 
 	 * @return
 	 */
-	public  String  applies4JoinLevel(){
+	public String applies4JoinLevel() {
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		User user = userService.queryByOpenId(openid);
 		List<UserApply4JoinLevel> applies = user.getUserApply4JoinLevels();
-		
+
 		ActionContext.getContext().put("applies", applies);
 		return "applies4JoinLevel";
 	}
-	
-	
+
 	/**
 	 * 【AJAX】 接收来自joiningLevelList.jsp页面上的tuichu()方法的ajax请求 当前用户用于退出指定组织层级
 	 */

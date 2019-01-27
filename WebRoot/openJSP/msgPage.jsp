@@ -27,7 +27,7 @@
 			<s:elseif test="icon=='weui-icon-success'">
 				<i class="weui-icon-success weui-icon_msg"></i>
 			</s:elseif>        	
-            <s:elseif test="icon='weui-icon-info'">
+            <s:elseif test="icon=='weui-icon-info'">
             	<i class="weui-icon-info weui-icon_msg"></i>
             </s:elseif>
             <!-- <i class="weui-icon-warn weui-icon_msg-primary">黄色警告</i> -->

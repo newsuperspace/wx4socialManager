@@ -202,7 +202,7 @@ public class ApproveAction extends ActionSupport {
 	
 	/**
 	 * 在userApply4JoinLevel.jsp页面上，管理者点击，某条申请的“同意”按钮 同意用户加入组织的申请 :
-	 * （1）在approve中生成reply,记录审核意见（到message字段）；更新apply.status状态；
+	 * （1）在approve中生成reply,记录审核意见（到message字段）；更新apply.status状态；更新approve的审核时间等信息
 	 * （2）执行申请人加入到本组织的业务逻辑 ；
 	 * （3）通过微信端，向该用户发布通知信息；
 	 * 
@@ -219,14 +219,16 @@ public class ApproveAction extends ActionSupport {
 		User user = apply.getUser();
 		// 获取审批对象
 		Approve4UserJoinLevel approve = apply.getApprove4UserJoinLevel();
-
+		SimpleDateFormat  formatter  =  new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		long timeStamp = System.currentTimeMillis();
+		String timeStr  =  formatter.format(new Date(timeStamp));
+		approve.setTimeStamp(timeStamp);
+		approve.setTimeStr(timeStr);
+		
 		// (1)
 		Reply4UserJoinLevelApprove  reply  =  new Reply4UserJoinLevelApprove();
 		reply.setBeread(false);
 		reply.setMessage(this.message);
-		long timeStamp  =  System.currentTimeMillis();
-		SimpleDateFormat  formatter  =  new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String timeStr  =  formatter.format(new Date(timeStamp));
 		reply.setTimeStamp(timeStamp);
 		reply.setTimeStr(timeStr);
 		reply.setApprove4UserJoinLevel(approve);
@@ -365,7 +367,7 @@ public class ApproveAction extends ActionSupport {
 		if(theDuelResult){
 			result.setMessage(result.getMessage()+",通知也已成功发送给用户。");
 		}else{
-			result.setMessage(result.getMessage()+",但通知未能发送给用户请与用户电话确定或通过公众号客服功能联系。");
+			result.setMessage(result.getMessage()+",但通知未能发送给用户请与用户电话确定或通过公众号内置客服功能联系。");
 		}
 		
 		ActionContext.getContext().getValueStack().push(result);
@@ -391,14 +393,16 @@ public class ApproveAction extends ActionSupport {
 		User user = apply.getUser();
 		// 获取审批对象
 		Approve4UserJoinLevel approve = apply.getApprove4UserJoinLevel();
-
+		SimpleDateFormat  formatter  =  new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		long timeStamp = System.currentTimeMillis();
+		String timeStr  =  formatter.format(new Date(timeStamp));
+		approve.setTimeStamp(timeStamp);
+		approve.setTimeStr(timeStr);
+		
 		// (1)
 		Reply4UserJoinLevelApprove  reply  =  new Reply4UserJoinLevelApprove();
 		reply.setBeread(false);
 		reply.setMessage(this.message);
-		long timeStamp  =  System.currentTimeMillis();
-		SimpleDateFormat  formatter  =  new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String timeStr  =  formatter.format(new Date(timeStamp));
 		reply.setTimeStamp(timeStamp);
 		reply.setTimeStr(timeStr);
 		reply.setApprove4UserJoinLevel(approve);
@@ -478,7 +482,7 @@ public class ApproveAction extends ActionSupport {
 		if(theDuelResult){
 			result.setMessage(result.getMessage()+",通知也已成功发送给用户。");
 		}else{
-			result.setMessage(result.getMessage()+",但通知未能发送给用户请与用户电话确定或通过公众号客服功能联系。");
+			result.setMessage(result.getMessage()+",但通知未能发送给用户请与用户电话确定或通过公众号内置客服功能联系。");
 		}
 		
 		ActionContext.getContext().getValueStack().push(result);
