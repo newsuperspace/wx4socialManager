@@ -25,7 +25,7 @@
 			<h1
 				style="text-align: left;font-size: 20px;font-weight: 400;font-weight: bold;">请选择您要登陆的管理层</h1>
 			<p
-				style="margin-top: 5px;color: #888;text-align: left;font-size: 14px;">您是多个层级的管理者，请选择当前要登录的层级</p>
+				style="margin-top: 5px;color: #888;text-align: left;font-size: 14px;">您当前是多个层级的管理者，请选择要登录的目标层级</p>
 		</div>
 	</div>
 
@@ -39,7 +39,7 @@
 			<div class="weui-mask" id="iosMask" style="opacity: 1;" hidden></div>
 			<div class="weui-actionsheet" id="iosActionsheet">
 				<div class="weui-actionsheet__title">
-					<p class="weui-actionsheet__title-text">下面是您管理的所有层级，请选择一个其中一个登陆</p>
+					<p class="weui-actionsheet__title-text">下面是您管理的所有层级，请选择其中一个登陆</p>
 				</div>
 				<div class="weui-actionsheet__menu">
 

@@ -101,8 +101,8 @@
 												</s:a></td>
 											<td><s:property value="user.sickname" /></td>
 											<td class="text-truncate" data-toggle="tooltip"
-												title="<s:property value='openid'/>"><s:property
-													value="openid" /></td>
+												title="<s:property value='user.openid'/>"><s:property
+													value="user.openid" /></td>
 											<td>
 											
 												<s:if test="grouping.tag=='common'">

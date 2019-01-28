@@ -2,6 +2,7 @@ package cc.natapp4.ddaig.action;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -36,6 +37,7 @@ import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.security.MyUsernamePasswordToken;
 import cc.natapp4.ddaig.service_interface.ManagerService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.utils.ConfigUtils;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4RecallImpl;
 import me.chanjar.weixin.common.exception.WxErrorException;
@@ -323,7 +325,12 @@ public class ShiroAction extends ActionSupport {
 		User u = userService.queryByOpenId(openid);
 		if (null != u) {
 			result.setResult(true);
-			result.setReLocal("shiroAction_jump2ManagerSelectFromWsLogin.action");
+			
+			Properties p = ConfigUtils.getProperties("wxConfig/weixin.properties");
+			// 得到当前应用的带协议路径，形如： http://ddaig.nat200.top/weixin
+			String webroot = p.getProperty("webroot");
+			// 这是前端页面的完整跳转路径
+			result.setReLocal(webroot+"/shiroAction_jump2ManagerSelectFromWsLogin.action");
 		} else {
 			result.setResult(false);
 			result.setMessage("扫码出现异常，无法定位您的管理者身份，请稍候重试");
@@ -337,12 +344,12 @@ public class ShiroAction extends ActionSupport {
 	 * AJAX
 	 * 当微信端来或桌面端（非Admin）访者已经通过 外部认证并在managerSelect.jsp页面上选定要登录的层级的时候
 	 * 会通过shiroAction_authenticationByMyRealm.action?lid=jsodf7932j2jf293jf2&tag
-	 * =niuse_first 来请求本方法 这个方法才正式调用Shiro进行认证和授权操作
+	 * =minus_first 来请求本方法 这个方法才正式调用Shiro进行认证和授权操作
 	 * 
 	 * @return
 	 */
 	public String authenticationByRealms() {
-		// 从managerSelect.jsp中会传递过来用户选定要登录的管理层级的tag和lid，保存这两个关键数据到session，之后各个系统部分中会频繁用到，非常关键
+		// 从managerSelect.jsp中会传递过来用户选定要登录的管理层级的tag和lid，保存这两个关键数据到session，之后登陆系统后各个系统部分中会频繁会用到，非常关键
 		ServletActionContext.getRequest().getSession().setAttribute("lid", this.lid);
 		ServletActionContext.getRequest().getSession().setAttribute("tag", this.tag);
 		// 当前登录用户的openid已经在login()方法中就已经存放在了，现在取出来

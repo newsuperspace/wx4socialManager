@@ -26,7 +26,7 @@ public class MyModularRealmAuthenticator extends ModularRealmAuthenticator {
      */
     @Override
     protected AuthenticationInfo doMultiRealmAuthentication(Collection<Realm> realms, AuthenticationToken token) {
-        System.out.println("MyModularRealmAtuenticator'message doMultiRealmAuthentication is running!");
+        System.out.println("MyModularRealmAuthenticator'message doMultiRealmAuthentication is running!");
     	return super.doMultiRealmAuthentication(realms, token);
     }
     /**
@@ -36,7 +36,7 @@ public class MyModularRealmAuthenticator extends ModularRealmAuthenticator {
     @Override
     protected AuthenticationInfo doSingleRealmAuthentication(Realm realm,AuthenticationToken token) {
 
-    	System.out.println("MyModularRealmAtuenticator'message doSingleRealmAuthentication is running 4 "+realm.getName());
+    	System.out.println("MyModularRealmAuthenticator'message doSingleRealmAuthentication is running 4 "+realm.getName());
         // 如果该realms不支持(不能验证)当前token
         if (!realm.supports(token)) {
             throw new ShiroException("token错误!");
