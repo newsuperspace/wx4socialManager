@@ -14,12 +14,24 @@ import org.apache.commons.lang.StringUtils;
  */
 public class Visitor implements Serializable {
 
+	/**
+	 *  版本号
+	 */
+	private static final long serialVersionUID = 981586115554197214L;
 	// 主键(可以很方便的统计出活动参与累计人次)
 	private int vid;
+	// 报名也就是系统创建本visitor类型对象数据的时间
+	private long  baomingTime;
+	// 报名时间的形如yyyy-MM-dd HH:mm:ss 的时间格式字符串
+	private String baomingTimeStr;	
 	// 签到时间（格里高利历毫秒值偏移量）
 	private long startTime;
+	// 签到时间字符串
+	private String startTimeStr;   		
 	// 签退时间（格里高利历毫秒值偏移量）
 	private long endTime;
+	// 签退时间字符串
+	private String endTimeStr;			
 	
 	// ----------------------活动结束后（Activity对象的state="已完成"），自动同级并存入下面的对应字段-----------------------
 	// 本次活动获得的积分
@@ -34,29 +46,15 @@ public class Visitor implements Serializable {
 	private Activity  activity;
 	
 	
-	// =================以下非数据库字段，而是用来给JSP页面进行数据展示时供给STRUTS的OGNL表达式或struts的自定义JSP标签之用=================
-	private String startTimeStr;
-	private String endTimeStr;
-
-	public String getStartTimeStr() {
-		if(StringUtils.isEmpty(startTimeStr)){
-			SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");  
-			String format = formatter.format(new Date(startTime));
-			this.startTimeStr = format;
-		}
-		return startTimeStr;
-	}
-	public String getEndTimeStr() {
-		if(StringUtils.isEmpty(endTimeStr)){
-			SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");  
-			String format = formatter.format(new Date(endTime));
-			this.endTimeStr = format;
-		}
-		return endTimeStr;
-	}
-	
-	
 	//==================SETTERs/GETTERs===================
+	
+	public long getBaomingTime() {
+		return baomingTime;
+	}
+	public void setBaomingTime(long baomingTime) {
+		this.baomingTime = baomingTime;
+	}
+	
 	public int getVid() {
 		return vid;
 	}
@@ -106,5 +104,25 @@ public class Visitor implements Serializable {
 		this.activity = activity;
 	}
 	
+	public String getBaomingTimeStr() {
+		return baomingTimeStr;
+	}
+	public void setBaomingTimeStr(String baomingTimeStr) {
+		this.baomingTimeStr = baomingTimeStr;
+	}
+	
+	public String getStartTimeStr() {
+		return startTimeStr;
+	}
+	public void setStartTimeStr(String startTimeStr) {
+		this.startTimeStr = startTimeStr;
+	}
+	
+	public String getEndTimeStr() {
+		return endTimeStr;
+	}
+	public void setEndTimeStr(String endTimeStr) {
+		this.endTimeStr = endTimeStr;
+	}
 	
 }

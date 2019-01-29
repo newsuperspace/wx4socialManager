@@ -22,7 +22,6 @@ import cc.natapp4.ddaig.bean.Info4RealName;
 import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Approve4UserJoinLevel;
 import cc.natapp4.ddaig.domain.Geographic;
-import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.Reply4UserJoinLevelApprove;
@@ -54,7 +53,6 @@ import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.PositionUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4RecallImpl;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
-import me.chanjar.weixin.common.bean.WxJsapiSignature;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 
@@ -922,6 +920,13 @@ public class PersonalCenterAction extends ActionSupport {
 		v.setWorkTime(-1);
 		v.setEndTime(-1);
 		v.setStartTime(-1);
+		
+		long baomingTime  =  System.currentTimeMillis();
+		v.setBaomingTime(baomingTime);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String baomingTimeStr = dateFormat.format(new Date(baomingTime));
+		v.setBaomingTimeStr(baomingTimeStr);
+		
 		// 处理新建的visitor在当前用户user中的次序问题
 		List<Visitor> visits = user.getVisits();
 		/*
@@ -1010,6 +1015,7 @@ public class PersonalCenterAction extends ActionSupport {
 					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
 					// 向visitor中记录签到时间
 					v.setStartTime(currentTimeMillis);
+					v.setStartTimeStr(dateTimeStr);
 					// 组织Info信息，用作msgPage页面显示
 					info.setDetails("");
 					info.setDetailsURL("");
@@ -1080,6 +1086,7 @@ public class PersonalCenterAction extends ActionSupport {
 						// 签到位置在有效签到范围内，允许签到
 						// 向visitor中记录签到时间
 						v.setStartTime(currentTimeMillis);
+						v.setStartTimeStr(dateTimeStr);
 						// 组织Info信息，用作msgPage页面显示
 						info.setDetails("");
 						info.setDetailsURL("");
@@ -1140,6 +1147,7 @@ public class PersonalCenterAction extends ActionSupport {
 					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
 					// 向visitor中记录签退时间
 					v.setEndTime(currentTimeMillis);
+					v.setEndTimeStr(dateTimeStr);
 					// 给予用户积分
 					v.setScore(activity.getScore());
 					user.setScore(user.getScore() + activity.getScore());
@@ -1216,6 +1224,7 @@ public class PersonalCenterAction extends ActionSupport {
 						// 签到位置在有效签到范围内，允许签到
 						// 向visitor中记录签退时间
 						v.setEndTime(currentTimeMillis);
+						v.setEndTimeStr(dateTimeStr);
 						// 给予用户积分
 						v.setScore(activity.getScore());
 						user.setScore(user.getScore() + activity.getScore());

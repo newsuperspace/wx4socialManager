@@ -33,6 +33,7 @@ import cc.natapp4.ddaig.domain.Geographic;
 import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
+import cc.natapp4.ddaig.domain.Visitor;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
@@ -61,7 +62,7 @@ import cc.natapp4.ddaig.utils.QRCodeUtils;
 public class ActivityAction extends ActionSupport implements ModelDriven<Activity> {
 
 	/**
-	 * 
+	 *  版本号
 	 */
 	private static final long serialVersionUID = 1L;
 	// ==============================DI注入==============================
@@ -195,6 +196,23 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		return "doingProjectActivityList";
 	}
 
+	/**
+	 *  在activityList.jsp页面上点击某个活动的报名人数后会调用本方法，用以获取该活动的所有报名数据信息
+	 *  并展示到visitorList.jsp页面上
+	 * @return
+	 */
+	public String getVisitorList(){
+		
+		List<Visitor>  visitors  =  null;
+		Activity activity = activityService.queryEntityById(this.activity.getAid());
+		visitors = activity.getVisitors();
+		
+		ActionContext.getContext().put("visitors", visitors);
+		return "visitorList";
+	}
+	
+	
+	
 	/**
 	 * 【未实现】 根据当前操作者的层级对象，获取该层级对象之下的所有层级对象的所有活动的数据信息，并显示到后台指定的jsp页面上
 	 * 在该JSP页面上可以通过日期选择器/层级选择等方式对数据进行进一步筛选

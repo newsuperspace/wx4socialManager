@@ -103,10 +103,12 @@
 												<s:elseif test="%{type==2}">限定人数</s:elseif>
 												<s:else>缺失</s:else>
 											</td>
-											<td><s:a href="#"
-													onclick="activityModal.op.showVisitors('%{aid}');">
+											<td>
+												<s:a href="#"
+													onclick="toVisitorList('%{aid}');">
 													<s:property value="visitors.size()" />
-												</s:a></td>
+												</s:a>
+											</td>
 											<td><s:property value="score" /></td>
 											<td>
 												<s:if test="%{state=='筹备中'}">筹备中</s:if>
@@ -270,9 +272,17 @@
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
 <script>
 	
+	// 跳转到活动的新闻稿页面
 	function toArticlePage(aid){
 		$(location).attr("href","articleAction_getArticle.action?aid="+aid);
 	}
+	
+	// 跳转到活动的报名参与者列表页面
+	function toVisitorList(aid){
+		let url  =  "activityAction_getVisitorList.action?"+"aid="+aid;
+		$(location).attr("href",url);
+	}
+	
 	
 </script>
 </html>

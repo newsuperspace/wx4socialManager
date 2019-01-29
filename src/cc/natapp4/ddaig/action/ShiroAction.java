@@ -6,8 +6,6 @@ import java.util.Properties;
 import java.util.UUID;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,8 +22,6 @@ import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
@@ -35,7 +31,6 @@ import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.security.MyUsernamePasswordToken;
-import cc.natapp4.ddaig.service_interface.ManagerService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.utils.ConfigUtils;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
@@ -48,6 +43,10 @@ import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 @Lazy(true)
 public class ShiroAction extends ActionSupport {
 
+	/**
+	 *  版本号
+	 */
+	private static final long serialVersionUID = -3674482125620372073L;
 	// ====================Spring框架的DI注入=====================
 	@Resource(name = "weixinService4Recall")
 	protected WeixinService4RecallImpl mpService4Recall;
@@ -150,8 +149,6 @@ public class ShiroAction extends ActionSupport {
 	 */
 	public String login() {
 
-		// 后台系统登录的时候会用到HttpServletContext 用来在这个Web应用作用域内共享数据（qrcode、倒计时有效期等）
-		ServletContext servletContext = ServletActionContext.getServletContext();
 		// wx登录需要从session域中获取wxURL
 		HttpSession session = ServletActionContext.getRequest().getSession();
 		// 获取由MyShiroFilter过滤器放入到session中的，前端所要请求的URL路径（带请求参数）★
@@ -291,7 +288,6 @@ public class ShiroAction extends ActionSupport {
 	public String jump2ManagerSelectFromWsLogin() {
 		// 先從session中获取关键openid数据信息
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
-		String pwd = (String) ServletActionContext.getRequest().getSession().getAttribute("password");
 		// 获取该用户，由于已经通过ws4login()进行了外部验证，所以openid的用户一定存在
 		User u = userService.queryByOpenId(openid);
 		// 从用户中遍历出所有管理员数据对象
@@ -461,7 +457,6 @@ public class ShiroAction extends ActionSupport {
 	 */
 	public String logout(){
 		
-		HttpSession session = ServletActionContext.getRequest().getSession();
 		ReturnMessage4Common  result  =  new  ReturnMessage4Common();
 		Subject currentUser = SecurityUtils.getSubject();
 		/*

@@ -33,7 +33,7 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2">项目信息</h1>
+							<h1 class="h2">报名表</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 									
@@ -76,50 +76,46 @@
 								class="table table-striped table-sm table-bordered table-hover text-center">
 								<thead class="thead-dark">
 									<tr>
-										<th>所属层级对象</th>
-										<th>项目名</th>
-										<th>DPID</th>
-										<th>项目类型</th>
-										<th>已开展活动数</th>
+										<th>活动名称</th>
+										<th>用户名</th>
+										<th>昵称</th>
+										<th>电话</th>
+										<th>报名时间</th>
+										<th>签到时间</th>
+										<th>签退时间</th>
 										<th>操作</th>
 									</tr>
 								</thead>
 								<tbody>
-									<s:iterator value="#projects">
+									<s:iterator value="#visitors">
 										<tr>
 											<td>
-												<s:if test="%{thirdLevel!=null}">
-													<s:property value="thirdLevel.name"/>
-												</s:if>
-												<s:elseif test="%{secondLevel!=null&&thirdLevel==null}">
-													<s:property value="secondLevel.name"/>
-												</s:elseif>
-												<s:elseif test="%{firstLevel!=null&&secondLevel==null}">
-													<s:property value="firstLevel.name"/>
-												</s:elseif>
-												<s:elseif test="%{zeroLevel!=null&&firstLevel==null}">
-													<s:property value="zeroLevel.name"/>
-												</s:elseif>
-												<s:elseif test="%{minusFirstLevel!=null&&zeroLevel==null}">
-													<s:property value="minusFirstLevel.name"/>
-												</s:elseif>
+												<s:property value="activity.name"/>
 											</td>
-											<td><s:a href="#"
-													onclick="projectModal.op.projectInfo('%{dpid}')">
-													<s:property value="besureProject.name" />
-												</s:a></td>
-											<td><s:property value="dpid" /></td>
-											<td><s:property value="besureProject.projectType.name" /></td>
-											<td><s:a href="#"
-													onclick="projectModal.op.getActivities('%{dpid}')">
-													<s:property value="activities.size()" />
-												</s:a></td>
+											<td>
+												<s:property value="user.username"/>
+											</td>
+											<td>
+												<s:property value="user.sickname"/>
+											</td>
+											<td>
+												<s:property value="user.phone"/>
+											</td>
+											<td>
+												<s:property value="baomingTimeStr"/>
+											</td>
+											<td>
+												<s:property value="startTimeStr"/>
+											</td>
+											<td>
+												<s:property value="endTimeStr"/>
+											</td>
 											<td>
 												<div class="btn-group" role="group">
 													<button type="button"
-														class="btn btn-outline-secondary btn-sm">推送</button>
+														class="btn btn-outline-secondary btn-sm">通知</button>
 													<button type="button"
-														class="btn btn-outline-secondary btn-sm">其他</button>
+														class="btn btn-outline-secondary btn-sm">管理员补签（直接完成活动）</button>
 												</div>
 											</td>
 										</tr>

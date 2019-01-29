@@ -11,8 +11,13 @@
 		
 		<property name="startTime" type="long"></property>
 		<property name="endTime" type="long"></property>
+		<property name="baomingTime" type="long"></property>
 		<property name="score" type="integer"></property>
 		<property name="workTime" type="long"></property>
+
+		<property name="baomingTimeStr"  length="50"  type="string"></property>
+		<property name="startTimeStr"  length="50"  type="string"></property>
+		<property name="endTimeStr"  length="50"  type="string"></property>
 		
 		<many-to-one name="user" column="uid"
 			class="cc.natapp4.ddaig.domain.User" cascade="save-update" lazy="false">
