@@ -40,8 +40,8 @@
 							</button>
 							<div class="dropdown-menu dropdown-menu-right"
 								aria-labelledby="others">
-								<a class="dropdown-item" href="#" onclick="joinByScanQRCode();">扫码加入</a>
-								<a class="dropdown-item" href="#" onclick="myApplies();">我的申请</a>
+								<a class="dropdown-item  mb2" href="#" onclick="joinByScanQRCode();">扫码加入</a>
+								<a class="dropdown-item mb2" href="#" onclick="myApplies();">我的申请</a>
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item" href="#">其他功能</a>
 							</div>
@@ -74,6 +74,9 @@
 								</s:elseif> <s:elseif test="null!=minusFirstLevel">
 									<s:property value="minusFirstLevel.name" />
 								</s:elseif>
+								<s:else>
+									公众号成员
+								</s:else>
 							</em>
 						</div>
 					</div>
@@ -96,15 +99,110 @@
 								</s:elseif> <s:elseif test="null!=minusFirstLevel">
 									<s:property value="minusFirstLevel.description" />
 								</s:elseif>
+								<s:else>
+									我是公众号的一份子，关心社区公益事业发展是我应尽的义务和责任。
+								</s:else>
 							</span>
 						</div>
 
 						<div class="weui-form-preview__item">
-							<label class="weui-form-preview__label">组织等级</label> <span
-								class="weui-form-preview__value" id=”description“> <s:property
-									value="grouping.tag" />
+							<label class="weui-form-preview__label">我在组织内的身份</label> <span
+								class="weui-form-preview__value" id="tag"> 
+								<s:if test="'unreal'==grouping.tag">
+									未实名认证
+								</s:if>
+								<s:elseif test="'common'==grouping.tag">
+									普通成员
+								</s:elseif>
+								<s:elseif test="'minus_first'==grouping.tag">
+									街道级管理者
+								</s:elseif>
+								<s:elseif test="'zero'==grouping.tag">
+									社区级管理者
+								</s:elseif>
+								<s:elseif test="'first'==grouping.tag">
+									第一级管理者
+								</s:elseif>
+								<s:elseif test="'second'==grouping.tag">
+									第二级管理者
+								</s:elseif>
+								<s:elseif test="'third'==grouping.tag">
+									第三级管理者
+								</s:elseif>
+								<s:elseif test="'fourth'==grouping.tag">
+									第四级管理者
+								</s:elseif>
 							</span>
 						</div>
+						
+						<!-- 显示当前组织的组织层级位置 -->
+						<div class="weui-form-preview__item">
+							<label class="weui-form-preview__label">街道</label> <span
+								class="weui-form-preview__value" id="minusFirstLevel"> 
+								<s:if test="null!=minusFirstLevel">
+									<s:property value="minusFirstLevel.name" />
+								</s:if>
+								<s:else>
+									无
+								</s:else>
+							</span>
+						</div>
+						<div class="weui-form-preview__item">
+							<label class="weui-form-preview__label">社区</label> <span
+								class="weui-form-preview__value" id="zeroLevel"> 
+								<s:if test="null!=zeroLevel">
+									<s:property value="zeroLevel.name" />
+								</s:if>
+								<s:else>
+									无
+								</s:else>
+							</span>
+						</div>
+						<div class="weui-form-preview__item">
+							<label class="weui-form-preview__label">第一级</label> <span
+								class="weui-form-preview__value" id="firstLevel"> 
+								<s:if test="null!=firstLevel">
+									<s:property value="firstLevel.name" />
+								</s:if>
+								<s:else>
+									无
+								</s:else>
+							</span>
+						</div>
+						<div class="weui-form-preview__item">
+							<label class="weui-form-preview__label">第二级</label> <span
+								class="weui-form-preview__value" id="secondLevel"> 
+								<s:if test="null!=secondLevel">
+									<s:property value="secondLevel.name" />
+								</s:if>
+								<s:else>
+									无
+								</s:else>
+							</span>
+						</div>
+						<div class="weui-form-preview__item">
+							<label class="weui-form-preview__label">第三级</label> <span
+								class="weui-form-preview__value" id="thirdLevel"> 
+								<s:if test="null!=thirdLevel">
+									<s:property value="thirdLevel.name" />
+								</s:if>
+								<s:else>
+									无
+								</s:else>
+							</span>
+						</div>
+						<div class="weui-form-preview__item">
+							<label class="weui-form-preview__label">第四级</label> <span
+								class="weui-form-preview__value" id="fourthLevel"> 
+								<s:if test="null!=fourthLevel">
+									<s:property value="fourthLevel.name" />
+								</s:if>
+								<s:else>
+									无
+								</s:else>
+							</span>
+						</div>
+						
 
 						<div class="weui-form-preview__item">
 							<label class="weui-form-preview__label">组织人数</label> <span

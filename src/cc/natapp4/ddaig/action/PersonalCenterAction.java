@@ -455,17 +455,33 @@ public class PersonalCenterAction extends ActionSupport {
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		// 查找到用户对象
 		User user = userService.queryByOpenId(openid);
-		// 更新一下每个活动的state状态
+		// 开始将用户的user对象中的所包含的所有member对象拷贝到新List容器members中
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(user.getMembers());
+		/*
+		 *  新建一个member对象，用来保存该用户作为加入公众号的那个身份member
+		 *  该member的一个特点是，作为默认member永远跟随该user，该member是在user加入公众号的时候
+		 *  随同user一同创建的，它的从minusFirst到fourth均为null，用以表示用户不属于任何（只属于公众号）的层级身份。
+		 *  只有它拥有两个特殊grouping.tag标记minus_first和unreal，出现前者标记说明该用户是一个街道级别的管理者，出现unreal
+		 *  说明该用户还未实名认证。
+		 *
+		 *  另外该member与其他member最大的区别就是永远与user相伴而生，无论用户是否拥有组织身份，
+		 *  它都将作为最后标记用户身份（公众号的成员）永远存在下去，不会像普通member那样退出组织后就会被删除。
+		 */
 		Member member = null;
+		/*
+		 * 我们要筛选出这个默认member并查看它是否是一个grouping.tag==minus_first的街道级别管理员，
+		 * 如果是则也作为一种管理者身份显示在前端，否则没有显示的意义则直接从List容器中去除掉。
+		 */
 		for (Member m : members) {
 			if (null == m.getMinusFirstLevel()) {
 				member = m;
 				break;
 			}
 		}
-		members.remove(member);
+//		if(!"minus_first".equals(member.getGrouping().getTag())){
+//			members.remove(member);
+//		}
 		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
 		ActionContext.getContext().put("members", members);
 		return result;
