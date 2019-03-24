@@ -33,7 +33,13 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2">非直辖人员信息</h1>
+							<h1 class="h2">
+								非直辖人员信息
+								<button class="btn btn-sm btn-light" id="button4selectorPanel" data-toggle="collapse" data-target="#selectorPanel"
+                                    onclick="userModal.op.changeIcon();">
+                                    <span class="glyphicon glyphicon-chevron-down" id="icon4selectorPanel"></span>
+                                </button>
+							</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 									
@@ -66,6 +72,51 @@
 								</div>
 							</div>
 						</div>
+						
+						<!-- =============Selectors=========== -->
+                        <div class="collapse mb-2" id="selectorPanel">
+                            <div class="card card-body">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        街道层级
+                                        <select class="form-control form-control-sm" id="minusFirst" name="minusFirst" disabled="true" onchange="userModal.op.getData4Selector(this);"> 
+                                            <option value="0" selected>--请选择--</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        社区层级
+                                        <select class="form-control form-control-sm" id="zero" name="zero" disabled="true" onchange="userModal.op.getData4Selector(this);">
+                                            <option value="0" selected>--请选择--</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        第一层级
+                                        <select class="form-control form-control-sm" id="first" name="first" disabled="true" onchange="userModal.op.getData4Selector(this);">
+                                            <option value="0" selected>--请选择--</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        第二层级
+                                        <select class="form-control form-control-sm" id="second" name="second" disabled="true" onchange="userModal.op.getData4Selector(this);">
+                                            <option value="0" selected>--请选择--</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        第三层级
+                                        <select class="form-control form-control-sm" id="third" name="third" disabled="true" onchange="userModal.op.getData4Selector(this);">
+                                            <option value="0" selected>--请选择--</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        第四层级
+                                        <select class="form-control form-control-sm" id="fourth" name="fourth" disabled="true" onchange="userModal.op.getData4Selector(this);">
+                                            <option value="0" selected>--请选择--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+						
 						<!-- =============表格=========== -->
 						<div
 							style="
@@ -92,7 +143,7 @@
 										<th>操作</th>
 									</tr>
 								</thead>
-								<tbody>
+								<tbody id="tbody">
 									<s:iterator value="#users">
 										<tr>
 											<td><s:a href="#"
@@ -287,5 +338,16 @@
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
+<script type="text/javascript">
+	// 本内部脚本用于初始化当前页面——userList.jsp中的一些组件
+	$(function(){
+		// 初始化selector面板
+		userModal.init.initSelector();
+		// 其他初始化工作...
+		
+	});
+	
+
+</script>
 	
 </html>

@@ -35,21 +35,33 @@ public interface UserDao extends BaseDao<User>{
 	 * minus_first  查找街道层级管理者
 	 * common 已认证的普通用户
 	 * unreal   未认证的普通用户
-	 * all   所有用户
+	 * all   所有用户  
 	 * 
-	 * @param tag    希望查找的tagName
+	 * @param tag  希望查找的目标tag (common、unreal等)
+	 * @param levelTag   操作者的层级tag（minus_first、zero、first、second、third、fourth）
+	 * @param lid			操作者的层级ID
 	 * @return
 	 */
 	public List<Member> getManagers(String tag, String levelTag, String lid);
 	
 	/**
-	 * 获取某一层级对象的子孙层级所管辖的用户，而非直辖用户
+	 * 获取某一层级对象的子孙层级所管辖的用户，但不包括直辖用户
 	 * 本方法与getManager相对
 	 * @param tag   操作者层级的grouping.tag (minus_first、zero、first、second、third、fourth)
 	 * @param lid    操作者层级的lid
 	 * @return
 	 */
 	public List<User> getChildrenLevelUsers(String tag, String lid);
+	
+	
+	/**
+	 * 获取指定层级对象管理之下的所有用户数据，即其“直辖”和“非直辖”的总和
+	 * 
+	 * @param tag 待查的目标层级的标记，可选用的是minus_first、zero、first、second、third、fourth、
+	 * @param lid	待查的目标层级的ID
+	 * @return
+	 */
+	public List<User> getAllLevelUsers(String tag, String lid);
 	
 	/**
 	 * 根据用户名获取指定对象

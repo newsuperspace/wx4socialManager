@@ -292,6 +292,44 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 		}
 		return users;
 	}
+
+	@Override
+	public List<User> getAllLevelUsers(String tag, String lid) {
+		List<User> users = null;
+		switch (tag) {
+		case "minus_first":
+			users = (List<User>) this.getHibernateTemplate().find(
+					"from User u inner join fetch u.members m inner join fetch m.minusFirstLevel mfl where mfl.mflid=?",
+					lid);
+			break;
+		case "zero":
+			users = (List<User>) this.getHibernateTemplate().find(
+					"from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where zl.zid=?",
+					lid);
+			break;
+		case "first":
+			users = (List<User>) this.getHibernateTemplate().find(
+					"from User u inner join fetch u.members m inner join fetch m.firstLevel fl where fl.flid=?",
+					lid);
+			break;
+		case "second":
+			users = (List<User>) this.getHibernateTemplate().find(
+					"from User u inner join fetch u.members m inner join fetch m.secondLevel scl where scl.scid=?",
+					lid);
+			break;
+		case "third":
+			users = (List<User>) this.getHibernateTemplate().find(
+					"from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where tl.thid=?",
+					lid);
+			break;
+		case "fourth":
+			users = (List<User>) this.getHibernateTemplate().find(
+					"from User u inner join fetch u.members m inner join fetch m.fourthLevel fl where fl.foid=?",
+					lid);
+			break;
+		}
+		return users;
+	}
 	
 	
 }

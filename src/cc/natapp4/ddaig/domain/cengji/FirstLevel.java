@@ -60,11 +60,9 @@ public class FirstLevel implements LevelInterface {
 	private List<Geographic> geographics;
 	
 	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
-	private List<SecondLevel> children4Ajax;
 	private List<SecondLevel> allChildren4Ajax;
 
 	// ==================================SETTERs/GETTERs=====================================
-	
 	
 	// AJAX   获取所有子层级
 	public List<SecondLevel> getAllChildren4Ajax() {
@@ -88,24 +86,6 @@ public class FirstLevel implements LevelInterface {
 		this.geographics = geographics;
 	}
 
-	// AJAX   获取所有还未分配管理者的子层级
-	public List<SecondLevel> getChildren4Ajax() {
-
-		List<SecondLevel> list = new ArrayList<SecondLevel>();
-
-		Set<SecondLevel> ch = this.getChildren();
-		Iterator<SecondLevel> iterator = ch.iterator();
-		while (iterator.hasNext()) {
-			SecondLevel second = iterator.next();
-			if (0 == second.getManagers().size()) {
-				second.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
-				list.add(second);
-			}
-		}
-		return list;
-	}
-
-	
 	
 	public long getQrcodeTime() {
 		return qrcodeTime;

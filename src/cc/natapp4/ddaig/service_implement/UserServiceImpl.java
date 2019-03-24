@@ -204,4 +204,9 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		return dao.getChildrenLevelUsers(tag, lid);
 	}
 
+	@Override
+	public List<User> getAllLevelUsers(String tag, String lid) {
+		return dao.getAllLevelUsers(tag, lid);
+	}
+
 }

@@ -59,7 +59,6 @@ public class SecondLevel implements LevelInterface {
 	private Set<BesureProject> besureProjects;
 
 	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
-	private List<ThirdLevel> children4Ajax;
 	private List<ThirdLevel> allChildren4Ajax;
 
 	// ==================================SETTERs/GETTERs=====================================
@@ -85,23 +84,6 @@ public class SecondLevel implements LevelInterface {
 	}
 	public void setGeographics(List<Geographic> geographics) {
 		this.geographics = geographics;
-	}
-
-	// AJAX
-	public List<ThirdLevel> getChildren4Ajax() {
-
-		List<ThirdLevel> list = new ArrayList<ThirdLevel>();
-
-		Set<ThirdLevel> ch = this.getChildren();
-		Iterator<ThirdLevel> iterator = ch.iterator();
-		while (iterator.hasNext()) {
-			ThirdLevel third = iterator.next();
-			if (0 == third.getManagers().size()) {
-				third.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
-				list.add(third);
-			}
-		}
-		return list;
 	}
 
 	
