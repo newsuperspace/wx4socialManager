@@ -113,14 +113,34 @@
 							</div>
 						</div>
 
+						<!-- 签到方式 -->
+						<div class="row">
+							<div class="col-md-1"></div>
+							<div class="col-md-10">
+								<div class="form-group">
+									<label for="activityType">签到类型</label>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="radio" checked
+											name="sychronizeRadio" id="sychronizeRadio1" value="1">
+										<label class="form-check-label" for="inlineRadio1">签到和签退分开进行</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="radio"
+											name="sychronizeRadio" id="sychronizeRadio2" value="2">
+										<label class="form-check-label" for="inlineRadio2">同步完成签到和签退</label>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+
 						<!-- 活动类型设置 -->
 						<div class="row">
 							<div class="col-md-1"></div>
 							<div class="col-md-10">
 								<div class="form-group">
 									<label for="activityType">活动类型</label> <select
-										class="custom-select" name="activityType"
-										id="activityType"
+										class="custom-select" name="activityType" id="activityType"
 										onchange="activityModal.op.activityTypeChangeListener();activityModal.op.checkInput();">
 										<option value="0" selected>--请选择活动类型--</option>
 										<option value="1">室外活动</option>
@@ -150,7 +170,7 @@
 											</s:iterator>
 										</select>
 									</div>
-
+									<!-- 这个id=calendar 的div就是盛放Calendar插件的容器 -->
 									<div id='calendar' hidden="true"></div>
 
 									<input type="text" data-myInput="me" disabled="true"
@@ -215,7 +235,8 @@
 								<div class="col-md-1"></div>
 							</div>
 						</div>
-
+						
+						<!-- 设置活动获取的积分分值 -->
 						<div class="row">
 							<div class="col-md-1"></div>
 							<div class="col-md-10">
@@ -229,7 +250,8 @@
 							</div>
 							<div class="col-md-1"></div>
 						</div>
-
+						
+						<!-- 发起活动的按钮 -->
 						<div class="row mb-5">
 							<div class="col-md-1"></div>
 							<div class="col-md-10">
@@ -239,8 +261,6 @@
 							</div>
 							<div class="col-md-1"></div>
 						</div>
-
-
 
 					</div>
 				</div>

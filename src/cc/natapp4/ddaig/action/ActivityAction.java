@@ -163,6 +163,15 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		this.date4selector = date4selector;
 	}
 
+	// createActivity.jsp中用于选择签到方式的name="sychronizeRadio"的 Radio表单的值
+	private int sychronizeRadio;
+	public int getSychronizeRadio() {
+		return sychronizeRadio;
+	}
+	public void setSychronizeRadio(int sychronizeRadio) {
+		this.sychronizeRadio = sychronizeRadio;
+	}
+
 	// ==============================模型驱动==============================
 	private Activity activity;
 
@@ -358,9 +367,11 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		ActionContext.getContext().put("size", size);
 		// 过滤出可用的house
 		List<House> list = new ArrayList<House>();
-		for (House h : houses) {
-			if (h.isEnable()) {
-				list.add(h);
+		if(null!=houses){
+			for (House h : houses) {
+				if (h.isEnable()) {
+					list.add(h);
+				}
 			}
 		}
 		ActionContext.getContext().put("houses", list);
@@ -412,6 +423,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 
 		String name = this.activity.getName();
 		String dpid = this.dpid;
+		boolean synchronize = this.activity.isSynchronize();
 		String description = this.activity.getDescription();
 		String activityType = this.activity.getActivityType();
 		String type = this.activity.getType(); // 默认为1
@@ -591,8 +603,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				hour = 1;
 			}
 		}
-		// TODO
-		// 校验活动积分：实际应该“参与人数*score”得到单次活动花费，不应小于当前doingProject的lastLaborCost（项目剩余积分）
+		// TODO  校验活动积分：实际应该“参与人数*score”得到单次活动花费，不应小于当前doingProject的lastLaborCost（项目剩余积分）
 		if (score < 0 || score > 5) {
 			score = 0;
 		}
@@ -656,13 +667,22 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		activity.setQrcodeUrl(qrcodeUri);
 		activity.setAid(aid);
 
+		//  保存活动签到模式——“1”是签到和签退分开；“2”是同步签到签退
+		if(1==this.getSychronizeRadio()){
+			// 签到和签退分开进行
+			activity.setSynchronize(false);
+		}else if(2==this.getSychronizeRadio()){
+			// 同步完成签到和签退
+			activity.setSynchronize(true);
+		}
+		
 		// 由于Activity和Article是一一对应的关系，因此必须在数据库同时存在activity和article
 		Article art  =  new  Article();
-		art.setActivity(activity);
 		art.setContent("");
 		art.setForwardingNum(0);
 		art.setReadingNum(0);
 		art.setTitle("");
+		art.setActivity(activity);
 		activity.setArticle(art);
 
 		// 设置剩余的其他内容

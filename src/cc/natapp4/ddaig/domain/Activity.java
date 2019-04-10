@@ -68,6 +68,14 @@ public class Activity implements Serializable {
 	private String state;
 
 	/*
+	 * 本次活动是否是“同步签到签退”，即活动参与者在扫码或基于定位完成签到同时，也完成了签退的逻辑，实现积分和服务时常的累计计算（服务时常默认活动时长）
+	 * true		活动是“同步签到签退”活动
+	 * false		活动是需要先签到然后再签退的活动
+	 */
+	private boolean synchronize = false;
+	
+	
+	/*
 	 * 报名的用户列表 如果你报名了，但是截止到活动结束后你没有来（签到），则会降低用户的 信誉值？ 经验值（时长）？ 积分？ 选择哪一个合适呢，想想？
 	 */
 	private List<Visitor> visitors; // 实际参与活动的用户列表
@@ -123,6 +131,8 @@ public class Activity implements Serializable {
 	}
 
 	/*
+	 * 非与数据库有关的的ORM字段，仅仅用于前端组织JSP页面时用于获取并显示按钮状态的属性
+	 * 
 	 * joinedActivityList.jsp页面中需要根据当前活动的状态来动态展现按钮，
 	 * 本属性就是给JSP页面上的struts标签动态显示不同按钮的依据。 
 	 * （1）可取消————活动的报名期限还没结束，可以取消报名； √
@@ -132,6 +142,8 @@ public class Activity implements Serializable {
 	 * （4）已签到
 	 *  （5）已签退 
 	 *  （6）已爽约		√
+	 *  
+	 *  (7) 同步签到签退
 	 * 
 	 */
 	private String buttonState;
@@ -158,8 +170,14 @@ public class Activity implements Serializable {
 						// 用户还未签到，因此可以签到
 						buttonState = "可签到";
 					} else {
-						// 用户已签到，无需重复签到
-						buttonState = "已签到";
+						if(isSynchronize()){
+							// 同步签到签退的活动
+							buttonState = "同步签到签退";
+						}else{
+							// 正常签到/签退的活动
+							// 用户已签到，无需重复签到
+							buttonState = "已签到";
+						}
 					}
 				}
 			}
@@ -179,12 +197,17 @@ public class Activity implements Serializable {
 					} else if (-1 == endTime) {
 						buttonState = "可签退";
 					} else {
-						buttonState = "已签退";
+						if(isSynchronize()){
+							// 同步签到签退
+							buttonState = "同步签到签退";
+						}else{
+							// 正常签到和签退互动
+							buttonState = "已签退";
+						}
 					}
 				}
 			}
 		}
-
 		return buttonState;
 	}
 
@@ -228,6 +251,15 @@ public class Activity implements Serializable {
 	}
 
 	// ============SETTERs/GETTERs===============
+	
+	
+	public boolean isSynchronize() {
+		return synchronize;
+	}
+	
+	public void setSynchronize(boolean synchronize) {
+		this.synchronize = synchronize;
+	}
 	
 	public Article getArticle() {
 		return article;

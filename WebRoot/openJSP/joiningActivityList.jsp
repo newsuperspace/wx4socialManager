@@ -132,6 +132,10 @@
 							<s:a onclick="shuangYue();" href="#"
 								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">您已爽约</s:a>
 						</s:elseif>
+						<s:elseif test="buttonState=='同步签到签退'">
+							<s:a onclick="sychronize('%{theVisitor.startTimeStr}');" href="#"
+								cssClass="weui-form-preview__btn weui-form-preview__btn_primary">您已同步签到/退</s:a>
+						</s:elseif>
 					</div>
 				</div>
 			</div>
@@ -298,5 +302,10 @@
 	function shuangYue() {
 		weui.alert("由于你没有在活动开始后30分钟内签到，已被系统认定为爽约，如有疑问请联系管理员");
 	}
+	
+	function sychronize(time) {
+		weui.alert("您已与"+time+"同步完成签到和签退，无需再签退了");
+	}
+	
 </script>
 </html>

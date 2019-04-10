@@ -2891,7 +2891,9 @@ var activityModal = {
 			let date4selector = $("#date4selector").val(); // 室外
 			let hour = $("#hour").val(); // 室外
 			let score = $("#score").val();
-
+			
+			let sychronizeRadio = $('input:radio[name="sychronizeRadio"]:checked').val();
+			
 			var param = {
 				"dpid" : dpid,
 				"activityType" : activityType,
@@ -2905,6 +2907,7 @@ var activityModal = {
 				"date4selector" : date4selector, // 室外
 				"hour" : hour, // 室外
 				"score" : score,
+				"sychronizeRadio": sychronizeRadio
 			}
 			$.post(url, param, function(data, textStatus, req) {
 				if (data.result) {

@@ -1021,26 +1021,52 @@ public class PersonalCenterAction extends ActionSupport {
 		info.setTotal("签到结果");
 
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		User user  =  userService.queryByOpenId(openid);
 		Activity activity = activityService.queryEntityById(this.aid);
 		List<Visitor> visitors = activity.getVisitors();
 		for (Visitor v : visitors) {
 			if (v.getUser().getOpenid().equals(openid)) {
 				if (-1 == v.getStartTime()) {
+					// - 如果没有签到 - 
 					long currentTimeMillis = System.currentTimeMillis();
 					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
-					// 向visitor中记录签到时间
-					v.setStartTime(currentTimeMillis);
-					v.setStartTimeStr(dateTimeStr);
-					// 组织Info信息，用作msgPage页面显示
-					info.setDetails("");
-					info.setDetailsURL("");
-					info.setIcon("weui-icon-success");
-					info.setTitle("签到成功");
-					info.setMessage("您已于" + dateTimeStr + "完成签到!请准备参加活动，过程中务必注意安全");
+					if(activity.isSynchronize()){
+						// -- 同步签到/签退活动 --
+						// 向visitor中记录签到时间
+						v.setStartTime(currentTimeMillis);
+						v.setStartTimeStr(dateTimeStr);
+						// 同时也向visitor中记录签退时间
+						v.setEndTime(currentTimeMillis);
+						v.setEndTimeStr(dateTimeStr);
+						// 给予用户积分
+						v.setScore(activity.getScore());
+						user.setScore(user.getScore() + activity.getScore());
+						// 计算本次活动时常，同步签到签退活动默认累计的活动时长为整个活动时长
+						v.setWorkTime(activity.getActivityEndTime()-activity.getActivityBeginTime());
+						
+						// 组织Info信息，用作msgPage页面显示
+						info.setDetails("");
+						info.setDetailsURL("");
+						info.setIcon("weui-icon-success");
+						info.setTitle("签到成功");
+						info.setMessage("您已于" + dateTimeStr + "同时完成签到和签退!请准备参加活动，过程中务必注意安全");
+					}else{
+						// -- 签到和签退分开的活动 --
+						// 向visitor中记录签到时间
+						v.setStartTime(currentTimeMillis);
+						v.setStartTimeStr(dateTimeStr);
+						// 组织Info信息，用作msgPage页面显示
+						info.setDetails("");
+						info.setDetailsURL("");
+						info.setIcon("weui-icon-success");
+						info.setTitle("签到成功");
+						info.setMessage("您已于" + dateTimeStr + "完成签到!请准备参加活动，过程中务必注意安全");
+					}
 					// 向数据库中保存签到时间
 					visitorService.update(v);
 				} else {
+					// - 已经签到完成 - 
 					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(v.getStartTime()));
 					info.setDetails("");
@@ -1066,6 +1092,7 @@ public class PersonalCenterAction extends ActionSupport {
 		info.setTotal("签到结果");
 
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		User user  =  userService.queryByOpenId(openid);
 		Activity activity = activityService.queryEntityById(this.aid);
 		List<Visitor> visitors = activity.getVisitors();
 		for (Visitor v : visitors) {
@@ -1099,20 +1126,43 @@ public class PersonalCenterAction extends ActionSupport {
 
 					if (PositionUtils.inTheAround(new double[] { olat, olon }, orad,
 							new double[] { this.latitude, this.longitude })) {
-						// 签到位置在有效签到范围内，允许签到
-						// 向visitor中记录签到时间
-						v.setStartTime(currentTimeMillis);
-						v.setStartTimeStr(dateTimeStr);
-						// 组织Info信息，用作msgPage页面显示
-						info.setDetails("");
-						info.setDetailsURL("");
-						info.setIcon("weui-icon-success");
-						info.setTitle("签到成功");
-						info.setMessage("您已于" + dateTimeStr + "完成签到！请准备参加活动，过程中务必注意安全");
+						// - 签到位置在有效签到范围内，允许签到 -
+						// -- 开始甄别活动签到方式 --
+						if(activity.isSynchronize()){
+							//--- 同步签到和签退 ---
+							// 向visitor中记录签到时间
+							v.setStartTime(currentTimeMillis);
+							v.setStartTimeStr(dateTimeStr);
+							// 同时也向visitor中记录签退时间（与签到时间相同）
+							v.setEndTime(currentTimeMillis);
+							v.setEndTimeStr(dateTimeStr);
+							// 给予用户积分
+							v.setScore(activity.getScore());
+							user.setScore(user.getScore() + activity.getScore());
+							// 同步签到和签退的活动时长累计是以活动总时长为默认值的
+							v.setWorkTime(activity.getActivityEndTime()-activity.getActivityBeginTime());
+							// 组织Info信息，用作msgPage页面显示
+							info.setDetails("");
+							info.setDetailsURL("");
+							info.setIcon("weui-icon-success");
+							info.setTitle("签到成功");
+							info.setMessage("您已于" + dateTimeStr + "同时完成签到和签退！请准备参加活动，过程中务必注意安全");
+						}else{
+							// ---分别签到和签退---
+							// 向visitor中记录签到时间
+							v.setStartTime(currentTimeMillis);
+							v.setStartTimeStr(dateTimeStr);
+							// 组织Info信息，用作msgPage页面显示
+							info.setDetails("");
+							info.setDetailsURL("");
+							info.setIcon("weui-icon-success");
+							info.setTitle("签到成功");
+							info.setMessage("您已于" + dateTimeStr + "完成签到！请准备参加活动，过程中务必注意安全");
+						}
 						// 向数据库中保存签到时间
 						visitorService.update(v);
 					} else {
-						// 签到位置不再有效签到范围额内，禁止签到
+						// -签到位置不再有效签到范围额内，禁止签到-
 						info.setDetails("");
 						info.setDetailsURL("");
 						info.setIcon("weui-icon-warn-red");
