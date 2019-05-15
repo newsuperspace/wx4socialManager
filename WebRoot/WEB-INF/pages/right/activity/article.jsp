@@ -46,10 +46,9 @@
 
 									<s:a cssClass="btn btn-sm btn-outline-secondary" role="button"
 										onclick="toInputPage('%{artid}');" href="#">编写</s:a>
-									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#orderProjects">
-										<span class="glyphicon glyphicon-sort-by-order"></span> 模态2
-									</button>
+									<s:a cssClass="btn btn-sm btn-outline-secondary" role="button"
+										onclick="downArticle('%{artid}');" href="#">下载</s:a>
+									
 									<div class="dropdown ml-1">
 										<button
 											class="btn btn-sm btn-outline-secondary dropdown-toggle"
@@ -156,6 +155,10 @@
 	
 	function home(){
 		weui.alert("此處應該返回首頁");
+	}
+	
+	function downArticle(artid){
+		$(location).attr("href","articleAction_download.action?artid="+artid);
 	}
 
 </script>

@@ -14,8 +14,18 @@
 		strict-method-invocation="false">
 		<action name="articleAction_*" method="{1}" class="articleAction">
 			<result>/WEB-INF/pages/right/activity/article.jsp</result>
-			<result name="inputPage">/WEB-INF/pages/right/activity/articleInputPage.jsp</result>
+			<result name="inputPage">/WEB-INF/pages/right/activity/articleInputPage.jsp
+			</result>
 			<result name="json" type="json"></result>
+
+			<result type="stream" name="download">
+				<param name="contentType">
+					application/octet-stream;charset=ISO8859-1
+				</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename=${fileName}</param>
+				<param name="bufferSize">4096</param>
+			</result>
 		</action>
 	</package>
 </struts>

@@ -3,6 +3,7 @@ package cc.natapp4.ddaig.action;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -32,6 +33,7 @@ import cc.natapp4.ddaig.service_interface.DoingProjectService;
 import cc.natapp4.ddaig.service_interface.GeographicService;
 import cc.natapp4.ddaig.service_interface.HouseService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cn.com.obj.freemarker.ExportDoc;
 
 @Controller("articleAction")
 @Scope("prototype")
@@ -229,6 +231,54 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
+	
+	
+	// =================================基于Struts2的下载功能================================
+	// 该is属性将作为在struts-article.xml中，名为download的结果集中所使用的，用来向前端提供下载
+	private InputStream inputStream;
+	public InputStream getInputStream() {
+		return inputStream;
+	}
+	public void setInputStream(InputStream inputStream) {
+		this.inputStream = inputStream;
+	}
+	/**
+	 *  负责下载活动记录表
+	 * @return
+	 * @throws Exception 
+	 */
+	public String  download() throws Exception{
+		// 先找到文章
+		Article art = articleService.queryEntityById(this.article.getArtid());
+		// 开始创建DOC
+		ExportDoc maker = new ExportDoc("UTF-8");
+		String fileName = "WEB-INF"+File.separator+"download"+File.separator+art.getActivity().getName()+".doc";
+        maker.exportDoc(art, ServletActionContext.getServletContext().getRealPath(fileName), "test.ftl"); 
+        System.out.println("创建成功！");
+		
+        /*
+         * ★★★★★基于Struts2的文件下载★★★★★
+         * 以下内容需要特别注意，下方的inputStream和fileName字段必须像下方
+         * this.inputStream = ServletActionContext.getServletContext().getResourceAsStream(File.separator+fileName);
+         * String s  =  art.getActivity().getName()+".doc";
+         * this.fileName = new String(s.getBytes(),"ISO8859-1");
+         * 这样编写，要十分注意的是
+         * 1、在通过servletActionContext获取资源的输入流时，此处传进去的一定是以当前web应用部署到
+         * 服务器后的文件名（此处为weixin）为根目录的，以“\”为起始的相对路径，否则会报出
+         * Can not find a java.io.InputStream with the name [inputStream] in the invocation stack错误
+         * 2、在设置fileName为下载时的文件名，不能直接使用汉字作为文件名，否则会报出
+         * Can not find a java.io.InputStream with the name [inputStream] in the invocation stack错误
+         * 可行的方式就像这样，将汉字文件名字符串（包含后缀）编码为字节码，然后重新以“ISO8859-1”解码为
+         * 字符串，然后就可用了。
+         *
+         */
+        this.inputStream = ServletActionContext.getServletContext().getResourceAsStream(File.separator+fileName);
+        String s  =  art.getActivity().getName()+".doc";
+        this.fileName = new String(s.getBytes(),"ISO8859-1");
+        
+		return "download";
+	}
+	
 	
 	
 }
