@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<version>0.0.1-SNAPSHOT</version>
@@ -12,10 +13,37 @@
 	</properties>
 
 
-
-
-
 	<dependencies>
+
+		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
+		<!-- 由于JavaSE版本升级到了更高的1.8版本，不手动加这些jar会报出 
+			（1）nested exception is java.lang.NoClassDefFoundError: javax/xml/bind/JAXBException 
+			（2）javax.xml.bind.JAXBException: Implementation of JAXB-API has not been found on module path or classpath.
+			（3）Invocation of init method failed; nested exception is org.hibernate.internal.util.config.ConfigurationException: 
+			Unable to perform unmarshalling at line number 0 and column 0 in URL 
+			file:/C:/apache-tomcat-9.0.4/webapps/weixin/WEB-INF/classes/hibernate/hibernate.cfg.xml. Message: null等异常 
+		-->
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-core</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
 
 		<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
 		<dependency>
@@ -132,7 +160,7 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.16</version>
+			<version>1.2.17</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
