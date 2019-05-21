@@ -34,7 +34,7 @@
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
 							<h1 class="h2">
-								<s:property value="#title"/>
+								<s:property value="#title" />
 							</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
@@ -94,39 +94,30 @@
 									<s:iterator value="#activities">
 										<tr>
 											<td><s:property value="dpName" /></td>
-											<td><s:a href="#" onclick="activityModal.op.showDetialModal('%{aid}');"><s:property value="name" /></s:a></td>
+											<td><s:a href="#"
+													onclick="activityModal.op.showDetialModal('%{aid}');">
+													<s:property value="name" />
+												</s:a></td>
 											<td><s:property value="description" /></td>
 											<td><s:property value="beginTimeStr" /></td>
 											<td><s:property value="endTimeStr" /></td>
-											<td>
-												<s:if test="%{type==1}">开放报名</s:if>
-												<s:elseif test="%{type==2}">限定人数</s:elseif>
-												<s:else>缺失</s:else>
-											</td>
-											<td>
-												<s:a href="#"
-													onclick="toVisitorList('%{aid}');">
+											<td><s:if test="%{type==1}">开放报名</s:if> <s:elseif
+													test="%{type==2}">限定人数</s:elseif> <s:else>缺失</s:else></td>
+											<td><s:a href="#" onclick="toVisitorList('%{aid}');">
 													<s:property value="visitors.size()" />
-												</s:a>
-											</td>
+												</s:a></td>
 											<td><s:property value="score" /></td>
-											<td>
-												<s:if test="%{state=='筹备中'}">筹备中</s:if>
-												<s:elseif test="%{state=='进行中'}">进行中</s:elseif>
-												<s:elseif test="%{state=='已取消'}">已取消</s:elseif>
-												<s:elseif test="%{state=='已完成'}">已完成</s:elseif>
-												<s:elseif test="%{state=='即将开始'}">即将开始</s:elseif>
-											</td>
+											<td><s:if test="%{state=='筹备中'}">筹备中</s:if> <s:elseif
+													test="%{state=='进行中'}">进行中</s:elseif> <s:elseif
+													test="%{state=='已取消'}">已取消</s:elseif> <s:elseif
+													test="%{state=='已完成'}">已完成</s:elseif> <s:elseif
+													test="%{state=='即将开始'}">即将开始</s:elseif></td>
 											<td>
 												<div class="btn-group" role="group">
 													<s:a cssClass="btn btn-sm btn-outline-secondary"
-														role="button"
-														onclick="activityModal.op.showVisitors('%{aid}');"
-														href="#">补签</s:a>
+														role="button" onclick="buqian('%{aid}');" href="#">补签</s:a>
 													<s:a cssClass="btn btn-sm btn-outline-secondary"
-														role="button"
-														onclick="toArticlePage('%{aid}');"
-														href="#">活动记录</s:a>
+														role="button" onclick="toArticlePage('%{aid}');" href="#">活动记录</s:a>
 													<s:a cssClass="btn btn-sm btn-outline-secondary"
 														role="button"
 														onclick="activityModal.op.showVisitors('%{aid}');"
@@ -186,8 +177,7 @@
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											活动名:</div>
-										<div class="col-9 text-left text-truncate"
-											id="detial4Name">志愿者服务</div>
+										<div class="col-9 text-left text-truncate" id="detial4Name">志愿者服务</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
@@ -198,14 +188,13 @@
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											活动地点:</div>
-											<div class="col-9 text-left text-truncate"
+										<div class="col-9 text-left text-truncate"
 											id="detial4PositionName">房屋名或地点名</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											AID:</div>
-										<div class="col-9 text-left text-truncate"
-											id="detial4Aid">
+										<div class="col-9 text-left text-truncate" id="detial4Aid">
 											5d7323e0-70b5-4ff6-9c77-3bdd70a507f1</div>
 									</div>
 									<div class="row">
@@ -217,8 +206,8 @@
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											结束时间:</div>
-										<div class="col-9 text-left text-truncate"
-											id="detail4EndTime">2018-12-22 12:56:06</div>
+										<div class="col-9 text-left text-truncate" id="detail4EndTime">2018-12-22
+											12:56:06</div>
 									</div>
 								</div>
 							</div>
@@ -271,18 +260,43 @@
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
 <script>
-	
+
 	// 跳转到活动的新闻稿页面
-	function toArticlePage(aid){
-		$(location).attr("href","articleAction_getArticle.action?aid="+aid);
+	function toArticlePage(aid) {
+		$(location).attr("href", "articleAction_getArticle.action?aid=" + aid);
 	}
-	
+
 	// 跳转到活动的报名参与者列表页面
-	function toVisitorList(aid){
-		let url  =  "activityAction_getVisitorList.action?"+"aid="+aid;
-		$(location).attr("href",url);
+	function toVisitorList(aid) {
+		let url = "activityAction_getVisitorList.action?" + "aid=" + aid;
+		$(location).attr("href", url);
 	}
-	
-	
+
+
+	// 开启补签到的功能入口
+	function buqian(aid) {
+		// 打开微信扫码功能，获取被补签到人的uid
+		var uid = "";
+		wx.scanQRCode({
+			needResult : 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+			scanType : [ "qrCode", "barCode" ], // 可以指定扫二维码还是一维码，默认二者都有
+			success : function(res) {
+				uid = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+				// 将用户uid与活动aid提交给服务器后台处理即可
+				let param = {
+					"aid" : aid,
+					"uid" : uid
+				}
+				let url = "activityAction_buqian.action";
+				$.post(url, param, function(data, textStatus, req) {
+					// 显示后端返回的信息
+					alert(data.message);
+					// 重新加载页面
+					window.location.reload();
+				});
+			}
+		});
+
+	}
 </script>
 </html>

@@ -207,7 +207,7 @@
 		<!-- =================================================模态对话框==================================================== -->
 		
 		<!-- Modal4用户详情 -->
-		<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
+	<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
 			aria-labelledby="detialsModal" aria-hidden="true">
 			<div class="modal-dialog modal-lg" role="document">
 				<div class="modal-content">
@@ -230,69 +230,70 @@
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											用户名:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_username">newsuperspace</div>
+											id="detialsModal_username">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											UID:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_uid">
-											5d7323e0-70b5-4ff6-9c77-3bdd70a507f1</div>
+											id="detialsModal_uid">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											OpenID:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_openid">okNKU0Qdq6WC9bGO22gcp6tSCuJs</div>
+											id="detialsModal_openid">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											注册时间:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_registrationTime">2018-12-22 12:56:06</div>
+											id="detialsModal_registrationTime">XX</div>
 									</div>
+									<!-- 
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											街道:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_minusFirst">呼家楼</div>
+											id="detialsModal_minusFirst">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											社区:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_zero">呼家楼北里</div>
+											id="detialsModal_zero">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											第1层级:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_first">志愿者</div>
+											id="detialsModal_first">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											第2层级:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_second">为老志愿者</div>
+											id="detialsModal_second">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											第3层级:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_third">殷金凤工作室</div>
+											id="detialsModal_third">XX</div>
 									</div>
 									<div class="row">
 										<div class="col-3 text-right font-weight-bold text-truncate">
 											第4层级:</div>
 										<div class="col-9 text-left text-truncate"
-											id="detialsModal_fourth">第一支队</div>
+											id="detialsModal_fourth">XX</div>
 									</div>
+									 -->
 								</div>
 							</div>
 						</div>
 						<div class="modal-footer">
 							<button type="button" class="btn btn-secondary"
-								data-dismiss="modal">Close</button>
+								data-dismiss="modal">关闭</button>
 						</div>
 					</div>
 				</div>

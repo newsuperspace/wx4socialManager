@@ -705,6 +705,21 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		if (null == user) {
 			System.out.println("查找不到待修改的用户数据");
 		} else {
+			// 查看用户的专属二维码图片是否还在，不在则自动重新创建
+			
+			File file = new File(ServletActionContext.getServletContext().getRealPath(File.separator + user.getQrcode()));
+			if (!file.exists()) {
+				// 如果不存在二维码文件，则重新创建二维码文件
+				File parentFile = file.getParentFile();
+				// 判断二维码图片的路径是否存在，不存在就逐层创建
+				if (!parentFile.exists()) {
+					parentFile.mkdirs();
+				}
+				String qrcode = QRCodeUtils.createUserQR(uid);
+				user.setQrcode(qrcode);
+				userService.update(user);
+			}
+			
 			// 修改该用户的qrcode中保存的相对路径 → 拼接成绝对路径url，以此供前端页面上的infoModal对话框的<img
 			// src=""/>的src属性直接使用，以显示该用户的qrcode图片
 			String qrcodeUrl = ServletActionContext.getServletContext().getContextPath() + "/" + user.getQrcode();
@@ -791,6 +806,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			 */
 			for (Member m : user.getMembers()) {
 				switch (tag) {
+				// 如果当前管理者代表的层级是街道层级
 				case "minus_first":
 					/*
 					 * 判断标准解读： 如果便利出的member存在MinusFirstLevel层级对象，且该层级对象与操作者对象（
@@ -801,6 +817,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 					 */
 					if (null != m.getMinusFirstLevel() && m.getMinusFirstLevel().getMflid().equals(lid)
 							&& null == m.getZeroLevel()) {
+						// 则我们就找到了该用户，作为当前操作者代表的街道层级的直辖成员的那个member对象
 						u.setMember(m);
 					}
 					break;
@@ -844,11 +861,17 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				}
 			}
 
-			/**
-			 * managers中存放的是用户作为操作者层级的直辖人员对于其直接自层级的管理信息
-			 * 如果用户是当前操作者层级的直辖人员（u.member!=null），则可以从中找到该用户的所有任职情况
+			/*
+			 * 如果user不是当前操作者层级的直辖人员，经过上方代码的逻辑，此处就不可能从u.getMember()中得到
+			 * 该user作为操作者层级的直辖成员的member对象。
+			 * 而相应的，如果此处memeber！=null，则说明该user就是当前操作者层级的直辖成员
 			 */
 			if (null != u.getMember()) {
+				/*
+				 * 因为该user是当前操作者层级的直辖人员，因此其有资格作为当前操作者层级的直接子层级的管理员
+				 * 因此在表示该user作为当前操作者的直辖人员的member中可以获取该user的所有manager对象
+				 * 每个manager表示该user作为一个当前操作者层级的直辖子层级的管理员身份。
+				 */
 				List<Manager> managers = u.getMember().getManagers();
 				u.setManagers(managers);
 			}
@@ -905,8 +928,10 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		/*
 		 * 当需要将List转化成数组Array的时候是需要像如下方式实现的， 给ArrayList.toArray()传递一个数组实例作为参数。★
 		 */
-		String[] tags = (String[]) tagsList.toArray(new String[0]);
-		u.setTags(tags);
+		if(null!=tagsList){
+			String[] tags = (String[]) tagsList.toArray(new String[0]);
+			u.setTags(tags);
+		}
 
 		// 最后就是将user中的常规属性设置到user4ajax上即可
 		u.setAddress(user.getAddress());

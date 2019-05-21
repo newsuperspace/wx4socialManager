@@ -5,16 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
-import javax.swing.RowFilter.Entry;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.struts2.ServletActionContext;
@@ -40,6 +36,7 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
+import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4CreateActivity;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4StartDayAndEndDay;
 import cc.natapp4.ddaig.service_interface.ActivityService;
@@ -52,6 +49,7 @@ import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
 import cc.natapp4.ddaig.service_interface.SecondLevelService;
 import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.service_interface.VisitorService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.ActivityUtils;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
@@ -62,7 +60,7 @@ import cc.natapp4.ddaig.utils.QRCodeUtils;
 public class ActivityAction extends ActionSupport implements ModelDriven<Activity> {
 
 	/**
-	 *  版本号
+	 * 版本号
 	 */
 	private static final long serialVersionUID = 1L;
 	// ==============================DI注入==============================
@@ -88,7 +86,9 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	private ThirdLevelService thirdLevelService;
 	@Resource(name = "fourthLevelService")
 	private FourthLevelService fourthLevelService;
-	
+	@Resource(name = "visitorService")
+	private VisitorService visitorService;
+
 	// ==============================属性驱动==============================
 	private String hid;
 	private String geoid;
@@ -165,9 +165,11 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 
 	// createActivity.jsp中用于选择签到方式的name="sychronizeRadio"的 Radio表单的值
 	private int sychronizeRadio;
+
 	public int getSychronizeRadio() {
 		return sychronizeRadio;
 	}
+
 	public void setSychronizeRadio(int sychronizeRadio) {
 		this.sychronizeRadio = sychronizeRadio;
 	}
@@ -206,22 +208,21 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	}
 
 	/**
-	 *  在activityList.jsp页面上点击某个活动的报名人数后会调用本方法，用以获取该活动的所有报名数据信息
-	 *  并展示到visitorList.jsp页面上
+	 * 在activityList.jsp页面上点击某个活动的报名人数后会调用本方法，用以获取该活动的所有报名数据信息
+	 * 并展示到visitorList.jsp页面上
+	 * 
 	 * @return
 	 */
-	public String getVisitorList(){
-		
-		List<Visitor>  visitors  =  null;
+	public String getVisitorList() {
+
+		List<Visitor> visitors = null;
 		Activity activity = activityService.queryEntityById(this.activity.getAid());
 		visitors = activity.getVisitors();
-		
+
 		ActionContext.getContext().put("visitors", visitors);
 		return "visitorList";
 	}
-	
-	
-	
+
 	/**
 	 * 【未实现】 根据当前操作者的层级对象，获取该层级对象之下的所有层级对象的所有活动的数据信息，并显示到后台指定的jsp页面上
 	 * 在该JSP页面上可以通过日期选择器/层级选择等方式对数据进行进一步筛选
@@ -265,21 +266,6 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	}
 
 	/**
-	 * TODO 得到参加当前活动的全部User，并返回到一个visitorList.jsp，用来展示哪些人参加了活动。
-	 * 
-	 * @return
-	 */
-	public String getVisitors() {
-		//
-		// String aid = this.activity.getAid();
-		// Activity a = activityService.queryEntityById(aid);
-		// Set<User> users = a.getUsers();
-		//
-		// ActionContext.getContext().put("visitors", users);
-		return "visitorList";
-	}
-
-	/**
 	 * 【完成】 新建活动前的必要准备 （1）将未来新建的活动所属的doingProject的dpid返回到前端页面createActivity.jsp
 	 * （2）根据当前操作执行者所管理的层级对象所拥有的人员数量，设置前端页面createActivity.jsp中设置活动参与人数上线的max属性
 	 * 最后一切设置完毕后，通过struts结果集索引字符串请求转发到用于新建活动的页面————createActivity.jsp
@@ -314,8 +300,8 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		Set<Member> members = null;
 		List<House> houses = null;
 		List<Geographic> geos = null;
-		String  levelTag  = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
-		String  lid  = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+		String levelTag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 		switch (levelTag) {
 		case "minus_first":
 			MinusFirstLevel mfl = minusFirstLevelService.queryEntityById(lid);
@@ -367,7 +353,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		ActionContext.getContext().put("size", size);
 		// 过滤出可用的house
 		List<House> list = new ArrayList<House>();
-		if(null!=houses){
+		if (null != houses) {
 			for (House h : houses) {
 				if (h.isEnable()) {
 					list.add(h);
@@ -545,8 +531,8 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			int max = 0;
 			Set<Member> members = null;
 
-			String  levelTag  = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
-			String  lid  = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+			String levelTag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+			String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 			switch (levelTag) {
 			case "minus_first":
 				MinusFirstLevel mfl = minusFirstLevelService.queryEntityById(lid);
@@ -603,7 +589,8 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				hour = 1;
 			}
 		}
-		// TODO  校验活动积分：实际应该“参与人数*score”得到单次活动花费，不应小于当前doingProject的lastLaborCost（项目剩余积分）
+		// TODO
+		// 校验活动积分：实际应该“参与人数*score”得到单次活动花费，不应小于当前doingProject的lastLaborCost（项目剩余积分）
 		if (score < 0 || score > 5) {
 			score = 0;
 		}
@@ -667,17 +654,17 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		activity.setQrcodeUrl(qrcodeUri);
 		activity.setAid(aid);
 
-		//  保存活动签到模式——“1”是签到和签退分开；“2”是同步签到签退
-		if(1==this.getSychronizeRadio()){
+		// 保存活动签到模式——“1”是签到和签退分开；“2”是同步签到签退
+		if (1 == this.getSychronizeRadio()) {
 			// 签到和签退分开进行
 			activity.setSynchronize(false);
-		}else if(2==this.getSychronizeRadio()){
+		} else if (2 == this.getSychronizeRadio()) {
 			// 同步完成签到和签退
 			activity.setSynchronize(true);
 		}
-		
+
 		// 由于Activity和Article是一一对应的关系，因此必须在数据库同时存在activity和article
-		Article art  =  new  Article();
+		Article art = new Article();
 		art.setContent("");
 		art.setForwardingNum(0);
 		art.setReadingNum(0);
@@ -720,14 +707,14 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	}
 
 	/**
-	 * AJAX
-	 * 获取指定activity的信息到前端显示
+	 * AJAX 获取指定activity的信息到前端显示
+	 * 
 	 * @return
 	 */
-	public String showDetialModal(){
-		
+	public String showDetialModal() {
+
 		Activity a = activityService.queryEntityById(this.activity.getAid());
-		Activity ra  =  new Activity();
+		Activity ra = new Activity();
 		ra.setName(a.getName());
 		ra.setActivityType(a.getActivityType());
 		// 室外活动
@@ -739,7 +726,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		ra.endTimeStr = a.getEndTimeStr();
 		ra.setQrcodeUrl(ServletActionContext.getServletContext().getContextPath() + "/" + a.getQrcodeUrl());
 		ra.setAid(a.getAid());
-		
+
 		ActionContext.getContext().getValueStack().push(ra);
 		return "json";
 	}
@@ -776,6 +763,156 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		}
 
 		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+
+	/**
+	 * 用于补签到的逻辑功能
+	 * 
+	 * @return
+	 */
+	public String buqian() {
+		// 准备必要数据信息
+		ReturnMessage4Common message = new ReturnMessage4Common();
+		String aid = this.activity.getAid();
+		String uid = this.getUid();
+		Activity a = activityService.queryEntityById(aid);
+		User u = userService.queryEntityById(uid);
+		// 先检查是否能查找到该user，如果找不到说明前端扫描的二维码有问题，直接范围错误信息
+		if (null == u) {
+			message.setResult(false);
+			message.setMessage("该二维码可能有误，不存在所指定用户");
+			ActionContext.getContext().getValueStack().push(message);
+			return "json";
+		}
+		// 查看该用户是否已经加入层级，如果没有则直接返回错误信息
+		if (null == u.getMembers() || 0 == u.getMembers().size()) {
+			message.setResult(false);
+			message.setMessage("该用户不在活动发起方的管理之下，无法完成补签");
+			ActionContext.getContext().getValueStack().push(message);
+			return "json";
+		}
+		// 开始遍历该用户中的所有成员，看该用户是否属于当前活动发起方层级之下
+		// 首先确定项目发起方是哪个层级的
+		String lid = "";
+		boolean userIsHere = false; // 待补签用户是否是活动发起方管辖之下
+		if (a.getProject().getThirdLevel() != null) {
+			// 活动发起方为一个thirdLevel层级对象
+			lid = a.getProject().getThirdLevel().getThid();
+			for (Member m : u.getMembers()) {
+				if (null!=m.getThirdLevel() && m.getThirdLevel().getThid().equals(lid)) {
+					userIsHere = true;
+					break;
+				}
+			}
+		} else if (a.getProject().getSecondLevel() != null) {
+			// 活动发起方为一个secondLevel层级对象
+			lid = a.getProject().getSecondLevel().getScid();
+			for (Member m : u.getMembers()) {
+				if (null!=m.getSecondLevel() && m.getSecondLevel().getScid().equals(lid)) {
+					userIsHere = true;
+					break;
+				}
+			}
+		} else if (a.getProject().getFirstLevel() != null) {
+			// 活动发起方为一个firstLevel层级对象
+			lid = a.getProject().getFirstLevel().getFlid();
+			for (Member m : u.getMembers()) {
+				if (null!=m.getFirstLevel() && m.getFirstLevel().getFlid().equals(lid)) {
+					userIsHere = true;
+					break;
+				}
+			}
+		} else if (a.getProject().getZeroLevel() != null) {
+			// 活动发起方为一个zeroLevel层级对象
+			lid = a.getProject().getZeroLevel().getZid();
+			for (Member m : u.getMembers()) {
+				if (null!=m.getZeroLevel() && m.getZeroLevel().getZid().equals(lid)) {
+					userIsHere = true;
+					break;
+				}
+			}
+
+		} else if (a.getProject().getMinusFirstLevel() != null) {
+			// 活动发起方为一个minusFirstLevel层级对象
+			lid = a.getProject().getMinusFirstLevel().getMflid();
+			for (Member m : u.getMembers()) {
+				if (null!=m.getMinusFirstLevel() && m.getMinusFirstLevel().getMflid().equals(lid)) {
+					userIsHere = true;
+					break;
+				}
+			}
+		}
+		// 最终判断被补签用户是否在层级管理之下
+		if (!userIsHere) {
+			message.setResult(false);
+			message.setMessage("该用户不在活动发起方的层级管理之下，无法签到");
+			ActionContext.getContext().getValueStack().push(message);
+			return "json";
+		}
+
+		// 如果用户存在且属于层级管理之下，则遍历当前activity的visitor中是否已经存在该用户的信息，如果是则在此基础上完成签到，如果没有则新建visitor完成签到
+		List<Visitor> visitors = a.getVisitors();
+		Visitor visitor = null;
+		for (Visitor v : visitors) {
+			if (v.getUser().getUid().equals(uid)) {
+				visitor = v;
+				break;
+			}
+		}
+		if (null == visitor) {
+			// 补签用户没有报名，则新建一个visitor
+			visitor = new Visitor();
+			visitor.setScore(a.getScore());
+			u.setScore(u.getScore() + a.getScore());
+			visitor.setActivity(a);
+			visitor.setUser(u);
+			// 设置签到和签退时间，均为当前补签时间
+			long currentTimeMillis = System.currentTimeMillis();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			String dateTimeStr = formatter.format(new Date(currentTimeMillis));
+			visitor.setStartTime(currentTimeMillis);
+			visitor.setEndTime(currentTimeMillis);
+			visitor.setStartTimeStr(dateTimeStr);
+			visitor.setEndTimeStr(dateTimeStr);
+			// 设置默认服务时常为活动总时间
+			visitor.setWorkTime(a.getActivityEndTime() - a.getActivityBeginTime());
+			// 检查activity的visitors容器是否存在，不存在手动创建
+			if (null == a.getVisitors()) {
+				a.setVisitors(new ArrayList<Visitor>());
+			}
+			a.getVisitors().add(visitor);
+			// visitor与user和activity级联保存
+			visitorService.save(visitor);
+			activityService.update(a);
+		} else {
+			// 补签用户已经报名,直接使用已有的visitor即可
+			// 先检查该用户是否已经完成钱到了，防止重复签到
+			if(-1!=visitor.getScore()){
+				// 新建visitor的默认数值就是-1，如果没签到则其默认值仍然保持为-1
+				message.setResult(true);
+				message.setMessage("用户：" + u.getUsername() + "已于"+visitor.getEndTimeStr()+"完成签到，无需补签");
+				ActionContext.getContext().getValueStack().push(message);
+				return "json";
+			}
+			// 没有签到则执行补签逻辑
+			visitor.setScore(a.getScore());
+			u.setScore(u.getScore() + a.getScore());
+			long currentTimeMillis = System.currentTimeMillis();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			String dateTimeStr = formatter.format(new Date(currentTimeMillis));
+			visitor.setStartTime(currentTimeMillis);
+			visitor.setEndTime(currentTimeMillis);
+			visitor.setStartTimeStr(dateTimeStr);
+			visitor.setEndTimeStr(dateTimeStr);
+			visitor.setWorkTime(a.getActivityEndTime() - a.getActivityBeginTime());
+			// visitor与user和activity级联更新
+			visitorService.update(visitor);
+		}
+		// 补签完成，向前端返回结果
+		message.setResult(true);
+		message.setMessage("用户：" + u.getUsername() + "补签成功！");
+		ActionContext.getContext().getValueStack().push(message);
 		return "json";
 	}
 
