@@ -141,10 +141,14 @@ public class ShiroAction extends ActionSupport {
 	// ===================Action中的方法=====================
 
 	/**
-	 * 响应 微信端的用户身份认证的自动登陆（自动登录，不需要填写用户名、密码，也不需要扫码等操作
+	 * 【入口】
+	 * Spring配置文件中配置的Shiro认证入口
+	 * 基于shiroFilter过滤来自微信端的请求（在session中存在wxURL）
+	 * 如果存在wxURL则执行微信端的用户身份认证的自动登陆（自动登录，不需要填写用户名、密码，也不需要扫码等操作
 	 * 只是通过微信端基于OAUTH2.0的协议访问指定页面的时候，会将访问者openid兑换码以请求参数的形式传递
 	 * 到服务器，此时就可以将兑换名向微信服务器兑换真正的openid，从而完成自动登录和权限认证操作了） ★
 	 * 
+	 * 如果不存在则说明是非微信端来访，则跳转到桌面端的登陆页面
 	 * @return
 	 */
 	public String login() {
@@ -154,7 +158,7 @@ public class ShiroAction extends ActionSupport {
 		// 获取由MyShiroFilter过滤器放入到session中的，前端所要请求的URL路径（带请求参数）★
 		String wxURL = (String) session.getAttribute("wxURL");
 		/*
-		 * 分析是否在session中存在目标访问的URL 存在——微信端来访者 不存在——桌面端来访者
+		 * 分析是否在session中存在目标访问的URL 存在——确定是微信端来访者； 不存在——确定是桌面端来访者
 		 */
 		if (!StringUtils.isEmpty(wxURL)) {
 			// wxURL包含code请求参数。则说明本次请求是从微信平台发来的（oauth2.0认证）
@@ -202,6 +206,7 @@ public class ShiroAction extends ActionSupport {
 	}
 
 	/**
+	 * 【桌面端-用户名密码登录】
 	 * 通过输入用户名和密码完成登录，该方法用来测试环境下使用实际工作工作环境是通过微信扫码（wx4login()）完成的登录
 	 * 本登录入口方法对应的realm是MyReal4Input类（wx4loging()方法对应的是MyRealm类）
 	 * 
@@ -313,7 +318,7 @@ public class ShiroAction extends ActionSupport {
 
 		LoginResult4WebSocket result = new LoginResult4WebSocket();
 		result.setResult(false);
-		// 保存关键数据openid
+		// 保存关键的登陆数据——openid
 		ServletActionContext.getRequest().getSession().setAttribute("openid", this.openid);
 		// 由于openid登录一律使用默认密码123，所以默认密码也要记录在session中
 		ServletActionContext.getRequest().getSession().setAttribute("password", "123");
@@ -332,11 +337,17 @@ public class ShiroAction extends ActionSupport {
 			result.setMessage("扫码出现异常，无法定位您的管理者身份，请稍候重试");
 			result.setReLocal("");
 		}
+		
+		/*
+		 * 前端收到result后，会从总解析出reLocal的目标跳转地址，然后通过执行
+		 * $(location).attr("href",reLocal); 完成向“管理层选择页面的跳转”
+		 */
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
 
 	/**
+	 * 【正式执行Shiro认证和授权的入口】
 	 * AJAX
 	 * 当微信端来或桌面端（非Admin）访者已经通过 外部认证并在managerSelect.jsp页面上选定要登录的层级的时候
 	 * 会通过shiroAction_authenticationByMyRealm.action?lid=jsodf7932j2jf293jf2&tag

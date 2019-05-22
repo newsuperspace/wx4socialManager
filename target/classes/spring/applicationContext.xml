@@ -50,7 +50,9 @@
 		<!-- 配置 过滤器简称 的 映射 -->
 		<property name="filters">
 			<map>
+				<!-- logoutFilter 是自定义的一个过滤器，负责在用户退出后从httpsession中清除数据 -->
 				<entry key="logout"  value-ref="logoutFilter"></entry>
+				<!-- 自定义的权限选择过滤器，功能是只要拥有权限列表中的一个权限就允许访问不需要全部都拥有 -->
 				<entry key="anyPerms"  value-ref="permissionsAuthorizationFilter"></entry>
 			</map>
 		</property>

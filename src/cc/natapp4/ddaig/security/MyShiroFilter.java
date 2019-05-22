@@ -34,21 +34,21 @@ public class MyShiroFilter extends DelegatingFilterProxy {
 		HttpServletRequest req = (HttpServletRequest) request;
 		// 获取请求参数字符串
 		String parameter = req.getQueryString();
-		System.out.println("本次访问的请求参数字符串：" + parameter);
-		// 对比，通过request.getRequestURL()获取的URL是不包含请求参数的，如果要得到请求参数，需要request.getQueryString()用于获取参
-		// 数信息
+		System.out.println("\"请求\"的参数字符串：" + parameter);
+		// 对比，通过request.getRequestURL()获取的URL是不包含请求参数的，如果要得到请求参数，需要request.getQueryString()用于获取参数信息
 		StringBuffer urlStr = req.getRequestURL();
-		System.out.println("本次访问的URL是:" + urlStr.toString());
+		System.out.println("\"请求\"的无参数URL:" + urlStr.toString());
 
 		String code = req.getParameter("code");
+		// 如果存在名为code的请求参数，说明本次来访是微信通过Author2.0跳转过来的请求
 		if (!StringUtils.isEmpty(code)) {
 			// 获取session
 			HttpSession session = req.getSession();
 			// 打印请求参数code
-			System.out.println("本次请求包含code值：" + code);
+			System.out.println("\"请求\"包含code值：" + code);
 			urlStr.append("?");
 			urlStr.append(parameter);
-			System.out.println("最终存入Session的完整wxURL：" + urlStr);
+			System.out.println("\"请求\"的完整wxURL：" + urlStr);
 			
 			session.setAttribute("wxURL", urlStr.toString());
 		}

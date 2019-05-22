@@ -30,7 +30,7 @@ public class WebSocketHandler4Login extends TextWebSocketHandler {
 		
 		context.removeAttribute(uuid);
 		String urlQR = context.getResource("/"+qrcode).getPath();
-		System.out.println("要删除的登录用二维码的URL是：" + urlQR);
+		System.out.println("删除登录用二维码URL：" + urlQR);
 		File  file  =  new File(urlQR);
 		// 删除用于登录用的密钥二维码
 		file.delete();

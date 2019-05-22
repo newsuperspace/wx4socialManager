@@ -11,6 +11,25 @@ import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.util.CollectionUtils;
 
+
+/**
+ * 本类会在Spring的applicationContext.xml中进行配置（作为一个bean）
+ * 并且将当前工程中自定义的两个realm作为引用属性添加到其中
+ * 
+ * 这样当方法doAuthenticate() 基于我们自定义的token类型（继承自shiro原生类型UsernamePasswordToken的MyUsernamePasswordToken）
+ * 中的loginType字段中获取用户登录要使用的realm的名称后
+ * 
+ * 就可以将该realm的实例，通过形如： this.definedRealms.get("myRealm");  的方式取出来，随同token一起作为
+ * doSingleRealmAuthentication() 的参数调用，该方法内部会执行 realm的“认证”逻辑，并且在认证成功后执行“授权”逻辑
+ * 从而完成整个shiro的认证授权操作。
+ * 
+ * 因此我们会发现Modular对于shiro来说就是一个管控多个realm的调用中心
+ * 
+ * 
+ * 
+ * @author Administrator
+ *
+ */
 public class MyModularRealmAuthenticator extends ModularRealmAuthenticator {
 
 	private Map<String, Object> definedRealms;
@@ -43,6 +62,9 @@ public class MyModularRealmAuthenticator extends ModularRealmAuthenticator {
         }
         AuthenticationInfo info = null;
         try {
+        	/*
+        	 *  本类会在Spring的applicationContext.xml中配置，并将当前工程中
+        	 */
             info = realm.getAuthenticationInfo(token);
 
             if (info == null) {

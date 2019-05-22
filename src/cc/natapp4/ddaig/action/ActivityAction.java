@@ -881,10 +881,17 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			if (null == a.getVisitors()) {
 				a.setVisitors(new ArrayList<Visitor>());
 			}
+			
+			/*
+			 * 因为activity和user中的visitors（List）容器会保留visitor的先后顺序，为了让Hibernate自动维护顺序，
+			 * 也需要向a和u的List容器中添加新建的visitor
+			 */
 			a.getVisitors().add(visitor);
-			// visitor与user和activity级联保存
+			u.getVisits().add(visitor);
+			// 分别保存visitor和更新user、activity级联保存
 			visitorService.save(visitor);
 			activityService.update(a);
+			userService.update(u);
 		} else {
 			// 补签用户已经报名,直接使用已有的visitor即可
 			// 先检查该用户是否已经完成钱到了，防止重复签到
