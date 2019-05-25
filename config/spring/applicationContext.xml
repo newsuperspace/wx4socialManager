@@ -86,6 +86,13 @@
 				<!-- temp中存放的是用于登录用的临时二维码，也属于静态资源所以要"豁免shiro" -->
 				/temp/** = anon
 				
+				<!-- 用户选择下载的临时生成的数据文件，
+						由于微信端下载可能会调用手机浏览器下载使得session不一致造成重新认证的现象，因此 
+						选择赦免这些用于下载文件的action方法
+				-->
+				/articleAction_downloadArticle.action = anon
+				
+				
 				<!-- Websocket的访问方式也会收到Shiro的拦截，因此也必须豁免所有/ws的访问方式 -->
 				/ws/** = anon
 				

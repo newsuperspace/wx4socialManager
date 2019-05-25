@@ -28,7 +28,7 @@ public class ExportDoc {
 		// 设置字符集编码
 		configuration.setDefaultEncoding(encoding);
 		// 设定去哪里读取相应的ftl模板文件
-		configuration.setClassForTemplateLoading(this.getClass(), "/templates");
+		configuration.setClassForTemplateLoading(this.getClass(), "/templates4freemarker");
 	}
 
 	/**
@@ -78,8 +78,14 @@ public class ExportDoc {
 	 * @throws Exception
 	 */
 	public void exportDoc(Article a, String doc, String name) throws Exception {
-		Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(doc), encoding));
-		getTemplate(name).process(getDataMap4Article(a), writer);
+		FileOutputStream  out = new FileOutputStream(doc);
+		OutputStreamWriter  writer =  new OutputStreamWriter(out,this.encoding);
+		BufferedWriter bufferWriter = new BufferedWriter(writer);
+		getTemplate(name).process(getDataMap4Article(a), bufferWriter);
+		// 一定要关闭流啊，不然创建的临时数据doc文件下载完毕后不能立刻删除
+		bufferWriter.close();
+		writer.close();
+		out.close();
 	}
 
 }

@@ -158,7 +158,7 @@
 	}
 	
 	function downArticle(artid){
-		$(location).attr("href","articleAction_download.action?artid="+artid);
+		$(location).attr("href","articleAction_downloadArticle.action?artid="+artid);
 	}
 
 </script>

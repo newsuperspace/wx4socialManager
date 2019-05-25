@@ -11,10 +11,18 @@
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 
+	<!-- 设置HttpSession会话域的失效时间（分钟为单位），默认不配置的话是30（分钟） -->
+	<session-config>
+		<session-timeout>15</session-timeout>
+	</session-config>
+
 
 	<!-- 自定义的监听，当系统启动时会执行其中的逻辑，负责进行与微信端有关的初始化工作，并将必要信息存放在ServletContext领域中备用 -->
 	<listener>
 		<listener-class>cc.natapp4.ddaig.servletListener.InitWxConfigListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>cc.natapp4.ddaig.servletListener.SessionClearListener</listener-class>
 	</listener>
 	<!-- 系统中的realm（myRealm和myRealm4Input）作为普通类有获取HttpSession的需要，这个监听器是必要的前置 -->
 	<listener>

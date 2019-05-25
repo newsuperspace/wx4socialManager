@@ -56,8 +56,11 @@
 										</button>
 										<div class="dropdown-menu dropdown-menu-right"
 											aria-labelledby="others">
+											<!-- 
 											<a class="dropdown-item" href="#"
-												onclick="userModal.op.batchCreateQR();">批量重建二维码</a> <a
+												onclick="userModal.op.batchCreateQR();">批量重建二维码</a>
+											 -->
+											 <a
 												class="dropdown-item disabled" href="#">Disabled action</a>
 											<h6 class="dropdown-header">Section header</h6>
 											<a class="dropdown-item" href="#">Action</a>
@@ -271,7 +274,6 @@
 		let url = "activityAction_getVisitorList.action?" + "aid=" + aid;
 		$(location).attr("href", url);
 	}
-
 
 	// 开启补签到的功能入口
 	function buqian(aid) {

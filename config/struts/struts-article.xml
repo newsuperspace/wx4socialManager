@@ -18,7 +18,8 @@
 			</result>
 			<result name="json" type="json"></result>
 
-			<result type="stream" name="download">
+			<!-- 负责处理下载有FreeMarker生成的“活动文章” -->
+			<result type="stream" name="download" >
 				<param name="contentType">
 					application/octet-stream;charset=ISO8859-1
 				</param>

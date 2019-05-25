@@ -1,15 +1,22 @@
 package cc.natapp4.ddaig.action;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.struts2.ServletActionContext;
@@ -24,6 +31,7 @@ import com.opensymphony.xwork2.ModelDriven;
 import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Article;
 import cc.natapp4.ddaig.domain.ArticlePhoto;
+import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4UploadPhoto;
 import cc.natapp4.ddaig.service_interface.ActivityService;
@@ -33,6 +41,7 @@ import cc.natapp4.ddaig.service_interface.DoingProjectService;
 import cc.natapp4.ddaig.service_interface.GeographicService;
 import cc.natapp4.ddaig.service_interface.HouseService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.utils.FileController;
 import cn.com.obj.freemarker.ExportDoc;
 
 @Controller("articleAction")
@@ -61,6 +70,15 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 	private ArticleService articleService;
 
 	// ==============================属性驱动==============================
+	// 用作error全局结果集指定的页面——error.jsp中显示错误的信息内容
+	private String errorMessage;
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
 	// 待删除的ArticlePhoto的apid
 	private String apid;
 	public String getApid() {
@@ -247,15 +265,42 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 	 * @return
 	 * @throws Exception 
 	 */
-	public String  download() throws Exception{
+	public String  downloadArticle() throws Exception{
+		
+//		 ServletContext context = ServletActionContext.getServletContext();
+		
 		// 先找到文章
 		Article art = articleService.queryEntityById(this.article.getArtid());
-		// 开始创建DOC
-		ExportDoc maker = new ExportDoc("UTF-8");
-		String fileName = "WEB-INF"+File.separator+"download"+File.separator+art.getActivity().getName()+".doc";
-        maker.exportDoc(art, ServletActionContext.getServletContext().getRealPath(fileName), "test.ftl"); 
-        System.out.println("创建成功！");
 		
+		/*
+		 * downloadMap 是Map<String,Map<String,String>>类型的容器
+		 * 其中外层String是形如"article"（文章）、“signin”（签到）、“minus_first”（组织人员名单）、“zero”（组织人员名单）等
+		 * 内层Map的键名可以是“aid”（活动的主键ID值）、“lid”（层级对象的主键ID值）等
+		 */
+//		Map<String,Map<String,String>> map = (Map<String, Map<String, String>>) context.getAttribute("downloadMap");
+//		Map<String, String> articleMap = map.get("articleMap");
+//		String fullPath = articleMap.get(art.getArtid());
+//		// 如果找不到待下载文件的磁盘URL，则
+//		if(null==fullPath){
+//			// 开始创建DOC
+//			ExportDoc maker = new ExportDoc("UTF-8");
+//			String fileName = "download"+File.separator+"article";
+//			FileController.makeDirs(ServletActionContext.getServletContext().getRealPath(fileName));
+//			fileName += File.separator+art.getActivity().getName()+".doc";
+//			fullPath = ServletActionContext.getServletContext().getRealPath(fileName);
+//	        maker.exportDoc(art, fullPath, "test.ftl"); 
+//	        articleMap.put(art.getArtid(), fullPath);
+//	        System.out.println("创建成功！");
+//		}
+
+		String fullPath;
+		ExportDoc maker = new ExportDoc("UTF-8");
+		fullPath = "download"+File.separator+"article";
+		FileController.makeDirs(ServletActionContext.getServletContext().getRealPath(fullPath));
+		fullPath += File.separator+art.getActivity().getName()+".docx";
+		fullPath = ServletActionContext.getServletContext().getRealPath(fullPath);
+        maker.exportDoc(art, fullPath, "test.ftl"); 
+        System.out.println("创建成功！");
         /*
          * ★★★★★基于Struts2的文件下载★★★★★
          * 以下内容需要特别注意，下方的inputStream和fileName字段必须像下方
@@ -272,8 +317,33 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
          * 字符串，然后就可用了。
          *
          */
-        this.inputStream = ServletActionContext.getServletContext().getResourceAsStream(File.separator+fileName);
-        String s  =  art.getActivity().getName()+".doc";
+        // -------------------独立准备Struts2用的输入流--------------------
+        
+        File file = new File(fullPath);
+        if(!file.exists()){
+        	// 如果指定路径中不存在文件，则直接返回，引导到在struts.xml配置文件中配置的名为error的全局结果集指定的错误页面反应问题
+        	this.errorMessage = "路径："+fullPath+"下，不存在指定文件，请稍后再试！";
+        	// error结果集索引字符串不是定义在当前Action对应的子配置文件中的，而是定义在struts.xml中配置文件中的全局结果集索引
+        	return "error";
+        }
+        // 如果文件存在，则创建等待下载文件的文件输入流fis，该流失唯一与磁盘临时文件链接的流
+        FileInputStream fis = new FileInputStream (file);
+        // 准备字节数组（字节缓冲区）输出流备用
+		ByteArrayOutputStream swapStream = new ByteArrayOutputStream();  
+        // 准备字节缓冲区（也就是字节数组，1024字节就够用了）用作输入流和输出流的流对接
+		byte[] buff = new byte[1024];  
+		int rc = 0;  
+		while ((rc = fis.read(buff, 0, 1024)) > 0) {  
+			swapStream.write(buff, 0, rc);  
+		}
+		// 将输出流转变为用作下载的输入流，完成数据从待下载磁盘文件转入到下载输入流
+		this.inputStream=new ByteArrayInputStream(swapStream.toByteArray());
+        // 关闭待下载临时文件的输入流，从而该临时文件可以随时删除而又不会影响下载流
+        fis.close();
+        swapStream.close();
+        file.delete();
+        // ---------------准备下载用的文件名（形如：“测试文件.doc”）----------------
+        String s  =  art.getActivity().getName()+".docx";
         this.fileName = new String(s.getBytes(),"ISO8859-1");
         
 		return "download";

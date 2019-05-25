@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
+<title>出现认证授权问题</title>
 </head>
 <body>
 	<h1 style="color: #f00">权限不足</h1>
