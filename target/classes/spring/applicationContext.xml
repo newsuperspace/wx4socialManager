@@ -91,7 +91,7 @@
 						选择赦免这些用于下载文件的action方法
 				-->
 				/articleAction_downloadArticle.action = anon
-				
+				/activityAction_downloadSigninList.action = anon
 				
 				<!-- Websocket的访问方式也会收到Shiro的拦截，因此也必须豁免所有/ws的访问方式 -->
 				/ws/** = anon
