@@ -38,7 +38,7 @@
 									未编写活动记录
 								</s:if>
 								<s:else>
-									<s:property value="activity.name" /> 活动的记录
+									<s:property value="activity.name" /> 的活动记录
 								</s:else>
 							</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
@@ -46,9 +46,11 @@
 
 									<s:a cssClass="btn btn-sm btn-outline-secondary" role="button"
 										onclick="toInputPage('%{artid}');" href="#">编写</s:a>
-									<s:a cssClass="btn btn-sm btn-outline-secondary" role="button"
-										onclick="downArticle('%{artid}');" href="#">下载</s:a>
-									
+									<s:if test="''!=title">
+										<s:a cssClass="btn btn-sm btn-outline-secondary" role="button"
+											onclick="downArticle('%{artid}');" href="#">下载</s:a>
+									</s:if>
+
 									<div class="dropdown ml-1">
 										<button
 											class="btn btn-sm btn-outline-secondary dropdown-toggle"
@@ -75,32 +77,29 @@
 						<div style="background-color: #fff;opacity: 1;">
 							<div style="padding: 20px;">
 								<h1
-									style="text-align: left;font-size: 30px;font-weight: 400;color: crimson"><s:property value="title"/></h1>
+									style="text-align: left;font-size: 30px;font-weight: 400;color: crimson">
+									<s:property value="title" />
+								</h1>
 								<span
 									style="margin-top: 5px;color: #888;text-align: left;font-size: 14px;">
-										<s:if test="activity.project.minusFirstLevel==null">
+									<s:if test="activity.project.minusFirstLevel==null">
 											佚名
-										</s:if>
-										<s:elseif test="activity.project.zeroLevel==null">
-											<s:property value="activity.project.minusFirstLevel.name"/>
-										</s:elseif>
-										<s:elseif test="activity.project.firstLevel==null">
-											<s:property value="activity.project.zeroLevel.name"/>
-										</s:elseif>
-										<s:elseif test="activity.project.secondLevel==null">
-											<s:property value="activity.project.firstLevel.name"/>
-										</s:elseif>
-										<s:elseif test="activity.project.thirdLevel==null">
-											<s:property value="activity.project.secondLevel.name"/>
-										</s:elseif>
-										<s:else>
-											<s:property value="activity.project.thirdLevel.name"/>
-										</s:else>
-									&nbsp;&nbsp;&nbsp;&nbsp;</span>
-								<span
+										</s:if> <s:elseif test="activity.project.zeroLevel==null">
+										<s:property value="activity.project.minusFirstLevel.name" />
+									</s:elseif> <s:elseif test="activity.project.firstLevel==null">
+										<s:property value="activity.project.zeroLevel.name" />
+									</s:elseif> <s:elseif test="activity.project.secondLevel==null">
+										<s:property value="activity.project.firstLevel.name" />
+									</s:elseif> <s:elseif test="activity.project.thirdLevel==null">
+										<s:property value="activity.project.secondLevel.name" />
+									</s:elseif> <s:else>
+										<s:property value="activity.project.thirdLevel.name" />
+									</s:else> &nbsp;&nbsp;&nbsp;&nbsp;
+								</span> <span
 									style="margin-top: 5px;color: #888;text-align: left;font-size: 14px;">
-										<s:property value="activity.endTimeStr"/>
-									&nbsp;&nbsp;&nbsp;&nbsp;</span>
+									<s:property value="activity.endTimeStr" />
+									&nbsp;&nbsp;&nbsp;&nbsp;
+								</span>
 							</div>
 							<div style="margin: 0;padding: 0;">
 								<article class="weui-article pt-0">
@@ -110,13 +109,14 @@
 										<section>
 											<h3></h3>
 											<p style="font-size: 17px">
-											
-												<s:property value="content"/>
-												
+
+												<s:property value="content" />
+
 											</p>
 											<p>
 												<s:iterator value="photos">
-													<img src="<s:property value='url'/>" alt='<s:property value="description"/>' class="mb-2">
+													<img src="<s:property value='url'/>"
+														alt='<s:property value="description"/>' class="mb-2">
 												</s:iterator>
 											</p>
 										</section>
@@ -125,7 +125,8 @@
 							</div>
 							<div
 								style="padding-top: 40px;padding-bottom: 10px;text-align: center;">
-								<a href="javascript:home()"><img src="${pageContext.request.contextPath}/img/qrcode.gif"
+								<a href="javascript:home()"><img
+									src="${pageContext.request.contextPath}/img/qrcode.gif"
 									style="height: 20px;"></a>
 							</div>
 						</div>
@@ -149,17 +150,16 @@
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
 <script>
-	function toInputPage(artid){
-		$(location).attr('href','articleAction_showInputPage.action?artid='+artid);
-	}
-	
-	function home(){
-		weui.alert("此處應該返回首頁");
-	}
-	
-	function downArticle(artid){
-		$(location).attr("href","articleAction_downloadArticle.action?artid="+artid);
+	function toInputPage(artid) {
+		$(location).attr('href', 'articleAction_showInputPage.action?artid=' + artid);
 	}
 
+	function home() {
+		weui.alert("此處應該返回首頁");
+	}
+
+	function downArticle(artid) {
+		$(location).attr("href", "articleAction_downloadArticle.action?artid=" + artid);
+	}
 </script>
 </html>

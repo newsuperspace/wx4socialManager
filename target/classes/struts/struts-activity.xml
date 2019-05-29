@@ -17,6 +17,15 @@
 			<result name="visitorList">/WEB-INF/pages/right/activity/visitorList.jsp</result>
 			<result name="doingProjectActivityList">/WEB-INF/pages/right/activity/activityList.jsp</result>
 			<result name="json" type="json"></result>
+			<!-- 负责处理下载有FreeMarker生成的“活动签到表” -->
+			<result type="stream" name="download" >
+				<param name="contentType">
+					application/octet-stream;charset=ISO8859-1
+				</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename=${fileName}</param>
+				<param name="bufferSize">4096</param>
+			</result>
 		</action>
 	</package>
 </struts>

@@ -26,5 +26,8 @@
 			class="cc.natapp4.ddaig.domain.Activity" cascade="save-update" lazy="false">
 		</many-to-one>
 
+		<one-to-one class="cc.natapp4.ddaig.domain.Signin"  cascade="all"  lazy="false"
+			fetch="join" name="signin" />
+
 	</class>
 </hibernate-mapping>

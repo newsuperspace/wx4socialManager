@@ -44,9 +44,16 @@ public class Visitor implements Serializable {
 	private User  user;
 	// 当前活动参与者参与的活动是。。。
 	private Activity  activity;
-	
+	// 存放活动签名
+	private Signin signin;
 	
 	//==================SETTERs/GETTERs===================
+	public Signin getSignin() {
+		return signin;
+	}
+	public void setSignin(Signin signin) {
+		this.signin = signin;
+	}
 	
 	public long getBaomingTime() {
 		return baomingTime;

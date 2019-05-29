@@ -36,7 +36,7 @@
 							<h1 class="h2">报名表</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
-									
+
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#selectProjects">
 										<span class="glyphicon glyphicon-search"></span> 筛选
@@ -52,9 +52,12 @@
 											aria-haspopup="true" aria-expanded="false">
 											<span class="glyphicon glyphicon-cog"></span> 其他
 										</button>
-										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="others">
-											<a class="dropdown-item" href="#"
-												onclick="userModal.op.batchCreateQR();">批量重建二维码</a>
+										<div class="dropdown-menu dropdown-menu-right"
+											aria-labelledby="others">
+
+											<s:a cssClass="dropdown-item" href="#"
+												onclick="downloadSigninList('%{#aid}');">下载签到表</s:a>
+
 											<a class="dropdown-item disabled" href="#">Disabled
 												action</a>
 											<h6 class="dropdown-header">Section header</h6>
@@ -89,33 +92,17 @@
 								<tbody>
 									<s:iterator value="#visitors">
 										<tr>
-											<td>
-												<s:property value="activity.name"/>
-											</td>
-											<td>
-												<s:property value="user.username"/>
-											</td>
-											<td>
-												<s:property value="user.sickname"/>
-											</td>
-											<td>
-												<s:property value="user.phone"/>
-											</td>
-											<td>
-												<s:property value="baomingTimeStr"/>
-											</td>
-											<td>
-												<s:property value="startTimeStr"/>
-											</td>
-											<td>
-												<s:property value="endTimeStr"/>
-											</td>
+											<td><s:property value="activity.name" /></td>
+											<td><s:property value="user.username" /></td>
+											<td><s:property value="user.sickname" /></td>
+											<td><s:property value="user.phone" /></td>
+											<td><s:property value="baomingTimeStr" /></td>
+											<td><s:property value="startTimeStr" /></td>
+											<td><s:property value="endTimeStr" /></td>
 											<td>
 												<div class="btn-group" role="group">
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">通知</button>
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">管理员补签（直接完成活动）</button>
 												</div>
 											</td>
 										</tr>
@@ -147,7 +134,7 @@
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
-		
+
 		<!-- Modal4用户详情 -->
 		<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
 			aria-labelledby="detialsModal" aria-hidden="true">
@@ -279,4 +266,12 @@
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
+<script type="text/javascript">
+
+	// 下载签到表
+	function downloadSigninList(aid) {
+		$(location).attr("href", "activityAction_downloadSigninList.action?aid=" + aid);
+	}
+	
+</script>
 </html>

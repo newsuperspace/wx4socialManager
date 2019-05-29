@@ -47,6 +47,7 @@
 	<mapping resource="cc/natapp4/ddaig/domain/ProjectType.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Receipt4BesureProject.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Visitor.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Signin.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/FirstLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/FourthLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/MinusFirstLevel.hbm.xml" />

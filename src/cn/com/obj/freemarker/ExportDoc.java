@@ -1,21 +1,39 @@
 package cn.com.obj.freemarker;
 
 import java.io.BufferedWriter;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.struts2.ServletActionContext;
 
+import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Article;
+import cc.natapp4.ddaig.domain.DoingProject;
+import cc.natapp4.ddaig.domain.Visitor;
+import cc.natapp4.ddaig.domain.cengji.FirstLevel;
+import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
+import cc.natapp4.ddaig.domain.cengji.SecondLevel;
+import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
+import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.utils.Image2Base64andBase642ImageUtils;
+import cn.com.obj.freemarker.domain.Signin4FreeMarker;
+import cn.com.obj.freemarker.domain.Visitor4FreeMarker;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
 public class ExportDoc {
+
+	/*
+	 * =========================================================================
+	 * = =============================初始化对象及筹备工作===============================
+	 * =========================================================================
+	 * =
+	 */
 
 	private Configuration configuration;
 	private String encoding; // UTF-8
@@ -42,8 +60,15 @@ public class ExportDoc {
 		return configuration.getTemplate(name);
 	}
 
+	/*
+	 * =========================================================================
+	 * = =============================业务方法，都在这下面===============================
+	 * =========================================================================
+	 * =
+	 */
+
 	/**
-	 * 创建 FreeMarker所需要的位于*.flt模板文件中的键值对儿数据信息
+	 * 【封装--活动记录表数据】 创建 FreeMarker所需要的位于*.flt模板文件中的键值对儿数据信息
 	 * 
 	 * @return
 	 */
@@ -71,21 +96,107 @@ public class ExportDoc {
 	}
 
 	/**
-	 * 通过FreeMarker在本地磁盘中输出Doc文件
+	 * 【生成--活动记录表】 通过FreeMarker在本地磁盘中输出Doc
 	 * 
-	 * @param doc  本地磁盘的保存路径
-	 * @param name 使用的*.flt模板的文件名
+	 * @param a
+	 *            要下载文章的Article对象（数据都在这里面）
+	 * @param fullDocPath
+	 *            形如："c:\\aaa\\bbb\\ccc\\1.docx"
+	 *            的目标生成doc文档的完整路径，无需预先进行路径是否存在的校验，FreeMarker创建时自动创建目录结构
+	 * @param tempName
+	 *            形如:"test.ftl" 模板文件名
 	 * @throws Exception
 	 */
-	public void exportDoc(Article a, String doc, String name) throws Exception {
-		FileOutputStream  out = new FileOutputStream(doc);
-		OutputStreamWriter  writer =  new OutputStreamWriter(out,this.encoding);
+	public void exportDoc4Article(Article a, String fullDocPath, String tempName) throws Exception {
+		FileOutputStream out = new FileOutputStream(fullDocPath);
+		OutputStreamWriter writer = new OutputStreamWriter(out, this.encoding);
 		BufferedWriter bufferWriter = new BufferedWriter(writer);
-		getTemplate(name).process(getDataMap4Article(a), bufferWriter);
+		getTemplate(tempName).process(getDataMap4Article(a), bufferWriter);
 		// 一定要关闭流啊，不然创建的临时数据doc文件下载完毕后不能立刻删除
 		bufferWriter.close();
 		writer.close();
 		out.close();
+		// 打印信息
+		System.out.println("位于" + fullDocPath + "的DOC文件生成完毕！");
 	}
 
+	/**
+	 * 【封装--签到表数据】
+	 * 
+	 * @param activity
+	 *            待下载活动签到表的活动对象（关键数据都在这里面）
+	 */
+	public Map<String, Object> getDataMap4SigninList(Activity activity) throws IOException {
+		// ----------准备用作组织模板数据的map容器------------
+		Map<String, Object> map = new HashMap<String, Object>();
+		// ----------获取并存入标题数据----------
+		DoingProject doingProject = activity.getProject();
+		if (null != doingProject.getThirdLevel()) {
+			ThirdLevel thirdLevel = doingProject.getThirdLevel();
+			map.put("teamName", thirdLevel.getName());
+		} else if (null != doingProject.getSecondLevel()) {
+			SecondLevel secondLevel = doingProject.getSecondLevel();
+			map.put("teamName", secondLevel.getName());
+		} else if (null != doingProject.getFirstLevel()) {
+			FirstLevel firstLevel = doingProject.getFirstLevel();
+			map.put("teamName", firstLevel.getName());
+		} else if (null != doingProject.getZeroLevel()) {
+			ZeroLevel zeroLevel = doingProject.getZeroLevel();
+			map.put("teamName", zeroLevel.getName());
+		} else if (null != doingProject.getMinusFirstLevel()) {
+			MinusFirstLevel minusFirstLevel = doingProject.getMinusFirstLevel();
+			map.put("teamName", minusFirstLevel.getName());
+		}
+		map.put("projectName", doingProject.getBesureProject().getName());
+		map.put("activityName", activity.getName());
+		map.put("startTimeStr", activity.getBeginTimeStr());
+		if (null != activity.getHouse()) {
+			map.put("place", activity.getHouse().getName());
+		} else {
+			map.put("place", activity.getGeographic().getName());
+		}
+		// ----------存入活动参与者数据----------
+		List<Visitor4FreeMarker> visitors = new ArrayList<Visitor4FreeMarker>();
+		map.put("visitors", visitors);
+		Visitor4FreeMarker v4m = null;
+		for (Visitor v : activity.getVisitors()) {
+			v4m = new Visitor4FreeMarker();
+			v4m.setStartTimeStr(v.getStartTimeStr());
+			v4m.setEndTimeStr(v.getEndTimeStr());
+			v4m.setScore(v.getScore());
+			v4m.setSex(v.getUser().getSex());
+			v4m.setUsername(v.getUser().getUsername());
+			v4m.setWorkTime(v.getWorkTime() / 1000L / 60);
+			if (null != v.getSignin()) {
+				v4m.setSignin(new Signin4FreeMarker(v.getSignin().getName(), v.getSignin().getBase64Str()));
+			}
+			visitors.add(v4m);
+		}
+
+		return map;
+	}
+
+	/**
+	 * 【生成--签到表】
+	 * 
+	 * @param activity
+	 * @param fullDocPath
+	 *            形如："c:\\aaa\\bbb\\ccc\\1.docx"
+	 *            的目标生成doc文档的完整路径，无需预先进行路径是否存在的校验，FreeMarker创建时自动创建目录结构
+	 * @param tempName
+	 *            形如:"signinList.ftl" 模板文件名
+	 * @throws Exception
+	 */
+	public void exportDoc4SigninList(Activity activity, String fullDocPath, String tempName) throws Exception {
+		FileOutputStream out = new FileOutputStream(fullDocPath);
+		OutputStreamWriter writer = new OutputStreamWriter(out, this.encoding);
+		BufferedWriter bufferWriter = new BufferedWriter(writer);
+		getTemplate(tempName).process(getDataMap4SigninList(activity), bufferWriter);
+		// 一定要关闭流啊，不然创建的临时数据doc文件下载完毕后不能立刻删除
+		bufferWriter.close();
+		writer.close();
+		out.close();
+		// 打印信息
+		System.out.println("位于" + fullDocPath + "的DOC文件生成完毕！");
+	}
 }

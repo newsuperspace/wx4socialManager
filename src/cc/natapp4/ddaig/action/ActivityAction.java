@@ -1,5 +1,12 @@
 package cc.natapp4.ddaig.action;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,6 +35,7 @@ import cc.natapp4.ddaig.domain.DoingProject;
 import cc.natapp4.ddaig.domain.Geographic;
 import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.Member;
+import cc.natapp4.ddaig.domain.Signin;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.Visitor;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
@@ -52,7 +60,9 @@ import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.VisitorService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.ActivityUtils;
+import cc.natapp4.ddaig.utils.FileController;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
+import cn.com.obj.freemarker.ExportDoc;
 
 @Controller("activityAction")
 @Scope("prototype")
@@ -141,6 +151,14 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		this.hour = hour;
 	}
 
+	private String errorMessage;
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
 	// JSP页面上创建室内活动时，date4calendar的input中形如"2018-09-18T09:00:00~2018-09-18T11:30:00"的字符串
 	private String date4calendar;
 
@@ -219,7 +237,9 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		Activity activity = activityService.queryEntityById(this.activity.getAid());
 		visitors = activity.getVisitors();
 
+		// 將需要展示到前端的数据送入到Map栈中
 		ActionContext.getContext().put("visitors", visitors);
+		ActionContext.getContext().put("aid", activity.getAid());
 		return "visitorList";
 	}
 
@@ -854,6 +874,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		// 如果用户存在且属于层级管理之下，则遍历当前activity的visitor中是否已经存在该用户的信息，如果是则在此基础上完成签到，如果没有则新建visitor完成签到
 		List<Visitor> visitors = a.getVisitors();
 		Visitor visitor = null;
+		Signin  signin = null;
 		for (Visitor v : visitors) {
 			if (v.getUser().getUid().equals(uid)) {
 				visitor = v;
@@ -863,6 +884,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		if (null == visitor) {
 			// 补签用户没有报名，则新建一个visitor
 			visitor = new Visitor();
+			signin = new Signin();
 			visitor.setScore(a.getScore());
 			u.setScore(u.getScore() + a.getScore());
 			visitor.setActivity(a);
@@ -882,6 +904,8 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 				a.setVisitors(new ArrayList<Visitor>());
 			}
 			
+			visitor.setSignin(signin);
+			signin.setVisitor(visitor);
 			/*
 			 * 因为activity和user中的visitors（List）容器会保留visitor的先后顺序，为了让Hibernate自动维护顺序，
 			 * 也需要向a和u的List容器中添加新建的visitor
@@ -923,4 +947,74 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		return "json";
 	}
 
+	
+	// ===========================下载签到表===========================
+	// 下载文件用的输入流
+	private InputStream inputStream;
+	public InputStream getInputStream() {
+		return inputStream;
+	}
+	public void setInputStream(InputStream inputStream) {
+		this.inputStream = inputStream;
+	}
+	// 下载文件用的文件名
+	private String fileName;
+	public String getFileName() {
+		return fileName;
+	}
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+	/**
+	 * 相应来自
+	 * @return
+	 * @throws IOException 
+	 */
+	public String downloadSigninList() throws IOException{
+		String aid = this.activity.getAid();
+		Activity a = activityService.queryEntityById(aid);
+		
+		// 创建
+		String fullPath;
+		ExportDoc maker = new ExportDoc("UTF-8");
+		fullPath = "download"+File.separator+"signinList";
+		FileController.makeDirs(ServletActionContext.getServletContext().getRealPath(fullPath));
+		fullPath += File.separator+a.getName()+".doc";
+		fullPath = ServletActionContext.getServletContext().getRealPath(fullPath);
+        try {
+			maker.exportDoc4SigninList(a, fullPath, "signinList.ftl");
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+        // -------------------独立准备Struts2用的下载用输入流--------------------
+        File file = new File(fullPath);
+        if(!file.exists()){
+        	// 如果指定路径中不存在文件，则直接返回，引导到在struts.xml配置文件中配置的名为error的全局结果集指定的错误页面反应问题
+        	this.errorMessage = "路径："+fullPath+"下，不存在指定文件，请稍后再试！";
+        	// error结果集索引字符串不是定义在当前Action对应的子配置文件中的，而是定义在struts.xml中配置文件中的全局结果集索引
+        	return "error";
+        }
+        // 如果文件存在，则创建等待下载文件的文件输入流fis，该流失唯一与磁盘临时文件链接的流
+        FileInputStream fis = new FileInputStream (file);
+        // 准备字节数组（字节缓冲区）输出流备用
+		ByteArrayOutputStream swapStream = new ByteArrayOutputStream();  
+        // 准备字节缓冲区（也就是字节数组，1024字节就够用了）用作输入流和输出流的流对接
+		byte[] buff = new byte[1024];  
+		int rc = 0;  
+		while ((rc = fis.read(buff, 0, 1024)) > 0) {  
+			swapStream.write(buff, 0, rc);  
+		}
+		// 将输出流转变为用作下载的输入流，完成数据从待下载磁盘文件转入到下载输入流
+		this.inputStream=new ByteArrayInputStream(swapStream.toByteArray());
+        // 关闭待下载临时文件的输入流，从而该临时文件可以随时删除而又不会影响下载流
+        fis.close();
+        swapStream.close();
+        file.delete();
+        // ---------------准备下载用的文件名（形如：“测试文件.doc”）----------------
+        String s  =  a.getName()+".doc";
+        this.fileName = new String(s.getBytes(),"ISO8859-1");
+        
+		return "download";
+	}
+	
 }

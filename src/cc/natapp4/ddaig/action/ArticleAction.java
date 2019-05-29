@@ -299,8 +299,7 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 		FileController.makeDirs(ServletActionContext.getServletContext().getRealPath(fullPath));
 		fullPath += File.separator+art.getActivity().getName()+".docx";
 		fullPath = ServletActionContext.getServletContext().getRealPath(fullPath);
-        maker.exportDoc(art, fullPath, "test.ftl"); 
-        System.out.println("创建成功！");
+        maker.exportDoc4Article(art, fullPath, "test.ftl"); 
         /*
          * ★★★★★基于Struts2的文件下载★★★★★
          * 以下内容需要特别注意，下方的inputStream和fileName字段必须像下方
@@ -318,7 +317,6 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
          *
          */
         // -------------------独立准备Struts2用的输入流--------------------
-        
         File file = new File(fullPath);
         if(!file.exists()){
         	// 如果指定路径中不存在文件，则直接返回，引导到在struts.xml配置文件中配置的名为error的全局结果集指定的错误页面反应问题
