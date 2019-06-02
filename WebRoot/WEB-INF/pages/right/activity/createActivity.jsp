@@ -116,9 +116,11 @@
 						<!-- 签到方式 -->
 						<div class="row">
 							<div class="col-md-1"></div>
-							<div class="col-md-10">
+							<div class="col-md-1">
+									<label for="activityType">签到类型:</label>
+							</div>
+							<div class="col-md-9">
 								<div class="form-group">
-									<label for="activityType">签到类型</label>
 									<div class="form-check form-check-inline">
 										<input class="form-check-input" type="radio" checked
 											name="sychronizeRadio" id="sychronizeRadio1" value="1">
@@ -134,12 +136,33 @@
 							<div class="col-md-1"></div>
 						</div>
 
+						<!-- 当用户签到时是否跳转到电子签名手写板处获取电子签名 -->
+						<div class="row">
+							<div class="col-md-1"></div>
+							<div class="col-md-1">
+								<label for="activityType">是否电子签名:</label>
+							</div>
+							<div class="col-md-9">
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio" checked
+										name="signinRadio" id="signinRadio1" value="1"> <label
+										class="form-check-label" for="inlineRadio1">不用</label>
+								</div>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio" name="signinRadio"
+										id="signinRadio2" value="2"> <label
+										class="form-check-label" for="inlineRadio2">需要</label>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+
 						<!-- 活动类型设置 -->
 						<div class="row">
 							<div class="col-md-1"></div>
 							<div class="col-md-10">
 								<div class="form-group">
-									<label for="activityType">活动类型</label> <select
+									<label for="activityType">活动类型:</label> <select
 										class="custom-select" name="activityType" id="activityType"
 										onchange="activityModal.op.activityTypeChangeListener();activityModal.op.checkInput();">
 										<option value="0" selected>--请选择活动类型--</option>
@@ -235,7 +258,7 @@
 								<div class="col-md-1"></div>
 							</div>
 						</div>
-						
+
 						<!-- 设置活动获取的积分分值 -->
 						<div class="row">
 							<div class="col-md-1"></div>
@@ -250,7 +273,7 @@
 							</div>
 							<div class="col-md-1"></div>
 						</div>
-						
+
 						<!-- 发起活动的按钮 -->
 						<div class="row mb-5">
 							<div class="col-md-1"></div>

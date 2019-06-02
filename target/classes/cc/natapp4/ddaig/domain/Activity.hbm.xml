@@ -22,6 +22,7 @@
 		<property name="description" length="500"></property>
 		<property name="state" length="10"></property>
 		<property name="synchronize" type="boolean" ></property>
+		<property name="needSignin" type="boolean" ></property>
 
 		<list name="visitors" cascade="save-update" lazy="true">
 			<key column="aid"></key>

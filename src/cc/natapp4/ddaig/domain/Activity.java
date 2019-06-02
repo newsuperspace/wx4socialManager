@@ -74,6 +74,7 @@ public class Activity implements Serializable {
 	 */
 	private boolean synchronize = false;
 	
+	private boolean needSignin = false;
 	
 	/*
 	 * 报名的用户列表 如果你报名了，但是截止到活动结束后你没有来（签到），则会降低用户的 信誉值？ 经验值（时长）？ 积分？ 选择哪一个合适呢，想想？
@@ -434,6 +435,14 @@ public class Activity implements Serializable {
 
 	public void setProject(DoingProject project) {
 		this.project = project;
+	}
+
+	public boolean isNeedSignin() {
+		return needSignin;
+	}
+
+	public void setNeedSignin(boolean needSignin) {
+		this.needSignin = needSignin;
 	}
 
 }
