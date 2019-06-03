@@ -146,7 +146,7 @@
 								<div class="form-check form-check-inline">
 									<input class="form-check-input" type="radio" checked
 										name="signinRadio" id="signinRadio1" value="1"> <label
-										class="form-check-label" for="inlineRadio1">不用</label>
+										class="form-check-label" for="inlineRadio1">不需要</label>
 								</div>
 								<div class="form-check form-check-inline">
 									<input class="form-check-input" type="radio" name="signinRadio"

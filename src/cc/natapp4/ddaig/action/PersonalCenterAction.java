@@ -25,6 +25,7 @@ import cc.natapp4.ddaig.domain.Geographic;
 import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.Reply4UserJoinLevelApprove;
+import cc.natapp4.ddaig.domain.Signin;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.UserApply4JoinLevel;
 import cc.natapp4.ddaig.domain.Visitor;
@@ -227,6 +228,17 @@ public class PersonalCenterAction extends ActionSupport {
 
 	public void setAid(String aid) {
 		this.aid = aid;
+	}
+
+	/*
+	 * 需要电子签名的活动，则签名的Base64编码字符串会被该属性接收到
+	 */
+	private String b64Str;
+	public String getB64Str() {
+		return b64Str;
+	}
+	public void setB64Str(String b64Str) {
+		this.b64Str = b64Str;
 	}
 
 	/*
@@ -1012,7 +1024,7 @@ public class PersonalCenterAction extends ActionSupport {
 	}
 
 	/**
-	 * AJAX 执行扫码签到逻辑
+	 * 执行扫码签到逻辑
 	 * 
 	 * @return
 	 */
@@ -1028,6 +1040,20 @@ public class PersonalCenterAction extends ActionSupport {
 			if (v.getUser().getOpenid().equals(openid)) {
 				if (-1 == v.getStartTime()) {
 					// - 如果没有签到 - 
+					// 先查看当前活动是否需要参与者电子签名，如果需要则查看是否将电子签名的base64编码字符串传递过来了
+					if(activity.isNeedSignin()) {
+						if(StringUtils.isEmpty(this.b64Str)) {
+							// 当前活动需要电子签名，但此时服务器并未接收到从前端传来的电子签名的base64编码字符串，因此本次签到被驳回
+							info.setDetails("");
+							info.setDetailsURL("");
+							info.setIcon("weui-icon-warn-red");
+							info.setTitle("未接收到电子签名");
+							info.setMessage("未接收到您的电子签名，本次签到失败，请重试");
+							ActionContext.getContext().getValueStack().push(info);
+							return "msgPage";
+						}
+					}
+					
 					long currentTimeMillis = System.currentTimeMillis();
 					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
@@ -1044,7 +1070,20 @@ public class PersonalCenterAction extends ActionSupport {
 						user.setScore(user.getScore() + activity.getScore());
 						// 计算本次活动时常，同步签到签退活动默认累计的活动时长为整个活动时长
 						v.setWorkTime(activity.getActivityEndTime()-activity.getActivityBeginTime());
-						
+						// 活动是否需要保存手签名
+						if(activity.isNeedSignin()) {
+							Signin signin = v.getSignin();
+							if(null!=signin) {
+								signin.setBase64Str(this.b64Str);
+								signin.setName(user.getUsername());
+							}else {
+								signin = new Signin();
+								signin.setBase64Str(this.b64Str);
+								signin.setName(user.getUsername());
+								signin.setVisitor(v);
+								v.setSignin(signin);
+							}
+						}
 						// 组织Info信息，用作msgPage页面显示
 						info.setDetails("");
 						info.setDetailsURL("");
@@ -1056,6 +1095,20 @@ public class PersonalCenterAction extends ActionSupport {
 						// 向visitor中记录签到时间
 						v.setStartTime(currentTimeMillis);
 						v.setStartTimeStr(dateTimeStr);
+						// 活动是否需要保存手签名
+						if(activity.isNeedSignin()) {
+							Signin signin = v.getSignin();
+							if(null!=signin) {
+								signin.setBase64Str(this.b64Str);
+								signin.setName(user.getUsername());
+							}else {
+								signin = new Signin();
+								signin.setBase64Str(this.b64Str);
+								signin.setName(user.getUsername());
+								signin.setVisitor(v);
+								v.setSignin(signin);
+							}
+						}
 						// 组织Info信息，用作msgPage页面显示
 						info.setDetails("");
 						info.setDetailsURL("");
@@ -1100,6 +1153,20 @@ public class PersonalCenterAction extends ActionSupport {
 				// 定位到了签到用户的visitor
 				if (-1 == v.getStartTime()) {
 					// 还没签到呢
+					// 先查看当前活动是否需要参与者电子签名，如果需要则查看是否将电子签名的base64编码字符串传递过来了
+					if(activity.isNeedSignin()) {
+						if(StringUtils.isEmpty(this.b64Str)) {
+							// 当前活动需要电子签名，但此时服务器并未接收到从前端传来的电子签名的base64编码字符串，因此本次签到被驳回
+							info.setDetails("");
+							info.setDetailsURL("");
+							info.setIcon("weui-icon-warn-red");
+							info.setTitle("未接收到电子签名");
+							info.setMessage("未接收到您的电子签名，本次签到失败，请重试");
+							ActionContext.getContext().getValueStack().push(info);
+							return "msgPage";
+						}
+					}
+					
 					long currentTimeMillis = System.currentTimeMillis();
 					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
@@ -1141,6 +1208,20 @@ public class PersonalCenterAction extends ActionSupport {
 							user.setScore(user.getScore() + activity.getScore());
 							// 同步签到和签退的活动时长累计是以活动总时长为默认值的
 							v.setWorkTime(activity.getActivityEndTime()-activity.getActivityBeginTime());
+							// 活动是否需要保存手签名
+							if(activity.isNeedSignin()) {
+								Signin signin = v.getSignin();
+								if(null!=signin) {
+									signin.setBase64Str(this.b64Str);
+									signin.setName(user.getUsername());
+								}else {
+									signin = new Signin();
+									signin.setBase64Str(this.b64Str);
+									signin.setName(user.getUsername());
+									signin.setVisitor(v);
+									v.setSignin(signin);
+								}
+							}
 							// 组织Info信息，用作msgPage页面显示
 							info.setDetails("");
 							info.setDetailsURL("");
@@ -1152,6 +1233,20 @@ public class PersonalCenterAction extends ActionSupport {
 							// 向visitor中记录签到时间
 							v.setStartTime(currentTimeMillis);
 							v.setStartTimeStr(dateTimeStr);
+							// 活动是否需要保存手签名
+							if(activity.isNeedSignin()) {
+								Signin signin = v.getSignin();
+								if(null!=signin) {
+									signin.setBase64Str(this.b64Str);
+									signin.setName(user.getUsername());
+								}else {
+									signin = new Signin();
+									signin.setBase64Str(this.b64Str);
+									signin.setName(user.getUsername());
+									signin.setVisitor(v);
+									v.setSignin(signin);
+								}
+							}
 							// 组织Info信息，用作msgPage页面显示
 							info.setDetails("");
 							info.setDetailsURL("");

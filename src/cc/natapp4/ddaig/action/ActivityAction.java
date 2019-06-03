@@ -181,7 +181,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		this.date4selector = date4selector;
 	}
 
-	// createActivity.jsp中用于选择签到方式的name="sychronizeRadio"的 Radio表单的值
+	// 获取createActivity.jsp中用于选择签到方式的name="sychronizeRadio"的 Radio表单的值
 	private int sychronizeRadio;
 
 	public int getSychronizeRadio() {
@@ -190,6 +190,17 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 
 	public void setSychronizeRadio(int sychronizeRadio) {
 		this.sychronizeRadio = sychronizeRadio;
+	}
+	
+	// 获取createActivity.jsp中用于选择是否“电子签名”的name="signinRadio"的 Radio表单的值
+	private int signinRadio;
+
+	public int getSigninRadio() {
+		return signinRadio;
+	}
+
+	public void setSigninRadio(int signinRadio) {
+		this.signinRadio = signinRadio;
 	}
 
 	// ==============================模型驱动==============================
@@ -429,7 +440,6 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 
 		String name = this.activity.getName();
 		String dpid = this.dpid;
-		boolean synchronize = this.activity.isSynchronize();
 		String description = this.activity.getDescription();
 		String activityType = this.activity.getActivityType();
 		String type = this.activity.getType(); // 默认为1
@@ -683,6 +693,15 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 			activity.setSynchronize(true);
 		}
 
+		// 保存活动是否需要电子签名——“1”不需要；“2”需要
+		if(1==this.getSigninRadio()){
+			// 不需要
+			activity.setNeedSignin(false);
+		}else if(2==this.getSigninRadio()) {
+			// 需要
+			activity.setNeedSignin(true);
+		}
+		
 		// 由于Activity和Article是一一对应的关系，因此必须在数据库同时存在activity和article
 		Article art = new Article();
 		art.setContent("");

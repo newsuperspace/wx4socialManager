@@ -2,120 +2,173 @@
 <html lang="zh">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas签字板</title>
-    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="css/default.css">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canvas签字板</title>
+<!-- 新 Bootstrap4 核心 CSS 文件 -->
+<link rel="stylesheet"
+	href="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/css/bootstrap.min.css">
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<!-- popper.min.js 用于弹窗、提示、下拉菜单 -->
+<script
+	src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
+<!-- 最新的 Bootstrap4 核心 JavaScript 文件 -->
+<script
+	src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
 </head>
 
 <body>
-    <div align="center">
-        <canvas id="myCanvas" width="1000" height="500" style="border:2px solid #6699cc"></canvas>
-        <div class="control-ops">
-            <button type="button" class="btn btn-primary" onclick="javascript:clearArea();return false;">清空画板</button>
-            <button id="saveBtn" class="btn btn-default" onclick="saveSignature();" disabled>保存並展示</button>
-            Line width :
-            <select id="selWidth">
-                <option value="1">1</option>
-                <option value="3">3</option>
-                <option value="5">5</option>
-                <option value="7">7</option>
-                <option value="9" selected="selected">9</option>
-                <option value="11">11</option>
-            </select>
-            Color :
-            <select id="selColor">
-                <option value="black">black</option>
-                <option value="blue" selected="selected">blue</option>
-                <option value="red">red</option>
-                <option value="green">green</option>
-                <option value="yellow">yellow</option>
-                <option value="gray">gray</option>
-            </select>
-        </div>
 
-        <img id="result" src="" />
-    </div>
+	<!-- Large modal -->
+	<button type="button" class="btn btn-primary" data-toggle="modal"
+		data-target=".bd-example-modal-lg">Large modal</button>
+
+	<div id="aaa" class="modal fade bd-example-modal-lg" tabindex="-1"
+		role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+
+				<div class="row">
+					<div class="col-md-12">
+						<canvas id="myCanvas" width="1000" height="500"
+							style="border:2px solid #6699cc"></canvas>
+						<div class="control-ops">
+							<button type="button" class="btn btn-primary"
+								onclick="javascript:clearArea();return false;">清空画板</button>
+							<button id="saveBtn" class="btn btn-default"
+								onclick="saveSignature();" disabled>保存並展示</button>
+							Line width : <select id="selWidth">
+								<option value="1">1</option>
+								<option value="3">3</option>
+								<option value="5">5</option>
+								<option value="7">7</option>
+								<option value="9" selected="selected">9</option>
+								<option value="11">11</option>
+							</select> Color : <select id="selColor">
+								<option value="black">black</option>
+								<option value="blue" selected="selected">blue</option>
+								<option value="red">red</option>
+								<option value="green">green</option>
+								<option value="yellow">yellow</option>
+								<option value="gray">gray</option>
+							</select>
+						</div>
+						<img id="result" src="" />
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
 
 </body>
-
-<script src="js/jquery-1.11.0.min.js"></script>
-<script src="js/jq-signature.js"></script>
 <script type="text/javascript">
-    var mousePressed = false; // 鼠标是否处于按住不放的状态
-    var lastX, lastY;  // 鼠标的坐标位置
-    var ctx;  // canvas上下文
+	var mousePressed = false; // 鼠标是否处于按住不放的状态
+	var lastX,
+		lastY; // 鼠标的坐标位置
+	var ctx; // canvas上下文
+	var $canvas;
 
-    $(document).ready(function () {
-        InitThis();
-    });
 
-    // 初始化逻辑
-    function InitThis() {
-        // 进行H5新增canvas的必要设置，简单来说就是本次绘制的都是2d图形
-        ctx = document.getElementById('myCanvas').getContext("2d");
 
-        // 监听用作签字板的id=myCanvas的<canvas>标签的“鼠标按下”事件
-        $('#myCanvas').mousedown(function (e) {
-            mousePressed = true;
-            Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false);
-        });
-        // 监听用作签字板的id=myCanvas的<canvas>标签的“鼠标拖动”事件
-        $('#myCanvas').mousemove(function (e) {
-            if (mousePressed) {
-                // 绘制签字线条
-                Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, true);
-                // 激活保存按钮
-                $('#saveBtn').attr('disabled', false);
-            }
-        });
-        // 监听用作签字板的id=myCanvas的<canvas>标签的“鼠标抬起”事件        
-        $('#myCanvas').mouseup(function (e) {
-            mousePressed = false;
-        });
-        // 监听用作签字板的id=myCanvas的<canvas>标签的“鼠标溢出”事件
-        $('#myCanvas').mouseleave(function (e) {
-            mousePressed = false;
-        });
-    }
 
-    // 基于canvas，在<canvas>标签中绘制线条的逻辑
-    function Draw(x, y, isDown) {
-        if (isDown) {
-            // 开始
-            ctx.beginPath();
-            // 设置线条颜色
-            ctx.strokeStyle = $('#selColor').val();
-            // 设置欠条粗细
-            ctx.lineWidth = $('#selWidth').val();
-            ctx.lineJoin = "round";
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(x, y);
-            // 结束
-            ctx.closePath();
-            ctx.stroke();
-        }
-        // 更新鼠标最后位置的（X,Y）坐标
-        lastX = x; lastY = y;
-    }
-    // 清除canvas签字板和重置必要参数
-    function clearArea() {
-        // Use the identity matrix while clearing the canvas
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        // 失效保存按钮
-        $('#saveBtn').attr('disabled', true);
-        $("#result").attr("src","");
-    }
 
-    // 保存绘图数据为
-    function saveSignature() {
-        var pic = document.getElementById("myCanvas").toDataURL("image/png");
-        // 以正则表达式去除用于在<src>标签中显示图片的协议内容：形如：src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...”，只保留逗号后面的BASE64编码字符串
-        // pic = pic.replace(/^data:image\/(png|jpg);base64,/, "");
-        $("#result").attr("src",pic);
-    }
+	$(document).ready(function() {
+		InitThis();
+	});
 
+	// 初始化逻辑
+	function InitThis() {
+
+		// 进行H5新增canvas的必要设置，简单来说就是本次绘制的都是2d图形
+		ctx = document.getElementById('myCanvas').getContext("2d");
+		$canvas = $('#myCanvas');
+
+		
+		$("#aaa").on('show.bs.modal', function(e) {
+			let width = $("#aaa").css("width");
+			console.log("width:"+width);
+			let height = $("#aaa").css("height");
+			console.log("height"+height);
+
+			$canvas.css("width",width - 20);
+			$canvas.css("height",height - 50);
+		});
+		
+
+		// 监听用作签字板的id=myCanvas的<canvas>标签的“鼠标按下”事件
+		$canvas.on('mousedown touchstart', function(e) {
+			mousePressed = true;
+			console.log("触屏按下了");
+			Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false);
+		});
+		// 监听用作签字板的id=myCanvas的<canvas>标签的“鼠标拖动”事件
+		$canvas.on('mousemove touchmove', function(e) {
+			if (mousePressed) {
+				// 绘制签字线条
+				Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, true);
+				// 激活保存按钮
+				$('#saveBtn').attr('disabled', false);
+				console.log("触屏移动了");
+			}
+		});
+		// 监听用作签字板的id=myCanvas的<canvas>标签的“鼠标抬起”事件 
+		$canvas.on('mouseup touchend', function(e) {
+			mousePressed = false;
+			console.log("触屏移开了");
+		});
+		// 监听用作签字板的id=myCanvas的<canvas>标签的“鼠标溢出”事件
+		$canvas.on('', function(e) {
+			mousePressed = false;
+			console.log("触屏溢出了");
+		});
+
+		$(document).on('touchstart touchmove touchend', $.proxy(function(e) {
+			if (e.target === this.canvas) {
+				e.preventDefault();
+				console.log("停止滚动");
+			}
+		}, this));
+	}
+
+	// 基于canvas，在<canvas>标签中绘制线条的逻辑
+	function Draw(x, y, isDown) {
+		if (isDown) {
+			// 开始
+			ctx.beginPath();
+			// 设置线条颜色
+			ctx.strokeStyle = $('#selColor').val();
+			// 设置欠条粗细
+			ctx.lineWidth = $('#selWidth').val();
+			ctx.lineJoin = "round";
+			ctx.moveTo(lastX, lastY);
+			console.log("绘制坐标："+"x="+lastX+",y="+lastY);
+			ctx.lineTo(x, y);
+			// 结束
+			ctx.closePath();
+			ctx.stroke();
+		}
+		// 更新鼠标最后位置的（X,Y）坐标
+		lastX = x;
+		lastY = y;
+	}
+	// 清除canvas签字板和重置必要参数
+	function clearArea() {
+		// Use the identity matrix while clearing the canvas
+		ctx.setTransform(1, 0, 0, 1, 0, 0);
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		// 失效保存按钮
+		$('#saveBtn').attr('disabled', true);
+		$("#result").attr("src", "");
+	}
+
+	// 保存绘图数据为
+	function saveSignature() {
+		var pic = document.getElementById("myCanvas").toDataURL("image/png");
+		// 以正则表达式去除用于在<src>标签中显示图片的协议内容：形如：src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...”，只保留逗号后面的BASE64编码字符串
+		// pic = pic.replace(/^data:image\/(png|jpg);base64,/, "");
+		$("#result").attr("src", pic);
+	}
 </script>

@@ -2893,6 +2893,7 @@ var activityModal = {
 			let score = $("#score").val();
 			
 			let sychronizeRadio = $('input:radio[name="sychronizeRadio"]:checked').val();
+			let signinRadio = $('input:radio[name="signinRadio"]:checked').val();
 			
 			var param = {
 				"dpid" : dpid,
