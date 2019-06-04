@@ -1,4 +1,4 @@
-// ------------------------JUnit测试顺序----------------------------
+﻿// ------------------------JUnit测试顺序----------------------------
 √（0）删除数据库weixin →  新建数据库weixin
 √（1）TestGroupingService.testBatchCreateGrouping()  
 ① 根据hibernate配置文件完成数据库表的全部搭建
@@ -118,7 +118,7 @@ for(Member m : members){
 		
 
 总计划：
-4、在创建活动Activity是可选择是自动完成签退还是手动签退的选项
+
 5、【项目化管理方案】为DoingProject和BesureProject增加新的字段（minusFirstProject、zeroProjectLevel、firstProjectLevel、secondProjectLevel、thirdProjectLevel、fourthProjectLevel），将“组织层级化”管理理念引入到“项目管理”中。新字段与已有的层级化字段的区别是，
 /*
  * ★★★
@@ -144,7 +144,11 @@ for(Member m : members){
 
 8、简单的积分兑换功能，用于日常的积分反哺：在后台新建兑换奖品名录，生成专属二维码，志愿者通过扫描二维码实现积分换购功能。
 
-9、
+
+
+
+9、基于FreeMarker的签到表的下载，需要在ftl模版中增加对可能缺失字段（例如没来的人就没有签到时间，或忘记签退）造成声称doc文档的错误问题，可以使用类似于OGNL表达式的<if> 标签做判断
+10、FullCalendar出现了问题，请修复
 
 
 
@@ -167,10 +171,6 @@ for(Member m : members){
 https://weui.io/#badge
 （3）Cell，列表视图，用于将信息以列表的结构显示在页面上
 https://github.com/Tencent/weui/wiki/Cell
-
-三、当前任务需求：
-
-
 
 
 
@@ -217,9 +217,6 @@ reply4UserJoinLevelApprove：
 4、目前经验来看，服务器已debugging模式开启后，对源代码（主要是java代码）的修改也是可以直接生效的，无需重启服务器。而如果没生效就需要重新deploying重启服务器了。
 
 
-	
-	
-	
 	
 
 // =========================================明日工作内容===========================================

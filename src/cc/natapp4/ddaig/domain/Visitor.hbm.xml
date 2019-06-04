@@ -8,26 +8,32 @@
 			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
 			<generator class="increment"></generator>
 		</id>
-		
+
 		<property name="startTime" type="long"></property>
 		<property name="endTime" type="long"></property>
 		<property name="baomingTime" type="long"></property>
 		<property name="score" type="integer"></property>
 		<property name="workTime" type="long"></property>
 
-		<property name="baomingTimeStr"  length="50"  type="string"></property>
-		<property name="startTimeStr"  length="50"  type="string"></property>
-		<property name="endTimeStr"  length="50"  type="string"></property>
-		
+		<property name="baomingTimeStr" length="50" type="string"></property>
+		<property name="startTimeStr" length="50" type="string"></property>
+		<property name="endTimeStr" length="50" type="string"></property>
+
 		<many-to-one name="user" column="uid"
-			class="cc.natapp4.ddaig.domain.User" cascade="save-update" lazy="false">
+			class="cc.natapp4.ddaig.domain.User" cascade="save-update"
+			lazy="false">
 		</many-to-one>
 		<many-to-one name="activity" column="aid"
-			class="cc.natapp4.ddaig.domain.Activity" cascade="save-update" lazy="false">
+			class="cc.natapp4.ddaig.domain.Activity" cascade="save-update"
+			lazy="false">
 		</many-to-one>
 
-		<one-to-one class="cc.natapp4.ddaig.domain.Signin"  cascade="all"  lazy="false"
-			fetch="join" name="signin" />
+		<many-to-one name="signin" 
+			class="cc.natapp4.ddaig.domain.Signin"
+			column="sid"
+			cascade="save-update"
+			lazy="false"> <!-- ★这里的lazy不能省略，莫非一对一默认懒加载？ -->
+		</many-to-one> 
 
 	</class>
 </hibernate-mapping>

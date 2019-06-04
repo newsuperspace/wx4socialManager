@@ -86,6 +86,7 @@
 										<th>报名时间</th>
 										<th>签到时间</th>
 										<th>签退时间</th>
+										<th>电子签名</th>
 										<th>操作</th>
 									</tr>
 								</thead>
@@ -99,6 +100,7 @@
 											<td><s:property value="baomingTimeStr" /></td>
 											<td><s:property value="startTimeStr" /></td>
 											<td><s:property value="endTimeStr" /></td>
+											<td><img width="120px" height="30px" src="data:image/png;base64,<s:property value='signin.base64Str'/>" /></td>
 											<td>
 												<div class="btn-group" role="group">
 													<button type="button"

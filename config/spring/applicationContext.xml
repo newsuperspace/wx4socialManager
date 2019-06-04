@@ -83,6 +83,7 @@
 				/qrcode/**=anon
 				/openJSP/**=anon
 				/jqueryui/**=anon
+				/abc.jsp = anon
 				<!-- temp中存放的是用于登录用的临时二维码，也属于静态资源所以要"豁免shiro" -->
 				/temp/** = anon
 				

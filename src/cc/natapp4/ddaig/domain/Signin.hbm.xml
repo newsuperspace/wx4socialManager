@@ -12,8 +12,18 @@
 		<property name="base64Str" length="3000"></property>
 		<property name="name" length="20"></property>
 
+		<!-- 
 		<one-to-one class="cc.natapp4.ddaig.domain.Visitor"  cascade="all"  lazy="false"
 			fetch="join" name="visitor" />
+		-->
+		
+		<many-to-one name="visitor" 
+			class="cc.natapp4.ddaig.domain.Visitor"
+			column="vid"
+			cascade="save-update"
+			lazy="false"> <!-- ★这里的lazy不能省略，莫非一对一默认懒加载？ -->
+		</many-to-one> 
+
 
 	</class>
 </hibernate-mapping>

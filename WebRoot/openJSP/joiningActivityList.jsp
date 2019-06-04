@@ -15,12 +15,13 @@
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
 <link rel="stylesheet"
 	href="https://res.wx.qq.com/open/libs/weui/1.1.3/weui.min.css">
-<link rel="stylesheet" type="text/css" href="css/default.css">
+<link rel="stylesheet" type="text/css"
+	href="${pageContext.request.contextPath}/css/default.css">
 </head>
 
 <body style="background-color: #f8f8f8;">
 
-	<div id="theContent" hidden="false">
+	<div id="theContent">
 		<!--头部信息-->
 		<div style="padding: 30px;">
 			<h1
@@ -146,7 +147,7 @@
 	</div>
 
 
-	<div id="signinBoard" class="htmleaf-container" hidden="true">
+	<div id="signinBoard" class="htmleaf-container">
 		<div class="container">
 			<div class="row">
 				<div class="col-xs-12">
@@ -161,6 +162,8 @@
 						&nbsp;
 						<button id="saveBtn" class="btn btn-default"
 							onclick="saveSignature();" disabled>提交</button>
+						<button id="saveBtn" class="btn btn-default"
+							onclick="cancelSignature();">取消</button>
 					</p>
 				</div>
 			</div>
@@ -187,8 +190,55 @@
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
-<script src="js/jq-signature.js"></script>
+<script src="${pageContext.request.contextPath}/js/jq-signature.js"></script>
 <script>
+
+	// 与电子签名板有关的逻辑
+	$(function() {
+		if ($('.js-signature').length) {
+			$('.js-signature').jqSignature();
+		}
+		
+		$("#signinBoard").hide();
+		$("#theContent").show();
+		
+	});
+
+
+	function cancelSignature() {
+		clearCanvas();
+		localStorage.setItem("b64Str", "");
+		$("#signinBoard").hide();
+		$("#theContent").show();
+	}
+
+	function clearCanvas() {
+		$('.js-signature').eq(0).jqSignature('clearCanvas');
+		$('#saveBtn').attr('disabled', true);
+	}
+
+	function saveSignature() {
+		var dataUrl = $('.js-signature').eq(0).jqSignature('getDataURL');
+		var b64Str = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
+		localStorage.setItem("b64Str", b64Str);
+		// 开始根据localStorage中的type来调用qianDao或qianDao4position方法执行签到逻辑
+		$("#signinBoard").hide();
+		$("#theContent").show();
+		var type = localStorage.getItem("type");
+		if ("qianDao" == type) {
+			qianDao();
+		} else if ("qianDao4Position" == type) {
+			var aid = localStorage.getItem("aid");
+			qianDao4Position(aid);
+		} else {
+			weui.alert("错误！未指定签到类型，请重试。");
+		}
+
+	}
+
+	$('.js-signature').eq(0).on('jq.signature.changed', function() {
+		$('#saveBtn').attr('disabled', false);
+	});
 
 	// 为了能够使用POST方式传递签名图片的B64字符串（过长，无法使用GET方式），特意在jQuery中拓展了一个方法
 	$.extend({
@@ -214,42 +264,6 @@
 	});
 
 
-	// 与电子签名板有关的逻辑
-	$(document).on('ready', function() {
-		if ($('.js-signature').length) {
-			$('.js-signature').jqSignature();
-		}
-	});
-
-	function clearCanvas() {
-		$('.js-signature').eq(0).jqSignature('clearCanvas');
-		$('#saveBtn').attr('disabled', true);
-	}
-
-	function saveSignature() {
-		var dataUrl = $('.js-signature').eq(0).jqSignature('getDataURL');
-		var b64Str = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
-		localStorage.setItem("b64Str", b64Str);
-		// 开始根据localStorage中的type来调用qianDao或qianDao4position方法执行签到逻辑
-		$("#signinBoard").attr("hidden", true);
-		$("#theContent").attr("hidden", false);
-		var type = localStorage.getItem("type");
-		if ("qianDao" == type) {
-			qianDao();
-		} else if ("qianDao4Position" == type) {
-			var aid = localStorage.getItem("aid");
-			qianDao4Position(aid);
-		} else {
-			weui.alert("错误！未指定签到类型，请重试。");
-		}
-
-	}
-
-	$('.js-signature').eq(0).on('jq.signature.changed', function() {
-		$('#saveBtn').attr('disabled', false);
-	});
-
-
 	// 签到功能入口，参数分别为：是否手签、活动aid（如果有），签到类型（用于确定调用qianDao()还是qianDao4position()）
 	function access4qd(needSignin, aid, type) {
 		if ("true" == needSignin) {
@@ -258,8 +272,8 @@
 			// 需要手签
 			clearCanvas();
 			localStorage.setItem("b64Str", "");
-			$("#signinBoard").attr("hidden", false);
-			$("#theContent").attr("hidden", true);
+			$("#signinBoard").show();
+			$("#theContent").hide();
 		} else {
 			// 不需要手签，直接调用目标方法
 			if ("qianDao" == type) {
@@ -307,7 +321,7 @@
 			type : 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
 			success : function(res) {
 				// 获取可能存在的Base64编码字符串
-				let b64Str = localStorage.getItem("b64Str");				
+				let b64Str = localStorage.getItem("b64Str");
 				//使用微信内置地图查看位置接口
 				let latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
 				let longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
@@ -315,12 +329,12 @@
 				let accuracy = res.accuracy; // 位置精度
 				// 准备POST请求参数
 				param = {
-					"aid": aid,
-					"b64Str": b64Str,
-					"latitude": latitude,
-					"longitude": longitude,
+					"aid" : aid,
+					"b64Str" : b64Str,
+					"latitude" : latitude,
+					"longitude" : longitude,
 				}
-				
+
 			// 下面是打开腾讯地图的API，暂时不用
 			//wx.openLocation({
 			//latitude : res.latitude, // 纬度，浮点数，范围为90 ~ -90
@@ -386,8 +400,6 @@
 		let url = "personalCenterAction_qianTui4Position.action?" + "aid=" + aid + "&latitude=" + latitude + "&longitude=" + longitude;
 		$(location).attr("href", url);
 	}
-
-
 
 
 	// 取消报名
