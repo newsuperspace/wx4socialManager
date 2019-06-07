@@ -13,6 +13,7 @@ import org.apache.struts2.ServletActionContext;
 
 import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Article;
+import cc.natapp4.ddaig.domain.ArticlePhoto;
 import cc.natapp4.ddaig.domain.DoingProject;
 import cc.natapp4.ddaig.domain.Visitor;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
@@ -21,6 +22,7 @@ import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.utils.Image2Base64andBase642ImageUtils;
+import cn.com.obj.freemarker.domain.Picture4FreeMarker;
 import cn.com.obj.freemarker.domain.Signin4FreeMarker;
 import cn.com.obj.freemarker.domain.Visitor4FreeMarker;
 import freemarker.template.Configuration;
@@ -76,6 +78,7 @@ public class ExportDoc {
 		// 我们使用一个哈希Map容器存放键值对儿
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		// 需要注意的是，必须将flt模板中存在的所有“占位符”都配置好对应的值，不能漏掉一个
+		dataMap.put("purchase","创享计划");
 		dataMap.put("projectName", a.getActivity().getProject().getBesureProject().getName());
 		dataMap.put("activityName", a.getTitle());
 		dataMap.put("date", a.getActivity().getEndTimeStr());
@@ -89,8 +92,23 @@ public class ExportDoc {
 		dataMap.put("number", a.getActivity().getVisitors().size());
 		dataMap.put("content", a.getContent());
 		// 由于目标doc文件中存在图片，因此这里需要获取图片的B64编码字符串 【试用阶段，仅仅展示第一张图片】
-		String img = ServletActionContext.getServletContext().getRealPath(a.getPhotos().get(0).getPath());
-		dataMap.put("image", Image2Base64andBase642ImageUtils.getImgStr(img));
+		String imgRealPath = "";   // 存放图片在服务器磁盘上的真实路径
+		String base64Str = "";   // 存放图片的base64编码字符串
+		Picture4FreeMarker  picture = null;
+		List<Picture4FreeMarker> pictures = new ArrayList<Picture4FreeMarker>();
+		int index = 1;
+		for(ArticlePhoto ap:a.getPhotos()) {
+			picture = new Picture4FreeMarker();
+			imgRealPath = ServletActionContext.getServletContext().getRealPath(a.getPhotos().get(0).getPath());
+			base64Str = Image2Base64andBase642ImageUtils.getImgStr(imgRealPath);
+			picture.setBase64Str(base64Str);
+			picture.setDescription("这张图片是当前文章的第"+index+"张图片");
+			picture.setName("图片"+index);
+			
+			pictures.add(picture);
+			index++;
+		}
+		dataMap.put("pictures", pictures);
 
 		return dataMap;
 	}

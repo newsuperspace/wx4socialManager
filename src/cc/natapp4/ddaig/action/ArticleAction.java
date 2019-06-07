@@ -299,7 +299,7 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 		FileController.makeDirs(ServletActionContext.getServletContext().getRealPath(fullPath));
 		fullPath += File.separator+art.getActivity().getName()+".docx";
 		fullPath = ServletActionContext.getServletContext().getRealPath(fullPath);
-        maker.exportDoc4Article(art, fullPath, "test.ftl"); 
+        maker.exportDoc4Article(art, fullPath, "article.ftl"); 
         /*
          * ★★★★★基于Struts2的文件下载★★★★★
          * 以下内容需要特别注意，下方的inputStream和fileName字段必须像下方

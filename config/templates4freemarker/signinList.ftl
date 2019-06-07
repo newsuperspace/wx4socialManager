@@ -134,7 +134,7 @@
                                             <w:u w:val="none"/>
                                             <w:lang w:val="en-US" w:eastAsia="zh-CN"/>
                                         </w:rPr>
-                                        <w:t>活动签到表</w:t>
+                                        <w:t>活动报名签到表</w:t>
                                     </w:r>
                                 </w:p>
                             </w:tc>
@@ -1120,7 +1120,9 @@
                                             <w:u w:val="none"/>
                                             <w:lang w:val="en-US" w:eastAsia="zh-CN"/>
                                         </w:rPr>
-                                        <w:t>${v.username}</w:t>
+                                        
+                                        <w:t>${(v.username)!''}</w:t>
+                                        
                                     </w:r>
                                 </w:p>
                             </w:tc>
@@ -1165,7 +1167,9 @@
                                             <w:u w:val="none"/>
                                             <w:lang w:val="en-US" w:eastAsia="zh-CN"/>
                                         </w:rPr>
-                                        <w:t>${v.sex}</w:t>
+                                        
+                                        <w:t>${(v.sex)!''}</w:t>
+                                        
                                     </w:r>
                                 </w:p>
                             </w:tc>
@@ -1209,7 +1213,9 @@
                                             <w:u w:val="none"/>
                                             <w:lang w:val="en-US" w:eastAsia="zh-CN"/>
                                         </w:rPr>
-                                        <w:t>${v.startTimeStr}</w:t>
+                                        
+                                        <w:t>${(v.startTimeStr)!''}</w:t>
+                                        
                                     </w:r>
                                 </w:p>
                             </w:tc>
@@ -1254,7 +1260,9 @@
                                             <w:u w:val="none"/>
                                             <w:lang w:val="en-US" w:eastAsia="zh-CN"/>
                                         </w:rPr>
-                                        <w:t>${v.endTimeStr}</w:t>
+                                        
+                                        <w:t>${(v.endTimeStr)!''}</w:t>
+                                        
                                     </w:r>
                                 </w:p>
                             </w:tc>
@@ -1299,7 +1307,9 @@
                                             <w:u w:val="none"/>
                                             <w:lang w:val="en-US" w:eastAsia="zh-CN"/>
                                         </w:rPr>
-                                        <w:t>${v.score}</w:t>
+                                        
+                                        <w:t>${(v.score)!''}</w:t>
+                                        
                                     </w:r>
                                 </w:p>
                             </w:tc>
@@ -1350,7 +1360,9 @@
                                             <w:u w:val="none"/>
                                             <w:lang w:val="en-US" w:eastAsia="zh-CN"/>
                                         </w:rPr>
-                                        <w:t>${v.workTime}</w:t>
+                                        
+                                        <w:t>${(v.workTime)!''}</w:t>
+                                        
                                     </w:r>
                                 </w:p>
                             </w:tc>
@@ -1406,6 +1418,7 @@
                                                 <wp:extent cx="1826260" cy="388620"/>
                                                 <wp:effectExtent l="0" t="0" r="0" b="12065"/>
 
+												<!-- 图片标签描述设置 -->
                                                 <wp:docPr id="Png${v_index}" name="签名 ${v_index}" descr="${(v.signin.name)!''}"/>
 
                                                 <wp:cNvGraphicFramePr>
@@ -1415,13 +1428,17 @@
                                                     <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
                                                         <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
                                                             <pic:nvPicPr>
+                                                            
+                                                            	<!-- 图片属性设置 -->
                                                                 <pic:cNvPr id="Png${v_index}4cNvPr" name="签名 ${v_index}4cNvPr" descr="${(v.signin.name)!''}4cNvPr"/>
+                                                            
                                                                 <pic:cNvPicPr>
                                                                     <a:picLocks noChangeAspect="1"/>
                                                                 </pic:cNvPicPr>
                                                             </pic:nvPicPr>
                                                             <pic:blipFill>
-
+                                                            
+																<!-- 图片引用资源ID（rId） -->
                                                                 <a:blip r:embed="rId${v_index}Png"/>
 
                                                                 <a:stretch>

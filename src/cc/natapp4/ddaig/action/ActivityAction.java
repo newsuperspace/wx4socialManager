@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -654,7 +655,7 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		} catch (ParseException e) {
 			e.printStackTrace();
 			message.setResult(false);
-			message.setMessage("将today转化为格里高利历偏移量是出现错误，新建终止");
+			message.setMessage("将today转化为格里高利历偏移量时出现错误，新建终止");
 			ActionContext.getContext().getValueStack().push(message);
 			return "message";
 		}
@@ -763,7 +764,17 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		ra.setDescription(a.getDescription());
 		ra.beginTimeStr = a.getBeginTimeStr();
 		ra.endTimeStr = a.getEndTimeStr();
-		ra.setQrcodeUrl(ServletActionContext.getServletContext().getContextPath() + "/" + a.getQrcodeUrl());
+		// 判断qrcode的uri相对路径下的qrcode是否还存在
+		ServletContext context = ServletActionContext.getServletContext();
+		String realPath = context.getRealPath(File.separator + a.getQrcodeUrl());
+		File file = new File(realPath);
+		if(!file.exists()) {
+			// 文件不存在则直接重新生成qrcode，并更新数据库的qrcodeUrl字段
+			String uriPath = QRCodeUtils.createActivityQR(a.getAid());
+			a.setQrcodeUrl(uriPath);
+			activityService.update(a);
+		}
+		ra.setQrcodeUrl(context.getContextPath() + "/" + a.getQrcodeUrl());
 		ra.setAid(a.getAid());
 
 		ActionContext.getContext().getValueStack().push(ra);
