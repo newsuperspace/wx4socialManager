@@ -96,17 +96,18 @@ public class ExportDoc {
 		String base64Str = "";   // 存放图片的base64编码字符串
 		Picture4FreeMarker  picture = null;
 		List<Picture4FreeMarker> pictures = new ArrayList<Picture4FreeMarker>();
-		int index = 1;
-		for(ArticlePhoto ap:a.getPhotos()) {
-			picture = new Picture4FreeMarker();
-			imgRealPath = ServletActionContext.getServletContext().getRealPath(a.getPhotos().get(0).getPath());
-			base64Str = Image2Base64andBase642ImageUtils.getImgStr(imgRealPath);
-			picture.setBase64Str(base64Str);
-			picture.setDescription("这张图片是当前文章的第"+index+"张图片");
-			picture.setName("图片"+index);
-			
-			pictures.add(picture);
-			index++;
+		
+		if(null!=a.getPhotos()) {
+			for(int i=0;i<a.getPhotos().size();i++) {
+				picture = new Picture4FreeMarker();
+				imgRealPath = ServletActionContext.getServletContext().getRealPath(a.getPhotos().get(i).getPath());
+				base64Str = Image2Base64andBase642ImageUtils.getImgStr(imgRealPath);
+				picture.setBase64Str(base64Str);
+				picture.setDescription("这张图片是当前文章的第"+i+"张图片");
+				picture.setName("图片"+i);
+				
+				pictures.add(picture);
+			}
 		}
 		dataMap.put("pictures", pictures);
 
