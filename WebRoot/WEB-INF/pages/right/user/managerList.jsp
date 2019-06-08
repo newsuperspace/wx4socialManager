@@ -41,6 +41,10 @@
 										data-toggle="modal" data-target="#newUserModal">
 										<span class="glyphicon glyphicon-plus"></span> 新建
 									</button>
+									<button class="btn btn-sm btn-outline-secondary"
+										data-toggle="modal" data-target="#batchNewUserModal">
+										<span class="glyphicon glyphicon-plus"></span> 批量新建
+									</button>
 
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#selectUsers">
@@ -103,60 +107,47 @@
 											<td class="text-truncate" data-toggle="tooltip"
 												title="<s:property value='user.openid'/>"><s:property
 													value="user.openid" /></td>
-											<td>
-											
-												<s:if test="grouping.tag=='common'">
+											<td><s:if test="grouping.tag=='common'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:if> 
-												<s:elseif test="grouping.tag=='unreal'">
+												</s:if> <s:elseif test="grouping.tag=='unreal'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> 
-												<s:elseif test="grouping.tag=='admin'">
+												</s:elseif> <s:elseif test="grouping.tag=='admin'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif>
-												<s:elseif test="grouping.tag=='zero'">
+												</s:elseif> <s:elseif test="grouping.tag=='zero'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif>
-												<s:elseif test="grouping.tag=='first'">
+												</s:elseif> <s:elseif test="grouping.tag=='first'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> 
-												<s:elseif test="grouping.tag=='second'">
+												</s:elseif> <s:elseif test="grouping.tag=='second'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> 
-												<s:elseif test="grouping.tag=='third'">
+												</s:elseif> <s:elseif test="grouping.tag=='third'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> 
-												<s:elseif test="grouping.tag=='fourth'">
+												</s:elseif> <s:elseif test="grouping.tag=='fourth'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> 
-												<s:elseif test="grouping.tag=='minus_first'">
+												</s:elseif> <s:elseif test="grouping.tag=='minus_first'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif> 
-												<s:elseif test="grouping.tag=='money'">
+												</s:elseif> <s:elseif test="grouping.tag=='money'">
 													<span class="badge badge-success"> <s:property
 															value="grouping.groupName" />
 													</span>
-												</s:elseif>
-												
-											</td>
+												</s:elseif></td>
 											<td><s:if test="null==managers || 0==managers.size()">
 													未匹配
 												</s:if> <s:else>
@@ -165,8 +156,7 @@
 														<s:if test="managers.size()>3">
 															<s:iterator value="managers" status="status" begin="0"
 																end="2">
-																<s:if
-																	test="#status.index==2">
+																<s:if test="#status.index==2">
 																	<s:if test="'minus_first'==grouping.tag">
 																		<s:property value="minusFirstLevel.name" />...
 																	</s:if>
@@ -210,8 +200,7 @@
 														</s:if>
 														<s:else>
 															<s:iterator value="managers" status="status">
-																<s:if
-																	test="(#status.index+1)==managers.size()">
+																<s:if test="(#status.index+1)==managers.size()">
 																	<s:if test="'minus_first'==grouping.tag">
 																		<s:property value="minusFirstLevel.name" />
 																	</s:if>
@@ -503,6 +492,40 @@
 				</div>
 			</div>
 		</div>
+
+
+		<!-- Modal 4 批量新建用户 -->
+		<div class="modal fade" id="batchNewUserModal" tabindex="-1"
+			role="dialog" aria-labelledby="createUser" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">批量新建用户</h4>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+
+
+							请上传指定格式的xlsx文档<input type="file" id="excel-file">
+
+
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-primary"
+							onclick="userModal.op.batchCreateUser();">新建</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
 
 		<!-- Modal 4 任命 -->
 		<div class="modal fade" id="appoint" tabindex="-1" role="dialog"
@@ -863,5 +886,44 @@
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript"
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
-	
+<script lang="text/javascript" src="${pageContext.request.contextPath}/js/xlsx.full.min.js"></script>
+<script>
+	$('#excel-file').change(function(e) {
+		var files = e.target.files;
+
+		var fileReader = new FileReader();
+		fileReader.onload = function(ev) {
+			try {
+				var data = ev.target.result,
+					workbook = XLSX.read(data, {
+						type : 'binary'
+					}), // 以二进制流方式读取得到整份excel表格对象
+					persons = []; // 存储获取到的数据
+			} catch (e) {
+				console.log('文件类型不正确');
+				return;
+			}
+
+			// 表格的表格范围，可用于判断表头是否数量是否正确
+			var fromTo = '';
+			// 遍历每张表读取
+			for (var sheet in workbook.Sheets) {
+				if (workbook.Sheets.hasOwnProperty(sheet)) {
+					fromTo = workbook.Sheets[sheet]['!ref'];
+					console.log(fromTo);
+					persons = persons.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
+				// break; // 如果只取第一张表，就取消注释这行
+				}
+			}
+
+			console.log(persons);
+			// 通过AJAX向后端传递数据的业务逻辑
+			userModal.op.batchCreateUser(persons);
+		};
+
+		// 以二进制方式打开文件
+		fileReader.readAsBinaryString(files[0]);
+	});
+</script>
+
 </html>

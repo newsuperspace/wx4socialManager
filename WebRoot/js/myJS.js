@@ -1407,6 +1407,23 @@ var userModal = {
 			return false;
 		},
 
+
+		//前端上传xlsx文档，基于SheetJS解析成JSONarray后，本方法负责通过AJAX提交给服务器并向用户展示服务器的处理结果
+		batchCreateUser : function(batchUser) {
+
+			let url = "userAction_batchCreate.action";
+			let param = {
+								// JSON的全局方法stringify()可将JSON对象转变为JSON格式字符串
+								// 相反的操作是通过 JSON.parse(str) 由JSON字符串转换为JSON对象
+				"batchUserStr" : JSON.stringify(batchUser),
+			};
+			$.post(url, param, function(data, textStatus, req) {
+				alert(data);
+			});
+				
+		},
+
+
 		createUser : function() {
 			var data = {
 				username : $("#username").val(),
@@ -1435,6 +1452,7 @@ var userModal = {
 				window.location.reload();
 			});
 		},
+
 
 		userInfo : function(uid) {
 			var data = {
@@ -1492,15 +1510,16 @@ var userModal = {
 			return false;
 		},
 
+
 		// userList.jsp页面上，非直辖人员右边的一个小三角按钮，用来显示/隐藏筛选用户的panel面板，本方法是用来切换按钮的图标（上下箭头之间切换）
 		changeIcon : function() {
 			let $icon = $("#icon4selectorPanel");
 			let $panel = $("#selectorPanel");
-			
-			if($icon.attr("class")=="glyphicon glyphicon-chevron-down"){
+
+			if ($icon.attr("class") == "glyphicon glyphicon-chevron-down") {
 				$panel.collapse('show');
 				$icon.attr("class", "glyphicon glyphicon-chevron-up");
-			}else{
+			} else {
 				$panel.collapse('hide');
 				$icon.attr("class", "glyphicon glyphicon-chevron-down");
 			}
@@ -1813,7 +1832,7 @@ var userModal = {
 
 			// 用户使用了fourth的selector做出了选择
 			case "fourth":
-			// step1 关闭所有子孙 selector
+				// step1 关闭所有子孙 selector
 				// step2 组织子selector的可选项目、组织用户列表信息
 				if ('0' == value) {
 					// step2-1 向服务器获取父选择器所选定父层级下辖的全部成员并更新前端显示
@@ -1842,9 +1861,6 @@ var userModal = {
 				break;
 			}
 		},
-		
-		
-		
 	} // ======== op is over ========
 };
 
@@ -2477,8 +2493,8 @@ var aboutWeixin = {
 					// 有详细的注释说明，应该很容易看懂。
 
 					// （1）隐藏右上角的弹出式菜单，防止当前页面被分享出去
-//					wx.hideOptionMenu();
-				// TODO 调用其他需要使用JS-SKD进行的初始设置工作.......
+					//					wx.hideOptionMenu();
+					// TODO 调用其他需要使用JS-SKD进行的初始设置工作.......
 				});
 			},
 		}
@@ -2891,10 +2907,10 @@ var activityModal = {
 			let date4selector = $("#date4selector").val(); // 室外
 			let hour = $("#hour").val(); // 室外
 			let score = $("#score").val();
-			
+
 			let sychronizeRadio = $('input:radio[name="sychronizeRadio"]:checked').val();
 			let signinRadio = $('input:radio[name="signinRadio"]:checked').val();
-			
+
 			var param = {
 				"dpid" : dpid,
 				"activityType" : activityType,
@@ -2908,8 +2924,8 @@ var activityModal = {
 				"date4selector" : date4selector, // 室外
 				"hour" : hour, // 室外
 				"score" : score,
-				"sychronizeRadio": sychronizeRadio,
-				"signinRadio": signinRadio
+				"sychronizeRadio" : sychronizeRadio,
+				"signinRadio" : signinRadio
 			}
 			$.post(url, param, function(data, textStatus, req) {
 				if (data.result) {

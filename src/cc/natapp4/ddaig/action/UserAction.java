@@ -18,12 +18,18 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 
 import cc.natapp4.ddaig.bean.GetData4UserListSelectors;
 import cc.natapp4.ddaig.bean.Init4UserListSelectors;
+import cc.natapp4.ddaig.bean.SheetJS4BatchCreateUser;
 import cc.natapp4.ddaig.bean.User4Ajax;
 import cc.natapp4.ddaig.domain.Exchange;
 import cc.natapp4.ddaig.domain.Grouping;
@@ -125,6 +131,19 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 
 	public void setManagerid(String managerid) {
 		this.managerid = managerid;
+	}
+
+	
+	
+	/**
+	 * 获取从managerList.jsp页面中上传的批量创建数据（JSONarray形式）
+	 */
+	private List<SheetJS4BatchCreateUser> batchUser;
+	public List<SheetJS4BatchCreateUser> getBatchUser() {
+		return batchUser;
+	}
+	public void setBatchUser(List<SheetJS4BatchCreateUser> batchUser) {
+		this.batchUser = batchUser;
 	}
 
 	// ==========================================================Method
@@ -1247,6 +1266,48 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		return "exchangeList";
 	}
 
+	
+	private String batchUserStr;
+	public String getBatchUserStr() {
+		return batchUserStr;
+	}
+	public void setBatchUserStr(String batchUserStr) {
+		this.batchUserStr = batchUserStr;
+	}
+
+	/**
+	 * 前端页面（managerList.jsp）上基于SheetJS框架，将传入的规定格式的XLSX文档中的表格数据转变为JSONarray
+	 * 并通过AJAX回传到服务器的此处进行批量创建用户。
+	 * @return
+	 */
+	public String batchCreate() {
+		
+//		for(SheetJS4BatchCreateUser s: this.batchUser) {
+//			System.out.println(s);
+//		}
+		System.out.println(this.batchUserStr);
+		//Json的解析类对象
+	    JsonParser parser = new JsonParser();
+	    //将JSON的String 转成一个JsonArray对象
+	    JsonArray jsonArray = parser.parse(this.batchUserStr).getAsJsonArray();
+
+	    Gson gson = new Gson();
+	    ArrayList<SheetJS4BatchCreateUser> userBeanList = new ArrayList<SheetJS4BatchCreateUser>();
+
+	    //加强for循环遍历JsonArray
+	    for (JsonElement user : jsonArray) {
+	        //使用GSON，直接转成Bean对象
+	    	SheetJS4BatchCreateUser userBean = gson.fromJson(user, SheetJS4BatchCreateUser.class);
+	        userBeanList.add(userBean);
+	    }
+		
+		ActionContext.getContext().getValueStack().push("批量导入成功！");
+		return "json";
+	}
+	
+	
+	
+	
 	/**
 	 * 手动（非通过微信公众号关注）新建的用户
 	 * 
