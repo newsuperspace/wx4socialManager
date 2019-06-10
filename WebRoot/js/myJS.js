@@ -2538,12 +2538,12 @@ var aboutWeixin = {
 			var sex = $('input[name="sex"]:checked').val();
 			var birth = $("#birth").val();
 			var phone = $("#phone").val();
-			if ("" == username || null == username) {
+			if ("" == username || null == username || username.length < 2) {
 				console.log("姓名为必填项");
 				$("#submit").addClass("weui-btn_disabled");
 				return;
 			}
-			if ("" == phone || null == phone) {
+			if ("" == phone || null == phone || phone.length < 11) {
 				console.log("电话为必填项");
 				$("#submit").addClass("weui-btn_disabled");
 				return;

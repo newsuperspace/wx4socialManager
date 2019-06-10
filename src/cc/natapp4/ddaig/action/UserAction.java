@@ -1,11 +1,17 @@
 package cc.natapp4.ddaig.action;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
@@ -55,8 +61,10 @@ import cc.natapp4.ddaig.service_interface.SecondLevelService;
 import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
+import cc.natapp4.ddaig.utils.FileController;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
+import cn.com.obj.freemarker.ExportDoc;
 
 @Controller("userAction")
 @Scope("prototype")
@@ -100,6 +108,17 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	}
 
 	// ======================================================属性驱动——向前端页面传送经过处理的数据信息
+	// 用作error全局结果集指定的页面——error.jsp中显示错误的信息内容
+	private String errorMessage;
+
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
 	private int level;
 	private String lid;
 
@@ -133,15 +152,39 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		this.managerid = managerid;
 	}
 
-	
-	
+	// ---------------------下载用属性-------------------
+	// 下载用的存放文件名
+	private String fileName;
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	// 下载数据流
+	// 该inputStream属性将作为在struts-article.xml中，名为download的结果集中所使用的，用来向前端提供下载
+	private InputStream inputStream;
+
+	public InputStream getInputStream() {
+		return inputStream;
+	}
+
+	public void setInputStream(InputStream inputStream) {
+		this.inputStream = inputStream;
+	}
+
 	/**
 	 * 获取从managerList.jsp页面中上传的批量创建数据（JSONarray形式）
 	 */
 	private List<SheetJS4BatchCreateUser> batchUser;
+
 	public List<SheetJS4BatchCreateUser> getBatchUser() {
 		return batchUser;
 	}
+
 	public void setBatchUser(List<SheetJS4BatchCreateUser> batchUser) {
 		this.batchUser = batchUser;
 	}
@@ -489,7 +532,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 
 	// ===============配套userList.jsp页面的selector筛选用户功能的系列方法======================
 	/**
-	 * 	当用户请求userList.jsp页面的时候，会在也买你通过$(function(){//...}); 进行初始化工作
+	 * 当用户请求userList.jsp页面的时候，会在也买你通过$(function(){//...}); 进行初始化工作
 	 * 通过AJAX请求本方法，用以初始化userList.jsp页面上用于过滤用户的selector的panel面板。
 	 * 
 	 * TODO 分页查询
@@ -534,7 +577,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				break;
 			case "zero":
 				// 当前层级管理者为zeroLevel
-				ZeroLevel zeroLevel  = zeroLevelService.queryEntityById(lid);
+				ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
 				init.setTag("zero");
 				init.setZeroLevel(zeroLevel);
 				init.setFirstLevels(zeroLevel.getAllChildren4Ajax());
@@ -568,7 +611,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				break;
 			}
 		}
-		
+
 		ActionContext.getContext().getValueStack().push(init);
 		return "json";
 	}
@@ -589,17 +632,17 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		String lid = this.lid;
 		// 准备通过JSON方式返回给前端的Bean
 		GetData4UserListSelectors bean = new GetData4UserListSelectors();
-		
-		//	开始分析前端所要的数据
+
+		// 开始分析前端所要的数据
 		switch (tag) {
 		// 当userList.jsp中的minusFirst的selector选择“--请选择--”时，执行本分支获取系统全部用户数据显示在前端
 		case "all": // 索要系统平台中的所有用户数据
 			// 只有admin用户才能获取所有用户数据，出于安全考虑我们需要校验当前操作者是否真的是admin
-			if("admin".equals(myTag)){
+			if ("admin".equals(myTag)) {
 				// 当前操作者的确是admin，可以授权获取全部用户数据
 				bean.setResult(true);
 				bean.setUsers(userService.queryEntities());
-			}else{
+			} else {
 				// 当前请求为非法，驳回
 				bean.setResult(false);
 				bean.setMessage("非法请求，您不是administrator用户，请求被驳回");
@@ -610,8 +653,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
 			// 准备子selector的数据
 			/*
-			 * ⭐⭐⭐⭐⭐ 一个常见的错误 ⭐⭐⭐⭐⭐
-			 * 这是一个常见的问题，本次请求处理分支需要在一次Hibernate事务中进行 三次查询，
+			 * ⭐⭐⭐⭐⭐ 一个常见的错误 ⭐⭐⭐⭐⭐ 这是一个常见的问题，本次请求处理分支需要在一次Hibernate事务中进行 三次查询，
 			 * （1）从minusFirstLevel中获取所有子层级，基于Hibernate配置文件
 			 * 设置了延迟加载，因此当我们通过minusFirstLevel.getChildren()的时候会调用查找语句获取数据
 			 * （2）userService.getChildrenLevelUsers() 查询指定层级的非直辖用户数据
@@ -620,8 +662,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			 * 因为之前在第一个查询中我们使用了minusFirstLevel.getAllChildren4Ajax() 这个方法会在内部断开
 			 * 所有zeroLevel和minusFirstLevel的外键关联，但并不提交到数据库，仅仅用于向前端返回时避开可能
 			 * 的基于JSON解析的死循环，但由于之后好要在同一个事务中进行两次查询，hibernate会将第一次查询
-			 * 结果的持久化状态对象如果有修改的化提交到数据库后再进行下一个查询，这就导致刚刚我们切断了
-			 * 与父层级的外键关联也被保存到了数据库中。
+			 * 结果的持久化状态对象如果有修改的化提交到数据库后再进行下一个查询，这就导致刚刚我们切断了 与父层级的外键关联也被保存到了数据库中。
 			 * 解决办法就是在父层级中关于子层级的集合属性上加上@JSON(serialize=false) 这样就会避免JSON
 			 * 解析的时候通过父层级去解析该容器中的全部子层级了，从而避免了死循环的产生，因此我们在第一次
 			 * 查询时直接使用minusFirstLevel.getChildren() 即可。
@@ -725,8 +766,9 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			System.out.println("查找不到待修改的用户数据");
 		} else {
 			// 查看用户的专属二维码图片是否还在，不在则自动重新创建
-			
-			File file = new File(ServletActionContext.getServletContext().getRealPath(File.separator + user.getQrcode()));
+
+			File file = new File(
+					ServletActionContext.getServletContext().getRealPath(File.separator + user.getQrcode()));
 			if (!file.exists()) {
 				// 如果不存在二维码文件，则重新创建二维码文件
 				File parentFile = file.getParentFile();
@@ -738,7 +780,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				user.setQrcode(qrcode);
 				userService.update(user);
 			}
-			
+
 			// 修改该用户的qrcode中保存的相对路径 → 拼接成绝对路径url，以此供前端页面上的infoModal对话框的<img
 			// src=""/>的src属性直接使用，以显示该用户的qrcode图片
 			String qrcodeUrl = ServletActionContext.getServletContext().getContextPath() + "/" + user.getQrcode();
@@ -947,7 +989,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		/*
 		 * 当需要将List转化成数组Array的时候是需要像如下方式实现的， 给ArrayList.toArray()传递一个数组实例作为参数。★
 		 */
-		if(null!=tagsList){
+		if (null != tagsList) {
 			String[] tags = (String[]) tagsList.toArray(new String[0]);
 			u.setTags(tags);
 		}
@@ -1266,11 +1308,12 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		return "exchangeList";
 	}
 
-	
 	private String batchUserStr;
+
 	public String getBatchUserStr() {
 		return batchUserStr;
 	}
+
 	public void setBatchUserStr(String batchUserStr) {
 		this.batchUserStr = batchUserStr;
 	}
@@ -1278,36 +1321,34 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	/**
 	 * 前端页面（managerList.jsp）上基于SheetJS框架，将传入的规定格式的XLSX文档中的表格数据转变为JSONarray
 	 * 并通过AJAX回传到服务器的此处进行批量创建用户。
+	 * 
 	 * @return
 	 */
 	public String batchCreate() {
-		
-//		for(SheetJS4BatchCreateUser s: this.batchUser) {
-//			System.out.println(s);
-//		}
+
+		// for(SheetJS4BatchCreateUser s: this.batchUser) {
+		// System.out.println(s);
+		// }
 		System.out.println(this.batchUserStr);
-		//Json的解析类对象
-	    JsonParser parser = new JsonParser();
-	    //将JSON的String 转成一个JsonArray对象
-	    JsonArray jsonArray = parser.parse(this.batchUserStr).getAsJsonArray();
+		// Json的解析类对象
+		JsonParser parser = new JsonParser();
+		// 将JSON的String 转成一个JsonArray对象
+		JsonArray jsonArray = parser.parse(this.batchUserStr).getAsJsonArray();
 
-	    Gson gson = new Gson();
-	    ArrayList<SheetJS4BatchCreateUser> userBeanList = new ArrayList<SheetJS4BatchCreateUser>();
+		Gson gson = new Gson();
+		ArrayList<SheetJS4BatchCreateUser> userBeanList = new ArrayList<SheetJS4BatchCreateUser>();
 
-	    //加强for循环遍历JsonArray
-	    for (JsonElement user : jsonArray) {
-	        //使用GSON，直接转成Bean对象
-	    	SheetJS4BatchCreateUser userBean = gson.fromJson(user, SheetJS4BatchCreateUser.class);
-	        userBeanList.add(userBean);
-	    }
-		
+		// 加强for循环遍历JsonArray
+		for (JsonElement user : jsonArray) {
+			// 使用GSON，直接转成Bean对象
+			SheetJS4BatchCreateUser userBean = gson.fromJson(user, SheetJS4BatchCreateUser.class);
+			userBeanList.add(userBean);
+		}
+
 		ActionContext.getContext().getValueStack().push("批量导入成功！");
 		return "json";
 	}
-	
-	
-	
-	
+
 	/**
 	 * 手动（非通过微信公众号关注）新建的用户
 	 * 
@@ -1919,6 +1960,140 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		result = new ReturnMessage4Common("委任成功", true);
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
+	}
+
+	public String downloadUserLedger() throws Exception {
+		// ----------------------------准备数据-----------------------------
+		// 先找到当前管理者的层级对象
+		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+		// 查找出层级直辖的全部人员
+		Set<Member> members = null;
+		String levelName = "";
+		String levelTag = "";
+		String levelQrcodePath = "";
+		switch (tag) {
+		case "minus_first":
+			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
+			if (null == minusFirstLevel) {
+				// error结果集索引字符串不是定义在当前Action对应的子配置文件中的，而是定义在struts.xml中配置文件中的全局结果集索引
+				this.errorMessage = "查找不到id为" + lid + "的" + tag + "层级对象";
+				return "error";
+			}
+			members = minusFirstLevel.getMembers();
+			levelName = minusFirstLevel.getName();
+			levelTag = "街道级";
+			levelQrcodePath = minusFirstLevel.getQrcode();
+			break;
+		case "zero":
+			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
+			if (null == zeroLevel) {
+				this.errorMessage = "查找不到id为" + lid + "的" + tag + "层级对象";
+				return "error";
+			}
+			members = zeroLevel.getMembers();
+			levelName = zeroLevel.getName();
+			levelTag = "社区级";
+			levelQrcodePath = zeroLevel.getQrcode();
+			break;
+		case "first":
+			FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
+			if (null == firstLevel) {
+				this.errorMessage = "查找不到id为" + lid + "的" + tag + "层级对象";
+				return "error";
+			}
+			members = firstLevel.getMembers();
+			levelName = firstLevel.getName();
+			levelTag = "第一级";
+			levelQrcodePath = firstLevel.getQrcode();
+			break;
+		case "second":
+			SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
+			if (null == secondLevel) {
+				this.errorMessage = "查找不到id为" + lid + "的" + tag + "层级对象";
+				return "error";
+			}
+			members = secondLevel.getMembers();
+			levelName = secondLevel.getName();
+			levelTag = "第二级";
+			levelQrcodePath = secondLevel.getQrcode();
+			break;
+		case "third":
+			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
+			if (null == thirdLevel) {
+				this.errorMessage = "查找不到id为" + lid + "的" + tag + "层级对象";
+				return "error";
+			}
+			members = thirdLevel.getMembers();
+			levelName = thirdLevel.getName();
+			levelTag = "第三级";
+			levelQrcodePath = thirdLevel.getQrcode();
+			break;
+		case "fourth":
+			FourthLevel fourthLevel = fourthLevelService.queryEntityById(lid);
+			if (null == fourthLevel) {
+				this.errorMessage = "查找不到id为" + lid + "的" + tag + "层级对象";
+				return "error";
+			}
+			members = fourthLevel.getMembers();
+			levelName = fourthLevel.getName();
+			levelTag = "第四级";
+			levelQrcodePath = fourthLevel.getQrcode();
+			break;
+		}
+
+		if (null == members) {
+			this.errorMessage = "当前层级的成员容器（members）为null";
+			return "error";
+		} else if (0 == members.size()) {
+			this.errorMessage = "当前层级的成员数量为0，无法生成电子台账";
+			return "error";
+		}
+		// 解析出每个member对应的user，要保持唯一性
+		Set<User> users = new HashSet<User>();
+		for (Member m : members) {
+			users.add(m.getUser());
+		}
+
+		// ----------------------------准备生成DOC文档-----------------------------
+		String fullPath;
+		ExportDoc maker = new ExportDoc("UTF-8");
+		fullPath = "download" + File.separator + "userLedger";
+		FileController.makeDirs(ServletActionContext.getServletContext().getRealPath(fullPath));
+		fullPath += File.separator + levelName + "人员电子台帐.docx";
+		fullPath = ServletActionContext.getServletContext().getRealPath(fullPath);
+		maker.exportDoc4UserLedger(levelName, levelTag, levelQrcodePath, users, fullPath, "userLedger.ftl");
+		
+		// --------------------------------准备下载---------------------------------
+		File file = new File(fullPath);
+		if (!file.exists()) {
+			// 如果指定路径中不存在文件，则直接返回，引导到在struts.xml配置文件中配置的名为error的全局结果集指定的错误页面反应问题
+			this.errorMessage = "路径：" + fullPath + "下，不存在指定文件，请稍后再试！";
+			// error结果集索引字符串不是定义在当前Action对应的子配置文件中的，而是定义在struts.xml中配置文件中的全局结果集索引
+			return "error";
+		}
+		// 如果文件存在，则创建等待下载文件的文件输入流fis，该流失唯一与磁盘临时文件链接的流
+		FileInputStream fis = new FileInputStream(file);
+		// 准备字节数组（字节缓冲区）输出流备用
+		ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
+		// 准备字节缓冲区（也就是字节数组，1024字节就够用了）用作输入流和输出流的流对接
+		byte[] buff = new byte[1024];
+		int rc = 0;
+		while ((rc = fis.read(buff, 0, 1024)) > 0) {
+			swapStream.write(buff, 0, rc);
+		}
+		// 将输出流转变为用作下载的输入流，完成数据从待下载磁盘文件转入到下载输入流
+		this.inputStream = new ByteArrayInputStream(swapStream.toByteArray());
+		// 关闭待下载临时文件的输入流，从而该临时文件可以随时删除而又不会影响下载流
+		fis.close();
+		swapStream.close();
+		// 因为生成的台帐文档的数据流已经拷贝到了下载流中，因此原文件可以删除了
+		file.delete();   
+		// ---------------准备下载用的文件名（形如：“测试文件.doc”）----------------
+		String s = levelName + "人员电子台帐.docx";
+		this.fileName = new String(s.getBytes(), "ISO8859-1");
+
+		return "download";
 	}
 
 	/**

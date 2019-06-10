@@ -104,13 +104,19 @@
 <script>
 
 	$('#birth').on('focus', function() {
+		// 当birth获得焦点后就会触发下方的weui的日期拾取器的初始化
 		weui.datePicker({
+			// 设置起始日期（yyyy-MM-dd）
 			start : "1900-1-1",
+			// 设置截至日期
 			end : new Date(),
+			// 设置默认开始日期
 			defaultValue : [ 1980, 7, 15 ],
+			// 监听变化后触发
 			onChange : function(result) {
 				console.log(result);
 			},
+			// 监听提交时触发
 			onConfirm : function(result) {
 				let birth = "";
 				for (let i = 0; i < result.length; i++) {

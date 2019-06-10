@@ -43,7 +43,7 @@
 									</button>
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#batchNewUserModal">
-										<span class="glyphicon glyphicon-plus"></span> 批量新建
+										<span class="glyphicon glyphicon-plus"></span> 批新建
 									</button>
 
 									<button class="btn btn-sm btn-outline-secondary"
@@ -64,12 +64,12 @@
 										<div class="dropdown-menu dropdown-menu-right"
 											aria-labelledby="others">
 											<a class="dropdown-item" href="#"
-												onclick="alert('你点击了某个功能');">XX功能</a> <a
-												class="dropdown-item disabled" href="#">Disabled action</a>
+												onclick="exportLedger();">导出电子台账</a> 
+											<a class="dropdown-item disabled" href="#">失效的功能</a>
 											<h6 class="dropdown-header">Section header</h6>
-											<a class="dropdown-item" href="#">Action</a>
+											<a class="dropdown-item" href="#">功能1</a>
 											<div class="dropdown-divider"></div>
-											<a class="dropdown-item" href="#">After divider action</a>
+											<a class="dropdown-item" href="#">功能2</a>
 										</div>
 									</div>
 								</div>
@@ -888,6 +888,15 @@
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
 <script lang="text/javascript" src="${pageContext.request.contextPath}/js/xlsx.full.min.js"></script>
 <script>
+
+	// 导出并下载当前层级管理者直辖人员的“电子台账”
+	function exportLedger(){
+		// 准备并访问下载链接
+		$(location).attr("href", "userAction_downloadUserLedger.action");
+	}
+
+
+	// 【完成】负责xlsx文档上传，并将其中数据解析为JSONarray对象后执行 批量创建新用户的业务逻辑
 	$('#excel-file').change(function(e) {
 		var files = e.target.files;
 

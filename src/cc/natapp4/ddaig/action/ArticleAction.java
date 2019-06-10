@@ -252,7 +252,7 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 	
 	
 	// =================================基于Struts2的下载功能================================
-	// 该is属性将作为在struts-article.xml中，名为download的结果集中所使用的，用来向前端提供下载
+	// 该inputStream属性将作为在struts-article.xml中，名为download的结果集中所使用的，用来向前端提供下载
 	private InputStream inputStream;
 	public InputStream getInputStream() {
 		return inputStream;
