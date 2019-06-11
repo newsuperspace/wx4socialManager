@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="cc.natapp4.ddaig.domain.setting.BaseSetting">
+		<id name="settingid" length="50">
+			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
+			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
+			<generator class="uuid"></generator>
+		</id>
+		
+		<property name="name" length="100"></property>
+		<property name="description" length="200"></property>
+		<property name="level" type="integer"></property>
+		<property name="qrcode" length="100"></property>
+		<property name="qrcodeTime" type="long"></property>
+
+		<list name="geographics" cascade="save-update" lazy="true">
+			<key column="flid"></key>
+			<list-index column="index4first"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Geographic" />
+		</list>
+
+		<list name="managers" cascade="save-update" lazy="true">
+			<key column="flid"></key>
+			<list-index column="index4first"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Manager" />
+		</list>
+
+		<many-to-one name="parent" column="zid"
+			class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" cascade="save-update" lazy="false"></many-to-one>
+
+		
+	</class>
+</hibernate-mapping>

@@ -315,6 +315,35 @@
 								</div>
 							</div>
 						</myShiro:hasAnyPermissions>
+						
+						<!--【【【【【【【后台设置】】】】】】】 -->
+						<div class="card4geo">
+								<div class="card-header px-0 py-1" role="tab"
+									id="settingContentHeaderId">
+									<a class="nav-link" data-toggle="collapse" href="#settingContent"
+										aria-expanded="false" aria-controls="geoContent"> 后台设置 </a>
+								</div>
+								<!--
+                                        注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
+                                        并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
+                                        因此同一时间只能打开其中一个card
+                                    -->
+								<div id="settingContent" class="collapse in" role="tabpanel"
+									data-parent="#accordianId" aria-labelledby="settingContentHeaderId">
+									<div class="card-body py-1">
+
+										<ul class="navbar-nav mr-auto mt-0 pt-0">
+
+											<li class="nav-item active"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("settingContent", "settingAction_intoBaseSettingPage.action")'>基础设置
+													<span class="sr-only">(current)</span>
+											</a></li>
+
+
+										</ul>
+									</div>
+								</div>
+							</div>
 
 						<!--【【【【【【【权限管理】】】】】】】 -->
 						<shiro:hasPermission name="admin">

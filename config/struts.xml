@@ -41,6 +41,7 @@
 	<include file="struts/struts-house.xml"></include>		
 	<include file="struts/struts-geographic.xml"></include>		
 	<include file="struts/struts-approve.xml"></include>		
+	<include file="struts/struts-setting.xml"></include>		
 		
 		
 	<!-- 

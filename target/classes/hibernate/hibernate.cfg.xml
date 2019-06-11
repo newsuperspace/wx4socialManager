@@ -57,6 +57,7 @@
 	<mapping resource="cc/natapp4/ddaig/domain/Reply4UserJoinLevelApprove.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Approve4UserJoinLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/UserApply4JoinLevel.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/setting/BaseSetting.hbm.xml" />
 	
 </session-factory>
 
