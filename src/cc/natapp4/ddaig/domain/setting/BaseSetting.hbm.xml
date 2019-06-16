@@ -9,7 +9,9 @@
 			<generator class="uuid"></generator>
 		</id>
 		
-		<property name="name" length="100"></property>
+		<property name="needJoinApply" type="boolean"></property>
+		
+<!-- 
 		<property name="description" length="200"></property>
 		<property name="level" type="integer"></property>
 		<property name="qrcode" length="100"></property>
@@ -29,7 +31,7 @@
 
 		<many-to-one name="parent" column="zid"
 			class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" cascade="save-update" lazy="false"></many-to-one>
-
+ -->
 		
 	</class>
 </hibernate-mapping>
