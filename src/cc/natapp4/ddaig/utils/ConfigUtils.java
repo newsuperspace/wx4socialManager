@@ -15,7 +15,7 @@ public class ConfigUtils {
 
 	/**
 	 * 用于加载Classpath根目录下的properties
-	 * @param classpathFileName   相对于classpath的相对路径，如“wxConfig/weixin.properties”
+	 * @param classpathFileName   相对于classpath类路径根目录的相对路径，形如：“wxConfig/weixin.properties”
 	 * @return  Properties对象
 	 */
 	public static Properties  getProperties(String classpathFileName){

@@ -16,6 +16,14 @@ public interface BaseSettingService extends BaseService<BaseSetting> {
 	 */
 	public BaseSetting getBaseSettingConfigByTagAndLid(String tag,String lid);		
 		
+	
+	/**
+	 * 初始化设置
+	 * @param tag
+	 * @param lid
+	 */
+	public void defaultConfig(String tag,String lid);
 		
+	
 	
 }

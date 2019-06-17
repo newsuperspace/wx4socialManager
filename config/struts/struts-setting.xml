@@ -15,7 +15,7 @@
 		<action name="settingAction_*" method="{1}" class="settingAction">
 		
 			<result name="baseSettingPage">/WEB-INF/pages/right/setting/baseSettingPage.jsp</result>
-			
+			<result name="json" type="json"></result>
 			
 		</action>
 	</package>

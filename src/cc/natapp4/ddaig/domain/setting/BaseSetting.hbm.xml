@@ -9,29 +9,11 @@
 			<generator class="uuid"></generator>
 		</id>
 		
-		<property name="needJoinApply" type="boolean"></property>
+		<property name="needJoinApply" length="10"></property>
+		<property name="tag" length="20"></property>
+		<property name="lid" length="50"></property>
 		
-<!-- 
-		<property name="description" length="200"></property>
-		<property name="level" type="integer"></property>
-		<property name="qrcode" length="100"></property>
-		<property name="qrcodeTime" type="long"></property>
 
-		<list name="geographics" cascade="save-update" lazy="true">
-			<key column="flid"></key>
-			<list-index column="index4first"></list-index>
-			<one-to-many class="cc.natapp4.ddaig.domain.Geographic" />
-		</list>
-
-		<list name="managers" cascade="save-update" lazy="true">
-			<key column="flid"></key>
-			<list-index column="index4first"></list-index>
-			<one-to-many class="cc.natapp4.ddaig.domain.Manager" />
-		</list>
-
-		<many-to-one name="parent" column="zid"
-			class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" cascade="save-update" lazy="false"></many-to-one>
- -->
 		
 	</class>
 </hibernate-mapping>

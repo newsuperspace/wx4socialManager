@@ -51,47 +51,12 @@ public class BaseSettingServiceImpl extends BaseServiceImpl<BaseSetting> impleme
 	// ============================【业务逻辑开始】==================================
 	@Override
 	public BaseSetting getBaseSettingConfigByTagAndLid(String tag, String lid) {
+		return baseSettingDao.getBaseSettingConfigByTagAndLid(tag, lid);
+	}
 
-		BaseSetting  baseSetting = null;
-		switch (tag) {
-		case "minus_first":
-			MinusFirstLevel minusFirstLevel = minusfirstLevelDao.queryEntityById(lid);
-
-			
-			break;
-		case "zero":
-			ZeroLevel zeroLevel = zeroLevelDao.queryEntityById(lid);
-			
-			
-			break;
-		case "first":
-			FirstLevel firstLevel = firstLevelDao.queryEntityById(lid);
-			
-			
-			break;
-		case "second":
-			SecondLevel secondLevel = secondLevelDao.queryEntityById(lid);
-			
-			
-			break;
-		case "third":
-			ThirdLevel thirdLevel = thirdLevelDao.queryEntityById(lid);
-			
-			
-			
-			break;
-		case "fourth":
-			FourthLevel fourthLevel = fourthLevelDao.queryEntityById(lid);
-			
-			
-			break;
-		}
-		
-		
-		
-		
-		
-		return null;
+	@Override
+	public void defaultConfig(String tag, String lid) {
+		baseSettingDao.defaultConfig(tag, lid);
 	}
 
 	
