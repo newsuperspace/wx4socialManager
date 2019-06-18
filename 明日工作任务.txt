@@ -146,7 +146,7 @@ for(Member m : members){
 （4）在用户中心 → 设置 → 修改密码功能，从而根除测试阶段固定的登陆密码为123（admin还是admin不变）的尴尬
 
 
-5、基于freeMarker实现“电子工作证”和“层级管理人员电子台账”的word导出功能
+5、基于freeMarker实现“电子工作证”的word导出功能
 
 
 6、街道层级增加房屋管理功能，房屋管理功能；
@@ -218,7 +218,7 @@ https://github.com/Tencent/weui/wiki/Cell
 
 userApply4JoinLevel   ← 一对一 →  approve4UserJoinLevel  ← 一对多 → reply4UserJoinLevelApprove
 
-userApply4JoinLevel:
+userApply4JoinLevel: （用户申请对象）
 	ua4jlid （UUID主键）
 	user  （外键，与用户进行一对多关联，由此可定位用户的基本信息）
 	
@@ -233,14 +233,14 @@ userApply4JoinLevel:
 	beread （默认为NULL,只有当status为非0是，该标记位才会被关注，并且false表示组织层级管理者已经完成处理但是提交申请的用户还没看到，直到首次加载本数据的时候才会永久变更为true）
 	
 	
-approve4UserJoinLevel:
+approve4UserJoinLevel: （层级审核申请对象）
 	a4ujlid （foreign主键，与ua4jlid共用主键）
 	tag （形如：minus_first/zero/first/second/third/fourth  这样的组织层级字段，用来联合lid一起定位用户提交申请的目标组织）
 	lid （组织的主键id，与tag合作可以从数据库中定位用户所要申请加入的具体组织）
 	beread （随同userApply4JoinLevel新建数据后，默认为false，用来表示新请求是否被层级管理者阅读过了，首次加载数据的时候会优秀修正为true）
 	
 	
-reply4UserJoinLevelApprove：
+reply4UserJoinLevelApprove：（审核答复对象）
 	r4ujlaid （UUID主键）
 	message （回复的内容）
 	timeStr （形如： yyyy-MM-dd HH:mm:ss 的日期字符串）

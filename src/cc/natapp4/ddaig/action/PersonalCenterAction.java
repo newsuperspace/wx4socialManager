@@ -35,10 +35,12 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
+import cc.natapp4.ddaig.domain.setting.BaseSetting;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.ActivityService;
 import cc.natapp4.ddaig.service_interface.Approve4UserJoinLevelService;
+import cc.natapp4.ddaig.service_interface.BaseSettingService;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.FourthLevelService;
 import cc.natapp4.ddaig.service_interface.GroupingService;
@@ -141,6 +143,8 @@ public class PersonalCenterAction extends ActionSupport {
 	private Approve4UserJoinLevelService approve4UserJoinLevelService;
 	@Resource(name = "reply4UserJoinLevelApproveService")
 	private Reply4UserJoinLevelApproveService reply4UserJoinLevelApproveService;
+	@Resource(name = "baseSettingService")
+	private BaseSettingService baseSettingService;
 
 	// ================================== 属性驱动
 	// ==================================
@@ -234,9 +238,11 @@ public class PersonalCenterAction extends ActionSupport {
 	 * 需要电子签名的活动，则签名的Base64编码字符串会被该属性接收到
 	 */
 	private String b64Str;
+
 	public String getB64Str() {
 		return b64Str;
 	}
+
 	public void setB64Str(String b64Str) {
 		this.b64Str = b64Str;
 	}
@@ -471,14 +477,14 @@ public class PersonalCenterAction extends ActionSupport {
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(user.getMembers());
 		/*
-		 *  新建一个member对象，用来保存该用户作为加入公众号的那个身份member
-		 *  该member的一个特点是，作为默认member永远跟随该user，该member是在user加入公众号的时候
-		 *  随同user一同创建的，它的从minusFirst到fourth均为null，用以表示用户不属于任何（只属于公众号）的层级身份。
-		 *  只有它拥有两个特殊grouping.tag标记minus_first和unreal，出现前者标记说明该用户是一个街道级别的管理者，出现unreal
-		 *  说明该用户还未实名认证。
+		 * 新建一个member对象，用来保存该用户作为加入公众号的那个身份member
+		 * 该member的一个特点是，作为默认member永远跟随该user，该member是在user加入公众号的时候
+		 * 随同user一同创建的，它的从minusFirst到fourth均为null，用以表示用户不属于任何（只属于公众号）的层级身份。
+		 * 只有它拥有两个特殊grouping.tag标记minus_first和unreal，出现前者标记说明该用户是一个街道级别的管理者，
+		 * 出现unreal 说明该用户还未实名认证。
 		 *
-		 *  另外该member与其他member最大的区别就是永远与user相伴而生，无论用户是否拥有组织身份，
-		 *  它都将作为最后标记用户身份（公众号的成员）永远存在下去，不会像普通member那样退出组织后就会被删除。
+		 * 另外该member与其他member最大的区别就是永远与user相伴而生，无论用户是否拥有组织身份，
+		 * 它都将作为最后标记用户身份（公众号的成员）永远存在下去，不会像普通member那样退出组织后就会被删除。
 		 */
 		Member member = null;
 		/*
@@ -491,9 +497,9 @@ public class PersonalCenterAction extends ActionSupport {
 				break;
 			}
 		}
-//		if(!"minus_first".equals(member.getGrouping().getTag())){
-//			members.remove(member);
-//		}
+		// if(!"minus_first".equals(member.getGrouping().getTag())){
+		// members.remove(member);
+		// }
 		// 放入到值栈栈顶，供给JSP页面组装页面时读取数据显示之用
 		ActionContext.getContext().put("members", members);
 		return result;
@@ -514,6 +520,220 @@ public class PersonalCenterAction extends ActionSupport {
 	 */
 	public String joinByScanQRCode() {
 
+		// -----------------------------baseSetting.needJoinApply ==
+		// no--------------------------------------
+		// 在执行跳转到“申请加入”页面之前，调用目标层级的配置，如果不需要申请，则直接执行加入逻辑
+		BaseSetting setting = baseSettingService.getBaseSettingConfigByTagAndLid(this.tag, this.lid);
+		if ("no".equals(setting.getNeedJoinApply())) {
+			// 定位当前用户
+			User user = userService
+					.queryByOpenId((String) ServletActionContext.getRequest().getSession().getAttribute("openid"));
+
+			// 检测当前用户是否已经是目标层级的成员
+			boolean hasJoined = false;
+			List<Member> members = user.getMembers();
+			for (Member m : members) {
+				switch (this.tag) {
+				case "minus_first":
+					if (null != m.getMinusFirstLevel() && null == m.getZeroLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getMinusFirstLevel().getMflid().equals(this.lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				case "zero":
+					if (null != m.getZeroLevel() && null == m.getFirstLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getZeroLevel().getZid().equals(this.lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				case "first":
+					if (null != m.getFirstLevel() && null == m.getSecondLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getFirstLevel().getFlid().equals(this.lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				case "second":
+					if (null != m.getSecondLevel() && null == m.getThirdLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getSecondLevel().getScid().equals(this.lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				case "third":
+					if (null != m.getThirdLevel() && null == m.getFourthLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getThirdLevel().getThid().equals(this.lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				case "fourth":
+					if (null != m.getFourthLevel()) {
+						// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+						if (m.getFourthLevel().getFoid().equals(this.lid)) {
+							hasJoined = true;
+						}
+					}
+					break;
+				}
+			}
+
+			if (hasJoined) {
+				Info4RealName info = new Info4RealName();
+				info.setTotal("当前问题");
+				info.setDetails("");
+				info.setDetailsURL("");
+				info.setIcon("weui-icon-info");
+				info.setTitle("您已是该组织成员");
+				info.setMessage("您已经是该组织成员正式成员了，请勿重复加入。");
+
+				ActionContext.getContext().getValueStack().push(info);
+				return "msgPage";
+			}
+
+			// 用户还没加入到目标层级，执行加入层级的逻辑
+			Member member = null;
+
+			Info4RealName info = new Info4RealName();
+			boolean hasError = false;
+
+			switch (this.tag) {
+			case "minus_first":
+				MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(this.lid);
+				if (null == minusFirstLevel) {
+					System.out.println("用户要加入的层级不存在");
+					hasError = true;
+				} else {
+					// 新建member
+					member = new Member();
+					// 与user建立关系
+					member.setUser(user);
+					user.getMembers().add(member);
+					// 设置member的必要数据
+					member.setGrouping(groupingService.queryByTagName("common"));
+					member.setMinusFirstLevel(minusFirstLevel);
+				}
+				break;
+			case "zero":
+				ZeroLevel zeroLevel = zeroLevelService.queryEntityById(this.lid);
+				if (null == zeroLevel) {
+					System.out.println("用户要加入的层级不存在");
+					hasError = true;
+				} else {
+					member = new Member();
+					member.setUser(user);
+					user.getMembers().add(member);
+					member.setGrouping(groupingService.queryByTagName("common"));
+					member.setZeroLevel(zeroLevel);
+					member.setMinusFirstLevel(zeroLevel.getParent());
+				}
+				break;
+			case "first":
+				FirstLevel firstLevel = firstLevelService.queryEntityById(this.lid);
+				if (null == firstLevel) {
+					System.out.println("用户要加入的层级不存在");
+					hasError = true;
+				} else {
+					member = new Member();
+					member.setUser(user);
+					user.getMembers().add(member);
+					member.setGrouping(groupingService.queryByTagName("common"));
+					member.setFirstLevel(firstLevel);
+					member.setZeroLevel(firstLevel.getParent());
+					member.setMinusFirstLevel(firstLevel.getParent().getParent());
+				}
+				break;
+			case "second":
+				SecondLevel secondLevel = secondLevelService.queryEntityById(this.lid);
+				if (null == secondLevel) {
+					System.out.println("用户要加入的层级不存在");
+					hasError = true;
+				} else {
+					member = new Member();
+					member.setUser(user);
+					user.getMembers().add(member);
+					member.setGrouping(groupingService.queryByTagName("common"));
+					member.setSecondLevel(secondLevel);
+					member.setFirstLevel(secondLevel.getParent());
+					member.setZeroLevel(secondLevel.getParent().getParent());
+					member.setMinusFirstLevel(secondLevel.getParent().getParent().getParent());
+				}
+				break;
+			case "third":
+				ThirdLevel thirdLevel = thirdLevelService.queryEntityById(this.lid);
+				if (null == thirdLevel) {
+					System.out.println("用户要加入的层级不存在");
+					hasError = true;
+				} else {
+					member = new Member();
+					member.setUser(user);
+					user.getMembers().add(member);
+					member.setGrouping(groupingService.queryByTagName("common"));
+					member.setThirdLevel(thirdLevel);
+					member.setSecondLevel(thirdLevel.getParent());
+					member.setFirstLevel(thirdLevel.getParent().getParent());
+					member.setZeroLevel(thirdLevel.getParent().getParent().getParent());
+					member.setMinusFirstLevel(thirdLevel.getParent().getParent().getParent().getParent());
+				}
+				break;
+			case "fourth":
+				FourthLevel fourthLevel = fourthLevelService.queryEntityById(this.lid);
+				if (null == fourthLevel) {
+					System.out.println("用户要加入的层级不存在");
+					hasError = true;
+				} else {
+					member = new Member();
+					member.setUser(user);
+					user.getMembers().add(member);
+					member.setGrouping(groupingService.queryByTagName("common"));
+					member.setFourthLevel(fourthLevel);
+					member.setThirdLevel(fourthLevel.getParent());
+					member.setSecondLevel(fourthLevel.getParent().getParent());
+					member.setFirstLevel(fourthLevel.getParent().getParent().getParent());
+					member.setZeroLevel(fourthLevel.getParent().getParent().getParent().getParent());
+					member.setMinusFirstLevel(fourthLevel.getParent().getParent().getParent().getParent().getParent());
+				}
+				break;
+			}
+
+			if (hasError) {
+				info.setTotal("加入失败");
+				info.setDetails("");
+				info.setDetailsURL("");
+				info.setIcon("weui-icon-warn-red");
+				info.setTitle("您要加入的组织不存在或已解散");
+				info.setMessage("用户要加入的层级不存在 ,请确认后再试。");
+
+				ActionContext.getContext().getValueStack().push(info);
+				return "msgPage";
+			} else {
+				info.setTotal("加入成功");
+				info.setDetails("");
+				info.setDetailsURL("");
+				info.setIcon("weui-icon-success");
+				info.setTitle("您已成功加入该组织");
+				info.setMessage("您已经是该组织成员正式成员了，欢迎积极参加队伍活动。");
+			}
+
+			// 向数据库存储新建的member数据
+			if (null != member) {
+				memberService.save(member);
+				userService.update(user);
+			}
+
+			ActionContext.getContext().getValueStack().push(info);
+			return "msgPage";
+		}
+
+		// -----------------------------baseSetting.needJoinApply ==
+		// yes--------------------------------------
 		// ⭐ 防止重复提交加入组织的申请的判断处理 ⭐
 		// 该标记为用于判定用户是否已经是目标申请加入层级的成员了
 		boolean hasJoined = false;
@@ -596,7 +816,7 @@ public class PersonalCenterAction extends ActionSupport {
 
 			ActionContext.getContext().getValueStack().push(info);
 			return "msgPage";
-		}else if(hasCommit){
+		} else if (hasCommit) {
 			Info4RealName info = new Info4RealName();
 			info.setTotal("当前问题");
 			info.setDetails("");
@@ -611,66 +831,86 @@ public class PersonalCenterAction extends ActionSupport {
 
 		// --------------------------------------------下面就是正常的准备提交申请页面的逻辑了--------------------------------------
 		// 用于向前端application.jsp页面回显数据之用的bean
-		Info4Application info = new Info4Application();
+		Info4Application info4Apply = new Info4Application();
+		boolean hasError = false;
 		// 先定位用户所要加入的目标层级对象
 		switch (tag) {
 		case "minus_first":
 			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
 			if (null == minusFirstLevel) {
 				System.out.println("用户要加入的层级不存在");
+				hasError = true;
 			} else {
-				info.setLid(lid);
-				info.setTag(tag);
+				info4Apply.setLid(lid);
+				info4Apply.setTag(tag);
 			}
 			break;
 		case "zero":
 			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
 			if (null == zeroLevel) {
 				System.out.println("用户要加入的层级不存在");
+				hasError = true;
 			} else {
-				info.setLid(lid);
-				info.setTag(tag);
+				info4Apply.setLid(lid);
+				info4Apply.setTag(tag);
 			}
 			break;
 		case "first":
 			FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
 			if (null == firstLevel) {
 				System.out.println("用户要加入的层级不存在");
+				hasError = true;
 			} else {
-				info.setLid(lid);
-				info.setTag(tag);
+				info4Apply.setLid(lid);
+				info4Apply.setTag(tag);
 			}
 			break;
 		case "second":
 			SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
 			if (null == secondLevel) {
 				System.out.println("用户要加入的层级不存在");
+				hasError = true;
 			} else {
-				info.setLid(lid);
-				info.setTag(tag);
+				info4Apply.setLid(lid);
+				info4Apply.setTag(tag);
 			}
 			break;
 		case "third":
 			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
 			if (null == thirdLevel) {
 				System.out.println("用户要加入的层级不存在");
+				hasError = true;
 			} else {
-				info.setLid(lid);
-				info.setTag(tag);
+				info4Apply.setLid(lid);
+				info4Apply.setTag(tag);
 			}
 			break;
 		case "fourth":
 			FourthLevel fourthLevel = fourthLevelService.queryEntityById(lid);
 			if (null == fourthLevel) {
 				System.out.println("用户要加入的层级不存在");
+				hasError = true;
 			} else {
-				info.setLid(lid);
-				info.setTag(tag);
+				info4Apply.setLid(lid);
+				info4Apply.setTag(tag);
 			}
 			break;
 		}
 
-		ActionContext.getContext().getValueStack().push(info);
+		if (hasError) {
+			Info4RealName info = new Info4RealName();
+			info.setTotal("加入失败");
+			info.setDetails("");
+			info.setDetailsURL("");
+			info.setIcon("weui-icon-warn-red");
+			info.setTitle("您要加入的组织不存在或已解散");
+			info.setMessage("用户要加入的层级不存在 ,请确认后再试。");
+
+			ActionContext.getContext().getValueStack().push(info);
+			return "msgPage";
+		}
+
+		ActionContext.getContext().getValueStack().push(info4Apply);
 		return "application";
 	}
 
@@ -687,11 +927,11 @@ public class PersonalCenterAction extends ActionSupport {
 		String desire = this.theDesire;
 		String reason = this.theReason;
 
-		// 新建用户申请对象
+		// 新建用户——“申请对象”
 		UserApply4JoinLevel apply = new UserApply4JoinLevel();
-		// 新建层级管理者审核对象
+		// 新建层级管理者——“审核对象”
 		Approve4UserJoinLevel approve = new Approve4UserJoinLevel();
-		// 查找一个当前数据库中真是存在的user对象
+		// 查找当前申请人用户的user对象
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
 		User user = userService.queryByOpenId(openid);
 
@@ -700,6 +940,7 @@ public class PersonalCenterAction extends ActionSupport {
 		apply.setApprove4UserJoinLevel(approve);
 		approve.setUserApply4JoinLevel(apply);
 		apply.setUser(user);
+		// 为了让hibernate维护List容器的顺序，需要手动将新建的apply添加到user的list容器中
 		List<UserApply4JoinLevel> applies = user.getUserApply4JoinLevels();
 		if (null == applies) {
 			applies = new ArrayList<UserApply4JoinLevel>();
@@ -948,13 +1189,13 @@ public class PersonalCenterAction extends ActionSupport {
 		v.setWorkTime(-1);
 		v.setEndTime(-1);
 		v.setStartTime(-1);
-		
-		long baomingTime  =  System.currentTimeMillis();
+
+		long baomingTime = System.currentTimeMillis();
 		v.setBaomingTime(baomingTime);
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String baomingTimeStr = dateFormat.format(new Date(baomingTime));
 		v.setBaomingTimeStr(baomingTimeStr);
-		
+
 		// 处理新建的visitor在当前用户user中的次序问题
 		List<Visitor> visits = user.getVisits();
 		/*
@@ -1033,16 +1274,16 @@ public class PersonalCenterAction extends ActionSupport {
 		info.setTotal("签到结果");
 
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
-		User user  =  userService.queryByOpenId(openid);
+		User user = userService.queryByOpenId(openid);
 		Activity activity = activityService.queryEntityById(this.aid);
 		List<Visitor> visitors = activity.getVisitors();
 		for (Visitor v : visitors) {
 			if (v.getUser().getOpenid().equals(openid)) {
 				if (-1 == v.getStartTime()) {
-					// - 如果没有签到 - 
+					// - 如果没有签到 -
 					// 先查看当前活动是否需要参与者电子签名，如果需要则查看是否将电子签名的base64编码字符串传递过来了
-					if(activity.isNeedSignin()) {
-						if(StringUtils.isEmpty(this.b64Str)) {
+					if (activity.isNeedSignin()) {
+						if (StringUtils.isEmpty(this.b64Str)) {
 							// 当前活动需要电子签名，但此时服务器并未接收到从前端传来的电子签名的base64编码字符串，因此本次签到被驳回
 							info.setDetails("");
 							info.setDetailsURL("");
@@ -1053,11 +1294,11 @@ public class PersonalCenterAction extends ActionSupport {
 							return "msgPage";
 						}
 					}
-					
+
 					long currentTimeMillis = System.currentTimeMillis();
 					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
-					if(activity.isSynchronize()){
+					if (activity.isSynchronize()) {
 						// -- 同步签到/签退活动 --
 						// 向visitor中记录签到时间
 						v.setStartTime(currentTimeMillis);
@@ -1069,14 +1310,14 @@ public class PersonalCenterAction extends ActionSupport {
 						v.setScore(activity.getScore());
 						user.setScore(user.getScore() + activity.getScore());
 						// 计算本次活动时常，同步签到签退活动默认累计的活动时长为整个活动时长
-						v.setWorkTime(activity.getActivityEndTime()-activity.getActivityBeginTime());
+						v.setWorkTime(activity.getActivityEndTime() - activity.getActivityBeginTime());
 						// 活动是否需要保存手签名
-						if(activity.isNeedSignin()) {
+						if (activity.isNeedSignin()) {
 							Signin signin = v.getSignin();
-							if(null!=signin) {
+							if (null != signin) {
 								signin.setBase64Str(this.b64Str);
 								signin.setName(user.getUsername());
-							}else {
+							} else {
 								signin = new Signin();
 								signin.setBase64Str(this.b64Str);
 								signin.setName(user.getUsername());
@@ -1090,18 +1331,18 @@ public class PersonalCenterAction extends ActionSupport {
 						info.setIcon("weui-icon-success");
 						info.setTitle("签到成功");
 						info.setMessage("您已于" + dateTimeStr + "同时完成签到和签退!请准备参加活动，过程中务必注意安全");
-					}else{
+					} else {
 						// -- 签到和签退分开的活动 --
 						// 向visitor中记录签到时间
 						v.setStartTime(currentTimeMillis);
 						v.setStartTimeStr(dateTimeStr);
 						// 活动是否需要保存手签名
-						if(activity.isNeedSignin()) {
+						if (activity.isNeedSignin()) {
 							Signin signin = v.getSignin();
-							if(null!=signin) {
+							if (null != signin) {
 								signin.setBase64Str(this.b64Str);
 								signin.setName(user.getUsername());
-							}else {
+							} else {
 								signin = new Signin();
 								signin.setBase64Str(this.b64Str);
 								signin.setName(user.getUsername());
@@ -1119,7 +1360,7 @@ public class PersonalCenterAction extends ActionSupport {
 					// 向数据库中保存签到时间
 					visitorService.update(v);
 				} else {
-					// - 已经签到完成 - 
+					// - 已经签到完成 -
 					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(v.getStartTime()));
 					info.setDetails("");
@@ -1145,7 +1386,7 @@ public class PersonalCenterAction extends ActionSupport {
 		info.setTotal("签到结果");
 
 		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
-		User user  =  userService.queryByOpenId(openid);
+		User user = userService.queryByOpenId(openid);
 		Activity activity = activityService.queryEntityById(this.aid);
 		List<Visitor> visitors = activity.getVisitors();
 		for (Visitor v : visitors) {
@@ -1154,8 +1395,8 @@ public class PersonalCenterAction extends ActionSupport {
 				if (-1 == v.getStartTime()) {
 					// 还没签到呢
 					// 先查看当前活动是否需要参与者电子签名，如果需要则查看是否将电子签名的base64编码字符串传递过来了
-					if(activity.isNeedSignin()) {
-						if(StringUtils.isEmpty(this.b64Str)) {
+					if (activity.isNeedSignin()) {
+						if (StringUtils.isEmpty(this.b64Str)) {
 							// 当前活动需要电子签名，但此时服务器并未接收到从前端传来的电子签名的base64编码字符串，因此本次签到被驳回
 							info.setDetails("");
 							info.setDetailsURL("");
@@ -1166,7 +1407,7 @@ public class PersonalCenterAction extends ActionSupport {
 							return "msgPage";
 						}
 					}
-					
+
 					long currentTimeMillis = System.currentTimeMillis();
 					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					String dateTimeStr = formatter.format(new Date(currentTimeMillis));
@@ -1195,8 +1436,8 @@ public class PersonalCenterAction extends ActionSupport {
 							new double[] { this.latitude, this.longitude })) {
 						// - 签到位置在有效签到范围内，允许签到 -
 						// -- 开始甄别活动签到方式 --
-						if(activity.isSynchronize()){
-							//--- 同步签到和签退 ---
+						if (activity.isSynchronize()) {
+							// --- 同步签到和签退 ---
 							// 向visitor中记录签到时间
 							v.setStartTime(currentTimeMillis);
 							v.setStartTimeStr(dateTimeStr);
@@ -1207,14 +1448,14 @@ public class PersonalCenterAction extends ActionSupport {
 							v.setScore(activity.getScore());
 							user.setScore(user.getScore() + activity.getScore());
 							// 同步签到和签退的活动时长累计是以活动总时长为默认值的
-							v.setWorkTime(activity.getActivityEndTime()-activity.getActivityBeginTime());
+							v.setWorkTime(activity.getActivityEndTime() - activity.getActivityBeginTime());
 							// 活动是否需要保存手签名
-							if(activity.isNeedSignin()) {
+							if (activity.isNeedSignin()) {
 								Signin signin = v.getSignin();
-								if(null!=signin) {
+								if (null != signin) {
 									signin.setBase64Str(this.b64Str);
 									signin.setName(user.getUsername());
-								}else {
+								} else {
 									signin = new Signin();
 									signin.setBase64Str(this.b64Str);
 									signin.setName(user.getUsername());
@@ -1228,18 +1469,18 @@ public class PersonalCenterAction extends ActionSupport {
 							info.setIcon("weui-icon-success");
 							info.setTitle("签到成功");
 							info.setMessage("您已于" + dateTimeStr + "同时完成签到和签退！请准备参加活动，过程中务必注意安全");
-						}else{
+						} else {
 							// ---分别签到和签退---
 							// 向visitor中记录签到时间
 							v.setStartTime(currentTimeMillis);
 							v.setStartTimeStr(dateTimeStr);
 							// 活动是否需要保存手签名
-							if(activity.isNeedSignin()) {
+							if (activity.isNeedSignin()) {
 								Signin signin = v.getSignin();
-								if(null!=signin) {
+								if (null != signin) {
 									signin.setBase64Str(this.b64Str);
 									signin.setName(user.getUsername());
-								}else {
+								} else {
 									signin = new Signin();
 									signin.setBase64Str(this.b64Str);
 									signin.setName(user.getUsername());

@@ -213,11 +213,11 @@ public class ApproveAction extends ActionSupport {
 		result.setMessage("处理成功！该用户已成功加入我们");
 		result.setResult(true);
 		
-		// 获取申请对象
+		// 获取用户申请对象
 		UserApply4JoinLevel apply = userApply4JoinLevelService.queryEntityById(this.ua4jlid);
 		// 获取申请人
 		User user = apply.getUser();
-		// 获取审批对象
+		// 获取层级审批对象
 		Approve4UserJoinLevel approve = apply.getApprove4UserJoinLevel();
 		SimpleDateFormat  formatter  =  new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		long timeStamp = System.currentTimeMillis();
