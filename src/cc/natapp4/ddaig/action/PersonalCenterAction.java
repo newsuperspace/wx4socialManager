@@ -1,5 +1,6 @@
 package cc.natapp4.ddaig.action;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,8 +55,10 @@ import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.VisitorService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.PositionUtils;
+import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4RecallImpl;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
+import cn.com.obj.freemarker.domain.WorkCard;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 
@@ -1670,5 +1673,51 @@ public class PersonalCenterAction extends ActionSupport {
 		ActionContext.getContext().getValueStack().push(info);
 		return "msgPage";
 	}
+	
+	
+	/**
+	 *  获取用户信息，作为前端电子工作证的显示之用
+	 * @return
+	 */
+	public String getWorkCard(){
+		String openid = (String) ServletActionContext.getRequest().getSession().getAttribute("openid");
+		User user = userService.queryByOpenId(openid);
+		WorkCard wc = null;
+		
+		if(null==user){
+			wc = new WorkCard();
+			wc.setResult(false);
+			wc.setMessage("用户不存在或没有登陆，无法获取其个人信息");
+		}else{
+			File file = new File(
+					ServletActionContext.getServletContext().getRealPath(File.separator + user.getQrcode()));
+			if (!file.exists()) {
+				// 如果不存在二维码文件，则重新创建二维码文件
+				File parentFile = file.getParentFile();
+				// 判断二维码图片的路径是否存在，不存在就逐层创建
+				if (!parentFile.exists()) {
+					parentFile.mkdirs();
+				}
+				String qrcode = QRCodeUtils.createUserQR(user.getUid());
+				user.setQrcode(qrcode);
+				userService.update(user);
+			}
+			
+			// 修改该用户的qrcode中保存的相对路径 → 拼接成绝对路径url，以此供前端页面上的infoModal对话框的<img
+			// src=""/>的src属性直接使用，以显示该用户的qrcode图片
+			String qrcodeUrl = ServletActionContext.getServletContext().getContextPath() + "/" + user.getQrcode();
+			String username = user.getUsername();
+			String phone = user.getPhone();
+			String sex = user.getSex();
+			
+			wc = new WorkCard(qrcodeUrl, username, phone, sex);
+			wc.setResult(true);
+			wc.setMessage("查詢成功");
+		}
+		
+		ActionContext.getContext().getValueStack().push(wc);
+		return "json";
+	}
+	
 
 }
