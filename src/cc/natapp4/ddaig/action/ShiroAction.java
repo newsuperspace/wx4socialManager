@@ -461,8 +461,12 @@ public class ShiroAction extends ActionSupport {
 	}
 	
 	/**
-	 * 当微信端关闭页面或桌面端关闭页面的前端jQuery会接收监听该到该行为，并通过ajax请求本
-	 * 方法，本法只需要请求转发到applicationContext.xml中关于shiro配置好的用于触发系统退出登录
+	 * AJAX 方式，后台推出shiro登录的方法，目前适用于一下情况：
+	 * （1）基于微信的JS-API，可以设定当用户点击叉子的时候的回调中调用本方法，用于完成推出操作（该方法已经在myJS.overAll.op中准备好）
+	 * （2）当某个层级管理者登录系统后，由于其权限受限导致被自动跳转到unauthorized.jsp显示提示信息的时候，会通过jQuery的ready方法请求本方法完成退出操作
+	 * 
+	 * 
+	 * 本法只需要请求转发到applicationContext.xml中关于shiro配置好的用于触发系统退出登录
 	 * 的logout过滤器的路径/logout 即可实现退出。
 	 * @return
 	 */

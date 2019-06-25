@@ -10,4 +10,16 @@
 	<h1 style="color: #f00">权限不足</h1>
 	<p style="font-size: 20px">请联系您的上级管理员获取授权，谢谢合作。</p>
 </body>
+
+<script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
+<script type="text/javascript">
+	$(function(){
+		let url = "shiroAction_logout.action";
+		let param = null;
+		$.post(url, param, function(data, textStatus, req) {
+			console.log(data.message);
+		});
+	});
+</script>
+
 </html>
