@@ -65,6 +65,8 @@
 											aria-labelledby="others">
 											<a class="dropdown-item" href="#"
 												onclick="exportLedger();">导出电子台账</a> 
+											<a class="dropdown-item" href="#"
+												onclick="downloadWorkCard();">生成电子工作证</a> 
 											<a class="dropdown-item disabled" href="#">失效的功能</a>
 											<h6 class="dropdown-header">Section header</h6>
 											<a class="dropdown-item" href="#">功能1</a>
@@ -893,6 +895,10 @@
 	function exportLedger(){
 		// 准备并访问下载链接
 		$(location).attr("href", "userAction_downloadUserLedger.action");
+	}
+
+	function downloadWorkCard(){
+		$(location).attr("href","managerAction_downloadWorkCard.action");
 	}
 
 

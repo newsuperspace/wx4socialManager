@@ -17,6 +17,8 @@ import cc.natapp4.ddaig.domain.Activity;
 import cc.natapp4.ddaig.domain.Article;
 import cc.natapp4.ddaig.domain.ArticlePhoto;
 import cc.natapp4.ddaig.domain.DoingProject;
+import cc.natapp4.ddaig.domain.Manager;
+import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.Visitor;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
@@ -26,12 +28,15 @@ import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.utils.DateTimeUtils;
 import cc.natapp4.ddaig.utils.Image2Base64andBase642ImageUtils;
+import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cn.com.obj.freemarker.domain.Picture4FreeMarker;
 import cn.com.obj.freemarker.domain.Signin4FreeMarker;
 import cn.com.obj.freemarker.domain.User4FreeMarker;
 import cn.com.obj.freemarker.domain.Visitor4FreeMarker;
+import cn.com.obj.freemarker.domain.WorkCard;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 public class ExportDoc {
 
@@ -68,11 +73,69 @@ public class ExportDoc {
 	}
 
 	/*
-	 * =========================================================================
+	 * ===========================================================================
 	 * = =============================业务方法，都在这下面===============================
-	 * =========================================================================
-	 * =
+	 * ===========================================================================
 	 */
+	
+	public Map<String,Object> getDataMap4WorkCard(List<Member> members, String levelName, String minusFirstName, String zeroName){
+		Map<String,Object> map = new HashMap<String,Object>();
+		
+		List<WorkCard> cards = new ArrayList<WorkCard>();
+		WorkCard wc = null;
+		String imgRealPath = "";
+		String base64Str = "";
+		int indexNum = 1;
+		for(Member m: members){
+				wc = new WorkCard();
+				wc.setIndexNum(indexNum);
+				wc.setLevelName(levelName);
+				wc.setMinusFirstName(minusFirstName);
+				wc.setZeroName(zeroName);
+				wc.setPhone(m.getUser().getPhone());
+				
+				// 判断二维码是否存在，不存在则直接创建
+				File file = new File(
+						ServletActionContext.getServletContext().getRealPath(File.separator + m.getUser().getQrcode()));
+				if (!file.exists()) {
+					// 如果不存在二维码文件，则重新创建二维码文件
+					File parentFile = file.getParentFile();
+					// 判断二维码图片的路径是否存在，不存在就逐层创建
+					if (!parentFile.exists()) {
+						parentFile.mkdirs();
+					}
+					String qrcode = QRCodeUtils.createUserQR(m.getUser().getUid());
+					m.getUser().setQrcode(qrcode);
+				}
+				imgRealPath = ServletActionContext.getServletContext().getRealPath(File.separator +m.getUser().getQrcode());
+				base64Str = Image2Base64andBase642ImageUtils.getImgStr(imgRealPath);
+				wc.setQrcodeB64Str(base64Str);
+				
+				wc.setSex(m.getUser().getSex());
+				wc.setUsername(m.getUser().getUsername());
+				
+				cards.add(wc);
+				indexNum +=1;
+		}
+		map.put("cards", cards);
+		return map;
+	}
+	
+	
+	public void exportDoc4WorkCard(List<Member> members, String levelName, String minusFirstName, String zeroName, String fullDocPath, String tempName) throws Exception{
+		FileOutputStream out = new FileOutputStream(fullDocPath);
+		OutputStreamWriter writer = new OutputStreamWriter(out, this.encoding);
+		BufferedWriter bufferWriter = new BufferedWriter(writer);
+		this.getTemplate(tempName).process(this.getDataMap4WorkCard(members, levelName, minusFirstName, zeroName), bufferWriter);
+		// 一定要关闭流啊，不然创建的临时数据doc文件下载完毕后不能立刻删除
+		bufferWriter.close();
+		writer.close();
+		out.close();
+		// 打印信息
+		System.out.println("位于" + fullDocPath + "的DOC文件生成完毕！");
+	}
+	
+	
 	/**
 	 * 组织用于显示在基于FreeMarker生成的DOC文档上的数据信息----------------userLedger
 	 * @param levelName 层级名称
