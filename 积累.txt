@@ -18,7 +18,17 @@
 	 * 因此，我们不能也不需要通过Receipt4BesureProjectService来新建数据，一切关于新建、修改、查询都可以通过主表BesureProjectService来实现。
 	 */
 	 
-4、
+4、如果在部署工程后，出现某些类的NoClassFound异常，说明该类的class字节码文件没有被Maven编译到target目录，或target目录没有被正常部署到web服务器
+的web应用的/WEB-INF/classes的类路径根目录下，解决办法是：
+（1）从服务器中deployed工程
+（2）在工程上F5刷新，确保基于github的版本控制时，当前工程中显示的是最新版本的工程内容
+（3）在工程上右键→Run As→Maven clean  清理工程，正常清理的结果是会清空targe目录并在控制台打印SUCCESS结果
+（4）在工程上右键→Run As→Maven Build在对话框的目的一栏中输入“compile”编译，会将类路径根目录中的所有java源文件和资源配置文件添加到target中
+等待工程部属是再从target中拷贝到服务器的web应用目录的classess目录中（也就是webapp/weixin/WEB-INF/classes）
+（5）在服务器上重新部署工程
+（6）启动服务器
+
+5、
 
 
 
