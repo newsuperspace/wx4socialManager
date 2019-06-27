@@ -5,11 +5,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -29,6 +32,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
@@ -176,18 +180,6 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		this.inputStream = inputStream;
 	}
 
-	/**
-	 * 获取从managerList.jsp页面中上传的批量创建数据（JSONarray形式）
-	 */
-	private List<SheetJS4BatchCreateUser> batchUser;
-
-	public List<SheetJS4BatchCreateUser> getBatchUser() {
-		return batchUser;
-	}
-
-	public void setBatchUser(List<SheetJS4BatchCreateUser> batchUser) {
-		this.batchUser = batchUser;
-	}
 
 	// ==========================================================Method
 	/*
@@ -1308,12 +1300,14 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		return "exchangeList";
 	}
 
+	
+	/**
+	 * 获取从managerList.jsp页面中上传的批量创建新用户数据（一个形如：“[{}、{}、{}]”格式的json数组字符串）
+	 */
 	private String batchUserStr;
-
 	public String getBatchUserStr() {
 		return batchUserStr;
 	}
-
 	public void setBatchUserStr(String batchUserStr) {
 		this.batchUserStr = batchUserStr;
 	}
@@ -1332,19 +1326,33 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		System.out.println(this.batchUserStr);
 		// Json的解析类对象
 		JsonParser parser = new JsonParser();
-		// 将JSON的String 转成一个JsonArray对象
+		// 将JSON数组格式的字符串（形如：“[{}、{}、{}、{}]”的字符串） 转换成一个JsonArray（形如：“[{}、{}、{}、{}]”的JSON数组对象）
 		JsonArray jsonArray = parser.parse(this.batchUserStr).getAsJsonArray();
-
+		// 创建GSON的入口对象
 		Gson gson = new Gson();
+		// 创建用于封装JSON数据的bean实例
 		ArrayList<SheetJS4BatchCreateUser> userBeanList = new ArrayList<SheetJS4BatchCreateUser>();
-
-		// 加强for循环遍历JsonArray
-		for (JsonElement user : jsonArray) {
-			// 使用GSON，直接转成Bean对象
-			SheetJS4BatchCreateUser userBean = gson.fromJson(user, SheetJS4BatchCreateUser.class);
-			userBeanList.add(userBean);
-		}
-
+		// 用于封装JSON数据（含中文的key的时候）
+		
+		// 封装JSON数据的方式一（基于POJO）：加强for循环遍历JsonArray
+//		for (JsonElement user : jsonArray) {
+//			// 使用GSON，直接转成Bean对象
+//			SheetJS4BatchCreateUser userBean = gson.fromJson(user, SheetJS4BatchCreateUser.class);
+//			userBeanList.add(userBean);
+//		}
+		
+		// 封装JSON数据的方式二（不需要POJO只需要原生容器，应对与JSON中键值对儿名称不确定的动态情况）
+		ArrayList<HashMap<String,String>>  list  =  new ArrayList<HashMap<String,String>>();
+		Type listType = new TypeToken<ArrayList<HashMap<String,String>>>(){}.getType();
+		list = gson.fromJson(batchUserStr, listType);
+		
+		// 封装JSON数据的方式三（与方式二类似，只不过是分批解析的）
+//		for(JsonElement user:jsonArray){
+//			Type type = new TypeToken<HashMap<String,String>>(){}.getType();
+//			HashMap<String,String> map = gson.fromJson(user, type);
+//			list.add(map);
+//		}
+		
 		ActionContext.getContext().getValueStack().push("批量导入成功！");
 		return "json";
 	}
