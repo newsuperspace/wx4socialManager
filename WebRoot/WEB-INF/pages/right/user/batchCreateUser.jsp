@@ -137,6 +137,11 @@
 			"batchUserStr" : JSON.stringify(batchUser),
 		};
 		$.post(url, param, function(data, textStatus, req) {
+			if (!data.result) {
+				alert(data.message);
+				return;
+			}
+
 			// 根据后端对前端解析出的Excel表数据的校验结果，组织生成前端页面
 			let container = $("#excelTable");
 			let table = $('<table class="table table-sm"></table>');
@@ -146,42 +151,29 @@
 			let tr,
 				th,
 				td;
-			for (var i = 0; i < 3; i++) {
-				if (2 == i) {
+
+			for (var i = 0; i < data.list.length; i++) {
+				if ("table-warning" == data.list[i].style) {
 					tr = $('<tr class="table-warning"></tr>');
-				} else if (1 == i) {
+				} else if ("table-danger" == data.list[i].style) {
 					tr = $('<tr class="table-danger"></tr>');
 				} else {
 					tr = $('<tr></tr>');
 				}
 				th = $('<th scope="row">' + (i + 1) + '</th>');
 				tr.append(th);
-				for (var j = 0; j < 5; j++) {
-					switch (j) {
-					case 0:
-						td = $("<td>" + "张" + (i + 1) + "</td>");
-						break;
-					case 1:
-						td = $("<td>" + "男" + "</td>");
-						break;
-					case 2:
-						td = $("<td>" + "12312398127" + "</td>");
-						break;
-					case 3:
-						td = $("<td>" + "12" + "</td>");
-						break;
-					case 4:
-						if (2 == i) {
-							td = $("<td>" + "已存在该用户" + "</td>");
-						} else if (1 == i) {
-							td = $("<td>" + "关键数据缺失" + "</td>");
-						} else {
-							td = $("<td>" + "数据正确" + "</td>");
-						}
-						break;
-					}
-					tr.append(td);
-				}
+
+				td = $("<td>" + data.list[i].username + "</td>");
+				tr.append(td);
+				td = $("<td>" + data.list[i].sex + "</td>");
+				tr.append(td);
+				td = $("<td>" + data.list[i].phone + "</td>");
+				tr.append(td);
+				td = $("<td>" + data.list[i].age + "</td>");
+				tr.append(td);
+				td = $("<td>" + data.list[i].state + "</td>");
+				tr.append(td);
+
 				tbody.append(tr);
 			}
 
@@ -189,12 +181,14 @@
 			table.append(tbody);
 			container.append(table);
 
-			let p = $("<p>以上是从上传的Excel中解析出的全部用户数据，其中正确数据1个，错误数据1个，已存在用户数据1个，是否继续批量创建用户？</p>")
+			let p = $("<p>以上是从上传的Excel中解析出的全部用户数据，其中正确数据" + data.normalNum + "个，错误数据" + data.invaliableNum + "个，已存在用户数据" + data.existNum + "个，是否继续？</p>")
 			let btnOk = $('<button type="button" class="btn btn-primary mr-1" onclick="alert(\'确定创建\');">创建</button>');
 			let btnCancle = $('<button type="button" class="btn btn-secondary" onclick="alert(\'取消创建\');">取消</button>');
 			container.append(p);
 			container.append(btnOk);
 			container.append(btnCancle);
+			$("#excelTable").show();
+			$("#download").hide();
 		});
 	}
 </script>
