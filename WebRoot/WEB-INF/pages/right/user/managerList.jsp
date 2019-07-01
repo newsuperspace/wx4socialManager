@@ -41,8 +41,7 @@
 										data-toggle="modal" data-target="#newUserModal">
 										<span class="glyphicon glyphicon-plus"></span> 新建
 									</button>
-									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#batchNewUserModal">
+									<button class="btn btn-sm btn-outline-secondary" onclick="$(location).attr('href','userAction_toBatchCreateUserPage.action');">
 										<span class="glyphicon glyphicon-plus"></span> 批新建
 									</button>
 
@@ -83,7 +82,7 @@
                         white-space: nowrap;
                         overflow-x: hidden;
                         overflow-x: auto;">
-							<table
+							<table 
 								class="table table-striped table-sm table-bordered table-hover text-center">
 								<thead class="thead-dark">
 									<tr>
@@ -496,36 +495,7 @@
 		</div>
 
 
-		<!-- Modal 4 批量新建用户 -->
-		<div class="modal fade" id="batchNewUserModal" tabindex="-1"
-			role="dialog" aria-labelledby="createUser" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title">批量新建用户</h4>
-						<button type="button" class="close" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div class="container-fluid">
-
-
-							请上传指定格式的xlsx文档<input type="file" id="excel-file">
-
-
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary"
-							data-dismiss="modal">关闭</button>
-						<button type="button" class="btn btn-primary"
-							onclick="userModal.op.batchCreateUser();">新建</button>
-					</div>
-				</div>
-			</div>
-		</div>
+		
 
 
 
@@ -893,52 +863,15 @@
 
 	// 导出并下载当前层级管理者直辖人员的“电子台账”
 	function exportLedger(){
-		// 准备并访问下载链接
+		// 准备并访问当前层级直辖人员的电子台账的下载链接
 		$(location).attr("href", "userAction_downloadUserLedger.action");
 	}
 
 	function downloadWorkCard(){
+		// 准备并访问当前层级直辖人员的工作证的批量生成链接
 		$(location).attr("href","managerAction_downloadWorkCard.action");
 	}
 
-
-	// 【完成】负责xlsx文档上传，并将其中数据解析为JSONarray对象后执行 批量创建新用户的业务逻辑
-	$('#excel-file').change(function(e) {
-		var files = e.target.files;
-
-		var fileReader = new FileReader();
-		fileReader.onload = function(ev) {
-			try {
-				var data = ev.target.result,
-					workbook = XLSX.read(data, {
-						type : 'binary'
-					}), // 以二进制流方式读取得到整份excel表格对象
-					persons = []; // 存储获取到的数据
-			} catch (e) {
-				console.log('文件类型不正确');
-				return;
-			}
-
-			// 表格的表格范围，可用于判断表头是否数量是否正确
-			var fromTo = '';
-			// 遍历每张表读取
-			for (var sheet in workbook.Sheets) {
-				if (workbook.Sheets.hasOwnProperty(sheet)) {
-					fromTo = workbook.Sheets[sheet]['!ref'];
-					console.log(fromTo);
-					persons = persons.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
-				// break; // 如果只取第一张表，就取消注释这行
-				}
-			}
-
-			console.log(persons);
-			// 通过AJAX向后端传递数据的业务逻辑
-			userModal.op.batchCreateUser(persons);
-		};
-
-		// 以二进制方式打开文件
-		fileReader.readAsBinaryString(files[0]);
-	});
 </script>
 
 </html>

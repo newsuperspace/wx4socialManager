@@ -4,7 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -14,6 +16,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -23,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.struts2.ServletActionContext;
+import org.apache.velocity.util.introspection.Info;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -38,6 +43,7 @@ import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 
 import cc.natapp4.ddaig.bean.GetData4UserListSelectors;
+import cc.natapp4.ddaig.bean.Info4SheetJSBatchCreateUser;
 import cc.natapp4.ddaig.bean.Init4UserListSelectors;
 import cc.natapp4.ddaig.bean.SheetJS4BatchCreateUser;
 import cc.natapp4.ddaig.bean.User4Ajax;
@@ -179,7 +185,6 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	public void setInputStream(InputStream inputStream) {
 		this.inputStream = inputStream;
 	}
-
 
 	// ==========================================================Method
 	/*
@@ -1300,16 +1305,67 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		return "exchangeList";
 	}
 
-	
 	/**
 	 * 获取从managerList.jsp页面中上传的批量创建新用户数据（一个形如：“[{}、{}、{}]”格式的json数组字符串）
 	 */
 	private String batchUserStr;
+
 	public String getBatchUserStr() {
 		return batchUserStr;
 	}
+
 	public void setBatchUserStr(String batchUserStr) {
 		this.batchUserStr = batchUserStr;
+	}
+
+	/**
+	 * 跳转到用于批量创建用户的页面——batchCreateUser.jsp
+	 * 
+	 * @return
+	 */
+	public String toBatchCreateUserPage() {
+
+		return "batchCreateUser";
+	}
+
+	/**
+	 * 下载用于批量创建的Excel模板文件
+	 * 
+	 * @return
+	 * @throws IOException 
+	 */
+	public String downloadExcel4BatchCreate() throws IOException {
+
+		// --------------------------------准备下载---------------------------------
+		String fullPath = ServletActionContext.getServletContext()
+				.getRealPath(File.separator + "download" + File.separator + "batchUser.xlsx");
+		File file = new File(fullPath);
+		if (!file.exists()) {
+			// 如果指定路径中不存在文件，则直接返回，引导到在struts.xml配置文件中配置的名为error的全局结果集指定的错误页面反应问题
+			this.errorMessage = "路径：" + fullPath + "下，不存在指定文件，请稍后再试！";
+			// error结果集索引字符串不是定义在当前Action对应的子配置文件中的，而是定义在struts.xml中配置文件中的全局结果集索引
+			return "error";
+		}
+		// 如果文件存在，则创建等待下载文件的文件输入流fis，该流失唯一与磁盘临时文件链接的流
+		FileInputStream fis = new FileInputStream(file);
+		// 准备字节数组（字节缓冲区）输出流备用
+		ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
+		// 准备字节缓冲区（也就是字节数组，1024字节就够用了）用作输入流和输出流的流对接
+		byte[] buff = new byte[1024];
+		int rc = 0;
+		while ((rc = fis.read(buff, 0, 1024)) > 0) {
+			swapStream.write(buff, 0, rc);
+		}
+		// 将输出流转变为用作下载的输入流，完成数据从待下载磁盘文件转入到下载输入流
+		this.inputStream = new ByteArrayInputStream(swapStream.toByteArray());
+		// 关闭待下载临时文件的输入流，从而该临时文件可以随时删除而又不会影响下载流
+		fis.close();
+		swapStream.close();
+		// ---------------准备下载用的文件名（形如：“测试文件.doc”）----------------
+		String s = "批量创建新用户的Excel模板文件.xlsx";
+		this.fileName = new String(s.getBytes(), "ISO8859-1");
+
+		return "download";
 	}
 
 	/**
@@ -1326,34 +1382,155 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		System.out.println(this.batchUserStr);
 		// Json的解析类对象
 		JsonParser parser = new JsonParser();
-		// 将JSON数组格式的字符串（形如：“[{}、{}、{}、{}]”的字符串） 转换成一个JsonArray（形如：“[{}、{}、{}、{}]”的JSON数组对象）
+		// 将JSON数组格式的字符串（形如：“[{}、{}、{}、{}]”的字符串）
+		// 转换成一个JsonArray（形如：“[{}、{}、{}、{}]”的JSON数组对象）
 		JsonArray jsonArray = parser.parse(this.batchUserStr).getAsJsonArray();
 		// 创建GSON的入口对象
 		Gson gson = new Gson();
 		// 创建用于封装JSON数据的bean实例
 		ArrayList<SheetJS4BatchCreateUser> userBeanList = new ArrayList<SheetJS4BatchCreateUser>();
 		// 用于封装JSON数据（含中文的key的时候）
-		
-		// 封装JSON数据的方式一（基于POJO）：加强for循环遍历JsonArray
-//		for (JsonElement user : jsonArray) {
-//			// 使用GSON，直接转成Bean对象
-//			SheetJS4BatchCreateUser userBean = gson.fromJson(user, SheetJS4BatchCreateUser.class);
-//			userBeanList.add(userBean);
-//		}
-		
+
+		// 封装JSON数据的方式一（基于POJO,也就是javaBean）：加强for循环遍历JsonArray
+		// for (JsonElement user : jsonArray) {
+		// // 使用GSON，直接转成Bean对象
+		// SheetJS4BatchCreateUser userBean = gson.fromJson(user,
+		// SheetJS4BatchCreateUser.class);
+		// userBeanList.add(userBean);
+		// }
+
 		// 封装JSON数据的方式二（不需要POJO只需要原生容器，应对与JSON中键值对儿名称不确定的动态情况）
-		ArrayList<HashMap<String,String>>  list  =  new ArrayList<HashMap<String,String>>();
-		Type listType = new TypeToken<ArrayList<HashMap<String,String>>>(){}.getType();
+		ArrayList<HashMap<String, String>> list = new ArrayList<HashMap<String, String>>();
+		Type listType = new TypeToken<ArrayList<HashMap<String, String>>>() {
+		}.getType();
 		list = gson.fromJson(batchUserStr, listType);
-		
+
 		// 封装JSON数据的方式三（与方式二类似，只不过是分批解析的）
-//		for(JsonElement user:jsonArray){
-//			Type type = new TypeToken<HashMap<String,String>>(){}.getType();
-//			HashMap<String,String> map = gson.fromJson(user, type);
-//			list.add(map);
-//		}
+		// for(JsonElement user:jsonArray){
+		// Type type = new TypeToken<HashMap<String,String>>(){}.getType();
+		// HashMap<String,String> map = gson.fromJson(user, type);
+		// list.add(map);
+		// }
+		List<SheetJS4BatchCreateUser> batchList = new ArrayList<SheetJS4BatchCreateUser>();
+		SheetJS4BatchCreateUser batch  =  null;
+		Info4SheetJSBatchCreateUser  info  = new Info4SheetJSBatchCreateUser();
+		// 把info.result 借来用作标记
+		info.setResult(true);
+		// 计数器判断字段，前后顺序与优先级一致
+		boolean isInvaliable;   // 是否无效的数据？
+		boolean isExist;      // 是否已存在的用户？
 		
-		ActionContext.getContext().getValueStack().push("批量导入成功！");
+		for(HashMap<String,String> map: list){
+			isInvaliable = false;
+			isExist = false;
+			batch  =  new SheetJS4BatchCreateUser();
+			Set<Entry<String,String>> entrySet = map.entrySet();
+			for(Map.Entry<String, String>  e: entrySet){
+				switch(e.getKey()){
+				case "姓名":
+					if(!StringUtils.isEmpty(batch.getUsername())){
+						info.setResult(false);
+						info.setMessage("检测到存在多个“姓名”字段，请重新确认模板规范性。");
+					}
+					// 校验数据是否为空
+					if(StringUtils.isEmpty(e.getValue())){
+						batch.setState("  姓名字段不能为空");
+						isInvaliable = true;
+					}
+					// TODO 校验姓名的合法性，基于正则表达式
+					
+					// 校验合格存放数据
+					batch.setUsername(e.getValue());
+					break;
+				case "电话":
+					if(!StringUtils.isEmpty(batch.getPhone())){
+						info.setResult(false);
+						info.setMessage("检测到存在多个“电话”字段，请重新确认模板规范性。");
+					}
+					if(StringUtils.isEmpty(e.getValue())){
+						batch.setState("  电话字段不能为空");
+						isInvaliable = true;
+					}
+					
+					// TODO 基于正则表达式，校验电话的合法性
+					// TODO 从数据库中检索是否已经存在该电话号码的注册信息了，如果存在则设置isExist = true
+					
+					batch.setPhone(e.getValue());
+					break;
+				case "性别":
+					if(!StringUtils.isEmpty(batch.getSex())){
+						info.setResult(false);
+						info.setMessage("检测到存在多个“性别”字段，请重新确认模板规范性。");
+					}
+					if(StringUtils.isEmpty(e.getValue())){
+						batch.setState("  性别字段不能为空");
+						isInvaliable = true;
+					}
+					if(!"男".equals(e.getValue())&&!"女".equals(e.getValue())){
+						// 性别字段出现了 男和女以外的非法值
+						batch.setState("  性别出现了非法取值");
+						isInvaliable = true;
+					}
+					
+					batch.setSex(e.getValue());
+					break;
+				case "年龄":
+					if(!StringUtils.isEmpty(batch.getAge())){
+						info.setResult(false);
+						info.setMessage("检测到存在多个“年龄”字段，请重新确认模板规范性。");
+					}
+					if(StringUtils.isEmpty(e.getValue())){
+						batch.setState("  年龄字段不能为空");
+						isInvaliable = true;
+					}
+					// TODO 基于正则表达式判断年龄字段的数据是否符合要求，比如说6-100 之间的数字
+					
+					batch.setAge(e.getValue());
+					break;
+				default:
+					// 解析到非法数据,直接向前端返回错误结果信息
+					info.setResult(false);
+					info.setMessage("检测到非法字段"+e.getKey()+",请核实您所使用的Excel模板是否符合要求，或重新下载模板。");
+					break;
+				}
+				// 如果出现非法字段，则直接终止for循环，并向前端返回校验结果，不再浪费时间解析后续数据了
+				if(!info.isResult()){
+					break;
+				}
+				// 至此，一个用户数据的一个字段校验完成，接下来循环下一个字段数据指导该用户所有字段被校验
+			}
+			
+			// 如果出现非法字段，则直接终止for循环，并向前端返回校验结果，不再浪费时间解析后续数据了
+			if(!info.isResult()){
+				break;
+			}
+			// 开始统计计数
+			if(isInvaliable){
+				// 当前解析的用户数据是无效数据
+				info.setInvaliableNum(info.getInvaliableNum()+1);
+				batch.setStyle("table-danger");
+			}else{
+				//当前用户 数据的各个字段格式没问题，接下来就是检查是否是已经存在的用户
+				if(isExist){
+					// 用户存在，info.existNum += 1;
+					info.setExistNum(info.getExistNum()+1);
+					batch.setStyle("table-warning");
+					batch.setState("该用户已存在");
+				}else{
+					// 用户不存在,则说明此数据是绝对正确的数据
+					info.setNormalNum(info.getNormalNum()+1);
+					batch.setState("该用户数据校验正常");
+				}
+			}
+			// 数据封入batch后，我们就可以把batch放入到batchList中了,至此一个用户的全部数据校验完毕
+			batchList.add(batch);
+		}
+		
+		if(info.isResult()){
+			info.setList(batchList);
+			info.setMessage("批量用户数据校验成功！");
+		}
+		ActionContext.getContext().getValueStack().push(info);
 		return "json";
 	}
 
@@ -2071,7 +2248,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		fullPath += File.separator + levelName + "人员电子台帐.docx";
 		fullPath = ServletActionContext.getServletContext().getRealPath(fullPath);
 		maker.exportDoc4UserLedger(levelName, levelTag, levelQrcodePath, users, fullPath, "userLedger.ftl");
-		
+
 		// --------------------------------准备下载---------------------------------
 		File file = new File(fullPath);
 		if (!file.exists()) {
@@ -2096,7 +2273,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		fis.close();
 		swapStream.close();
 		// 因为生成的台帐文档的数据流已经拷贝到了下载流中，因此原文件可以删除了
-		file.delete();   
+		file.delete();
 		// ---------------准备下载用的文件名（形如：“测试文件.doc”）----------------
 		String s = levelName + "人员电子台帐.docx";
 		this.fileName = new String(s.getBytes(), "ISO8859-1");

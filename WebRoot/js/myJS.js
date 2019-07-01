@@ -1408,22 +1408,6 @@ var userModal = {
 		},
 
 
-		//前端上传xlsx文档，基于SheetJS解析成JSONarray后，本方法负责通过AJAX提交给服务器并向用户展示服务器的处理结果
-		batchCreateUser : function(batchUser) {
-
-			let url = "userAction_batchCreate.action";
-			let param = {
-								// JSON的全局方法stringify()可将JSON对象转变为JSON格式字符串
-								// 相反的操作是通过 JSON.parse(str) 由JSON字符串转换为JSON对象
-				"batchUserStr" : JSON.stringify(batchUser),
-			};
-			$.post(url, param, function(data, textStatus, req) {
-				alert(data);
-			});
-				
-		},
-
-
 		createUser : function() {
 			var data = {
 				username : $("#username").val(),
