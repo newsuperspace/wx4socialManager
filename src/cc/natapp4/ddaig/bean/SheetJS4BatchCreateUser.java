@@ -28,7 +28,7 @@ public class SheetJS4BatchCreateUser implements Serializable {
 	// 存放前端表格行的样式类型
 	private String style;
 	// 存放前端表格行的数据校验结果
-	private String state;
+	private String state ="";
 	
 	
 	

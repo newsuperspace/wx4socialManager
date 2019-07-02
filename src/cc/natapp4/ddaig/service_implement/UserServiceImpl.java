@@ -209,4 +209,9 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		return dao.getAllLevelUsers(tag, lid);
 	}
 
+	@Override
+	public User queryByPhone(String phoneNum) {
+		return dao.queryByPhone(phoneNum);
+	}
+
 }

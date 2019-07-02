@@ -27,19 +27,19 @@ import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 @Repository("userDao")
 public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 
-	@Resource(name="minusFirstLevelDao")
-	private MinusFirstLevelDao  minusFirstLevelDao;
-	@Resource(name="zeroLevelDao")
-	private ZeroLevelDao  zeroLevelDao;
-	@Resource(name="firstLevelDao")
-	private FirstLevelDao  firstLevelDao;
-	@Resource(name="secondLevelDao")
-	private SecondLevelDao  secondLevelDao;
-	@Resource(name="thirdLevelDao")
-	private ThirdLevelDao  thirdLevelDao;
-	@Resource(name="fourthLevelDao")
-	private FourthLevelDao  fourthLevelDao;
-	
+	@Resource(name = "minusFirstLevelDao")
+	private MinusFirstLevelDao minusFirstLevelDao;
+	@Resource(name = "zeroLevelDao")
+	private ZeroLevelDao zeroLevelDao;
+	@Resource(name = "firstLevelDao")
+	private FirstLevelDao firstLevelDao;
+	@Resource(name = "secondLevelDao")
+	private SecondLevelDao secondLevelDao;
+	@Resource(name = "thirdLevelDao")
+	private ThirdLevelDao thirdLevelDao;
+	@Resource(name = "fourthLevelDao")
+	private FourthLevelDao fourthLevelDao;
+
 	/*
 	 * Spring的DI诸如的注解引用法，name属性指定向目标数据成员中DI注入哪个Bean（Spring容器中的Bean），
 	 * 就用applicationContext.xml 配置文件中声明的Bean的name来作为该属性的参数值
@@ -62,6 +62,18 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	public User queryByPhone(String phoneNum) {
+
+		List<User> users = (List<User>) template.find("from User u where u.phone=?", phoneNum);
+		if (null != users && users.size() > 0) {
+			return users.get(0);
+		} else {
+			return null;
+		}
+		
 	}
 
 	@Override
@@ -98,7 +110,7 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 				doingMan = this.getUserByUsername(principal);
 			}
 		}
-		
+
 		// 开始查询
 		List<Member> list = null;
 		if (isAdmin) {
@@ -106,24 +118,21 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 			switch (tag) {
 			// 根据“不在其位，不谋其政”的管理原则，admin只能看到 街道/unreal/common 这三个tag或者是三个tag的总和
 			case "minus_first":
-				list = (List<Member>) this.getHibernateTemplate().find(
-						"from Member m where m.grouping.tag=? and m.minusFirstLevel=?",
-						"minus_first", null);
+				list = (List<Member>) this.getHibernateTemplate()
+						.find("from Member m where m.grouping.tag=? and m.minusFirstLevel=?", "minus_first", null);
 				break;
 			case "common":
-				list = (List<Member>) this.getHibernateTemplate().find(
-						"from Member m where m.grouping.tag=? and m.minusFirstLevel=?",
-						"common", null);
+				list = (List<Member>) this.getHibernateTemplate()
+						.find("from Member m where m.grouping.tag=? and m.minusFirstLevel=?", "common", null);
 				break;
 			case "unreal":
-				list = (List<Member>) this.getHibernateTemplate().find(
-						"from Member m where m.grouping.tag=? and m.minusFirstLevel=?",
-						"unreal", null);
+				list = (List<Member>) this.getHibernateTemplate()
+						.find("from Member m where m.grouping.tag=? and m.minusFirstLevel=?", "unreal", null);
 				break;
 			default:
 				list = (List<Member>) this.getHibernateTemplate().find(
-						"from Member m where m.grouping.tag in(?,?,?) and m.minusFirstLevel=null",
-						"minus_first", "common", "unreal");
+						"from Member m where m.grouping.tag in(?,?,?) and m.minusFirstLevel=null", "minus_first",
+						"common", "unreal");
 				break;
 			}
 		} else {
@@ -225,12 +234,12 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 				case "common":
 					list = (List<Member>) this.getHibernateTemplate().find(
 							"from Member m inner join fetch m.thirdLevel tl where m.grouping.tag=? and tl.thid=? and m.fourthLevel=null",
-							"common",lid);
+							"common", lid);
 					break;
 				default:
 					list = (List<Member>) this.getHibernateTemplate().find(
 							"from Member m inner join fetch m.thirdLevel tl where m.grouping.tag in(?,?) and tl.thid=? and m.fourthLevel=null",
-							"fourth", "common",lid);
+							"fourth", "common", lid);
 					break;
 				}
 			} else {
@@ -286,8 +295,7 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 			break;
 		case "fourth":
 			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.fourthLevel fl where fl.foid=?",
-					lid);
+					"from User u inner join fetch u.members m inner join fetch m.fourthLevel fl where fl.foid=?", lid);
 			break;
 		}
 		return users;
@@ -304,13 +312,11 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 			break;
 		case "zero":
 			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where zl.zid=?",
-					lid);
+					"from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where zl.zid=?", lid);
 			break;
 		case "first":
 			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.firstLevel fl where fl.flid=?",
-					lid);
+					"from User u inner join fetch u.members m inner join fetch m.firstLevel fl where fl.flid=?", lid);
 			break;
 		case "second":
 			users = (List<User>) this.getHibernateTemplate().find(
@@ -319,17 +325,14 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 			break;
 		case "third":
 			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where tl.thid=?",
-					lid);
+					"from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where tl.thid=?", lid);
 			break;
 		case "fourth":
 			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.fourthLevel fl where fl.foid=?",
-					lid);
+					"from User u inner join fetch u.members m inner join fetch m.fourthLevel fl where fl.foid=?", lid);
 			break;
 		}
 		return users;
 	}
-	
-	
+
 }

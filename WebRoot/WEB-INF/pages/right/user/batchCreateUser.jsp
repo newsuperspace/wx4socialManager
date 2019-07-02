@@ -93,11 +93,14 @@
 		// 文件上传后的事件回调
 		// 【完成】负责xlsx文档上传，并基於SheetJS将其中数据解析为JSONarray对象后执行 批量创建新用户的业务逻辑
 		$('#excel-file').change(function(e) {
+			// STEP1 获取上传文件的文件列表对象（因为一次上传，用户可能同时选择多个文件，因此这是一个文件数组）
 			var files = e.target.files;
-
+			// STEP2 设置文件读取对象（JS原生API）
 			var fileReader = new FileReader();
+			// 设置文件读取时onload（文件载入后触发）事件的回调
 			fileReader.onload = function(ev) {
 				try {
+					// 定义三个属性分别是 data（读取的excel文档二进制数据）、workbook（通过sheetJS读取的进入的数据）、persons（接受解析出来的结果的JSON数组）
 					var data = ev.target.result,
 						workbook = XLSX.read(data, {
 							type : 'binary'
@@ -105,16 +108,22 @@
 						persons = []; // 存储获取到的数据
 				} catch (e) {
 					console.log('文件类型不正确');
+					alert("文件类型不正确");
 					return;
 				}
 
 				// 表格的表格范围，可用于判断表头是否数量是否正确
 				var fromTo = '';
-				// 遍历每张表读取
+				// 遍历excel文档中的每个sheet（工作表），workbook（工作簿）是sheetJS处理出的整个excel文档对象，其中sheets是一个包含文档中所有sheet表的数组属性
+				// 通过foreach遍历每张sheet（工作表）的名字出来
 				for (var sheet in workbook.Sheets) {
+					// 如果工作表集合中确实存在这个名字的工作表
 					if (workbook.Sheets.hasOwnProperty(sheet)) {
+						// 选中该工作表对象，对象中有一个ing为"!ref"的属性存放的就是该表中有效数据的坐标范围（A1,F5这种对角线形式）
 						fromTo = workbook.Sheets[sheet]['!ref'];
 						console.log(fromTo);
+						// XLSX.utils.sheet_to_json(workbook.Sheets[sheet]) 会解析出一个JSON数组对象（包含一个sheet中的全部数据）
+						// concat()方法用于将多个sheet的JSON数组链接成一个数组
 						persons = persons.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
 					// break; // 如果只取第一张表，就取消注释这行
 					}
@@ -133,7 +142,7 @@
 		let url = "userAction_batchCreate.action";
 		let param = {
 			// JSON的全局方法stringify()可将JSON对象转变为JSON格式字符串
-			// 相反的操作是通过 JSON.parse(str) 由JSON字符串转换为JSON对象
+			// 逆向操作是通过 JSON.parse(str) 由JSON字符串转换为JSON对象
 			"batchUserStr" : JSON.stringify(batchUser),
 		};
 		$.post(url, param, function(data, textStatus, req) {

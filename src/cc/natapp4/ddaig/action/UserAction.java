@@ -1432,28 +1432,23 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 						info.setResult(false);
 						info.setMessage("检测到存在多个“姓名”字段，请重新确认模板规范性。");
 					}
-					// 校验数据是否为空
-					if(StringUtils.isEmpty(e.getValue())){
-						batch.setState("  姓名字段不能为空");
-						isInvaliable = true;
-					}
 					// TODO 校验姓名的合法性，基于正则表达式
 					
 					// 校验合格存放数据
 					batch.setUsername(e.getValue());
 					break;
 				case "电话":
+					// 判断是否有重复字段出现
 					if(!StringUtils.isEmpty(batch.getPhone())){
 						info.setResult(false);
 						info.setMessage("检测到存在多个“电话”字段，请重新确认模板规范性。");
 					}
-					if(StringUtils.isEmpty(e.getValue())){
-						batch.setState("  电话字段不能为空");
-						isInvaliable = true;
-					}
 					
 					// TODO 基于正则表达式，校验电话的合法性
-					// TODO 从数据库中检索是否已经存在该电话号码的注册信息了，如果存在则设置isExist = true
+					//从数据库中检索是否已经存在该电话号码的注册信息了，如果存在则设置isExist = true
+					if(null!=userService.queryByPhone(e.getValue())){
+						isExist = true;
+					}
 					
 					batch.setPhone(e.getValue());
 					break;
@@ -1462,13 +1457,10 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 						info.setResult(false);
 						info.setMessage("检测到存在多个“性别”字段，请重新确认模板规范性。");
 					}
-					if(StringUtils.isEmpty(e.getValue())){
-						batch.setState("  性别字段不能为空");
-						isInvaliable = true;
-					}
+					
 					if(!"男".equals(e.getValue())&&!"女".equals(e.getValue())){
 						// 性别字段出现了 男和女以外的非法值
-						batch.setState("  性别出现了非法取值");
+						batch.setState(batch.getState()+" “性别”出现了非法取值<br>");
 						isInvaliable = true;
 					}
 					
@@ -1479,10 +1471,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 						info.setResult(false);
 						info.setMessage("检测到存在多个“年龄”字段，请重新确认模板规范性。");
 					}
-					if(StringUtils.isEmpty(e.getValue())){
-						batch.setState("  年龄字段不能为空");
-						isInvaliable = true;
-					}
+					
 					// TODO 基于正则表达式判断年龄字段的数据是否符合要求，比如说6-100 之间的数字
 					
 					batch.setAge(e.getValue());
@@ -1493,17 +1482,44 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 					info.setMessage("检测到非法字段"+e.getKey()+",请核实您所使用的Excel模板是否符合要求，或重新下载模板。");
 					break;
 				}
-				// 如果出现非法字段，则直接终止for循环，并向前端返回校验结果，不再浪费时间解析后续数据了
+				// 如果出现非法字段，则直接终止“属性for循环”，并向前端返回校验结果，不再浪费时间解析后续数据了
 				if(!info.isResult()){
 					break;
 				}
 				// 至此，一个用户数据的一个字段校验完成，接下来循环下一个字段数据指导该用户所有字段被校验
 			}
 			
-			// 如果出现非法字段，则直接终止for循环，并向前端返回校验结果，不再浪费时间解析后续数据了
+			// 如果出现非法字段，则直接终止“用户for循环”，并向前端返回校验结果，不再浪费时间解析后续数据了
 			if(!info.isResult()){
 				break;
 			}
+			
+			// 由于前端SheetJS对于无值的单元格会忽略掉，因此我们在后端需要判定四个主要属性是否已经都有值了
+			// 判断姓名字段是否为空
+			if(StringUtils.isEmpty(batch.getUsername())){
+				batch.setState(batch.getState()+" “姓名”字段不能为空<br>");
+				isInvaliable = true;
+				batch.setUsername("空");
+			}
+			// 判断电话字段是否为空
+			if(StringUtils.isEmpty(batch.getPhone())){
+				batch.setState(batch.getState()+" “电话”字段不能为空<br>");
+				isInvaliable = true;
+				batch.setPhone("空");
+			}
+			// 判断性别是否为空
+			if(StringUtils.isEmpty(batch.getSex())){
+				batch.setState(batch.getState()+" “性别”字段不能为空<br>");
+				isInvaliable = true;
+				batch.setSex("空");
+			}
+			// 判断年龄是否为空
+			if(StringUtils.isEmpty(batch.getAge())){
+				batch.setState(batch.getState()+" “年龄”字段不能为空<br>");
+				isInvaliable = true;
+				batch.setAge("空");
+			}
+			
 			// 开始统计计数
 			if(isInvaliable){
 				// 当前解析的用户数据是无效数据
@@ -1515,11 +1531,11 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 					// 用户存在，info.existNum += 1;
 					info.setExistNum(info.getExistNum()+1);
 					batch.setStyle("table-warning");
-					batch.setState("该用户已存在");
+					batch.setState("用户已存在");
 				}else{
 					// 用户不存在,则说明此数据是绝对正确的数据
 					info.setNormalNum(info.getNormalNum()+1);
-					batch.setState("该用户数据校验正常");
+					batch.setState("数据校验正常");
 				}
 			}
 			// 数据封入batch后，我们就可以把batch放入到batchList中了,至此一个用户的全部数据校验完毕

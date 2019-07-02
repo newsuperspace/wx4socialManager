@@ -183,4 +183,10 @@ public class TestUserServiceImpl extends BaseServiceImpl<User> implements UserSe
 		return dao.getAllLevelUsers(tag, lid);
 	}
 
+	@Override
+	public User queryByPhone(String phoneNum) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

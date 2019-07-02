@@ -71,4 +71,11 @@ public interface UserDao extends BaseDao<User>{
 	public User getUserByUsername(String username);
 	
 	
+	/**
+	 * 根据用户的电话（电话号码具有唯一性，是系统中判定用户唯一性的唯一证明，因此每个用户有且只有绑定一个电话号码）
+	 * @param phoneNum   User.phone 中记录的用户的电话号码
+	 * @return
+	 */
+	public User  queryByPhone(String phoneNum);
+	
 }
