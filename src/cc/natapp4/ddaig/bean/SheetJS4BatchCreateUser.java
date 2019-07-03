@@ -30,6 +30,25 @@ public class SheetJS4BatchCreateUser implements Serializable {
 	// 存放前端表格行的数据校验结果
 	private String state ="";
 	
+	// 决定当前用户数据是否会被创建的标记符号
+	private boolean canCreate = false;
+	
+	
+	/**
+	 *  数据是否合法，可以创建用户或创建已存在用户的member
+	 * (1) 如果用户数据的canCreate = false,则该数据不会被创建
+	 * （2） 如果用户数据的canCreate = true，则进一步检测style
+	 *     ① 如果 style = table-warning，说明用户已存在，则进一步检测该用户是否在当前层级存在member，
+	 *     不存在就立即创建
+	 *     ② 如果 style 为空，则直接创建user数据，并在当前层级创建member
+	 * @return
+	 */
+	public boolean isCanCreate() {
+		return canCreate;
+	}
+	public void setCanCreate(boolean canCreate) {
+		this.canCreate = canCreate;
+	}
 	
 	
 	public String getStyle() {

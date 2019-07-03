@@ -13,6 +13,8 @@
 <!-- Bootstrap CSS -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
+	<link rel="stylesheet"
+	href="https://res.wx.qq.com/open/libs/weui/1.1.3/weui.min.css">
 </head>
 <body>
 
@@ -37,7 +39,7 @@
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 
-									<button class="btn btn-sm btn-outline-secondary"
+									<button class="btn btn-sm btn-outline-secondary"  onclick="$(location).attr('href','userAction_getManagerList.action');"
 										data-toggle="modal" data-target="#newUserModal">
 										<span class="glyphicon glyphicon-plus"></span>返回
 									</button>
@@ -61,6 +63,10 @@
 						<div id="excelTable"
 							style="white-space: nowrap;overflow-x: hidden;overflow-x: auto;">
 						</div>
+						<!-- =============表格结束=========== -->
+
+						<!-- =============表格结束=========== -->
+						<div id="resultText"></div>
 						<!-- =============表格结束=========== -->
 
 
@@ -88,6 +94,7 @@
 	// 页面初始化工作
 	$(function() {
 		// 功能模块的初始显隐状态设置
+		$("#resultText").hide();
 		$("#excelTable").hide();
 		$("#download").show();
 		// 文件上传后的事件回调
@@ -130,7 +137,7 @@
 				}
 				console.log(persons);
 				// 通过AJAX向后端传递数据的业务逻辑
-				batchCreateUser(persons);
+				preBatchCreateUser(persons);
 			};
 			// 以二进制方式打开文件
 			fileReader.readAsBinaryString(files[0]);
@@ -138,8 +145,8 @@
 	});
 
 	//前端上传xlsx文档，基于SheetJS解析成JSONarray后，本方法负责通过AJAX提交给服务器并向用户展示服务器的处理结果
-	function batchCreateUser(batchUser) {
-		let url = "userAction_batchCreate.action";
+	function preBatchCreateUser(batchUser) {
+		let url = "userAction_preBatchCreate.action";
 		let param = {
 			// JSON的全局方法stringify()可将JSON对象转变为JSON格式字符串
 			// 逆向操作是通过 JSON.parse(str) 由JSON字符串转换为JSON对象
@@ -191,8 +198,8 @@
 			container.append(table);
 
 			let p = $("<p>以上是从上传的Excel中解析出的全部用户数据，其中正确数据" + data.normalNum + "个，错误数据" + data.invaliableNum + "个，已存在用户数据" + data.existNum + "个，是否继续？</p>")
-			let btnOk = $('<button type="button" class="btn btn-primary mr-1" onclick="alert(\'确定创建\');">创建</button>');
-			let btnCancle = $('<button type="button" class="btn btn-secondary" onclick="alert(\'取消创建\');">取消</button>');
+			let btnOk = $('<button type="button" class="btn btn-primary mr-1" onclick="doBatchCreate();">创建</button>');
+			let btnCancle = $('<button type="button" class="btn btn-secondary" onclick="cancelBatchCreate();">取消</button>');
 			container.append(p);
 			container.append(btnOk);
 			container.append(btnCancle);
@@ -200,6 +207,74 @@
 			$("#download").hide();
 		});
 	}
+
+
+	// 执行批量创建工作
+	function doBatchCreate() {
+		// 先隐藏表格
+		$("#excelTable").hide();
+
+		weui.confirm('本次操作将在后台对校验正常用户数据执行创建用户信息（user）及当前层级的成员信息（member）操作，对已存在用户如果该用户还不在当前层级管理之下，仅创建成员（member）信息', {
+			title : '是否开始批量创建新用户？',
+			buttons : [ {
+				label : '不',
+				type : 'default',
+				onClick : function() {
+					$("#excelTable").show();
+				}
+			}, {
+				label : '是的',
+				type : 'primary',
+				onClick : function() {
+					let url = "userAction_doBatchCreate.action";
+					let param = null;
+					$.post(url, param, function(data, textStatus, req) {
+
+						if (!data.result) {
+							// 创建失败了，直接显示错误信息
+							let title = $("<h5>创建失败</h5>");
+							let message = $("<p>" + data.message + "</p>");
+							$("#resultText").append(title).append(message).show();
+						} else {
+							// 创建成功，组织信息后，显示出来
+							let title = $("<h5>创建成功</h5>");
+							let message = $("<p>" + data.message + "本次预创建总数量" + data.totalNum + "人，其中成功创建" + data.successNum + "人，创建失败" + data.failedNum + "人。</p>");
+							$("#resultText").append(title).append(message).show();
+						}
+					});
+				}
+			} ]
+		});
+
+	}
+
+	// 取消批量创建工作，清空数据库后台中缓存的创建数据
+	function cancelBatchCreate() {
+		$("#excelTable").hide();
+	
+		weui.confirm('本次操作将在解析出的批量用户数据清除，操作不可逆', {
+			title : '是否取消批量创建操作？',
+			buttons : [ {
+				label : '不',
+				type : 'default',
+				onClick : function() {
+					$("#excelTable").show();
+				}
+			}, {
+				label : '是的',
+				type : 'primary',
+				onClick : function() {
+					let url = "userAction_cancelBatchCreate.action";
+					let param = null;
+					$.post(url, param, function(data, textStatus, req) {
+						alert(data);
+						window.location.reload();
+					});
+				}
+			} ]
+		});
+	}
+	
 </script>
 
 </html>

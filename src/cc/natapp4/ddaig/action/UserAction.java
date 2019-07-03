@@ -43,6 +43,8 @@ import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 
 import cc.natapp4.ddaig.bean.GetData4UserListSelectors;
+import cc.natapp4.ddaig.bean.Info4BatchCreateUserResult;
+import cc.natapp4.ddaig.bean.Info4RealName;
 import cc.natapp4.ddaig.bean.Info4SheetJSBatchCreateUser;
 import cc.natapp4.ddaig.bean.Init4UserListSelectors;
 import cc.natapp4.ddaig.bean.SheetJS4BatchCreateUser;
@@ -1332,7 +1334,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	 * 下载用于批量创建的Excel模板文件
 	 * 
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public String downloadExcel4BatchCreate() throws IOException {
 
@@ -1368,13 +1370,400 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		return "download";
 	}
 
+	
+	/**
+	 * 前端取消（通过AJAX）批量创建用户的操作
+	 * @return
+	 */
+	public String cancelBatchCreate(){
+		
+		ServletActionContext.getRequest().getSession().removeAttribute("info4SheetJSBatchCreateUser");
+		ActionContext.getContext().getValueStack().push("批量创建用户的数据已清除成功，如有需要请重新上传数据。");
+		return "json";
+	}
+	
+	
+	/**
+	 * 前端同意（通过AJAX）执行批量创建操作
+	 * 
+	 * @return
+	 */
+	public String doBatchCreate() {
+
+		// 回报对象
+		Info4BatchCreateUserResult result = new Info4BatchCreateUserResult();
+		// 数据统计
+		int successNum = 0;
+		int failedNum = 0;
+
+		// 确定当前层级的关键数据信息
+		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+
+		// 先从HttpSession域中取回数据
+		Info4SheetJSBatchCreateUser info = (Info4SheetJSBatchCreateUser) ServletActionContext.getRequest().getSession()
+				.getAttribute("info4SheetJSBatchCreateUser");
+
+		List<SheetJS4BatchCreateUser> list = info.getList();
+
+		for (SheetJS4BatchCreateUser batch : list) {
+			if (batch.isCanCreate()) {
+				// 数据没问题已经通过preBatchCreate()的检测，但需要区分是创建user与member（新用户）还是只创建member（已存在用户）
+				if (StringUtils.isEmpty(batch.getStyle())) {
+					// 新用户，user和member双创建
+					// ---------------------------Shiro认证操作者身份---------------------------
+					Subject subject = SecurityUtils.getSubject();
+					String principal = (String) subject.getPrincipal();
+					// 执行当前新建操作的管理者的User对象
+					User doingMan = null;
+					// 标记当前执行者是否是admin
+					boolean isAdmin = false;
+					if (28 == principal.length()) {
+						// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+						doingMan = userService.queryByOpenId(principal);
+					} else {
+						// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+						// 先判断是不是使用admin+admin 的方式登录的测试管理员
+						if ("admin".equals(principal)) {
+							isAdmin = true;
+						} else {
+							// 非admin用户登录
+							doingMan = userService.getUserByUsername(principal);
+						}
+					}
+
+					// ---------------------------开始正式新建用户对象---------------------------
+					// （1）处理User对象
+					User u = new User();
+					u.setUsername(batch.getUsername());
+					u.setPhone(batch.getPhone());
+					u.setAge(Integer.parseInt(batch.getAge()));
+					u.setRegistrationTime(System.currentTimeMillis());
+					// 处理性别
+					u.setSex(batch.getSex());
+
+					// （2）处理member层级数据，这是用来定位新建用户在层级结构中位置的关键，需要注意的是被新建的用户一定是默认置于当前操作者的层级对象之下的，然后向上不全至MinusFirst层级
+					Member member = new Member();
+					// 所有新建用户的tag默认都是common，如果需要提升到某个管理层需要更高级的管理员手动修改
+					Grouping g = groupingService.queryByTagName("common");
+					member.setGrouping(g);
+					if (isAdmin) {
+						// 如果是admin新建的用户就很简单了，该用户不属于任何一个层级，因此member中的外键都是null
+						member.setUser(u);
+						member.setFirstLevel(null);
+						member.setFourthLevel(null);
+						member.setMinusFirstLevel(null);
+						member.setSecondLevel(null);
+						member.setThirdLevel(null);
+						member.setZeroLevel(null);
+					} else {
+						// 如果是非admin创建的用户那就需要老老实实的给member填入层级对象的外键关联了
+						member.setUser(u);
+						// 获取执行当前创建用户操作的管理者对象，并进一步获取其绑定的层级对象
+
+						switch (tag) {
+						case "minus_first":
+							// 街道层级管理者执行的创建用户操作
+							MinusFirstLevel level = minusFirstLevelService.queryEntityById(lid);
+							if (null == level) {
+								result.setResult(false);
+								result.setMessage("当前操作者层级不存在，批量创建失败");
+								ActionContext.getContext().getValueStack().push(result);
+								return "json";
+							}
+							member.setMinusFirstLevel(level);
+							break;
+						case "zero":
+							// 社区层级管理者执行的创建用户操作
+							ZeroLevel level0 = zeroLevelService.queryEntityById(lid);
+							if (null == level0) {
+								result.setResult(false);
+								result.setMessage("当前操作者层级不存在，新建失败");
+								ActionContext.getContext().getValueStack().push(result);
+								return "json";
+							}
+							member.setZeroLevel(level0);
+							member.setMinusFirstLevel(level0.getParent());
+							break;
+						case "first":
+							// 第一层级管理者执行的创建用户操作
+							FirstLevel level1 = firstLevelService.queryEntityById(lid);
+							if (null == level1) {
+								result.setResult(false);
+								result.setMessage("当前操作者层级不存在，新建失败");
+								ActionContext.getContext().getValueStack().push(result);
+								return "json";
+							}
+							member.setFirstLevel(level1);
+							member.setZeroLevel(level1.getParent());
+							member.setMinusFirstLevel(level1.getParent().getParent());
+							break;
+						case "second":
+							// 第二层级管理者执行的创建用户操作
+							SecondLevel level2 = secondLevelService.queryEntityById(lid);
+							if (null == level2) {
+								result.setResult(false);
+								result.setMessage("当前操作者层级不存在，新建失败");
+								ActionContext.getContext().getValueStack().push(result);
+								return "json";
+							}
+							member.setSecondLevel(level2);
+							member.setFirstLevel(level2.getParent());
+							member.setZeroLevel(level2.getParent().getParent());
+							member.setMinusFirstLevel(level2.getParent().getParent().getParent());
+							break;
+						case "third":
+							// 第三层级用户执行的创建用户操作
+							ThirdLevel level3 = thirdLevelService.queryEntityById(lid);
+							if (null == level3) {
+								result.setResult(false);
+								result.setMessage("当前操作者层级不存在，新建失败");
+								ActionContext.getContext().getValueStack().push(result);
+								return "json";
+							}
+							member.setThirdLevel(level3);
+							member.setSecondLevel(level3.getParent());
+							member.setFirstLevel(level3.getParent().getParent());
+							member.setZeroLevel(level3.getParent().getParent().getParent());
+							member.setMinusFirstLevel(level3.getParent().getParent().getParent().getParent());
+							break;
+						case "fourth":
+							// 第四层级用户执行的创建用户操作
+							FourthLevel level4 = fourthLevelService.queryEntityById(lid);
+							if (null == level4) {
+								result.setResult(false);
+								result.setMessage("当前操作者层级不存在，新建失败");
+								ActionContext.getContext().getValueStack().push(result);
+								return "json";
+							}
+							member.setFourthLevel(level4);
+							member.setThirdLevel(level4.getParent());
+							member.setSecondLevel(level4.getParent().getParent());
+							member.setFirstLevel(level4.getParent().getParent().getParent());
+							member.setZeroLevel(level4.getParent().getParent().getParent().getParent());
+							member.setMinusFirstLevel(
+									level4.getParent().getParent().getParent().getParent().getParent());
+							break;
+						}
+					}
+					// （3）建立member与user的关联关系（一对一），然后向数据库中保存
+					List<Member> members = new ArrayList<Member>();
+					u.setMembers(members);
+					u.getMembers().add(member);
+					// 这一步将级联保存user和关联的member到数据
+					userService.save(u);
+
+					// 计数
+					successNum += 1;
+				} else {
+					// 已存在用户，校验是否在当前层级已经存在该用户的member，如果不存在则只创建member，否则直接continue
+
+					// 检测当前用户是否已经是目标层级的成员
+					boolean hasJoined = false;
+					// 获取到已存在的user对象
+					User existUser = userService.queryByPhone(batch.getPhone());
+					List<Member> members = existUser.getMembers();
+					for (Member m : members) {
+						switch (tag) {
+						case "minus_first":
+							if (null != m.getMinusFirstLevel() && null == m.getZeroLevel()) {
+								// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+								if (m.getMinusFirstLevel().getMflid().equals(lid)) {
+									hasJoined = true;
+								}
+							}
+							break;
+						case "zero":
+							if (null != m.getZeroLevel() && null == m.getFirstLevel()) {
+								// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+								if (m.getZeroLevel().getZid().equals(lid)) {
+									hasJoined = true;
+								}
+							}
+							break;
+						case "first":
+							if (null != m.getFirstLevel() && null == m.getSecondLevel()) {
+								// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+								if (m.getFirstLevel().getFlid().equals(lid)) {
+									hasJoined = true;
+								}
+							}
+							break;
+						case "second":
+							if (null != m.getSecondLevel() && null == m.getThirdLevel()) {
+								// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+								if (m.getSecondLevel().getScid().equals(lid)) {
+									hasJoined = true;
+								}
+							}
+							break;
+						case "third":
+							if (null != m.getThirdLevel() && null == m.getFourthLevel()) {
+								// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+								if (m.getThirdLevel().getThid().equals(lid)) {
+									hasJoined = true;
+								}
+							}
+							break;
+						case "fourth":
+							if (null != m.getFourthLevel()) {
+								// 确定了，给member代表着用户作为一个minusFirst层级对象的成员，与用户要申请加入的层级是相同级别，需要进一步校验两者是否为同一个层级
+								if (m.getFourthLevel().getFoid().equals(lid)) {
+									hasJoined = true;
+								}
+							}
+							break;
+						}
+					}
+					// 判断是否已经存在member
+					if (hasJoined) {
+						// 直接下一个循环，不计数
+						continue;
+					}
+
+					// 代码运行到这里，说明已经确定该用户没有在当前层级的member队形，执行创建member的操作
+					Member member = null;
+					boolean hasError = false;
+					switch (tag) {
+					case "minus_first":
+						MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
+						if (null == minusFirstLevel) {
+							System.out.println("用户要加入的层级不存在");
+							hasError = true;
+						} else {
+							// 新建member
+							member = new Member();
+							// 与user建立关系
+							member.setUser(existUser);
+							existUser.getMembers().add(member);
+							// 设置member的必要数据
+							member.setGrouping(groupingService.queryByTagName("common"));
+							member.setMinusFirstLevel(minusFirstLevel);
+						}
+						break;
+					case "zero":
+						ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
+						if (null == zeroLevel) {
+							System.out.println("用户要加入的层级不存在");
+							hasError = true;
+						} else {
+							member = new Member();
+							member.setUser(existUser);
+							existUser.getMembers().add(member);
+							member.setGrouping(groupingService.queryByTagName("common"));
+							member.setZeroLevel(zeroLevel);
+							member.setMinusFirstLevel(zeroLevel.getParent());
+						}
+						break;
+					case "first":
+						FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
+						if (null == firstLevel) {
+							System.out.println("用户要加入的层级不存在");
+							hasError = true;
+						} else {
+							member = new Member();
+							member.setUser(existUser);
+							existUser.getMembers().add(member);
+							member.setGrouping(groupingService.queryByTagName("common"));
+							member.setFirstLevel(firstLevel);
+							member.setZeroLevel(firstLevel.getParent());
+							member.setMinusFirstLevel(firstLevel.getParent().getParent());
+						}
+						break;
+					case "second":
+						SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
+						if (null == secondLevel) {
+							System.out.println("用户要加入的层级不存在");
+							hasError = true;
+						} else {
+							member = new Member();
+							member.setUser(existUser);
+							existUser.getMembers().add(member);
+							member.setGrouping(groupingService.queryByTagName("common"));
+							member.setSecondLevel(secondLevel);
+							member.setFirstLevel(secondLevel.getParent());
+							member.setZeroLevel(secondLevel.getParent().getParent());
+							member.setMinusFirstLevel(secondLevel.getParent().getParent().getParent());
+						}
+						break;
+					case "third":
+						ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
+						if (null == thirdLevel) {
+							System.out.println("用户要加入的层级不存在");
+							hasError = true;
+						} else {
+							member = new Member();
+							member.setUser(existUser);
+							existUser.getMembers().add(member);
+							member.setGrouping(groupingService.queryByTagName("common"));
+							member.setThirdLevel(thirdLevel);
+							member.setSecondLevel(thirdLevel.getParent());
+							member.setFirstLevel(thirdLevel.getParent().getParent());
+							member.setZeroLevel(thirdLevel.getParent().getParent().getParent());
+							member.setMinusFirstLevel(thirdLevel.getParent().getParent().getParent().getParent());
+						}
+						break;
+					case "fourth":
+						FourthLevel fourthLevel = fourthLevelService.queryEntityById(lid);
+						if (null == fourthLevel) {
+							System.out.println("用户要加入的层级不存在");
+							hasError = true;
+						} else {
+							member = new Member();
+							member.setUser(existUser);
+							existUser.getMembers().add(member);
+							member.setGrouping(groupingService.queryByTagName("common"));
+							member.setFourthLevel(fourthLevel);
+							member.setThirdLevel(fourthLevel.getParent());
+							member.setSecondLevel(fourthLevel.getParent().getParent());
+							member.setFirstLevel(fourthLevel.getParent().getParent().getParent());
+							member.setZeroLevel(fourthLevel.getParent().getParent().getParent().getParent());
+							member.setMinusFirstLevel(
+									fourthLevel.getParent().getParent().getParent().getParent().getParent());
+						}
+						break;
+					}
+
+					// 计数
+					if (hasError) {
+						failedNum += 1;
+						continue;
+					} else {
+						successNum += 1;
+						// 向数据库存储新建的member数据
+						if (null != member) {
+							memberService.save(member);
+							userService.update(existUser);
+						}
+					}
+
+				}
+			} else {
+				// 数据本身存在缺陷或问题，直接pass不予理睬
+				failedNum += 1;
+				continue;
+			}
+		}
+
+		result.setTotalNum(list.size());
+		result.setFailedNum(failedNum);
+		result.setSuccessNum(successNum);
+		result.setResult(true);
+		result.setMessage("批量创建成功！");
+		// 清空session中的info数据吗？
+		ServletActionContext.getRequest().getSession().removeAttribute("info4SheetJSBatchCreateUser");
+		
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+
 	/**
 	 * 前端页面（managerList.jsp）上基于SheetJS框架，将传入的规定格式的XLSX文档中的表格数据转变为JSONarray
 	 * 并通过AJAX回传到服务器的此处进行批量创建用户。
 	 * 
 	 * @return
 	 */
-	public String batchCreate() {
+	public String preBatchCreate() {
 
 		// for(SheetJS4BatchCreateUser s: this.batchUser) {
 		// System.out.println(s);
@@ -1412,139 +1801,156 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		// list.add(map);
 		// }
 		List<SheetJS4BatchCreateUser> batchList = new ArrayList<SheetJS4BatchCreateUser>();
-		SheetJS4BatchCreateUser batch  =  null;
-		Info4SheetJSBatchCreateUser  info  = new Info4SheetJSBatchCreateUser();
+		SheetJS4BatchCreateUser batch = null;
+		Info4SheetJSBatchCreateUser info = new Info4SheetJSBatchCreateUser();
 		// 把info.result 借来用作标记
 		info.setResult(true);
 		// 计数器判断字段，前后顺序与优先级一致
-		boolean isInvaliable;   // 是否无效的数据？
-		boolean isExist;      // 是否已存在的用户？
-		
-		for(HashMap<String,String> map: list){
+		boolean isInvaliable; // 是否无效的数据？
+		boolean isExist; // 是否已存在的用户？
+
+		for (HashMap<String, String> map : list) {
+			User user = null;
 			isInvaliable = false;
 			isExist = false;
-			batch  =  new SheetJS4BatchCreateUser();
-			Set<Entry<String,String>> entrySet = map.entrySet();
-			for(Map.Entry<String, String>  e: entrySet){
-				switch(e.getKey()){
+			batch = new SheetJS4BatchCreateUser();
+			Set<Entry<String, String>> entrySet = map.entrySet();
+			for (Map.Entry<String, String> e : entrySet) {
+				switch (e.getKey()) {
 				case "姓名":
-					if(!StringUtils.isEmpty(batch.getUsername())){
+					if (!StringUtils.isEmpty(batch.getUsername())) {
 						info.setResult(false);
 						info.setMessage("检测到存在多个“姓名”字段，请重新确认模板规范性。");
 					}
 					// TODO 校验姓名的合法性，基于正则表达式
-					
+
 					// 校验合格存放数据
 					batch.setUsername(e.getValue());
 					break;
 				case "电话":
 					// 判断是否有重复字段出现
-					if(!StringUtils.isEmpty(batch.getPhone())){
+					if (!StringUtils.isEmpty(batch.getPhone())) {
 						info.setResult(false);
 						info.setMessage("检测到存在多个“电话”字段，请重新确认模板规范性。");
 					}
-					
+
 					// TODO 基于正则表达式，校验电话的合法性
-					//从数据库中检索是否已经存在该电话号码的注册信息了，如果存在则设置isExist = true
-					if(null!=userService.queryByPhone(e.getValue())){
+					// 从数据库中检索是否已经存在该电话号码的注册信息了，如果存在则设置isExist = true
+					user = userService.queryByPhone(e.getValue());
+					if (null != user) {
+						// 说明该电话已被注册
 						isExist = true;
 					}
-					
+
 					batch.setPhone(e.getValue());
 					break;
 				case "性别":
-					if(!StringUtils.isEmpty(batch.getSex())){
+					if (!StringUtils.isEmpty(batch.getSex())) {
 						info.setResult(false);
 						info.setMessage("检测到存在多个“性别”字段，请重新确认模板规范性。");
 					}
-					
-					if(!"男".equals(e.getValue())&&!"女".equals(e.getValue())){
+
+					if (!"男".equals(e.getValue()) && !"女".equals(e.getValue())) {
 						// 性别字段出现了 男和女以外的非法值
-						batch.setState(batch.getState()+" “性别”出现了非法取值<br>");
+						batch.setState(batch.getState() + " “性别”出现了非法取值<br>");
 						isInvaliable = true;
 					}
-					
+
 					batch.setSex(e.getValue());
 					break;
 				case "年龄":
-					if(!StringUtils.isEmpty(batch.getAge())){
+					if (!StringUtils.isEmpty(batch.getAge())) {
 						info.setResult(false);
 						info.setMessage("检测到存在多个“年龄”字段，请重新确认模板规范性。");
 					}
-					
+
 					// TODO 基于正则表达式判断年龄字段的数据是否符合要求，比如说6-100 之间的数字
-					
+
 					batch.setAge(e.getValue());
 					break;
 				default:
 					// 解析到非法数据,直接向前端返回错误结果信息
 					info.setResult(false);
-					info.setMessage("检测到非法字段"+e.getKey()+",请核实您所使用的Excel模板是否符合要求，或重新下载模板。");
+					info.setMessage("检测到非法字段" + e.getKey() + ",请核实您所使用的Excel模板是否符合要求，或重新下载模板。");
 					break;
 				}
 				// 如果出现非法字段，则直接终止“属性for循环”，并向前端返回校验结果，不再浪费时间解析后续数据了
-				if(!info.isResult()){
+				if (!info.isResult()) {
 					break;
 				}
 				// 至此，一个用户数据的一个字段校验完成，接下来循环下一个字段数据指导该用户所有字段被校验
 			}
-			
+
 			// 如果出现非法字段，则直接终止“用户for循环”，并向前端返回校验结果，不再浪费时间解析后续数据了
-			if(!info.isResult()){
+			if (!info.isResult()) {
 				break;
 			}
-			
+
 			// 由于前端SheetJS对于无值的单元格会忽略掉，因此我们在后端需要判定四个主要属性是否已经都有值了
 			// 判断姓名字段是否为空
-			if(StringUtils.isEmpty(batch.getUsername())){
-				batch.setState(batch.getState()+" “姓名”字段不能为空<br>");
+			if (StringUtils.isEmpty(batch.getUsername())) {
+				batch.setState(batch.getState() + " “姓名”字段不能为空<br>");
 				isInvaliable = true;
 				batch.setUsername("空");
 			}
 			// 判断电话字段是否为空
-			if(StringUtils.isEmpty(batch.getPhone())){
-				batch.setState(batch.getState()+" “电话”字段不能为空<br>");
+			if (StringUtils.isEmpty(batch.getPhone())) {
+				batch.setState(batch.getState() + " “电话”字段不能为空<br>");
 				isInvaliable = true;
 				batch.setPhone("空");
 			}
 			// 判断性别是否为空
-			if(StringUtils.isEmpty(batch.getSex())){
-				batch.setState(batch.getState()+" “性别”字段不能为空<br>");
+			if (StringUtils.isEmpty(batch.getSex())) {
+				batch.setState(batch.getState() + " “性别”字段不能为空<br>");
 				isInvaliable = true;
 				batch.setSex("空");
 			}
 			// 判断年龄是否为空
-			if(StringUtils.isEmpty(batch.getAge())){
-				batch.setState(batch.getState()+" “年龄”字段不能为空<br>");
+			if (StringUtils.isEmpty(batch.getAge())) {
+				batch.setState(batch.getState() + " “年龄”字段不能为空<br>");
 				isInvaliable = true;
 				batch.setAge("空");
 			}
-			
+
 			// 开始统计计数
-			if(isInvaliable){
+			if (isInvaliable) {
 				// 当前解析的用户数据是无效数据
-				info.setInvaliableNum(info.getInvaliableNum()+1);
+				info.setInvaliableNum(info.getInvaliableNum() + 1);
 				batch.setStyle("table-danger");
-			}else{
-				//当前用户 数据的各个字段格式没问题，接下来就是检查是否是已经存在的用户
-				if(isExist){
+				batch.setCanCreate(false);
+			} else {
+				// 当前用户 数据的各个字段格式没问题，接下来就是检查是否是已经存在的用户
+				if (isExist) {
 					// 用户存在，info.existNum += 1;
-					info.setExistNum(info.getExistNum()+1);
-					batch.setStyle("table-warning");
-					batch.setState("用户已存在");
-				}else{
+					if (!user.getUsername().equals(batch.getUsername())) {
+						// 如果已被注册的电话的username与前端出具的username不一致，则该数据为错误数据
+						info.setInvaliableNum(info.getInvaliableNum() + 1);
+						batch.setStyle("table-danger");
+						batch.setState("电话已被注册，且注册人与该用户名不匹配，无法创建该用户");
+						batch.setCanCreate(false);
+					} else {
+						info.setExistNum(info.getExistNum() + 1);
+						batch.setStyle("table-warning");
+						batch.setState("用户已存在，将直接创建用户成员");
+						batch.setCanCreate(true);
+					}
+				} else {
 					// 用户不存在,则说明此数据是绝对正确的数据
-					info.setNormalNum(info.getNormalNum()+1);
+					info.setNormalNum(info.getNormalNum() + 1);
 					batch.setState("数据校验正常");
+					batch.setCanCreate(true);
 				}
 			}
+
 			// 数据封入batch后，我们就可以把batch放入到batchList中了,至此一个用户的全部数据校验完毕
 			batchList.add(batch);
 		}
-		
-		if(info.isResult()){
+
+		if (info.isResult()) {
 			info.setList(batchList);
 			info.setMessage("批量用户数据校验成功！");
+			// 保存到HttpSession域中备用，等待前端管理者决定是否继续创建（AJAX）或取消创建（AJAX）
+			ServletActionContext.getRequest().getSession().setAttribute("info4SheetJSBatchCreateUser", info);
 		}
 		ActionContext.getContext().getValueStack().push(info);
 		return "json";
@@ -1716,6 +2122,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		List<Member> list = new ArrayList<Member>();
 		u.setMembers(list);
 		u.getMembers().add(member);
+		// 这一步将级联保存user和关联的member到数据
 		userService.save(u);
 
 		ActionContext.getContext().getValueStack().push(message);
