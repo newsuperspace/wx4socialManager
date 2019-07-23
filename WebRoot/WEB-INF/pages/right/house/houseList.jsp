@@ -42,13 +42,13 @@
 							<!-- ● -->
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
-									<shiro:hasPermission name="zero:house:createHouse">
+									<myShiro:hasAnyPermissions name="zero:house:createHouse,minus_first:house:createHouse">
 										<button class="btn btn-sm btn-outline-secondary"
 											data-toggle="modal"
 											onclick="houseModal.op.showCreateModal();">
 											<span class="glyphicon glyphicon-plus"></span> 新建
 										</button>
-									</shiro:hasPermission>
+									</myShiro:hasAnyPermissions>
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#selectModal">
 										<span class="glyphicon glyphicon-search"></span> 筛选
@@ -75,6 +75,7 @@
 								<thead class="thead-dark">
 									<tr>
 										<th>名称</th>
+										<th>所属</th>
 										<!-- ● -->
 										<th>描述</th>
 										<th>状态</th>
@@ -91,6 +92,14 @@
 													<s:property value="name" />
 												</s:a></td>
 											<!-- ● -->
+											<td>
+												<s:if test="null!=zeroLevel">
+													<s:property value="zeroLevel.name" />
+												</s:if>
+												<s:else>
+													<s:property value="minusFirstLevel.name" />
+												</s:else>
+											</td>
 											<td><s:property value="description" /></td>
 											<td>
 												<s:if test="enable">
@@ -101,7 +110,7 @@
 											</td>
 											<!-- ● -->
 											<td>
-												<myShiro:hasAnyPermissions name="admin,zero:house:updateHouse">
+												<myShiro:hasAnyPermissions name="admin,zero:house:updateHouse,minus_first:house:updateHouse">
 													<div class="btn-group" role="group">
 														<!-- ● -->
 														<s:a cssClass="btn btn-sm btn-outline-secondary"

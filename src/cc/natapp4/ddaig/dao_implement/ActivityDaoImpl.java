@@ -387,21 +387,31 @@ public class ActivityDaoImpl extends BaseDaoImpl<Activity> implements ActivityDa
 
 	@Override
 	public List<Activity> getActivities4House(String hid) {
-
+		// 简单时间格式器
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		// 获取当前时间（格里高利历偏移量）毫秒值
 		long millis = System.currentTimeMillis();
+		// 获取当前时间的日期字符串，抛弃了时：分：秒的部分
 		String format2 = format.format(new Date(millis));
 		Date parse = null;
 		try {
+			// 重新转换成的Date对象这样中包含的就是今天的0时0分0秒的格里高利历偏移量数据
 			parse = format.parse(format2);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+		// 得到明天0时0分0秒的格里高利历偏移量
 		long startTime = parse.getTime() + 1000L * 60 * 60 * 24;
+		// 得到15天以后（目前允许社区层级预约创建的最早预约期限就是15天）的格里高利历偏移量
 		long endTime = startTime + 1000L * 60 * 60 * 24 * 15;
 
+		/*
+		 * 通过HQL从数据库中筛选出“活动”，什么活动呢？
+		 * 与房屋存在外键关联的 ，也就是迫切内连接inner join fetch的活动，至此已经排除了室外活动
+		 *   然后通过where进一步筛选出特定hid的，并且（AND）活动开始时间大于startTime且（AND）活动结束时间小于endTime
+		 *   的活动
+		 */
 		List<Activity> list = (List<Activity>) this.getHibernateTemplate().find(
 				"from Activity a inner join fetch a.house h where h.hid=? and a.activityBeginTime >? and a.activityBeginTime <?",
 				hid, startTime, endTime);

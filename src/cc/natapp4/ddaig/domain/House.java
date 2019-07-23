@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.struts2.json.annotations.JSON;
 
+import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 
 public class House implements Serializable {
@@ -27,8 +28,13 @@ public class House implements Serializable {
 	private int radus;
 	// 房间所开展的活动
 	private List<Activity> activities;
-	// 所属社区
+	
+	// 关于zeroLevel和minusFirstLevel两个数据列上有且只能有一个存在数据，也就是说当前房屋要么属于街道要么属于一个社区，不存在同时属于或同时不属于的情况
+	// 当前室内空间所属的社区
 	private ZeroLevel zeroLevel;
+	// 当前室内空间所属的街道
+	private MinusFirstLevel  minusFirstLevel;
+	
 	// 状态  true可用(默认为可用)，false不可用
 	private boolean enable = true;
 	
@@ -88,6 +94,14 @@ public class House implements Serializable {
 	}
 	public void setZeroLevel(ZeroLevel zeroLevel) {
 		this.zeroLevel = zeroLevel;
+	}
+	
+	
+	public MinusFirstLevel getMinusFirstLevel() {
+		return minusFirstLevel;
+	}
+	public void setMinusFirstLevel(MinusFirstLevel minusFirstLevel) {
+		this.minusFirstLevel = minusFirstLevel;
 	}
 	
 }

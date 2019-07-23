@@ -22,6 +22,7 @@ public class MyShiroJspTag extends PermissionTag {
 
 		boolean hasAnyPermissions = false;
 
+		
 		Subject subject = getSubject();
 
 		if (subject != null) {

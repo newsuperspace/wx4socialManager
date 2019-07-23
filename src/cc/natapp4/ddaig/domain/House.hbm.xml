@@ -35,8 +35,12 @@
 			lazy="false"
 		></many-to-one>
 		
-		
-		
+		<many-to-one name="minusFirstLevel"
+			class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel"
+			column="mflid"
+			cascade="save-update"
+			lazy="false"
+		></many-to-one>
 		
 	
 	</class>

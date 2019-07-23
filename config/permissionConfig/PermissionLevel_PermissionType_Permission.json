@@ -33,6 +33,38 @@
 				]
 			},
 			{
+				"description": "房屋类型",
+				"permissionTypeName": "house",
+				"enabled": true,
+				"permissions":[
+					{
+						"description": "查询房屋",
+						"permissionName": "retrieveHouse",
+						"enabled": true
+					},
+					{
+						"description": "新建房屋",
+						"permissionName": "createHouse",
+						"enabled": true
+					},
+					{
+						"description": "修改房屋",
+						"permissionName": "updateHouse",
+						"enabled": true
+					},
+					{
+						"description": "删除房屋",
+						"permissionName": "deleteHouse",
+						"enabled": true
+					},
+					{
+						"description":"查询房屋活动",
+						"permissionName":"retrieveActivity",
+						"enabled":true
+					}
+				]
+			},
+			{
 				"description": "层级类型",
 				"permissionTypeName": "level",
 				"enabled": true,

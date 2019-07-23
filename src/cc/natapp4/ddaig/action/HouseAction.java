@@ -116,7 +116,7 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 		// 用来存放向前端反馈的活动室对象数据
 		List<House> houses = null;
 		if (isAdmin) {
-			// 系统管理员，将获取所有活动室的情况
+			// 系统管理员，将获取系统中所有活动室（街道层级+社区层级两个层级所创建的活动室）的情况
 			houses = houseService.queryEntities();
 		} else {
 			houses = new ArrayList<House>();
@@ -125,13 +125,14 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 			 * 但是为了能让一些子层级对象实现活动室管理排班功能，他们需要能“查询”到活动室，为此我们要进行一些层级上的筛选
 			 */
 			switch (tag) {
-			case "minus_first": // 对于minus_first层级操作者，他应该可以看到自己所辖所有zero层级的活动室
+			case "minus_first": // 对于minus_first层级操作者，他应该可以看到自己所辖所有zero层级的活动室以及自己创建的活动室
 				MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
+				houses.addAll(minusFirstLevel.getHouses());
 				for (ZeroLevel zl : minusFirstLevel.getChildren()) {
 					houses.addAll(zl.getHouses());
 				}
 				break;
-			case "zero": // 对于zero层级操作者，只需要返回其自己社区内的活动时即可
+			case "zero": // 对于zero层级操作者，只需要返回其自己社区内的活动室即可
 				ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
 				houses.addAll(zeroLevel.getHouses());
 				break;
@@ -163,6 +164,7 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 
 	/**
 	 * AJAX 创建活动室
+	 * 同时肩负 zero层级和minus_first层级的创建活动室的功能
 	 * 
 	 * @return
 	 */
@@ -193,39 +195,65 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 
 		ReturnMessage4Common result = new ReturnMessage4Common();
-		// 开始一段严谨的逻辑判断，主要目的是判断当前操作者层级是否是zeroLevel层级对象
+		// 开始一段严谨的逻辑判断，主要目的是判断当前操作者层级是否是minusFirstLevel或zeroLevel层级对象
 		if (StringUtils.isEmpty(tag) || StringUtils.isEmpty(lid)) {
 			result.setResult(false);
 			result.setMessage("当前操作者的tag或lib数据为空，不能确定当前操作者身份，创建失败");
 			ActionContext.getContext().getValueStack().push(result);
 			return "json";
-		} else if (!"zero".equals(tag)) {
+		} else if ("zero".equals(tag)) {
+			// 社区层级创建房屋
+			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
+			if (null == zeroLevel) {
+				result.setResult(false);
+				result.setMessage("当前操作者不存在，创建失败");
+				ActionContext.getContext().getValueStack().push(result);
+				return "json";
+			}
+
+			// 说明当前操作者不是管理员，而是社区层级管理者
+			House h = new House();
+			h.setName(this.house.getName());
+			h.setDescription(this.house.getDescription());
+
+			List<House> houses = zeroLevel.getHouses();
+			if (null == houses) {
+				houses = new ArrayList<House>();
+				zeroLevel.setHouses(houses);
+			}
+			houses.add(h);
+			h.setZeroLevel(zeroLevel);
+			houseService.save(h);
+		}else if("minus_first".equals(tag)){
+			// 街道层级创建房屋
+			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
+			if (null == minusFirstLevel) {
+				result.setResult(false);
+				result.setMessage("当前操作者不存在，创建失败");
+				ActionContext.getContext().getValueStack().push(result);
+				return "json";
+			}
+
+			// 说明当前操作者不是管理员，而是社区层级管理者
+			House h = new House();
+			h.setName(this.house.getName());
+			h.setDescription(this.house.getDescription());
+
+			List<House> houses = minusFirstLevel.getHouses();
+			if (null == houses) {
+				houses = new ArrayList<House>();
+				minusFirstLevel.setHouses(houses);
+			}
+			houses.add(h);
+			h.setMinusFirstLevel(minusFirstLevel);
+			houseService.save(h);
+		}else{
 			result.setResult(false);
-			result.setMessage("现阶段只允许zero层级创建活动室，非zero操作者创建失败");
+			result.setMessage("现阶段只允许minus_first和zero层级创建和管理活动室，非法操作者创建失败");
 			ActionContext.getContext().getValueStack().push(result);
 			return "json";
 		}
-		ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
-		if (null == zeroLevel) {
-			result.setResult(false);
-			result.setMessage("当前操作者不存在，创建失败");
-			ActionContext.getContext().getValueStack().push(result);
-			return "json";
-		}
-
-		// 说明当前操作者不是管理员，而是社区层级管理者
-		House h = new House();
-		h.setName(this.house.getName());
-		h.setDescription(this.house.getDescription());
-
-		List<House> houses = zeroLevel.getHouses();
-		if (null == houses) {
-			houses = new ArrayList<House>();
-			zeroLevel.setHouses(houses);
-		}
-		houses.add(h);
-		h.setZeroLevel(zeroLevel);
-		houseService.save(h);
+		
 
 		result.setResult(true);
 		result.setMessage("创建成功！");
@@ -384,16 +412,25 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 			if (StringUtils.isEmpty(tag) || StringUtils.isEmpty(lid)) {
 				System.out.println("当前操作者的tag或lib数据为空，不能确定当前操作者身份，创建失败");
 				return "month";
-			} else if (!"zero".equals(tag)) {
-				System.out.println("现阶段只允许zero层级创建活动室，非zero操作者创建失败");
+			} else if ("zero".equals(tag)) {
+				// 当前操作者为“社区”，获取社区管理之下的房屋
+				ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
+				if (null == zeroLevel) {
+					System.out.println("当前操作者不存在，创建失败");
+					return "month";
+				}
+				houses = zeroLevel.getHouses();
+			}else if("minus_first".equals(tag)){
+				MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
+				if (null == minusFirstLevel) {
+					System.out.println("当前操作者不存在，创建失败");
+					return "month";
+				}
+				houses = minusFirstLevel.getHouses();
+			}else{
+				System.out.println("现阶段只允许minus_first、zero层级创建活动室，非法操作者获取房屋数据失败");
 				return "month";
 			}
-			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
-			if (null == zeroLevel) {
-				System.out.println("当前操作者不存在，创建失败");
-				return "month";
-			}
-			houses = zeroLevel.getHouses();
 		}
 
 		ActionContext.getContext().put("houses", houses);

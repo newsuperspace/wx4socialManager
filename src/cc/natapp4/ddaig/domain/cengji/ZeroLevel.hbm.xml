@@ -29,7 +29,7 @@
 		<list name="houses" cascade="save-update" lazy="true">
 			<!-- 当前表(ZeroLevel)为主表，被从表house所引用作为外键的是当前主表的名为zid的键（也就是主键） -->
 			<key column="zid"></key>
-			<!-- 在从表house中设置一个名叫index4secondlevel的字段，用来存放从表对象的先后次序（从0开始的数字） -->
+			<!-- 在从表house中设置一个名叫index4zerolevel的字段，用来存放从表对象的先后次序（从0开始的数字） -->
 			<list-index column="index4zerolevel"></list-index>
 			<!-- 当前主表与从表的多表关系是一（主）对多（从），且从表的持久化类是cc.natapp4.ddaig.domain.House -->
 			<one-to-many class="cc.natapp4.ddaig.domain.House" />

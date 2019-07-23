@@ -241,7 +241,7 @@
 
 						<!--【【【【【【【活动室管理】】】】】】】 -->
 						<myShiro:hasAnyPermissions
-							name="admin,zero:house:retrieveHouse,zero:house:retrieveActivity">
+							name="admin,zero:house:retrieveHouse,zero:house:retrieveActivity,minus_first:house:retrieveHouse,minus_first:house:retrieveActivity">
 
 							<div class="card4house">
 								<div class="card-header px-0 py-1" role="tab"
@@ -263,7 +263,7 @@
 										<ul class="navbar-nav mr-auto mt-0 pt-0">
 
 											<myShiro:hasAnyPermissions
-												name="admin,zero:house:retrieveHouse">
+												name="admin,zero:house:retrieveHouse,minus_first:house:retrieveHouse">
 												<li class="nav-item active"><a class="nav-link"
 													href="#"
 													onclick='overAll.op.saveCollapseContentID2LS("houseContent", "houseAction_getHouseList.action")'>活动室设置
@@ -272,7 +272,7 @@
 											</myShiro:hasAnyPermissions>
 
 											<myShiro:hasAnyPermissions
-												name="admin,zero:house:retrieveActivity">
+												name="admin,zero:house:retrieveActivity,minus_first:house:retrieveActivity">
 												<li class="nav-item"><a class="nav-link" href="#"
 													onclick='overAll.op.saveCollapseContentID2LS("houseContent", "houseAction_getMonthView.action")'>月使用详情</a></li>
 											</myShiro:hasAnyPermissions>

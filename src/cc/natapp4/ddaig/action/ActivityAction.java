@@ -335,14 +335,15 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		String levelTag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 		switch (levelTag) {
+		// 街道层级只能使用自己管理的活动空间
 		case "minus_first":
 			MinusFirstLevel mfl = minusFirstLevelService.queryEntityById(lid);
 			// 获取到当前层级对象的所有成员的集合
 			members = mfl.getMembers();
-			// TODO 如果街道有自己的活动室，那么应该在后续工作中允许街道像社区一样设置自己的活动室
-			houses = null;
+			houses = mfl.getHouses();
 			geos = mfl.getGeographics();
 			break;
+		// 社区及以下层级均只能使用社区管理的活动空间
 		case "zero":
 			ZeroLevel zl = zeroLevelService.queryEntityById(lid);
 			members = zl.getMembers();
