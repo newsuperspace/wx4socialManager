@@ -2,6 +2,11 @@ package cc.natapp4.ddaig.domain;
 
 import java.io.Serializable;
 
+/**
+ * 每个Visitor记录签到信息的持久化状态类，其与visitor是一一对应的，且包含有电子签名的BASE64编码字符串信息
+ * @author 吉磊
+ *
+ */
 public class Signin implements Serializable{
 
 	/**

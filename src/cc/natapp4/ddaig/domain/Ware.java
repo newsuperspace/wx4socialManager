@@ -1,7 +1,7 @@
 package cc.natapp4.ddaig.domain;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.List;
 
 /**
  * 用于积分兑换的商品的Bean
@@ -14,19 +14,19 @@ public class Ware implements Serializable {
 	// 商品名
 	private String wname;
 	// 商品价值（值多少积分）
-	private String core;
-	// 剩余商品数量
-	private String surplus;
+	private Integer core;
+	// 剩余商品数量（可随着现实采购而增加，减少是系统兑换自动完成的）
+	private Integer surplus;
 	// 累计兑换数
-	private String total;
-	// 存放商品qrcode的路径字符串
-	private String qrcodeUrl;
-	// 存放商品图片的路径字符串
-	private String imageUrl;
+	private Integer total;
+	// 存放商品qrcode兑换码图片的base64编码字符串
+	private String base64str4qrcode;
+	// 存放商品图片的base64编码字符串
+	private String base64str4image;
 	
 	// Foreign-KEY
 	// 与当前商品有关的全部兑换记录
-	private Set<Exchange> exchanges;
+	private List<Exchange> exchanges;
 	
 	// ========================================构造器
 	public Ware() {
@@ -34,54 +34,70 @@ public class Ware implements Serializable {
 	}
 
 	// ======================================SETTER/GETTER
-	public String getTotal() {
-		return total;
-	}
-	public void setTotal(String total) {
-		this.total = total;
-	}
 	public String getWid() {
 		return wid;
 	}
+
 	public void setWid(String wid) {
 		this.wid = wid;
 	}
+
 	public String getWname() {
 		return wname;
 	}
+
 	public void setWname(String wname) {
 		this.wname = wname;
 	}
-	public String getCore() {
+
+	public Integer getCore() {
 		return core;
 	}
-	public void setCore(String core) {
+
+	public void setCore(Integer core) {
 		this.core = core;
 	}
-	public String getSurplus() {
+
+	public Integer getSurplus() {
 		return surplus;
 	}
-	public void setSurplus(String surplus) {
+
+	public void setSurplus(Integer surplus) {
 		this.surplus = surplus;
 	}
-	public String getQrcodeUrl() {
-		return qrcodeUrl;
+
+	public Integer getTotal() {
+		return total;
 	}
-	public void setQrcodeUrl(String qrcodeUrl) {
-		this.qrcodeUrl = qrcodeUrl;
+
+	public void setTotal(Integer total) {
+		this.total = total;
 	}
-	public String getImageUrl() {
-		return imageUrl;
+
+	public String getBase64str4qrcode() {
+		return base64str4qrcode;
 	}
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
+
+	public void setBase64str4qrcode(String base64str4qrcode) {
+		this.base64str4qrcode = base64str4qrcode;
 	}
-	public Set<Exchange> getExchanges() {
+
+	public String getBase64str4image() {
+		return base64str4image;
+	}
+
+	public void setBase64str4image(String base64str4image) {
+		this.base64str4image = base64str4image;
+	}
+
+	public List<Exchange> getExchanges() {
 		return exchanges;
 	}
-	public void setExchanges(Set<Exchange> exchanges) {
+
+	public void setExchanges(List<Exchange> exchanges) {
 		this.exchanges = exchanges;
 	}
+
 	
 	
 }

@@ -12,14 +12,14 @@ import org.apache.struts2.json.annotations.JSON;
 public class Exchange implements Serializable {
 
 	// 当前记录的ID
-	private String eid;
+	private String exid;
 	// 兑换日期 yyyy-MM-dd hh:mm:ss  这一次要精确到秒
 	private String exchangeData;
-	// 当时扣除的积分
+	// 当时兑换所扣除的积分（因为兑换积分可能会调整，这里保留历史兑换积分的分值）
 	private String score;
 	
 	// Foreign-Key
-	// 当前记录所属的用户
+	// 当前兑换记录所属的用户
 	private User user;
 	// 当前记录是哪一个商品
 	private Ware ware;
