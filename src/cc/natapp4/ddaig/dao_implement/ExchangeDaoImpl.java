@@ -1,6 +1,8 @@
 package cc.natapp4.ddaig.dao_implement;
 
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -24,4 +26,17 @@ public class ExchangeDaoImpl extends BaseDaoImpl<Exchange> implements ExchangeDa
 		return this.template;
 	}
 
+	@Override
+	public List<Exchange> getExchangesByUid(String uid) {
+		return (List<Exchange>) this.template.find("from Exchange e inner join fetch User u where u.uid=?", uid);
+	}
+
+	@Override
+	public List<Exchange> getExchangesByOpenid(String openid) {
+		return (List<Exchange>) this.template.find("from Exchange e inner join fetch User u where u.openid=?", openid);
+	}
+
+
+	
+	
 }

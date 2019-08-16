@@ -8,23 +8,27 @@
 				设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段
 			 -->
 			 <!-- 
-			 	设置主键产生器是assigned，是由于需要根据用户的wid来生成qrcode，因此需要手动创建uid
+			 	设置主键产生器是assigned，是由于需要根据用户的wid来生成qrcode，因此需要手动分配——assigned
 			  -->
 			<generator class="assigned"></generator>
 		</id>
 		<property name="wname" length="50"  ></property>
-		<property name="qrcodeUrl" length="100"></property>
-		<property name="imageUrl" length="100"></property>
-		<property name="surplus" length="10"></property>
-		<property name="core" length="10"></property>
-		<property name="total" length="10"></property>
+		<property name="core" type="integer"></property>
+		<property name="surplus" type="integer"></property>
+		<property name="total" type="integer"></property>
 
-		<set name="exchanges" cascade="save-update" lazy="false">
-			<key>
-				<column name="wid"></column>
-			</key>
-			<one-to-many  class="cc.natapp4.ddaig.domain.Exchange" />
-		</set>
+		<property name="base64str4qrcode" length="5000"></property>
+		<property name="base64str4image" length="5000"></property>
+		
+		
+		<list name="exchanges" cascade="save-update" lazy="true">
+			<!-- 当前表为主表，被从表Exchange所引用作为外键的是当前主表的名为wid的键（也就是主键） -->
+			<key column="wid"></key>
+			<!-- 在从表中设置一个名叫index4user的字段，用来存放从表对象的先后次序（从0开始的数字） -->
+			<list-index column="index4ware"></list-index>
+			<!-- 当前主表与从表的多表关系是一（主）对多（从），且从表的持久化类是cc.natapp4.ddaig.domain.Exchange -->
+			<one-to-many class="cc.natapp4.ddaig.domain.Exchange" />
+		</list>
 			
 	
 	</class>

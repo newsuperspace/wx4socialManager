@@ -237,9 +237,9 @@
 
 		weui.uploader('#uploader', {
 			url : 'articleAction_uploadPhoto.action',
-			auto : false,
-			type : 'file',
-			fileVal : 'file',
+			auto : false,		// 是否自动上传，如果设置为false则可以在onQueued()方法中通过this.upload()手中执行上传
+			type : 'file',    // 上传类型file类型
+			fileVal : 'file', // 服务器端接收上传文件的File类型属性名
 			compress : {
 				width : 1600,
 				height : 1600,
@@ -271,7 +271,7 @@
 				return true; // 返回false会阻止默认行为，不插入预览图的框架
 			},
 
-			// 文件添加成功的回调,this包含刚刚成功通过onBeforeQueued校验允许上传的图片文件的全部关键信息,其中包含的信息如下：
+			// 文件添加成功的回调,在方法中引用的this包含刚刚成功通过onBeforeQueued校验允许上传的图片文件的全部关键信息,其中包含的信息如下：
 			// id: 1
 			// lastModified: 1534309141540
 			// lastModifiedDate: Wed Aug 15 2018 12: 59: 01 GMT + 0800(中国标准时间) {}
@@ -298,23 +298,26 @@
 				fileName = this.name;
 				console.log("上传的文件名：" + fileName);
 
-				this.upload(); // 如果是手动上传，这里可以通过调用upload来实现；也可以用它来实现重传。
+				// 如果是手动上传，这里可以通过调用upload来实现；也可以用它来实现重传。
+				this.upload(); 
 			// this.stop(); // 调用中断上传的方法
 			// return true; // 阻止默认行为，不显示预览图的图像
 			},
 
-			// 文件上传前调用
+			// 文件上传前调用，用于设置请求头部信息以及其他请求参数信息
 			onBeforeSend : function(data, headers) {
 				console.log(this, data, headers);
 				// $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
 				// $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部信息
+				
+				// 设置请求头部信息
 				$.extend(headers, {
 					'Access-Control-Allow-Origin' : '*',
 				});
 
 				// 由于文件上传是通过ajax实现的，因此这里可以自定义请求参数 
 				$.extend(data, {
-					// 我在这里就设置了一个名为fileName的请求参数，用来想后台返回当前上传的文件名,不过没什么用因为上传图片的所有信息都包含在this中了，这里只是演示
+					// 我在这里就设置了一个名为fileName的请求参数，用来向后台返回当前上传的文件名（默认weui使用fileName指定上传文件名但实际上所有信息都包含在this.name中了）
 					fileName : fileName,
 					aid : $("#aid").val(),
 				});

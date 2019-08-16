@@ -97,6 +97,7 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 		this.aid = aid;
 	}
 
+	// 从articleInputPage.jsp页面中上传照片的文件名
 	private String fileName;
 	public String getFileName() {
 		return fileName;
@@ -104,7 +105,7 @@ public class ArticleAction extends ActionSupport implements ModelDriven<Article>
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
-	
+	// 用于接受上传的照片文件
 	private File  file;
 	public File getFile() {
 		return file;

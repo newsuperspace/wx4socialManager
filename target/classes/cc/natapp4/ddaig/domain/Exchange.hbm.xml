@@ -7,8 +7,9 @@
 			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
 			<generator class="uuid"></generator>
 		</id>
-		<property name="exchangeData" length="100"></property>
-		<property name="score" length="10"></property>
+		<property name="exchangeDate" length="100"></property>
+		<property name="score"></property>
+		<property name="base64str4autograph" length="500"></property>
 
 		<many-to-one name="user" column="uid"
 			class="cc.natapp4.ddaig.domain.User" cascade="save-update" lazy="false">
@@ -19,4 +20,4 @@
 		</many-to-one>
 
 	</class>
-</hibernate-mapping>
+</hibernate-mapping> 

@@ -1,6 +1,8 @@
 package cc.natapp4.ddaig.service_implement;
 
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -14,11 +16,21 @@ import cc.natapp4.ddaig.service_interface.ExchangeService;
 public class ExchangeServiceImpl extends BaseServiceImpl<Exchange> implements ExchangeService {
 
 	@Resource(name="exchangeDao")
-	private ExchangeDao  dao;
+	private ExchangeDao  exchangeDao;
 	
 	@Override
 	protected BaseDao<Exchange> getBaseDao() {
-		return dao;
+		return this.exchangeDao;
+	}
+
+	@Override
+	public List<Exchange> getExchangesByUid(String uid) {
+		return this.exchangeDao.getExchangesByUid(uid);
+	}
+
+	@Override
+	public List<Exchange> getExchangesByOpenid(String openid) {
+		return this.exchangeDao.getExchangesByOpenid(openid);
 	}
 	
 

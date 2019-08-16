@@ -18,8 +18,10 @@
 <struts>
 	<package name="ware" namespace="/" extends="base-package" strict-method-invocation="false">
 		<action name="wareAction_*"  method="{1}"   class="wareAction">
-				<result name="wareList" >/WEB-INF/jsp/frame/aboutWare/wareList.jsp</result>
+				<result name="allwares" >/WEB-INF/jsp/frame/aboutWare/wareList.jsp</result>
+				
 				<result name="exchangeList" >/WEB-INF/jsp/frame/aboutExchange/exchangeList.jsp</result>
+				
 				<result  name="json"  type="json"></result>
 		</action>
 	</package>

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 用于积分兑换的商品的Bean
+ * 用于积分兑换的兑换品的Bean
  * @author Administrator
  *
  */
@@ -14,7 +14,7 @@ public class Ware implements Serializable {
 	// 商品名
 	private String wname;
 	// 商品价值（值多少积分）
-	private Integer core;
+	private Integer score;
 	// 剩余商品数量（可随着现实采购而增加，减少是系统兑换自动完成的）
 	private Integer surplus;
 	// 累计兑换数
@@ -49,13 +49,13 @@ public class Ware implements Serializable {
 	public void setWname(String wname) {
 		this.wname = wname;
 	}
-
-	public Integer getCore() {
-		return core;
+	
+	public Integer getScore() {
+		return score;
 	}
 
-	public void setCore(Integer core) {
-		this.core = core;
+	public void setScore(Integer score) {
+		this.score = score;
 	}
 
 	public Integer getSurplus() {
