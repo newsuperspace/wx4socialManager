@@ -64,8 +64,8 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 		String wid  =  UUID.randomUUID().toString();
 		w.setWid(wid);
 		
-		w.setBase64str4image(base64str4image);
-		w.setBase64str4qrcode(base64str4qrcode);
+//		w.setBase64str4image(base64str4image);
+//		w.setBase64str4qrcode(base64str4qrcode);
 		
 		
 		

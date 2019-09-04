@@ -13,7 +13,7 @@
 			<generator class="assigned"></generator>
 		</id>
 		<property name="wname" length="50"  ></property>
-		<property name="core" type="integer"></property>
+		<property name="score" type="integer"></property>
 		<property name="surplus" type="integer"></property>
 		<property name="total" type="integer"></property>
 
