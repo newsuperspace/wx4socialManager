@@ -48,6 +48,7 @@ import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
+import cc.natapp4.ddaig.domain.Visitor;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
@@ -2315,6 +2316,32 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		return "json";
 	}
 
+	
+	/**
+	 * 获取用户所有有效活动（完成签到、签退的拥有积分的）参与记录
+	 * @return
+	 */
+	public String  toUserVisitList() {
+		
+		String uid = this.user.getUid();
+		User u = userService.queryEntityById(uid);
+		List<Visitor> visits = u.getVisits();
+		List<Visitor> vs = new ArrayList<Visitor>();
+		for(Visitor v: visits) {
+			// 将拥有签退时间的visitor单独存放，返回给前端
+			if(v.getEndTime()>0) {
+				vs.add(v);
+			}
+		}
+		
+		ActionContext.getContext().put("username", u.getUsername());
+		ActionContext.getContext().put("visits", vs);
+		return "visitList";
+	}
+	
+	
+	
+	
 	/**
 	 * AJAX 正式执行用户（manager）与层级对象的绑定（委任）操作 从前端提交过来三个请求参数 uid——被任命者的uid
 	 * level———被任命的层级对象的层级（-1、0、1、2、3、4） lid————被任命的层级对象的lid

@@ -154,7 +154,7 @@
 											<td><s:property value="sex" /></td>
 											<td><s:property value="age" /></td>
 											<td><s:property value="serveTime" /></td>
-											<td><s:property value="score" /></td>
+											<td><s:a href="#" onclick="toUserVisitList('%{uid}')"><s:property value="score" /></s:a></td>
 											<td><s:property value="phone" /></td>
 											<td class="text-truncate" data-toggle="tooltip"
 												title="<s:property value='address'/>"><s:property
@@ -347,6 +347,11 @@
 		// 其他初始化工作...
 		
 	});
+	
+	
+	function toUserVisitList(uid){
+		$(location).attr("href","userAction_toUserVisitList.action?uid="+uid);
+	}
 	
 
 </script>

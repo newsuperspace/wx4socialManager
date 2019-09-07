@@ -87,6 +87,7 @@
 								<thead class="thead-dark">
 									<tr>
 										<th>用户名</th>
+										<th>积分</th>
 										<th>昵称</th>
 										<th>openID</th>
 										<th>分组</th>
@@ -103,6 +104,10 @@
 											<td><s:a href="#"
 													onclick="userModal.op.userInfo('%{user.uid}')">
 													<s:property value="user.username" />
+												</s:a></td>
+											<td><s:a href="#"
+													onclick="toUserVisitList('%{user.uid}')">
+													<s:property value="user.score" />
 												</s:a></td>
 											<td><s:property value="user.sickname" /></td>
 											<td class="text-truncate" data-toggle="tooltip"
@@ -871,6 +876,12 @@
 		// 准备并访问当前层级直辖人员的工作证的批量生成链接
 		$(location).attr("href","managerAction_downloadWorkCard.action");
 	}
+	
+	
+	function toUserVisitList(uid){
+		$(location).attr("href","userAction_toUserVisitList.action?uid="+uid);
+	}
+	
 
 </script>
 
