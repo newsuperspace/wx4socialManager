@@ -7,10 +7,11 @@ public class User4FreeMarker implements Serializable {
 	public User4FreeMarker() {
 	}
 	
-	public User4FreeMarker(String username, String phone, String sickname, String address, String email, int age,
+	public User4FreeMarker(String username,int score, String phone, String sickname, String address, String email, int age,
 			String base64Str) {
 		super();
 		this.username = username;
+		this.score = score;
 		this.phone = phone;
 		this.sickname = sickname;
 		this.address = address;
@@ -25,6 +26,18 @@ public class User4FreeMarker implements Serializable {
 	private String email;
 	private int age;
 	private String base64Str;
+	private int score;
+	
+	
+	
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
 	public String getUsername() {
 		return username;
 	}

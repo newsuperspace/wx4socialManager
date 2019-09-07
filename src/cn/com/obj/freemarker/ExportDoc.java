@@ -177,6 +177,7 @@ public class ExportDoc {
 			u4fm.setPhone(u.getPhone());
 			u4fm.setSickname(u.getSickname());
 			u4fm.setUsername(u.getUsername());
+			u4fm.setScore(u.getScore());
 			qrcodeRealPath = ServletActionContext.getServletContext().getRealPath(File.separator + u.getQrcode());
 			// 判断二维码图片文件是否存在
 			file = new File(qrcodeRealPath);
