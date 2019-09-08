@@ -1306,7 +1306,7 @@ var userModal = {
 		},
 
 		/*
-		 * 显示更新用户的Modal
+		 * 显示更新用户数据信息的Modal
 		 */
 		showUpdateUserModal : function(uid) {
 
@@ -1339,30 +1339,30 @@ var userModal = {
 				// 清空select
 				$('#tag4update').empty();
 				// 根据被操作对象是否已经被委任 data.manager==null? 来确定select是否可以被设置
-				if (null != data.managers && 0 != data.managers.length) {
+				if ("" != data.managerTag) {
 					// 已被委任，不能选动select
 					let op = $("<option></option>");
-					switch (data.managers[0].member.grouping.tag) {
+					switch (data.managerTag) {
 					case "minus_first":
-						op.attr("value", data.grouping.tag).text("街道管理者");
+						op.attr("value", data.managerTag).text("街道管理者");
 						break;
 					case "zero":
-						op.attr("value", data.grouping.tag).text("社区管理者");
+						op.attr("value", data.managerTag).text("社区管理者");
 						break;
 					case "first":
-						op.attr("value", data.grouping.tag).text("第一层级管理者");
+						op.attr("value", data.managerTag).text("第一层级管理者");
 						break;
 					case "second":
-						op.attr("value", data.grouping.tag).text("第二层级管理者");
+						op.attr("value", data.managerTag).text("第二层级管理者");
 						break;
 					case "third":
-						op.attr("value", data.grouping.tag).text("第三层级管理者");
+						op.attr("value", data.managerTag).text("第三层级管理者");
 						break;
 					case "fourth":
-						op.attr("value", data.grouping.tag).text("第四层级管理者");
+						op.attr("value", data.managerTag).text("第四层级管理者");
 						break;
 					}
-					$('#tag4update').append(op).find("option[value='" + data.grouping.tag + "']").attr("selected", "selected");
+					$('#tag4update').append(op).find("option[value='" + data.managerTag + "']").attr("selected", "selected");
 					$("#tag4update").attr("disabled", true);
 				} else {
 					// 没有被委任，则可以选动select
@@ -1398,46 +1398,16 @@ var userModal = {
 						$('#tag4update').append(op);
 						$("#tag4update").attr("disabled", false);
 					}
-					$('#tag4update').find("option[value='" + data.member.grouping.tag + "']").attr("selected", "selected");
+					$('#tag4update').find("option[value='" + data.memeberTag + "']").attr("selected", "selected");
 				}
 
 				$("#updateUserModal").modal('show');
 			});
-			$("#updateUserModal").modal('show');
 			return false;
 		},
 
 
-		createUser : function() {
-			var data = {
-				username : $("#username").val(),
-				sickname : $("#sickname").val(),
-				cardid : $("#cardid").val(),
-				address : $("#address").val(),
-				email : $("#email").val(),
-				phone : $("#phone").val(),
-				age : $("#age").val(),
-				sex : $("#sex").val(),
-			};
-
-			$.post("userAction_create.action", data, function(data, textStatus, req) {
-				$("#newUserModal").modal("hide");
-				$("#username").val(""),
-				$("#sickname").val(""),
-				$("#cardid").val(""),
-				$("#address").val(""),
-				$("#email").val(""),
-				$("#phone").val(""),
-				$("#age").val(""),
-				$("#sex").val(""),
-				alert(data.message);
-				// 使用这种引导当前页面定位的方式，可以即时性地刷新页面，在列表中显现修改后的结果。
-				//						$(location).attr('href', 'userAction_getUserList.action');
-				window.location.reload();
-			});
-		},
-
-
+		// 在后台用户列表（直辖和非直辖）中点击用户名时，弹出用户详细信息的Modal
 		userInfo : function(uid) {
 			var data = {
 				uid : uid,
@@ -1494,6 +1464,36 @@ var userModal = {
 			return false;
 		},
 
+		
+		createUser : function() {
+			var data = {
+				username : $("#username").val(),
+				sickname : $("#sickname").val(),
+				cardid : $("#cardid").val(),
+				address : $("#address").val(),
+				email : $("#email").val(),
+				phone : $("#phone").val(),
+				age : $("#age").val(),
+				sex : $("#sex").val(),
+			};
+
+			$.post("userAction_create.action", data, function(data, textStatus, req) {
+				$("#newUserModal").modal("hide");
+				$("#username").val(""),
+				$("#sickname").val(""),
+				$("#cardid").val(""),
+				$("#address").val(""),
+				$("#email").val(""),
+				$("#phone").val(""),
+				$("#age").val(""),
+				$("#sex").val(""),
+				alert(data.message);
+				// 使用这种引导当前页面定位的方式，可以即时性地刷新页面，在列表中显现修改后的结果。
+				//						$(location).attr('href', 'userAction_getUserList.action');
+				window.location.reload();
+			});
+		},
+		
 
 		// userList.jsp页面上，非直辖人员右边的一个小三角按钮，用来显示/隐藏筛选用户的panel面板，本方法是用来切换按钮的图标（上下箭头之间切换）
 		changeIcon : function() {

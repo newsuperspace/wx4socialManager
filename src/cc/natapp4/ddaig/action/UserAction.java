@@ -783,65 +783,6 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			u.setRegistrationTimeStr(format.format(new Date(user.getRegistrationTime())));
 
-			/*
-			 * 通过user.getMembers()获取到的是该用户在整个系统中的组织加入情况，
-			 * 但我们要的是其在当前操作者层级管理范围之内的组织加入情况
-			 * 也就是说该用户可能加入了当前操作执行人所管理的层级对象的多个子层级和孙层级，那么如何才能过滤出这些管辖范围内的组织的
-			 * 加入情况，而不会暴露出其他不相关层级的信息呢？下面三步走就是过滤的逻辑：
-			 */
-			List<Member> members = new ArrayList<Member>();
-			// ①首先我们要将所有层级找到
-			for (Member m : user.getMembers()) {
-				// ②再根据当前操作执行人所掌管的层级的tag确定当前操作人的层级是属于哪一级
-				switch (tag) {
-				case "minus_first":
-					/*
-					 * ③然后我们在通过遍历所有member中的层级字段，在对应位置上比对lid，
-					 * 相同的说明该用户必然是当前操作人管理层级或子孙层级的成员 则直接提取出来即可
-					 */
-					// minus_first层级我们就直接遍历这些member的minusFirstLevel字段，查看lid是否相同，相同则该member记录的就是本层级及其子层级的信息
-					if (null != m.getMinusFirstLevel() && m.getMinusFirstLevel().getMflid().equals(lid)) {
-						members.add(m);
-					}
-					break;
-				case "zero":
-					// zero层级我们就直接遍历这些member的zeroLevel字段，查看lid是否相同，相同则该member记录的就是本层级及其子层级的信息
-					if (null != m.getZeroLevel() && m.getZeroLevel().getZid().equals(lid)) {
-						members.add(m);
-					}
-					break;
-				case "first":
-					// first层级我们就直接遍历这些member的FirstLevel字段，查看lid是否相同，相同则该member记录的就是本层级及其子层级的信息
-					if (null != m.getFirstLevel() && m.getFirstLevel().getFlid().equals(lid)) {
-						members.add(m);
-					}
-					break;
-				case "second":
-					// second层级我们就直接遍历这些member的secondLevel字段，查看lid是否相同，相同则该member记录的就是本层级及其子层级的信息
-					if (null != m.getSecondLevel() && m.getSecondLevel().getScid().equals(lid)) {
-						members.add(m);
-					}
-					break;
-				case "third":
-					// third层级我们就直接遍历这些member的thirdLevel字段，查看lid是否相同，相同则该member记录的就是本层级及其子层级的信息
-					if (null != m.getThirdLevel() && m.getThirdLevel().getThid().equals(lid)) {
-						members.add(m);
-					}
-					break;
-				case "fourth":
-					// fourth层级我们就直接遍历这些member的fourthLevel字段，查看lid是否相同，相同则该member记录的就是本层级及其子层级的信息
-					if (null != m.getFourthLevel() && m.getFourthLevel().getFoid().equals(lid)) {
-						members.add(m);
-					}
-					break;
-
-				default: // admin
-					// 如果当前查看该用户的操作者是Admin，那么就将它的所有member都放进去
-					members = user.getMembers();
-					break;
-				}
-			}
-			u.setMembers(members);
 
 			/*
 			 * 接下来我们要找的就是被查看用户是否为当前操作执行者层级的直辖人员，如果是
@@ -859,6 +800,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			 * 然后进一步判断这个保存当前操作者层级信息的member是否是操作者层级的直辖人员信息对象
 			 * 如果是则设置到User4Ajax.member位
 			 */
+			Member  member4Manager = null;
 			for (Member m : user.getMembers()) {
 				switch (tag) {
 				// 如果当前管理者代表的层级是街道层级
@@ -873,36 +815,42 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 					if (null != m.getMinusFirstLevel() && m.getMinusFirstLevel().getMflid().equals(lid)
 							&& null == m.getZeroLevel()) {
 						// 则我们就找到了该用户，作为当前操作者代表的街道层级的直辖成员的那个member对象
-						u.setMember(m);
+						u.setMemeberTag(m.getGrouping().getTag());
+						member4Manager = m;
 					}
 					break;
 				case "zero":
 					if (null != m.getZeroLevel() && m.getZeroLevel().getZid().equals(lid)
 							&& null == m.getFirstLevel()) {
-						u.setMember(m);
+						u.setMemeberTag(m.getGrouping().getTag());
+						member4Manager = m;
 					}
 					break;
 				case "first":
 					if (null != m.getFirstLevel() && m.getFirstLevel().getFlid().equals(lid)
 							&& null == m.getSecondLevel()) {
-						u.setMember(m);
+						u.setMemeberTag(m.getGrouping().getTag());
+						member4Manager = m;
 					}
 					break;
 				case "second":
 					if (null != m.getSecondLevel() && m.getSecondLevel().getScid().equals(lid)
 							&& null == m.getThirdLevel()) {
-						u.setMember(m);
+						u.setMemeberTag(m.getGrouping().getTag());
+						member4Manager = m;
 					}
 					break;
 				case "third":
 					if (null != m.getThirdLevel() && m.getThirdLevel().getThid().equals(lid)
 							&& null == m.getFourthLevel()) {
-						u.setMember(m);
+						u.setMemeberTag(m.getGrouping().getTag());
+						member4Manager = m;
 					}
 					break;
 				case "fourth":
 					if (null != m.getFourthLevel() && m.getFourthLevel().getFoid().equals(lid)) {
-						u.setMember(m);
+						u.setMemeberTag(m.getGrouping().getTag());
+						member4Manager = m;
 					}
 					break;
 
@@ -910,7 +858,8 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 					// 对于admin来说，由于所有用户必定永远存在默认member，因此都是admin直辖对象
 					if (null == m.getMinusFirstLevel() && null == m.getZeroLevel() && null == m.getFirstLevel()
 							&& null == m.getSecondLevel() && null == m.getThirdLevel() && null == m.getFourthLevel()) {
-						u.setMember(m);
+						u.setMemeberTag(m.getGrouping().getTag());
+						member4Manager = m;
 					}
 					break;
 				}
@@ -921,21 +870,24 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			 * 该user作为操作者层级的直辖成员的member对象。
 			 * 而相应的，如果此处memeber！=null，则说明该user就是当前操作者层级的直辖成员
 			 */
-			if (null != u.getMember()) {
+			if (!"".equals(u.getMemeberTag())) {
 				/*
 				 * 因为该user是当前操作者层级的直辖人员，因此其有资格作为当前操作者层级的直接子层级的管理员
 				 * 因此在表示该user作为当前操作者的直辖人员的member中可以获取该user的所有manager对象
 				 * 每个manager表示该user作为一个当前操作者层级的直辖子层级的管理员身份。
 				 */
-				List<Manager> managers = u.getMember().getManagers();
-				u.setManagers(managers);
+				List<Manager> managers  = member4Manager.getManagers();
+				if(null!=managers) {
+					u.setManagerTag(member4Manager.getGrouping().getTag());
+				}
+				
 			}
 		}
 
 		// -----------根据操作者的层级对象不同，来设置被索取的用户的tag数据信息----------
 		ArrayList<String> tagsList = null;
 		// 注意只有该用户是当前操作者层级的直辖人员，才有权利更改其member.grouping.tag 否则不可以
-		if (null != u.getMember()) {
+		if (!"".equals(u.getMemeberTag())) {
 			tagsList = new ArrayList<String>();
 			if (isAdmin) {
 				/*

@@ -35,31 +35,14 @@ public class User4Ajax implements Serializable {
 	private String qrcode;   // 用户专属qrcode的相对路径————qrcode/1/12/xxxx.gif
 	private boolean ishere;   // 该用户当前是否在公众号中 
 	private boolean locked;  // 是否被封禁 true=封禁  false或null = 正常
+	
+	// 对于当前层级来说，可以给该用户设置的所有member.grouping.tag的数据值
 	private  String[]  tags;
 	
-	/*
-	 *  在任命和修改工作中该用户必定是操作者所管理层级的直辖用户
-	 *  这个member就是记录直属用户的，当前端获取到的用户是当前
-	 *  操作执行者层级的直辖人员是，就会在member属性中记录下该成员对象
-	 *  从中可以方便直接获取到其grouping.tag，用于修改Modal和任命Modal
-	 *  上的必要显示（修改）和判断（任命）之用。
-	 */
-	private Member  member;
-	/**
-	 * 在查看信息操作中，由于一个用户可以同时存在于当前（查阅）操作者
-	 * 所管理层级之下任何一个子孙层级对象中（包括直接子层级和孙辈层级），这里存放的
-	 * 就是被查看信息者，所有置于当前操作者管辖范围内的子孙层级对象的成员信息
-	 */
-	private  List<Member> members;	
-	/*、
-	 * 在任命工作中该用户必定是操作者所管理层级的直辖用户，
-	 * 由于一个用户可以同时掌管当前操作者之下的多个直接子层级，
-	 * 因此这里存放着所有已被该用户掌管的直接子层级的管理者对象
-	 * 
-	 * 由于任命工作中层级管理者只能任命直接子层级，不能隔代任命，因此用户是否在其子孙层级中有任职
-	 * 对于当前操作者来说无关紧要，因此这里的managers中只存放当前操作者所直辖的管理员信息。
-	 */
-	private List<Manager>  managers;
+	// 如果该用户在当前层级中不是管理员身份，则这里显示为空字符串，否则为对应的grouping.tag字符串（minus_first、zero、first、second、third、fourth）
+	private String managerTag = "";
+	// 该用户在当前管理者层级之下的memeber.grouping.tag
+	private String memeberTag = "";
 	public String getUid() {
 		return uid;
 	}
@@ -174,24 +157,19 @@ public class User4Ajax implements Serializable {
 	public void setTags(String[] tags) {
 		this.tags = tags;
 	}
-	public Member getMember() {
-		return member;
+	public String getManagerTag() {
+		return managerTag;
 	}
-	public void setMember(Member member) {
-		this.member = member;
+	public void setManagerTag(String managerTag) {
+		this.managerTag = managerTag;
 	}
-	public List<Member> getMembers() {
-		return members;
+	public String getMemeberTag() {
+		return memeberTag;
 	}
-	public void setMembers(List<Member> members) {
-		this.members = members;
+	public void setMemeberTag(String memeberTag) {
+		this.memeberTag = memeberTag;
 	}
-	public List<Manager> getManagers() {
-		return managers;
-	}
-	public void setManagers(List<Manager> managers) {
-		this.managers = managers;
-	}
+	
 	
 
 }
