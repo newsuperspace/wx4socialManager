@@ -199,6 +199,7 @@ public class ZeroLevel implements LevelInterface {
 		this.qrcode = qrcode;
 	}
 
+	@JSON(serialize = false)
 	public List<Manager> getManagers() {
 		return managers;
 	}

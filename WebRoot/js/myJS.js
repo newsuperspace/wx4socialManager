@@ -1541,7 +1541,7 @@ var userModal = {
 				td = $("<td>" + users[i].serveTime + "</td>");
 				tr.append(td);
 				// score
-				td = $("<td>" + users[i].score + "</td>");
+				td = $("<td><a href=\"#\" onclick=\"toUserVisitList('"+users[i].uid+"')\">"+users[i].score+"</a></td>");
 				tr.append(td);
 				// phone
 				td = $("<td>" + users[i].phone + "</td>");

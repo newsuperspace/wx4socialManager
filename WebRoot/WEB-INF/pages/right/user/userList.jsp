@@ -349,6 +349,7 @@
 	});
 	
 	
+	// 点击用户的分值，跳转到用户参与活动的历史界面
 	function toUserVisitList(uid){
 		$(location).attr("href","userAction_toUserVisitList.action?uid="+uid);
 	}

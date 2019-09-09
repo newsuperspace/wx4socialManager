@@ -34,7 +34,7 @@ public class Manager implements Serializable {
 	private String managerid;
 	// 与User表同步的信息
 	/*
-	 * 外键关联的容器（一对多） 借助user.grouping.tag 来确定从以下哪个集合中查找当前用户所管理的层级对象★
+	 * 外键关联的容器（一个层级对象 对 多个Manager对象） 借助user.grouping.tag 来确定从以下哪个集合中查找当前用户所管理的层级对象★
 	 */
 	private MinusFirstLevel minusFirstLevel;
 	private ZeroLevel zeroLevel;

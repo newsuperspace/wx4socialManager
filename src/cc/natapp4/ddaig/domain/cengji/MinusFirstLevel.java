@@ -83,7 +83,7 @@ public class MinusFirstLevel implements LevelInterface {
 		return list;
 	}
 
-	
+	@JSON(serialize=false)
 	public List<House> getHouses() {
 		return houses;
 	}
@@ -195,6 +195,7 @@ public class MinusFirstLevel implements LevelInterface {
 	}
 
 	@Override
+	@JSON(serialize=false)
 	public List<Manager> getManagers() {
 		return managers;
 	}

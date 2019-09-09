@@ -153,6 +153,7 @@ public class FirstLevel implements LevelInterface {
 	 * 而应该在Manager类中对应Set<FirstLevel>获取的GETTER方法上添加@JSON注解
 	 * 以防止在struts-json-plugin.jar插件组织JSON字符串时出现死循环
 	 */
+	@JSON(serialize = false)
 	public List<Manager> getManagers() {
 		return managers;
 	}
