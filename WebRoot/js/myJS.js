@@ -1339,30 +1339,30 @@ var userModal = {
 				// 清空select
 				$('#tag4update').empty();
 				// 根据被操作对象是否已经被委任 data.manager==null? 来确定select是否可以被设置
-				if ("" != data.managerTag) {
+				if (data.isManager) {
 					// 已被委任，不能选动select
 					let op = $("<option></option>");
-					switch (data.managerTag) {
+					switch (data.memberTag) {
 					case "minus_first":
-						op.attr("value", data.managerTag).text("街道管理者");
+						op.attr("value", data.memberTag).text("街道管理者");
 						break;
 					case "zero":
-						op.attr("value", data.managerTag).text("社区管理者");
+						op.attr("value", data.memberTag).text("社区管理者");
 						break;
 					case "first":
-						op.attr("value", data.managerTag).text("第一层级管理者");
+						op.attr("value", data.memberTag).text("第一层级管理者");
 						break;
 					case "second":
-						op.attr("value", data.managerTag).text("第二层级管理者");
+						op.attr("value", data.memberTag).text("第二层级管理者");
 						break;
 					case "third":
-						op.attr("value", data.managerTag).text("第三层级管理者");
+						op.attr("value", data.memberTag).text("第三层级管理者");
 						break;
 					case "fourth":
-						op.attr("value", data.managerTag).text("第四层级管理者");
+						op.attr("value", data.memberTag).text("第四层级管理者");
 						break;
 					}
-					$('#tag4update').append(op).find("option[value='" + data.managerTag + "']").attr("selected", "selected");
+					$('#tag4update').append(op).find("option[value='" + data.memberTag + "']").attr("selected", "selected");
 					$("#tag4update").attr("disabled", true);
 				} else {
 					// 没有被委任，则可以选动select
@@ -1398,7 +1398,7 @@ var userModal = {
 						$('#tag4update').append(op);
 						$("#tag4update").attr("disabled", false);
 					}
-					$('#tag4update').find("option[value='" + data.memeberTag + "']").attr("selected", "selected");
+					$('#tag4update').find("option[value='" + data.memberTag + "']").attr("selected", "selected");
 				}
 
 				$("#updateUserModal").modal('show');

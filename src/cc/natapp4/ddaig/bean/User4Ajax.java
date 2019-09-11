@@ -39,10 +39,10 @@ public class User4Ajax implements Serializable {
 	// 对于当前层级来说，可以给该用户设置的所有member.grouping.tag的数据值
 	private  String[]  tags;
 	
-	// 如果该用户在当前层级中不是管理员身份，则这里显示为空字符串，否则为对应的grouping.tag字符串（minus_first、zero、first、second、third、fourth）
-	private String managerTag = "";
-	// 该用户在当前管理者层级之下的memeber.grouping.tag
-	private String memeberTag = "";
+	// 标记用户是否是层级管理者身份
+	private boolean isManager = false;
+	// 该用户在当前管理者层级之下的member.grouping.tag,用于区分曾机关六安
+	private String memberTag = "";
 	public String getUid() {
 		return uid;
 	}
@@ -157,19 +157,18 @@ public class User4Ajax implements Serializable {
 	public void setTags(String[] tags) {
 		this.tags = tags;
 	}
-	public String getManagerTag() {
-		return managerTag;
+	public String getMemberTag() {
+		return memberTag;
 	}
-	public void setManagerTag(String managerTag) {
-		this.managerTag = managerTag;
+	public void setMemberTag(String memberTag) {
+		this.memberTag = memberTag;
 	}
-	public String getMemeberTag() {
-		return memeberTag;
+	public boolean isManager() {
+		return isManager;
 	}
-	public void setMemeberTag(String memeberTag) {
-		this.memeberTag = memeberTag;
+	public void setManager(boolean isManager) {
+		this.isManager = isManager;
 	}
 	
 	
-
 }

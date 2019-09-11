@@ -501,8 +501,8 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 
 	/**
 	 * 【11月1日可行，不在向前端返回user或user4ajax等domain】 与getUserList()相对
-	 * 在managerList.jsp上显示当前操作执行者层级的“直辖人员"，包括 XX层级管理者、普通用户
-	 * 和只有admin才能见到的未认证unreal用户 当然还可以获取所有直辖用户，不论这些用户的tag是什么
+	 * 在managerList.jsp上显示当前操作执行者层级的“直辖人员"，包括 XX层级管理者、普通用户 和只有admin才能见到的未认证unreal用户
+	 * 当然还可以获取所有直辖用户，不论这些用户的tag是什么
 	 */
 	public String getManagerList() {
 		/*
@@ -728,20 +728,18 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			} else {
 				// 非admin用户登录
 				/*
-				 * ★★★★ 这里出现一个BUG，由于Hibernate的二级缓存机制，导致即便我们在修改（通过SETTER方法）
-				 * 持久化状态对象中的数据信息
-				 * 后不显示地调用update()方法向数据库更新，由于在二级缓存中保存了一份持久化状态对象"原始"状态的拷贝，
-				 * 如果此时我们再次调用 查询方法，则Hiberante会先比对二级缓存中的拷贝与持久化状态对象，
-				 * 如果发现字段数据被改动则会自动向数据库commit提交数据 之后在进行查询操作。
-				 * 也就是说Hibernate为了防止出现脏数据等问题，
-				 * 会优先将session的二级缓存中保存的持久化状态对象的最新状态保存到数据库中后 再进行新的CRUD操作。
+				 * ★★★★ 这里出现一个BUG，由于Hibernate的二级缓存机制，导致即便我们在修改（通过SETTER方法） 持久化状态对象中的数据信息
+				 * 后不显示地调用update()方法向数据库更新，由于在二级缓存中保存了一份持久化状态对象"原始"状态的拷贝， 如果此时我们再次调用
+				 * 查询方法，则Hiberante会先比对二级缓存中的拷贝与持久化状态对象， 如果发现字段数据被改动则会自动向数据库commit提交数据 之后在进行查询操作。
+				 * 也就是说Hibernate为了防止出现脏数据等问题， 会优先将session的二级缓存中保存的持久化状态对象的最新状态保存到数据库中后
+				 * 再进行新的CRUD操作。
 				 * 
 				 * 具体到本例题来说，如果先对持久化状态对象u进行数据操作（我们加工了qrcode数据，为了方便前端能够显示出二维码），
 				 * 注意我们并没有要update这个U的意思
-				 * 而只希望将U通过Ajax返回到前端原原本本显示出来，而此时如果我们再次通过相同session对同一个数据库表（User）
-				 * 进行CRUD操作， 则Hiberante会优先将session的 二级缓存中保存的状态更新到User数据库后再执行操作，
-				 * 所以才出现即便我们没有显示地执行update更新持久化状态对象U的数据，但是其中被更改的qrcode却被更新到
-				 * 数据库里了。 解决办法就是在对持久化状态对象执行修改操作之前，将所有涉及持久化状态对象所属数据库表的查询操作先操作完成。
+				 * 而只希望将U通过Ajax返回到前端原原本本显示出来，而此时如果我们再次通过相同session对同一个数据库表（User） 进行CRUD操作，
+				 * 则Hiberante会优先将session的 二级缓存中保存的状态更新到User数据库后再执行操作，
+				 * 所以才出现即便我们没有显示地执行update更新持久化状态对象U的数据，但是其中被更改的qrcode却被更新到 数据库里了。
+				 * 解决办法就是在对持久化状态对象执行修改操作之前，将所有涉及持久化状态对象所属数据库表的查询操作先操作完成。
 				 * 
 				 */
 				doingMan = userService.getUserByUsername(principal);
@@ -783,7 +781,6 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			u.setRegistrationTimeStr(format.format(new Date(user.getRegistrationTime())));
 
-
 			/*
 			 * 接下来我们要找的就是被查看用户是否为当前操作执行者层级的直辖人员，如果是
 			 * 则在User4Ajax.member位置上保存该直辖关系的member，用作未来通过member变更该用户的tag
@@ -797,59 +794,56 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			/*
 			 * ②由于被查看用户必定先为当前操作者层级的“直辖人员”或子孙层级的成员，
 			 * 因此必定存在member记录着操作者层级的数据信息，我们要做的就是遍历然后找到定位它，
-			 * 然后进一步判断这个保存当前操作者层级信息的member是否是操作者层级的直辖人员信息对象
-			 * 如果是则设置到User4Ajax.member位
+			 * 然后进一步判断这个保存当前操作者层级信息的member是否是操作者层级的直辖人员信息对象 如果是则设置到User4Ajax.member位
 			 */
-			Member  member4Manager = null;
+			Member member4Manager = null;
 			for (Member m : user.getMembers()) {
 				switch (tag) {
 				// 如果当前管理者代表的层级是街道层级
 				case "minus_first":
 					/*
 					 * 判断标准解读： 如果便利出的member存在MinusFirstLevel层级对象，且该层级对象与操作者对象（
-					 * 同样也是MinusFirstLevel层级）的lid相同
-					 * 并且MinusFirst次一级，也就是Zero级对象zeroLevel为null，
-					 * 则说明当前遍历出来的member代表的是用户所加入的一个
-					 * MinusFirst层级且这个MinusFirst层级就是当前操作者层级（因为lid相同）
+					 * 同样也是MinusFirstLevel层级）的lid相同 并且MinusFirst次一级，也就是Zero级对象zeroLevel为null，
+					 * 则说明当前遍历出来的member代表的是用户所加入的一个 MinusFirst层级且这个MinusFirst层级就是当前操作者层级（因为lid相同）
 					 */
 					if (null != m.getMinusFirstLevel() && m.getMinusFirstLevel().getMflid().equals(lid)
 							&& null == m.getZeroLevel()) {
 						// 则我们就找到了该用户，作为当前操作者代表的街道层级的直辖成员的那个member对象
-						u.setMemeberTag(m.getGrouping().getTag());
+						u.setMemberTag(m.getGrouping().getTag());
 						member4Manager = m;
 					}
 					break;
 				case "zero":
 					if (null != m.getZeroLevel() && m.getZeroLevel().getZid().equals(lid)
 							&& null == m.getFirstLevel()) {
-						u.setMemeberTag(m.getGrouping().getTag());
+						u.setMemberTag(m.getGrouping().getTag());
 						member4Manager = m;
 					}
 					break;
 				case "first":
 					if (null != m.getFirstLevel() && m.getFirstLevel().getFlid().equals(lid)
 							&& null == m.getSecondLevel()) {
-						u.setMemeberTag(m.getGrouping().getTag());
+						u.setMemberTag(m.getGrouping().getTag());
 						member4Manager = m;
 					}
 					break;
 				case "second":
 					if (null != m.getSecondLevel() && m.getSecondLevel().getScid().equals(lid)
 							&& null == m.getThirdLevel()) {
-						u.setMemeberTag(m.getGrouping().getTag());
+						u.setMemberTag(m.getGrouping().getTag());
 						member4Manager = m;
 					}
 					break;
 				case "third":
 					if (null != m.getThirdLevel() && m.getThirdLevel().getThid().equals(lid)
 							&& null == m.getFourthLevel()) {
-						u.setMemeberTag(m.getGrouping().getTag());
+						u.setMemberTag(m.getGrouping().getTag());
 						member4Manager = m;
 					}
 					break;
 				case "fourth":
 					if (null != m.getFourthLevel() && m.getFourthLevel().getFoid().equals(lid)) {
-						u.setMemeberTag(m.getGrouping().getTag());
+						u.setMemberTag(m.getGrouping().getTag());
 						member4Manager = m;
 					}
 					break;
@@ -858,42 +852,30 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 					// 对于admin来说，由于所有用户必定永远存在默认member，因此都是admin直辖对象
 					if (null == m.getMinusFirstLevel() && null == m.getZeroLevel() && null == m.getFirstLevel()
 							&& null == m.getSecondLevel() && null == m.getThirdLevel() && null == m.getFourthLevel()) {
-						u.setMemeberTag(m.getGrouping().getTag());
+						u.setMemberTag(m.getGrouping().getTag());
 						member4Manager = m;
 					}
 					break;
 				}
 			}
 
-			/*
-			 * 如果user不是当前操作者层级的直辖人员，经过上方代码的逻辑，此处就不可能从u.getMember()中得到
-			 * 该user作为操作者层级的直辖成员的member对象。
-			 * 而相应的，如果此处memeber！=null，则说明该user就是当前操作者层级的直辖成员
-			 */
-			if (!"".equals(u.getMemeberTag())) {
-				/*
-				 * 因为该user是当前操作者层级的直辖人员，因此其有资格作为当前操作者层级的直接子层级的管理员
-				 * 因此在表示该user作为当前操作者的直辖人员的member中可以获取该user的所有manager对象
-				 * 每个manager表示该user作为一个当前操作者层级的直辖子层级的管理员身份。
-				 */
-				List<Manager> managers  = member4Manager.getManagers();
-				if(null!=managers) {
-					u.setManagerTag(member4Manager.getGrouping().getTag());
-				}
-				
+			// 获取该用户在当前层级下的管理员身份（管理次一级层级的身份）
+			List<Manager> managers = member4Manager.getManagers();
+			if (null != managers && managers.size()>0) {
+				// 该用户是当前层级之下的管理者
+				u.setManager(true);
 			}
 		}
 
 		// -----------根据操作者的层级对象不同，来设置被索取的用户的tag数据信息----------
 		ArrayList<String> tagsList = null;
 		// 注意只有该用户是当前操作者层级的直辖人员，才有权利更改其member.grouping.tag 否则不可以
-		if (!"".equals(u.getMemeberTag())) {
+		if (!"".equals(u.getMemberTag())) {
 			tagsList = new ArrayList<String>();
 			if (isAdmin) {
 				/*
-				 * adming管理员用户有权分配街道层级用户，而不能越级分配，防止出现人员在层级结构中的混乱（
-				 * 明明是某个第四层及的member， 却被分配了社区层级的tag，这是不合理的）
-				 * 因此一切涉及有关权限/层级/安全的事务，都遵循“就近原则”——不在其位，不谋其政。
+				 * adming管理员用户有权分配街道层级用户，而不能越级分配，防止出现人员在层级结构中的混乱（ 明明是某个第四层及的member，
+				 * 却被分配了社区层级的tag，这是不合理的） 因此一切涉及有关权限/层级/安全的事务，都遵循“就近原则”——不在其位，不谋其政。
 				 */
 				tagsList.add("unreal");
 				tagsList.add("common");
@@ -901,8 +883,8 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 			} else {
 				/*
 				 * 同理 非admin，则根据实际情况来设置tags（只能设置低于当前操作者层次的tag）
-				 * ，而不能越级分配，防止出现人员在层级结构中的混乱（明明是某个第四层及的member，却被分配了社区层级的tag，
-				 * 这是不合理的） 因此一切涉及有关权限/层级/安全的事务，都遵循“就近原则”——不在其位，不谋其政。
+				 * ，而不能越级分配，防止出现人员在层级结构中的混乱（明明是某个第四层及的member，却被分配了社区层级的tag， 这是不合理的）
+				 * 因此一切涉及有关权限/层级/安全的事务，都遵循“就近原则”——不在其位，不谋其政。
 				 */
 				switch (tag) {
 				case "minus_first":
@@ -964,8 +946,8 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	}
 
 	/**
-	 * TODO 派遣功能待定 Ajax 从前端接收uid（被指派的人员uid）, level（被指派到的层级对象的层级）,
-	 * lid（被指派到的层级对象的id） 实现用户到该层级的派遣功能
+	 * TODO 派遣功能待定 Ajax 从前端接收uid（被指派的人员uid）, level（被指派到的层级对象的层级）, lid（被指派到的层级对象的id）
+	 * 实现用户到该层级的派遣功能
 	 * 
 	 * @return
 	 */
@@ -1317,19 +1299,18 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		return "download";
 	}
 
-	
 	/**
 	 * 前端取消（通过AJAX）批量创建用户的操作
+	 * 
 	 * @return
 	 */
-	public String cancelBatchCreate(){
-		
+	public String cancelBatchCreate() {
+
 		ServletActionContext.getRequest().getSession().removeAttribute("info4SheetJSBatchCreateUser");
 		ActionContext.getContext().getValueStack().push("批量创建用户的数据已清除成功，如有需要请重新上传数据。");
 		return "json";
 	}
-	
-	
+
 	/**
 	 * 前端同意（通过AJAX）执行批量创建操作
 	 * 
@@ -1699,7 +1680,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		result.setMessage("批量创建成功！");
 		// 清空session中的info数据吗？
 		ServletActionContext.getRequest().getSession().removeAttribute("info4SheetJSBatchCreateUser");
-		
+
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
@@ -2268,32 +2249,29 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		return "json";
 	}
 
-	
 	/**
 	 * 获取用户所有有效活动（完成签到、签退的拥有积分的）参与记录
+	 * 
 	 * @return
 	 */
-	public String  toUserVisitList() {
-		
+	public String toUserVisitList() {
+
 		String uid = this.user.getUid();
 		User u = userService.queryEntityById(uid);
 		List<Visitor> visits = u.getVisits();
 		List<Visitor> vs = new ArrayList<Visitor>();
-		for(Visitor v: visits) {
+		for (Visitor v : visits) {
 			// 将拥有签退时间的visitor单独存放，返回给前端
-			if(v.getEndTime()>0) {
+			if (v.getEndTime() > 0) {
 				vs.add(v);
 			}
 		}
-		
+
 		ActionContext.getContext().put("username", u.getUsername());
 		ActionContext.getContext().put("visits", vs);
 		return "visitList";
 	}
-	
-	
-	
-	
+
 	/**
 	 * AJAX 正式执行用户（manager）与层级对象的绑定（委任）操作 从前端提交过来三个请求参数 uid——被任命者的uid
 	 * level———被任命的层级对象的层级（-1、0、1、2、3、4） lid————被任命的层级对象的lid
