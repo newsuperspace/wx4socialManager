@@ -859,11 +859,13 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				}
 			}
 
-			// 获取该用户在当前层级下的管理员身份（管理次一级层级的身份）
-			List<Manager> managers = member4Manager.getManagers();
-			if (null != managers && managers.size()>0) {
-				// 该用户是当前层级之下的管理者
-				u.setManager(true);
+			if(null!=member4Manager) {
+				// 获取该用户在当前层级下的管理员身份（管理次一级层级的身份）
+				List<Manager> managers = member4Manager.getManagers();
+				if (null != managers && managers.size()>0) {
+					// 该用户是当前层级之下的管理者
+					u.setManager(true);
+				}
 			}
 		}
 

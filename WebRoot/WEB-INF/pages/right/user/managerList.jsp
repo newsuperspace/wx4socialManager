@@ -379,7 +379,6 @@
 		</div>
 
 
-
 		<!-- Modal 4 新建用户 -->
 		<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog"
 			aria-labelledby="createUser" aria-hidden="true">
@@ -498,9 +497,6 @@
 				</div>
 			</div>
 		</div>
-
-
-		
 
 
 
