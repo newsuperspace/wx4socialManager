@@ -185,7 +185,7 @@
 <script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
-<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript"
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript"
@@ -198,10 +198,10 @@
 		if ($('.js-signature').length) {
 			$('.js-signature').jqSignature();
 		}
-		
+
 		$("#signinBoard").hide();
 		$("#theContent").show();
-		
+
 	});
 
 
@@ -315,7 +315,6 @@
 
 	// 基于地理位置完成自主签到
 	function qianDao4Position(aid) {
-		let param;
 		// 首先通过微信的JS-SDK获取当前地理位置坐标（经纬度）
 		wx.getLocation({
 			type : 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
@@ -335,6 +334,10 @@
 					"longitude" : longitude,
 				}
 
+				// 准备路径跳转	
+				let url = "personalCenterAction_qianDao4Position.action";
+				$.StandardPost(url, param);
+
 			// 下面是打开腾讯地图的API，暂时不用
 			//wx.openLocation({
 			//latitude : res.latitude, // 纬度，浮点数，范围为90 ~ -90
@@ -345,11 +348,11 @@
 			//infoUrl : 'http://www.gongjuji.net' // 在查看位置界面底部显示的超链接,可点击跳转（测试好像不可用）
 			//});
 			},
-			cancel : function(res) {}
+			
+			cancel : function(res) {
+				weui.alert("失败了");
+			}
 		});
-		// 准备路径跳转	
-		let url = "personalCenterAction_qianDao4Position.action";
-		$.StandardPost(url, param);
 	}
 
 	function qianTui() {

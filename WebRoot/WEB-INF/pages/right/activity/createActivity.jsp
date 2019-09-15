@@ -305,7 +305,7 @@
 <script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
 <!-- 微信的JS-SDK -->
-<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <!-- 自己的 JS -->
 <script type="text/javascript"
 	src="${pageContext.request.contextPath}/js/myJS.js"></script>
