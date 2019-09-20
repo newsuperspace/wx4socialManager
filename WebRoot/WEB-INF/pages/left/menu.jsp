@@ -52,9 +52,9 @@
 					<div id="accordianId" role="tablist" aria-multiselectable="true">
 					
 						<!--【【【【【【【人员管理】】】】】】】 -->
-						<div class="card4user">
+						<div class="card" id="card4user">
 							<div class="card-header px-0 py-1" role="tab"
-								id="section1HeaderId">
+								id="userHeader">
 								<a class="nav-link" data-toggle="collapse" href="#userContent"
 									aria-expanded="false" aria-controls="userContent"> 人员管理 </a>
 							</div>
@@ -65,7 +65,7 @@
                                     -->
 							<div id="userContent" class="collapse in"
 								data-parent="#accordianId" role="tabpanel"
-								aria-labelledby="section1HeaderId">
+								aria-labelledby="userHeader">
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
@@ -83,10 +83,10 @@
 						<!--【【【【【【【申请管理】】】】】】】 -->
 						<div class="card" id="card4apply">
 							<div class="card-header px-0 py-1" role="tab"
-								id="section2HeaderId">
+								id="applyHeader">
 								<a class="nav-link" data-toggle="collapse"
 									href="#applyContent" aria-expanded="false"
-									aria-controls="permissionContent"> 处理申请 </a>
+									aria-controls="applyContent"> 处理申请 </a>
 							</div>
 							<!--
                                         注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
@@ -94,7 +94,7 @@
                                         因此同一时间只能打开其中一个card
                                     -->
 							<div id="applyContent" class="collapse in" role="tabpanel"
-								data-parent="#accordianId" aria-labelledby="section2HeaderId">
+								data-parent="#accordianId" aria-labelledby="applyHeader">
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
@@ -106,9 +106,9 @@
 						</div>
 						
 						<!--【【【【【【【项目管理】】】】】】】 -->
-						<div class="card4project">
+						<div class="card" id="card4project">
 							<div class="card-header px-0 py-1" role="tab"
-								id="section3HeaderId">
+								id="projectHeader">
 								<a class="nav-link" data-toggle="collapse"
 									href="#projectContent" aria-expanded="false"
 									aria-controls="projectContent"> 项目管理 </a>
@@ -120,7 +120,7 @@
                                     -->
 							<div id="projectContent" class="collapse in"
 								data-parent="#accordianId" role="tabpanel"
-								aria-labelledby="section3HeaderId">
+								aria-labelledby="projectHeader">
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
@@ -175,10 +175,47 @@
 							</div>
 						</div>
 						
+						
+						<!--【【【【【【【激励机制管理】】】】】】】 -->
+						<myShiro:hasAnyPermissions
+							name="zero:ware:retrieve">
+
+							<div class="card" id="card4ware">
+								<div class="card-header px-0 py-1" role="tab"
+									id="wareHeader">
+									<a class="nav-link" data-toggle="collapse" href="#wareContent"
+										aria-expanded="false" aria-controls="wareContent"> 激励机制 </a>
+								</div>
+								<!--
+                                        注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
+                                        并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
+                                        因此同一时间只能打开其中一个card
+                                    -->
+								<div id="wareContent" class="collapse in" role="tabpanel"
+									data-parent="#accordianId" aria-labelledby="wareHeader">
+									<div class="card-body py-1">
+
+										<ul class="navbar-nav mr-auto mt-0 pt-0">
+
+											<li class="nav-item active"><a class="nav-link" href="#"
+												onclick='overAll.op.saveCollapseContentID2LS("wareContent", "wareAction_findAll.action")'>兑换品管理
+													<span class="sr-only">(current)</span>
+											</a></li>
+
+
+										</ul>
+									</div>
+								</div>
+							</div>
+						</myShiro:hasAnyPermissions>
+						
+						
+						
+						
 						<!--【【【【【【【组织层级管理】】】】】】】 -->
-						<div class="card4level">
+						<div class="card" id="card4level">
 							<div class="card-header px-0 py-1" role="tab"
-								id="section2HeaderId">
+								id="levelHeader">
 								<a class="nav-link" data-toggle="collapse" href="#levelContent"
 									aria-expanded="false" aria-controls="levelContent"> 组织层级化管理
 								</a>
@@ -189,7 +226,7 @@
                                         因此同一时间只能打开其中一个card
                                     -->
 							<div id="levelContent" class="collapse in" role="tabpanel"
-								data-parent="#accordianId" aria-labelledby="section2HeaderId">
+								data-parent="#accordianId" aria-labelledby="levelHeader">
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
@@ -243,9 +280,9 @@
 						<myShiro:hasAnyPermissions
 							name="admin,zero:house:retrieveHouse,zero:house:retrieveActivity,minus_first:house:retrieveHouse,minus_first:house:retrieveActivity">
 
-							<div class="card4house">
+							<div class="card" id="card4house">
 								<div class="card-header px-0 py-1" role="tab"
-									id="houseContentHeaderId">
+									id="houseHeader">
 									<a class="nav-link" data-toggle="collapse" href="#houseContent"
 										aria-expanded="false" aria-controls="houseContent"> 活动室管理
 									</a>
@@ -257,7 +294,7 @@
                                     -->
 								<div id="houseContent" class="collapse in" role="tabpanel"
 									data-parent="#accordianId"
-									aria-labelledby="houseContentHeaderId">
+									aria-labelledby="houseHeader">
 									<div class="card-body py-1">
 
 										<ul class="navbar-nav mr-auto mt-0 pt-0">
@@ -287,9 +324,9 @@
 						<myShiro:hasAnyPermissions
 							name="admin,minus_first:geo:retrieveGeo,zero:geo:retrieveGeo,first:geo:retrieveGeo,second:geo:retrieveGeo,third:geo:retrieveGeo,fourth:geo:retrieveGeo">
 
-							<div class="card4geo">
+							<div class="card" id="card4geo">
 								<div class="card-header px-0 py-1" role="tab"
-									id="geoContentHeaderId">
+									id="geoHeader">
 									<a class="nav-link" data-toggle="collapse" href="#geoContent"
 										aria-expanded="false" aria-controls="geoContent"> 位置管理 </a>
 								</div>
@@ -299,7 +336,7 @@
                                         因此同一时间只能打开其中一个card
                                     -->
 								<div id="geoContent" class="collapse in" role="tabpanel"
-									data-parent="#accordianId" aria-labelledby="geoContentHeaderId">
+									data-parent="#accordianId" aria-labelledby="geoHeader">
 									<div class="card-body py-1">
 
 										<ul class="navbar-nav mr-auto mt-0 pt-0">
@@ -317,11 +354,11 @@
 						</myShiro:hasAnyPermissions>
 						
 						<!--【【【【【【【后台设置】】】】】】】 -->
-						<div class="card4geo">
+						<div class="card" id="card4setting">
 								<div class="card-header px-0 py-1" role="tab"
-									id="settingContentHeaderId">
+									id="settingHeader">
 									<a class="nav-link" data-toggle="collapse" href="#settingContent"
-										aria-expanded="false" aria-controls="geoContent"> 后台设置 </a>
+										aria-expanded="false" aria-controls="settingContent"> 后台设置 </a>
 								</div>
 								<!--
                                         注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
@@ -329,7 +366,7 @@
                                         因此同一时间只能打开其中一个card
                                     -->
 								<div id="settingContent" class="collapse in" role="tabpanel"
-									data-parent="#accordianId" aria-labelledby="settingContentHeaderId">
+									data-parent="#accordianId" aria-labelledby="settingHeader">
 									<div class="card-body py-1">
 
 										<ul class="navbar-nav mr-auto mt-0 pt-0">
@@ -347,9 +384,9 @@
 
 						<!--【【【【【【【权限管理】】】】】】】 -->
 						<shiro:hasPermission name="admin">
-							<div class="card4permission">
+							<div class="card" id="card4permission">
 								<div class="card-header px-0 py-1" role="tab"
-									id="section2HeaderId">
+									id="permissionHeader">
 									<a class="nav-link" data-toggle="collapse"
 										href="#permissionContent" aria-expanded="false"
 										aria-controls="permissionContent"> 系统权限管理 </a>
@@ -360,7 +397,7 @@
                                         因此同一时间只能打开其中一个card
                                     -->
 								<div id="permissionContent" class="collapse in" role="tabpanel"
-									data-parent="#accordianId" aria-labelledby="section2HeaderId">
+									data-parent="#accordianId" aria-labelledby="permissionHeader">
 									<div class="card-body py-1">
 
 										<ul class="navbar-nav mr-auto mt-0 pt-0">
@@ -379,7 +416,7 @@
 						<!--【【【【【【【微信端才能见到的操作】】】】】】】 -->
 						<div class="card" id="card4operation">
 							<div class="card-header px-0 py-1" role="tab"
-								id="section2HeaderId">
+								id="operationHeader">
 								<a class="nav-link" data-toggle="collapse"
 									href="#operationContent" aria-expanded="false"
 									aria-controls="permissionContent"> 其他操作 </a>
@@ -390,7 +427,7 @@
                                         因此同一时间只能打开其中一个card
                                     -->
 							<div id="operationContent" class="collapse in" role="tabpanel"
-								data-parent="#accordianId" aria-labelledby="section2HeaderId">
+								data-parent="#accordianId" aria-labelledby="operationHeader">
 								<div class="card-body py-1">
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">

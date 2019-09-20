@@ -15,7 +15,7 @@ public class Exchange implements Serializable {
 	private String exid;
 	// 兑换日期 yyyy-MM-dd hh:mm:ss  这一次要精确到秒
 	private String exchangeDate;
-	// 当时兑换所扣除的积分（因为兑换积分可能会调整，这里保留历史兑换积分的分值）
+	// 兑换商品时所扣除的积分（因为兑换积分可能会调整，这里保留历史兑换积分的分值）
 	private int score;
 	
 	// Foreign-Key

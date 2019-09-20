@@ -13,12 +13,16 @@
 			<generator class="assigned"></generator>
 		</id>
 		<property name="wname" length="50"  ></property>
+		<property name="description" length="500"  ></property>
+		<property name="createDate" type="long"></property>
+		<property name="canUse" type="boolean"></property>
 		<property name="score" type="integer"></property>
 		<property name="surplus" type="integer"></property>
 		<property name="total" type="integer"></property>
 
-		<property name="base64str4qrcode" length="5000"></property>
-		<property name="base64str4image" length="5000"></property>
+		<property name="base64str4image1" length="5000"></property>
+		<property name="base64str4image2" length="5000"></property>
+		<property name="base64str4image3" length="5000"></property>
 		
 		
 		<list name="exchanges" cascade="save-update" lazy="true">
@@ -29,6 +33,10 @@
 			<!-- 当前主表与从表的多表关系是一（主）对多（从），且从表的持久化类是cc.natapp4.ddaig.domain.Exchange -->
 			<one-to-many class="cc.natapp4.ddaig.domain.Exchange" />
 		</list>
+		
+		<many-to-one name="zeroLevel" column="zid"  lazy="false"
+			class="cc.natapp4.ddaig.domain.cengji.ZeroLevel" cascade="save-update"></many-to-one>
+		
 			
 	
 	</class>

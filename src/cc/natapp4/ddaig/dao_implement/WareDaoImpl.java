@@ -1,6 +1,8 @@
 package cc.natapp4.ddaig.dao_implement;
 
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -23,6 +25,13 @@ public class WareDaoImpl extends BaseDaoImpl<Ware> implements WareDao {
 	@Override
 	public HibernateTemplate getHibernateTemplate() {
 		return this.template;
+	}
+
+	@Override
+	public List<Ware> queryEntitiesByZid(String zid) {
+
+		List<Ware> list = (List<Ware>) template.find("from Ware w inner join fetch w.zeroLevel zl where zl.zid=?", zid);
+		return list;
 	}
 
 }

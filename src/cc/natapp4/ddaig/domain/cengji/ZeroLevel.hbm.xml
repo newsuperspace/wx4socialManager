@@ -34,6 +34,14 @@
 			<!-- 当前主表与从表的多表关系是一（主）对多（从），且从表的持久化类是cc.natapp4.ddaig.domain.House -->
 			<one-to-many class="cc.natapp4.ddaig.domain.House" />
 		</list>
+		
+		
+		<list name="wares" cascade="save-update" lazy="true">
+			<key column="zid"></key>
+			<list-index column="index4zeroLevel"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.Ware"/>
+		</list>
+		
 
 		<many-to-one name="parent" column="mflid"  lazy="false"
 			class="cc.natapp4.ddaig.domain.cengji.MinusFirstLevel" cascade="save-update"></many-to-one>

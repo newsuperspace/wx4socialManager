@@ -1,5 +1,7 @@
 package cc.natapp4.ddaig.service_implement;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -18,6 +20,11 @@ public class WareServiceImpl extends BaseServiceImpl<Ware> implements WareServic
 	@Override
 	protected BaseDao<Ware> getBaseDao() {
 		return dao;
+	}
+
+	@Override
+	public List<Ware> queryEntitiesByZid(String zid) {
+		return dao.queryEntitiesByZid(zid);
 	}
 	
 

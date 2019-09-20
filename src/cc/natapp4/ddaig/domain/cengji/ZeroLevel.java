@@ -14,6 +14,7 @@ import cc.natapp4.ddaig.domain.House;
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.Permission;
+import cc.natapp4.ddaig.domain.Ware;
 
 /**
  * 社区分层的第一层级——大类型
@@ -46,6 +47,9 @@ public class ZeroLevel implements LevelInterface {
 	// 当前层级对象所能行使的权限（多对多）
 	private Set<Permission> permissions;
 	private List<Geographic> geographics;
+	
+	// 当前社区创建的兑换奖品对象（仅仅供给社区内的成员进行积分兑换）
+	private List<Ware> wares;
 	
 	// 社区所管理的House
 	private List<House> houses;
@@ -207,5 +211,16 @@ public class ZeroLevel implements LevelInterface {
 	public void setManagers(List<Manager> managers) {
 		this.managers = managers;
 	}
+
+	public List<Ware> getWares() {
+		return wares;
+	}
+
+	public void setWares(List<Ware> wares) {
+		this.wares = wares;
+	}
+	
+	
+	
 	
 }
