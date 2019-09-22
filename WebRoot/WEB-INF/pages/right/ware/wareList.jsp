@@ -45,6 +45,9 @@
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 
+									<button class="btn btn-sm btn-outline-secondary" onclick="toCreateWarePage();">
+										<span class="glyphicon glyphicon-search"></span> 新建
+									</button>
 									<button class="btn btn-sm btn-outline-secondary"
 										data-toggle="modal" data-target="#selectUsers">
 										<span class="glyphicon glyphicon-search"></span> 筛选
@@ -216,6 +219,12 @@
 	}
 	
 	function getData4Selector(){
+	
+	}
+	
+	// 跳转到创建商品页面
+	function toCreateWarePage(){
+		$(location).attr("href","wareAction_toCreateWarePage.action");
 	}
 	
 	

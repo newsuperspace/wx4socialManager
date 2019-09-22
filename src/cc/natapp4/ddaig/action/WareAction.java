@@ -1,5 +1,6 @@
 package cc.natapp4.ddaig.action;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -54,10 +55,39 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 	}
 
 	// ===================================属性方法=========================================
+	
+	/*
+	 * 向error.jsp页面显示错误信息，通过方法返回“errro”结果集索引字符串，然后由base-package中设定的全局结果集执行跳转索引
+	 */
 	private String errorMessage;
-
 	public String getErrorMessage() {
 		return errorMessage;
+	}
+	
+	/*
+	 * resources：createWare.jsp →初始化方法中通过AJAX传递过来
+	 * user：deletePhoto()
+	 * 用途：标记待删除商品的序号（1-3）
+	 */
+	private int index;
+	public void setIndex(int index) {
+		this.index = index;
+	}
+	
+	/*
+	 * 接收前端上传图片的base64编码字符串
+	 */
+	private String b64;
+	public void setB64(String b64) {
+		this.b64 = b64;
+	}
+	
+	private File file;
+	public File getFile() {
+		return file;
+	}
+	public void setFile(File file) {
+		this.file = file;
 	}
 
 	// ===================================业务方法=========================================
@@ -82,6 +112,18 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 		return "wareList";
 	}
 
+	/*
+	 * 跳转到创建新商品的页面
+	 */
+	public String toCreateWarePage() {
+
+		return "createWare";
+	}
+
+	/**
+	 * 新建商品
+	 * @return
+	 */
 	public String createWare() {
 
 		// 首先判断当前操作者是否是zero层级
@@ -115,27 +157,59 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 		w.setWid(wid);
 
 		// 创建二维码图片，并转换为base64编码用于保存
-		
-		
+
 		// 将前端上传的商品照片（最多三张）转换为base64编码用于保存
-		
-		
+
 //		w.setBase64str4image(base64str4image);
 //		w.setBase64str4qrcode(base64str4qrcode);
 
 		return "json";
 	}
 
-	// 获取商品详细信息，可用于“名片MODAL”也可用于“update操作前的数据回显”
+	/**
+	 *  获取商品详细信息，可用于“名片MODAL”也可用于“update操作前的数据回显”
+	 * @return
+	 */
 	public String getWareInfo() {
-
+		System.out.println(this.b64);
 		return "json";
 	}
 
-	// 更新商品信息
+	/**
+	 *  更新商品信息
+	 * @return
+	 */
 	public String updateWare() {
 
 		return "json";
 	}
+	
+	
+	/**
+	 * 根据数据驱动index定位待删除图片的序号（1-3），执行删除操作
+	 * @return
+	 */
+	public String deletePhoto() {
+
+		ReturnMessage4Common  message =  new  ReturnMessage4Common();
+		
+		
+		ActionContext.getContext().getValueStack().push(message);
+		return "json";
+	}
+	
+	
+	/**
+	 * 上传商品图片
+	 * @return
+	 */
+	public String upload() {
+		System.out.println("====================");
+		System.out.println(this.b64);
+		return "json";
+	}
+	
+	
+	
 
 }
