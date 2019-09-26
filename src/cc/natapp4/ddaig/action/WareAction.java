@@ -2,7 +2,9 @@ package cc.natapp4.ddaig.action;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,6 +27,7 @@ import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.ExchangeService;
 import cc.natapp4.ddaig.service_interface.WareService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
+import cc.natapp4.ddaig.utils.Image2Base64andBase642ImageUtils;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 
 @Controller("wareAction")
@@ -64,24 +67,6 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 		return errorMessage;
 	}
 	
-	/*
-	 * resources：createWare.jsp →初始化方法中通过AJAX传递过来
-	 * user：deletePhoto()
-	 * 用途：标记待删除商品的序号（1-3）
-	 */
-	private int index;
-	public void setIndex(int index) {
-		this.index = index;
-	}
-	
-	/*
-	 * 接收前端上传图片的base64编码字符串
-	 */
-	private String b64;
-	public void setB64(String b64) {
-		this.b64 = b64;
-	}
-	
 	private File file;
 	public File getFile() {
 		return file;
@@ -91,6 +76,11 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 	}
 
 	// ===================================业务方法=========================================
+	
+	/**
+	 * wareList.jsp页面上显示商品列表的信息
+	 * @return
+	 */
 	public String findAll() {
 		// 当前暂时只允许社区查看积分兑换内容
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
@@ -113,19 +103,30 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 	}
 
 	/*
-	 * 跳转到创建新商品的页面
+	 * 跳转到创建新商品的表单页面——createWare.jsp
 	 */
 	public String toCreateWarePage() {
 
+		Ware w =  new Ware();
+		// 必须，设置展视在前端的图片列表<li>
+		Map<String,String> map = new HashMap<String,String>();
+		w.setPhotos(map);
+		// 必须，当前创建日期
+		w.setCreateDate(System.currentTimeMillis());
+
+		ActionContext.getContext().getValueStack().push(w);
 		return "createWare";
 	}
+	
 
 	/**
-	 * 新建商品
+	 * 正式执行“新建商品”的操作
 	 * @return
 	 */
 	public String createWare() {
-
+		
+		ReturnMessage4Common result = new  ReturnMessage4Common();
+		
 		// 首先判断当前操作者是否是zero层级
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
@@ -133,46 +134,96 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 		if (tag.equals("zero")) {
 			zeroLevel = zeroLevelService.queryEntityById(lid);
 			if (null == zeroLevel) {
-				this.errorMessage = "查找不到lid为" + lid + "的社区层级";
-				return "error";
+				result.setMessage("查找不到lid为" + lid + "的社区层级");
+				result.setResult(false);
+				ActionContext.getContext().getValueStack().push(result);
+				return "json";
 			}
 			ActionContext.getContext().put("zeroLevel", zeroLevel);
 		} else {
-			this.errorMessage = "您当前所掌管层级不是社区层级，无权创建兑换品";
-			return "error";
+			result.setMessage("您当前所掌管层级不是社区层级，无权创建兑换品");
+			result.setResult(false);
+			ActionContext.getContext().getValueStack().push(result);
+			return "json";
 		}
 
+		// TODO 后端数据校验
+		
+		// 后端数据校验通过，开始执行新建数据操作
 		Ware w = new Ware();
 		w.setExchanges(new ArrayList<Exchange>());
 		w.setScore(wareModel.getScore());
 		w.setSurplus(wareModel.getSurplus());
-		w.setTotal(0);
+		w.setTotal(0); // 新建商品的兑换数量一定是0
 		w.setWname(wareModel.getWname());
 		w.setCanUse(true);
 		w.setCreateDate(System.currentTimeMillis());
 		w.setDescription(wareModel.getDescription());
+		w.setBase64str4image1(wareModel.getBase64str4image1());
+		w.setBase64str4image2(wareModel.getBase64str4image2());
+		w.setBase64str4image3(wareModel.getBase64str4image3());
+		// 新建商品与zero层级建立外键关联
 		w.setZeroLevel(zeroLevel);
-
+		List<Ware> wares = zeroLevel.getWares();
+		if(null == wares) {
+			wares = new ArrayList<Ware>();
+			zeroLevel.setWares(wares);
+		}
+		wares.add(w);
+		// 手动创建商品主键（wid），并创建二维码图片，并转换为base64编码用于保存
 		String wid = UUID.randomUUID().toString();
 		w.setWid(wid);
+		
+		String realPath = ServletActionContext.getServletContext().getRealPath(File.separator+"qrcode/temp");
+		File f = new File(realPath);
+		if(!f.exists()) {
+			f.mkdirs();
+		}
+		String qrcodeFilePath = realPath + File.separator + wid + ".jpg";
+		if(QRCodeUtils.createQRcode(qrcodeFilePath, wid)) {
+			String imgStr = Image2Base64andBase642ImageUtils.getImgStr(qrcodeFilePath);
+			System.out.println(imgStr);
+			w.setBase64str4qrcode("data:image/jpeg;base64," + imgStr);
+			// 删除图片缓存
+			f = new File(qrcodeFilePath);
+			f.delete();
+		}else {
+			result.setMessage("创建商品兑换二维码时出现问题，无法创建二维码图片");
+			result.setResult(false);
+			ActionContext.getContext().getValueStack().push(result);
+			return "json";
+		}
 
-		// 创建二维码图片，并转换为base64编码用于保存
+		List<Exchange> exchanges = new ArrayList<Exchange>();
+		w.setExchanges(exchanges);
+		
+		wareService.save(w);
+		zeroLevelService.update(zeroLevel);
 
-		// 将前端上传的商品照片（最多三张）转换为base64编码用于保存
-
-//		w.setBase64str4image(base64str4image);
-//		w.setBase64str4qrcode(base64str4qrcode);
-
+		result.setMessage("创建成功！");
+		result.setResult(true);
+		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
 
+	
 	/**
-	 *  获取商品详细信息，可用于“名片MODAL”也可用于“update操作前的数据回显”
+	 * 跳转到需要更新数据的商品表单页面，需要回显数据
 	 * @return
 	 */
-	public String getWareInfo() {
-		System.out.println(this.b64);
-		return "json";
+	public String toUpdateWarePage() {
+		
+		// 根据前端传递过来的wid，确定需要更新数据的商品是哪一个
+		String wid = this.wareModel.getWid();
+		Ware ware = wareService.queryEntityById(wid);
+		Map<String,String> map = new HashMap<String,String>();
+		map.put("1", ware.getBase64str4image1());
+		map.put("2", ware.getBase64str4image2());
+		map.put("3", ware.getBase64str4image3());
+		ware.setPhotos(map);
+		
+		ActionContext.getContext().getValueStack().push(ware);
+		return "createWare";
 	}
 
 	/**
@@ -180,7 +231,7 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 	 * @return
 	 */
 	public String updateWare() {
-
+		System.out.println("update the ware");
 		return "json";
 	}
 	
@@ -190,7 +241,6 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 	 * @return
 	 */
 	public String deletePhoto() {
-
 		ReturnMessage4Common  message =  new  ReturnMessage4Common();
 		
 		
@@ -204,8 +254,8 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 	 * @return
 	 */
 	public String upload() {
-		System.out.println("====================");
-		System.out.println(this.b64);
+		System.out.println(this.file);
+		// 用于响应前端WEUI.js的upload上传功能，即便没有任何数据要处理也要返回json而不是null，否则前端会进入error处理分支
 		return "json";
 	}
 	

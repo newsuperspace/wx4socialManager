@@ -105,7 +105,7 @@
 										<th>品名</th>
 										<th>描述</th>
 										<th>创建日期</th>
-										<th>有效性</th>
+										<th>状态</th>
 										<th>分值</th>
 										<th>剩余数量</th>
 										<th>累计兑换</th>
@@ -119,7 +119,7 @@
 													<s:property value="wname" />
 												</s:a></td>
 											<td><s:property value="description" /></td>
-											<td><s:property value="createDate" /></td>
+											<td><s:property value="str4CreateDate" /></td>
 											<td><s:if test="%{canUse}">
 													可兑换
 												</s:if> <s:else>

@@ -74,7 +74,7 @@ public class QRCodeUtils {
 	 * 
 	 * @param realPath   形如：E:\新建文件夹\qrcode\0\13\9a7cc0d6-36bc-4905-b63a-0f5de9962654.gif 的完整路径
 	 * @param content   形如：tag=minus_first&lid=xjoduf7293jf2wjf9jd9suf9uw  的二维码内容
-	 * @return  true  创建成功   false 创建失败
+	 * @return  true  创建成功  ; false 创建失败
 	 */
 	public  static  boolean   createQRcode(String  realPath, String content){
 		boolean  result  =  false;

@@ -37,17 +37,23 @@ public class Image2Base64andBase642ImageUtils {
 	public static String getImgStr(String imgFile) {
 		// 将图片文件转化为字节数组字符串，并对其进行Base64编码处理
 
+		// 创建输入流，用于读取磁盘文件
 		InputStream in = null;
+		// 创建内存中的“字节数组”（缓存），用来存放输入流读取的磁盘数据到内存中
 		byte[] data = null;
-		// 读取图片字节数组
 		try {
+			// 通过文件输入流，直接读取磁盘路径下指定文件到输入流
 			in = new FileInputStream(imgFile);
+			// 在内存中创建一个in流大小缓存区用来存放磁盘数据到内存
 			data = new byte[in.available()];
+			// 读取输入流数据到内存缓存
 			in.read(data);
+			// 输入流完成任务，关闭掉
 			in.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		// 最后通过JAVA原生API直接将内存缓冲区（字节数组）中的图片数据转化为b64编码，并返回
 		return new String(Base64.encodeBase64(data));
 	}
 
