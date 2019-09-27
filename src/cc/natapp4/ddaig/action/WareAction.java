@@ -81,6 +81,42 @@ public class WareAction extends ActionSupport implements ModelDriven<Ware> {
 
 	// ===================================业务方法=========================================
 
+	public String toggle() {
+		
+		ReturnMessage4Common  result = new ReturnMessage4Common();
+		String wid  = this.wareModel.getWid();
+		
+		if(StringUtils.isEmpty(this.wareModel.getWid())) {
+			result.setMessage("wid为空，无法执行更新兑换商品的操作");
+			result.setResult(false);
+			ActionContext.getContext().getValueStack().push(result);
+			return "json";
+		}
+		Ware w = wareService.queryEntityById(this.wareModel.getWid());
+		// 检查w是否为空
+		if(null == w) {
+			result.setMessage("wid为"+this.wareModel.getWid()+"的对象不存在，请查证");
+			result.setResult(false);
+			ActionContext.getContext().getValueStack().push(result);
+			return "json";
+		}
+		// 校验完成，开始执行设置操作
+		if(w.isCanUse()) {
+			w.setCanUse(false);
+			result.setResult(true);
+			result.setMessage("停用中");
+		}else {
+			w.setCanUse(true);
+			result.setResult(true);
+			result.setMessage("启用中");
+		}
+		
+		wareService.update(w);
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+	
+	
 	/**
 	 * wareList.jsp页面上显示商品列表的信息
 	 * 

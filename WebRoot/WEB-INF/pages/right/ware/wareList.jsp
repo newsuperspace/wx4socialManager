@@ -45,7 +45,8 @@
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 
-									<button class="btn btn-sm btn-outline-secondary" onclick="toCreateWarePage();">
+									<button class="btn btn-sm btn-outline-secondary"
+										onclick="toCreateWarePage();">
 										<span class="glyphicon glyphicon-search"></span> 新建
 									</button>
 									<button class="btn btn-sm btn-outline-secondary"
@@ -120,10 +121,11 @@
 												</s:a></td>
 											<td><s:property value="description" /></td>
 											<td><s:property value="str4CreateDate" /></td>
-											<td><s:if test="%{canUse}">
-													可兑换
+											<td id='<s:property value="%{wid}"/>'><s:if
+													test="%{canUse}">
+													启用中
 												</s:if> <s:else>
-													不可用
+													停用中
 												</s:else></td>
 											<td><s:property value="score" /></td>
 											<td><s:property value="surplus" /></td>
@@ -134,8 +136,14 @@
 												<div class="btn-group" role="group">
 													<s:a href="#" onclick="toUpdateWarePage('%{wid}');"
 														class="btn btn-outline-secondary btn-sm">更新</s:a>
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">停用</button>
+													<s:if test="canUse">
+														<s:a href="#" onclick="toggle('%{wid}',this);"
+															class="btn btn-outline-secondary btn-sm">停用</s:a>
+													</s:if>
+													<s:else>
+														<s:a href="#" onclick="toggle('%{wid}',this);"
+															class="btn btn-outline-secondary btn-sm">启用</s:a>
+													</s:else>
 												</div>
 											</td>
 										</tr>
@@ -170,8 +178,6 @@
 
 
 
-
-
 		<!-- container结束 -->
 	</div>
 </body>
@@ -187,6 +193,29 @@
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
 <script type="text/javascript">
 
+	// 兑换品的兑换状态在启用和停用之间切换
+	function toggle(wid, self) {
+		let url = "wareAction_toggle.action";
+		let param = {
+			'wid' : wid,
+		}
+		$.post(url, param, function(data, textStatus, req) {
+			if (data.result) {
+				if ("启用中" == data.message) {
+					$(self).text("停用");
+				} else {
+					$(self).text("启用");
+
+				}
+				$('#'+wid).text(data.message);
+			} else {
+				weui.alert(data.message);
+			}
+		});
+
+	}
+
+
 	// 获取商品二维码，并通过弹出的MODAL展视出来
 	function wareInfo(wid) {
 		// TODO
@@ -195,12 +224,12 @@
 
 	// 跳转到更新商品信息的页面（实际上与创建页面是同一个页面，只不过会根据传递进来的wid在后端数据库中检索并将商品的详细信息回显到前端页面）
 	function toUpdateWarePage(wid) {
-		$(location).attr("href","wareAction_toUpdateWarePage?wid="+wid);
+		$(location).attr("href", "wareAction_toUpdateWarePage?wid=" + wid);
 	}
 
 	// 跳转到创建商品页面
-	function toCreateWarePage(){
-		$(location).attr("href","wareAction_toCreateWarePage.action");
+	function toCreateWarePage() {
+		$(location).attr("href", "wareAction_toCreateWarePage.action");
 	}
 
 	// 跳转到指定商品的兑换历史列表页面
@@ -222,12 +251,9 @@
 			$icon.attr("class", "glyphicon glyphicon-chevron-down");
 		}
 	}
-	
-	function getData4Selector(){
-	
+
+	function getData4Selector() {
 	}
-	
-	
 </script>
 
 </html>
