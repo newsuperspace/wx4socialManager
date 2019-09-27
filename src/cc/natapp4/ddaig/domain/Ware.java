@@ -64,7 +64,8 @@ public class Ware implements Serializable {
 	public void setPhotos(Map<String,String> map) {
 		this.photos = map;
 	}
-
+	
+	
 	// ========================================构造器
 	public Ware() {
 		// 默认（空）构造器

@@ -132,10 +132,10 @@
 												</s:a></td>
 											<td>
 												<div class="btn-group" role="group">
-													<s:a href="#" onclick="update('%{wid}');"
-														class="btn btn-outline-secondary btn-sm">设置</s:a>
+													<s:a href="#" onclick="toUpdateWarePage('%{wid}');"
+														class="btn btn-outline-secondary btn-sm">更新</s:a>
 													<button type="button"
-														class="btn btn-outline-secondary btn-sm">其他</button>
+														class="btn btn-outline-secondary btn-sm">停用</button>
 												</div>
 											</td>
 										</tr>
@@ -187,20 +187,25 @@
 	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
 <script type="text/javascript">
 
-	// 获取商品二维码信息
+	// 获取商品二维码，并通过弹出的MODAL展视出来
 	function wareInfo(wid) {
 		// TODO
 		weui.alert(wid);
 	}
 
-	// 更新商品信息之用
-	function update(wid) {
-		// TODO
-		weui.alert(wid);
+	// 跳转到更新商品信息的页面（实际上与创建页面是同一个页面，只不过会根据传递进来的wid在后端数据库中检索并将商品的详细信息回显到前端页面）
+	function toUpdateWarePage(wid) {
+		$(location).attr("href","wareAction_toUpdateWarePage?wid="+wid);
 	}
 
-	// 跳转到指定商品的兑换历史列表
+	// 跳转到创建商品页面
+	function toCreateWarePage(){
+		$(location).attr("href","wareAction_toCreateWarePage.action");
+	}
+
+	// 跳转到指定商品的兑换历史列表页面
 	function toExchangeList(wid) {
+		// TODO
 		weui.alert(wid);
 	}
 
@@ -221,12 +226,6 @@
 	function getData4Selector(){
 	
 	}
-	
-	// 跳转到创建商品页面
-	function toCreateWarePage(){
-		$(location).attr("href","wareAction_toCreateWarePage.action");
-	}
-	
 	
 	
 </script>

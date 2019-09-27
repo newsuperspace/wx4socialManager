@@ -173,9 +173,12 @@
 
 												<!-- 这里存放着上传的图片的预览图列表 -->
 												<s:iterator value="photos" var="photo">
-													<li class="weui-uploader__file"
-														style="background-image: url(<s:property value='#photo.value' />)"
-														id="<s:property value='#photo.key' />"></li>
+													<s:if test="''!=#photo.value">
+														<li class="weui-uploader__file"
+															style="background-image:url(<s:property value='#photo.value' />)"
+															data-b64="<s:property value='#photo.value' />"
+															id="<s:property value='#photo.key' />"></li>
+													</s:if>
 												</s:iterator>
 
 												<!-- 触发上传的+号按钮 -->
@@ -224,58 +227,57 @@
 		let base64str4image2 = localStorage.getItem(2);
 		let base64str4image3 = localStorage.getItem(3);
 
-
 		if ('' != wid) {
 			// 当前页面已经存在商品数据，表明此时的“保存”按钮是用来“更新数据”的
 			// TODO 前端数据校验
-		
+			
 			let url = "wareAction_updateWare.action";
 			let param = {
-				'wid':wid,
-				'wname':wname,
-				'description':description,
-				'surplus':surplus,
-				'score':score,
-				'base64str4image1':base64str4image1,
-				'base64str4image2':base64str4image2,
-				'base64str4image3':base64str4image3,
+				'wid' : wid,
+				'wname' : wname,
+				'description' : description,
+				'surplus' : surplus,
+				'score' : score,
+				'base64str4image1' : base64str4image1,
+				'base64str4image2' : base64str4image2,
+				'base64str4image3' : base64str4image3,
 			}
 			$.post(url, param, function(data, textStatus, req) {
-				
+
 				weui.alert(data.message);
-				if(data.result){
+				if (data.result) {
 					// 服务器已接纳数据，并完成新建/更新操作，现在刷新页面
-					$(location).attr("href","wareAction_findAll.action");
-				}else{
+					$(location).attr("href", "wareAction_findAll.action");
+				} else {
 					// TODO 此处应该用红色高亮出问题输入
-					
-				}	
+
+				}
 			});
 		} else {
 			// 当前页面还不存在商品数据，表明此时的“保存”按钮是用来“新建数据”的
 			// TODO 前端数据校验
-			
+
 			let url = "wareAction_createWare.action";
 			let param = {
-				'wid':wid,
-				'wname':wname,
-				'description':description,
-				'surplus':surplus,
-				'score':score,
-				'base64str4image1':base64str4image1,
-				'base64str4image2':base64str4image2,
-				'base64str4image3':base64str4image3,
+				'wid' : wid,
+				'wname' : wname,
+				'description' : description,
+				'surplus' : surplus,
+				'score' : score,
+				'base64str4image1' : base64str4image1,
+				'base64str4image2' : base64str4image2,
+				'base64str4image3' : base64str4image3,
 			}
 			$.post(url, param, function(data, textStatus, req) {
-				
+
 				weui.alert(data.message);
-				if(data.result){
+				if (data.result) {
 					// 服务器已接纳数据，并完成新建/更新操作，现在刷新页面
-					$(location).attr("href","wareAction_findAll.action");
-				}else{
+					$(location).attr("href", "wareAction_findAll.action");
+				} else {
 					// TODO 此处应该用红色高亮出问题输入
-					
-				}	
+
+				}
 			});
 		}
 
@@ -313,19 +315,19 @@
 		let three = $("#3");
 
 		if (one.length > 0) {
-			localStorage.setItem(1, one.attr("style"));
+			localStorage.setItem(1, one.attr("data-b64"));
 		} else {
 			localStorage.setItem(1, "");
 		}
 
 		if (one.length > 0) {
-			localStorage.setItem(2, two.attr("style"));
+			localStorage.setItem(2, two.attr("data-b64"));
 		} else {
 			localStorage.setItem(2, "");
 		}
 
 		if (one.length > 0) {
-			localStorage.setItem(3, three.attr("style"));
+			localStorage.setItem(3, three.attr("data-b64"));
 		} else {
 			localStorage.setItem(3, "");
 		}
@@ -443,11 +445,11 @@
 				let two = localStorage.getItem(2);
 				let three = localStorage.getItem(3);
 
-				if ("" == one) {
+				if ("" == one || 'undefined' == one) {
 					this.id = 1;
-				} else if ("" == two) {
+				} else if ("" == two || 'undefined' == two) {
 					this.id = 2;
-				} else if ("" == three) {
+				} else if ("" == three || 'undefined' == three) {
 					this.id = 3;
 				} else {
 					weui.alert("图片数量超出限定值");
