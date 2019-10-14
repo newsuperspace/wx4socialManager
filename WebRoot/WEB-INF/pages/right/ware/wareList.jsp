@@ -13,6 +13,16 @@
 <!-- Bootstrap CSS -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
+	
+	<style>
+        .tooltip-inner {
+            background-color: #ffffff;
+
+        }
+        .tooltip.top .tooltip-arrow {
+            border-top-color: #0e8ee7;
+        }
+    </style>
 </head>
 <body>
 
@@ -116,9 +126,10 @@
 								<tbody id="tbody">
 									<s:iterator value="#wares">
 										<tr>
-											<td><s:a href="#" onclick="wareInfo('%{wid}')">
+											<td><s:a href="#" onclick="wareInfo('%{wid}')" data-toggle="tooltip" title="<img src='%{base64str4qrcode}' />" data-html="true" data-placement="right" data-trigger="hover">
 													<s:property value="wname" />
-												</s:a></td>
+												</s:a>
+											</td>
 											<td><s:property value="description" /></td>
 											<td><s:property value="str4CreateDate" /></td>
 											<td id='<s:property value="%{wid}"/>'><s:if
@@ -219,7 +230,7 @@
 	// 获取商品二维码，并通过弹出的MODAL展视出来
 	function wareInfo(wid) {
 		// TODO
-		weui.alert(wid);
+		alert(wid);
 	}
 
 	// 跳转到更新商品信息的页面（实际上与创建页面是同一个页面，只不过会根据传递进来的wid在后端数据库中检索并将商品的详细信息回显到前端页面）
