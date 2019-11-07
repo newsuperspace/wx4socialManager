@@ -80,6 +80,38 @@
 							</div>
 						</div>
 						
+						
+						<!--【【【【【【【健康管理】】】】】】】 -->
+						<div class="card" id="card4health">
+							<div class="card-header px-0 py-1" role="tab"
+								id="healthHeader">
+								<a class="nav-link" data-toggle="collapse" href="#healthContent"
+									aria-expanded="false" aria-controls="healthContent"> 健康管理 </a>
+							</div>
+							<!--
+                                        注意！data-parent必须放置在card-body上一层的div上才能实现多个card的手风琴开关效果
+                                        并且data-parent必须同时指向整个card组的最外层div，用以表示这些card是属于同一个parent的
+                                        因此同一时间只能打开其中一个card
+                                    -->
+							<div id="healthContent" class="collapse in"
+								data-parent="#accordianId" role="tabpanel"
+								aria-labelledby="healthHeader">
+								<div class="card-body py-1">
+
+									<ul class="navbar-nav mr-auto mt-0 pt-0">
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("healthContent", "healthAction_getUsers.action")'>档案列表</a></li>
+										<li class="nav-item"><a class="nav-link" href="#"
+											onclick='overAll.op.saveCollapseContentID2LS("healthContent", "healthAction_getManagerList.action")'>全局情况</a>
+										</li>
+									</ul>
+
+								</div>
+							</div>
+						</div>
+						
+						
+						
 						<!--【【【【【【【申请管理】】】】】】】 -->
 						<div class="card" id="card4apply">
 							<div class="card-header px-0 py-1" role="tab"

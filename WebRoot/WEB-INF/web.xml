@@ -21,14 +21,26 @@
 	<listener>
 		<listener-class>cc.natapp4.ddaig.servletListener.InitWxConfigListener</listener-class>
 	</listener>
+	<!-- 
+		目前这个监听器似乎没有什么用
+	 -->
 	<listener>
 		<listener-class>cc.natapp4.ddaig.servletListener.SessionClearListener</listener-class>
 	</listener>
-	<!-- 系统中的realm（myRealm和myRealm4Input）作为普通类有获取HttpSession的需要，这个监听器是必要的前置 -->
+	<!-- 
+		系统中类似realm（myRealm和myRealm4Input）等普通类有获取HttpSession的需要时，这个监听器是必要的前置条件
+		随后在任意类的任意方法中通过显式调用 
+		HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		HttpSession session = request.getSession(); 
+		就可以获取到包括request、session在内的所有Servlet-api的对象了
+	-->
 	<listener>
 		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
 	</listener>
-	<!-- Spring框架的必要方法，应该也包含Spring的初始化设置 -->
+	<!-- 
+		Spring容器中IOC/DI与Web开发结合的方式，就是通过ContextLoaderListener监听器完成对applicationContext.xml的载入的；
+		与SpringMVC框架是通过Servlet形式接入不同，这个是Spring框架接入Web开发的方式，请熟记。 
+	-->
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
@@ -77,8 +89,18 @@
 	</filter-mapping>
 
 
-	<!-- 自定义的filter，作用是为Shiro功能做一些准备，包括： （1）获取并保存从微信端发来的请求的URL路径 （2）获取并保存从微信端发来的code的值 
-		这些数据将会在shiroAction中被使用到 -->
+	<!-- 自定义的filter，作用是为Shiro功能做一些准备，
+		包括： 
+			（1）获取并保存从微信端发来的请求的URL路径 
+			（2）获取并保存从微信端发来的code的值 
+		这些数据将会在shiroAction中进行“认证/授权”时被切实使用到
+		
+		
+		随后在代码最后通过调用super.doFilter(request, response, filterChain);
+		进入父类中的方法，父类方法将获取Spring容器，进而从中搜索id="shiroFilter"的
+		class="org.apache.shiro.spring.web.ShiroFilterFactoryBean"
+		实现Shiro接下来的“认证/授权”流程
+	 -->
 	<filter>
 		<filter-name>shiroFilter</filter-name>
 		<filter-class>cc.natapp4.ddaig.security.MyShiroFilter</filter-class>
@@ -93,7 +115,15 @@
 	</filter-mapping>
 
 
-	<!-- 这里是Struts2框架的系统功能入口 -->
+	<!-- 
+		这里是Struts2框架的系统功能入口 
+		在Struts2容器被加载到内存中的时候，它会将工程classpath（类路径根目录）中的struts.xml、struts-*.xml以及所有jar包（Jar包也是classpath
+		的组成部分）中的struts-plugin.xml文件中的内容都复制到同一个配置文件中进行统筹管理。
+		如此作为专门处理AJAX请求的struts2插件——struts2-json-plugin.jar和用于将Struts2与Spring融合的Struts2-spring-plugin.jar
+		目录中的struts-plugin.xml也会融入其中，如此结果集、新过滤器栈以及bean替换都会集成；
+		因此spring就是通过在sturts-plugin.xml中替换struts2默认的ObjectBean为自己的factory从而实现struts与spring的结合的
+		这样就将Action也置于Spring的管辖下，同时又能很好地响应struts2的前端请求处理工作。
+	-->
 	<filter>
 		<filter-name>struts2</filter-name>
 		<filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
@@ -104,7 +134,7 @@
 	</filter-mapping>
 
 
-	<!-- 这里是SpringMVC框架的系统功能入口,由于当前系统主要建立在Struts2之上，SpringMVC只是负责提供WebSocket功能 -->
+	<!-- 这里是SpringMVC框架的系统功能入口,由于当前系统主要建立在Struts2之上，因此当前工程SpringMVC只是负责提供WebSocket功能 -->
 	<servlet>
 		<servlet-name>SpringMVC</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -112,6 +142,7 @@
 			<param-name>contextConfigLocation</param-name>
 			<param-value>classpath:spring/applicationContext.xml</param-value>
 		</init-param>
+		<!-- 在Servlet容器启动的时候就自动创建并初始化本servlet，而不是默认的在请求阶段才创建 -->
 		<load-on-startup>1</load-on-startup>
 		<async-supported>true</async-supported>
 	</servlet>

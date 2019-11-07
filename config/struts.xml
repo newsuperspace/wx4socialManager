@@ -10,8 +10,8 @@
 	
 	 <!-- 
 	 	★★★设置Struts2功能入口的filter过滤规则的额外规则（排除在外的规则）
-	 	这样当前端页面通过ws://localhost/library/ws/websocket的URL发来WebSocket请求的时候
-	 	该请求就会被struts2的filter忽视掉了，因此会被SpringMVC的入口（一个sevlet）处理到。
+	 	这样当前端页面通过ws://localhost/weixin/ws/websocket的URL发来WebSocket请求的时候
+	 	该请求就会被struts2的入口（一个filter）忽视掉了，因此会被SpringMVC的入口（一个sevlet）处理到。
 	  -->
 	<constant name="struts.action.excludePattern" value="/ws/.*,ws://.*"></constant> 
 	
@@ -43,6 +43,7 @@
 	<include file="struts/struts-approve.xml"></include>		
 	<include file="struts/struts-setting.xml"></include>		
 	<include file="struts/struts-exchange.xml"></include>		
+	<include file="struts/struts-health.xml"></include>		
 		
 		
 	<!-- 
