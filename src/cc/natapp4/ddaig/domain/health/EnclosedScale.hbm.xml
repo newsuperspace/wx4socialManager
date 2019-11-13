@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="cc.natapp4.ddaig.domain.health.EnclosedScale">
+		<id name="esid" length="50">
+			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
+			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
+			<generator class="assigned"></generator>
+		</id>
+		<property name="description" length="500"></property>
+		<property name="introduce" length="500"></property>
+		<property name="chName" length="100"></property>
+		<property name="engName" length="100"></property>
+		<property name="useNum" type="integer"></property>
+		<property name="weigh" type="float"></property>
+
+
+		<list name="topics" cascade="save-update" lazy="true">
+			<!-- 当前表为主表，被从表visitor所引用作为外键的是当前主表的名为uid的键（也就是主键） -->
+			<key column="esid"></key>
+			<!-- 在从表中设置一个名叫index4EnclosedScale的字段，用来存放从表对象的先后次序（从0开始的数字） -->
+			<list-index column="index4EnclosedScale"></list-index>
+			<!-- 当前主表与从表的多表关系是一（主）对多（从），且从表的持久化类是cc.natapp4.ddaig.domain.health.Topic4EnclosedScale -->
+			<one-to-many class="cc.natapp4.ddaig.domain.health.Topic4EnclosedScale" />
+		</list>
+		
+		<list name="samples" cascade="save-update" lazy="true">
+			<!-- 当前表为主表，被从表visitor所引用作为外键的是当前主表的名为uid的键（也就是主键） -->
+			<key column="esid"></key>
+			<!-- 在从表中设置一个名叫index4EnclosedScale的字段，用来存放从表对象的先后次序（从0开始的数字） -->
+			<list-index column="index4EnclosedScale"></list-index>
+			<!-- 当前主表与从表的多表关系是一（主）对多（从），且从表的持久化类是cc.natapp4.ddaig.domain.health.Sample4EnclosedScale -->
+			<one-to-many class="cc.natapp4.ddaig.domain.health.Sample4EnclosedScale" />
+		</list>
+		
+		<list name="options" cascade="save-update" lazy="true">
+			<!-- 当前表为主表，被从表visitor所引用作为外键的是当前主表的名为uid的键（也就是主键） -->
+			<key column="esid"></key>
+			<!-- 在从表中设置一个名叫index4EnclosedScale的字段，用来存放从表对象的先后次序（从0开始的数字） -->
+			<list-index column="index4EnclosedScale"></list-index>
+			<!-- 当前主表与从表的多表关系是一（主）对多（从），且从表的持久化类是cc.natapp4.ddaig.domain.health.Option4EnclosedScale -->
+			<one-to-many class="cc.natapp4.ddaig.domain.health.Option4EnclosedScale" />
+		</list>
+
+
+
+	</class>
+</hibernate-mapping>

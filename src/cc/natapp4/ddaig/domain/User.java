@@ -6,6 +6,8 @@ import java.util.Set;
 
 import org.apache.struts2.json.annotations.JSON;
 
+import cc.natapp4.ddaig.domain.health.Sample4EnclosedScale;
+
 public class User implements Serializable {
 	
 	//====================================字段==================================
@@ -36,6 +38,8 @@ public class User implements Serializable {
 	private List<Exchange> exchanges; // 当前用户的消分记录
 	// 用户申请加入某些层级组织时提交的申请数据对象
 	private List<UserApply4JoinLevel> userApply4JoinLevels;
+	
+	private List<Sample4EnclosedScale> samples4EnclosedScale;  // 当前用户所做过的所有封闭式问卷的样本数据
 	
 	/*
 	 * 作为一个通过扫码（可能是公众号二维码也可能是各个层级对象的带参二维码——直接加入到该层级对象的管辖下）
@@ -242,6 +246,18 @@ public class User implements Serializable {
 	}
 	public void setUserApply4JoinLevels(List<UserApply4JoinLevel> userApply4JoinLevels) {
 		this.userApply4JoinLevels = userApply4JoinLevels;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	@JSON(serialize=false)
+	public List<Sample4EnclosedScale> getSamples4EnclosedScale() {
+		return samples4EnclosedScale;
+	}
+	public void setSamples4EnclosedScale(List<Sample4EnclosedScale> samples4EnclosedScale) {
+		this.samples4EnclosedScale = samples4EnclosedScale;
 	}
 	
 	

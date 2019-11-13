@@ -28,6 +28,10 @@
 	 -->
 	<property name="show_sql">false</property>
 	
+	<!-- 
+		基本:从web部署到服务器后的/WEB-INF/classes为根目录寻找映射文件
+		因此下方资源文件路径均是要以此为根目录设置相对路径
+	 -->
 	<mapping resource="cc/natapp4/ddaig/domain/Grouping.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/User.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Activity.hbm.xml" />
@@ -48,17 +52,32 @@
 	<mapping resource="cc/natapp4/ddaig/domain/Receipt4BesureProject.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Visitor.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Signin.hbm.xml" />
+	
+	<!-- 层级相关 -->
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/FirstLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/FourthLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/MinusFirstLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/SecondLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/ThirdLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/ZeroLevel.hbm.xml" />
+	
+	<!-- 回复相关 -->
 	<mapping resource="cc/natapp4/ddaig/domain/Reply4UserJoinLevelApprove.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Approve4UserJoinLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/UserApply4JoinLevel.hbm.xml" />
+	
+	<!-- 设置相关 -->
 	<mapping resource="cc/natapp4/ddaig/domain/setting/BaseSetting.hbm.xml" />
 	
+	<!-- 健康相关 -->
+	<mapping resource="cc/natapp4/ddaig/domain/health/EnclosedScale.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/Sample4EnclosedScale.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/Topic4EnclosedScale.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/Option4EnclosedScale.xml" />
+
+
+
+
 </session-factory>
 
 </hibernate-configuration>
