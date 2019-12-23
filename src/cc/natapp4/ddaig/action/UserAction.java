@@ -1699,7 +1699,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		// System.out.println(s);
 		// }
 		System.out.println(this.batchUserStr);
-		// Json的解析类对象
+		// 创建一个基于Google的Gson包的Json解析类对象
 		JsonParser parser = new JsonParser();
 		// 将JSON数组格式的字符串（形如：“[{}、{}、{}、{}]”的字符串）
 		// 转换成一个JsonArray（形如：“[{}、{}、{}、{}]”的JSON数组对象）

@@ -1,4 +1,4 @@
-package cc.natapp4.ddaig.dao_implement;
+package cc.natapp4.ddaig.dao_implement.health;
 
 
 import javax.annotation.Resource;
@@ -6,11 +6,12 @@ import javax.annotation.Resource;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 
-import cc.natapp4.ddaig.dao_interface.ArticleDao;
-import cc.natapp4.ddaig.domain.Article;
+import cc.natapp4.ddaig.dao_implement.BaseDaoImpl;
+import cc.natapp4.ddaig.dao_interface.health.EnclosedScaleDao;
+import cc.natapp4.ddaig.domain.health.EnclosedScale;
 
-@Repository("healthDao")
-public class HealthDaoImpl extends BaseDaoImpl<Article> implements ArticleDao {
+@Repository("enclosedScaleDao")
+public class EnclosedScaleDaoImpl extends BaseDaoImpl<EnclosedScale> implements EnclosedScaleDao {
 
 	/*
 	 * Spring的DI诸如的注解引用法，name属性指定向目标数据成员中DI注入哪个Bean（Spring容器中的Bean），

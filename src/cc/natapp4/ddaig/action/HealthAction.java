@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.struts2.ServletActionContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -68,6 +69,7 @@ import cc.natapp4.ddaig.service_interface.SecondLevelService;
 import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
+import cc.natapp4.ddaig.service_interface.health.EnclosedScaleService;
 import cc.natapp4.ddaig.utils.FileController;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
@@ -76,43 +78,36 @@ import cn.com.obj.freemarker.ExportDoc;
 @Controller("healthAction")
 @Scope("prototype")
 @Lazy(true)
-public class HealthAction extends ActionSupport implements ModelDriven<User> {
+public class HealthAction extends ActionSupport{
 
 	private static final long serialVersionUID = 600271725750065543L;
 	// ==========================================================DI注入Aspect
-	@Resource(name = "zeroLevelAction")
-	private ZeroLevelAction zeroLevelAction;
-	@Resource(name = "userService")
+	@Autowired
 	private UserService userService;
-	@Resource(name = "managerService")
+	@Autowired
 	private ManagerService managerService;
-	@Resource(name = "memberService")
+	@Autowired
 	private MemberService memberService;
-	@Resource(name = "groupingService")
+	@Autowired
 	private GroupingService groupingService;
-	@Resource(name = "minusFirstLevelService")
+	@Autowired
 	private MinusFirstLevelService minusFirstLevelService;
-	@Resource(name = "zeroLevelService")
+	@Autowired
 	private ZeroLevelService zeroLevelService;
-	@Resource(name = "firstLevelService")
+	@Autowired
 	private FirstLevelService firstLevelService;
-	@Resource(name = "secondLevelService")
+	@Autowired
 	private SecondLevelService secondLevelService;
-	@Resource(name = "thirdLevelService")
+	@Autowired
 	private ThirdLevelService thirdLevelService;
-	@Resource(name = "fourthLevelService")
+	@Autowired
 	private FourthLevelService fourthLevelService;
-	@Resource(name = "weixinService4Setting")
+	@Autowired
 	private WeixinService4SettingImpl weixinService4Setting;
+	
+	@Autowired
+	private EnclosedScaleService enclosedScaleService;
 
-	// ======================================================模型驱动——收纳请求参数
-	private User user;
-
-	@Override
-	public User getModel() {
-		user = new User();
-		return this.user;
-	}
 
 	// ======================================================属性驱动——向前端页面传送经过处理的数据信息
 	private String errorMessage; // 用作error全局结果集指定的页面——error.jsp中显示错误的信息内容
@@ -454,9 +449,74 @@ public class HealthAction extends ActionSupport implements ModelDriven<User> {
 
 
 	
+	// =================================EnclosedScale封闭式问卷功能区=======================================
+	/**
+	 * 跳转到创建“封闭式问卷”的JSP页面——createEnclosedScalePage.jsp
+	 * @return
+	 */
+	public String toCreateEnclosedScalePage() {
+		
+		
+		
+		
+		return "createEnclosedScalePage";
+	}
 	
 	
-	// =================================Freemaker及下载功能区=======================================
+	/**
+	 * AJAX
+	 * 执行创建封闭式量表的操作
+	 * @return
+	 */
+	public String createEnclosedScale() {
+		ReturnMessage4Common  result =  new ReturnMessage4Common();  
+		
+		
+		
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+	
+	
+	/**
+	 * 跳转到所有封闭式量表的列表JSP页面——enclosedScaleListPage.jsp
+	 * @return
+	 */
+	public String toEnclosedScaleListPage() {
+		
+		
+		
+		return "enclosedScaleListPage";
+	}
+	
+	
+	/**
+	 * 跳转到封闭式量表的JSP页面——enclosedScalePage.jsp，进行数据采集
+	 * @return
+	 */
+	public String toEnclosedScalePage() {
+		
+		
+		
+		return "enclosedScalePage";
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	// =================================基于Freemaker下载电子报告的功能区=======================================
 	/**
 	 * 下载用于批量创建的Excel模板文件
 	 * 
