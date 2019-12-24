@@ -31,6 +31,38 @@ public class TopicResult4FactorResult4Sample4EnclosedScale implements Serializab
 	/**
 	 * 量表体系外键
 	 */
-	private 
+	private Topic4EnclosedScale topic;    // 该题目选择结果所对应的题目
+	
+	// ==============SETTER/GETTER==============
+	public String getTrid() {
+		return trid;
+	}
+	public void setTrid(String trid) {
+		this.trid = trid;
+	}
+	public int getScore() {
+		return score;
+	}
+	public void setScore(int score) {
+		this.score = score;
+	}
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+	public FactorResult4Sample4EnclosedScale getFactorResult() {
+		return factorResult;
+	}
+	public void setFactorResult(FactorResult4Sample4EnclosedScale factorResult) {
+		this.factorResult = factorResult;
+	}
+	public Topic4EnclosedScale getTopic() {
+		return topic;
+	}
+	public void setTopic(Topic4EnclosedScale topic) {
+		this.topic = topic;
+	}
 	
 }

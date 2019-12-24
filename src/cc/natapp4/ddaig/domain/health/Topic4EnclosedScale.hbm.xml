@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="cc.natapp4.ddaig.domain.health.Topic4EnclosedScale">
+		<id name="tid" length="50">
+			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
+			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
+			<generator class="assigned"></generator>
+		</id>
+		<property name="description" length="500"></property>
+		<property name="ord" type="integer"></property>
+		<property name="keyword" length="50"></property>
+
+
+		<many-to-one name="factor" column="fid"
+			class="cc.natapp4.ddaig.domain.health.Factor4EnclosedScale"
+			cascade="save-update"></many-to-one>
+
+		<many-to-one name="optionGroup" column="ogid"
+			class="cc.natapp4.ddaig.domain.health.OptionGroup4EnclosedScale"
+			cascade="save-update"></many-to-one>
+
+		<list name="topicResults" cascade="save-update" lazy="true">
+			<key column="tid"></key>
+			<list-index column="index4Topic"></list-index>
+			<one-to-many
+				class="cc.natapp4.ddaig.domain.health.TopicResult4FactorResult4Sample4EnclosedScale" />
+		</list>
+
+
+	</class>
+</hibernate-mapping>

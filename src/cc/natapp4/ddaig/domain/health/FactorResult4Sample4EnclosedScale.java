@@ -35,7 +35,52 @@ public class FactorResult4Sample4EnclosedScale implements Serializable {
 	/**
 	 * 量表体系外键
 	 */
+	private Factor4EnclosedScale factor;
 	
+	
+	// ==================SETTER/GETTER================
+	public String getFrid() {
+		return frid;
+	}
+	public void setFrid(String frid) {
+		this.frid = frid;
+	}
+	public float getOscore() {
+		return oscore;
+	}
+	public void setOscore(float oscore) {
+		this.oscore = oscore;
+	}
+	public float getSscore() {
+		return sscore;
+	}
+	public void setSscore(float sscore) {
+		this.sscore = sscore;
+	}
+	public String getConclusion() {
+		return conclusion;
+	}
+	public void setConclusion(String conclusion) {
+		this.conclusion = conclusion;
+	}
+	public Sample4EnclosedScale getSample() {
+		return sample;
+	}
+	public void setSample(Sample4EnclosedScale sample) {
+		this.sample = sample;
+	}
+	public List<TopicResult4FactorResult4Sample4EnclosedScale> getTopicResults() {
+		return topicResults;
+	}
+	public void setTopicResults(List<TopicResult4FactorResult4Sample4EnclosedScale> topicResults) {
+		this.topicResults = topicResults;
+	}
+	public Factor4EnclosedScale getFactor() {
+		return factor;
+	}
+	public void setFactor(Factor4EnclosedScale factor) {
+		this.factor = factor;
+	}
 	
 	
 }

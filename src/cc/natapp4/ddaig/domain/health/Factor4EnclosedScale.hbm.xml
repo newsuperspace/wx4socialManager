@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="cc.natapp4.ddaig.domain.health.Factor4EnclosedScale">
+		<id name="fid" length="50">
+			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
+			<!-- 设置主键产生器是assigned，是由于可能需要生成qrcode，因此需要通过UUID手动创建id主键 -->
+			<generator class="assigned"></generator>
+		</id>
+		<property name="ord" type="integer"></property>
+		<property name="stamp" type="long"></property>
+		<property name="name" length="100"></property>
+		<property name="keyword" length="50"></property>
+		<property name="description" length="500"></property>
+
+		<many-to-one name="enclosedScale" column="esid" class="cc.natapp4.ddaig.domain.health.EnclosedScale" cascade="save-update"></many-to-one>
+
+		<list name="sections" cascade="save-update" lazy="true">
+			<!-- 当前表为主表，被从表所引用作为外键的是当前主表的哪个字段（通常选择主键） -->
+			<key column="fid"></key>
+			<!-- 在从表中创建一个名叫index4Factor的字段，用来存放从表对象在list容器中的先后次序（从0开始的数字） -->
+			<list-index column="index4Factor"></list-index>
+			<!-- 当前主表与从表的多表关系是 -->
+			<one-to-many class="cc.natapp4.ddaig.domain.health.Section4Factor4EnclosedScale" />
+		</list>
+		
+		<list name="topics" cascade="save-update" lazy="true">
+			<!-- 当前表为主表，被从表所引用作为外键的是当前主表的哪个字段（通常选择主键） -->
+			<key column="fid"></key>
+			<!-- 在从表中创建一个名叫index4Factor的字段，用来存放从表对象在list容器中的先后次序（从0开始的数字） -->
+			<list-index column="index4Factor"></list-index>
+			<!-- 当前主表与从表的多表关系是一（主）对多（从） -->
+			<one-to-many class="cc.natapp4.ddaig.domain.health.Topic4EnclosedScale" />
+		</list>
+		
+		<list name="factorResults" cascade="save-update" lazy="true">
+			<!-- 当前表为主表，被从表所引用作为外键的是当前主表的哪个字段（通常选择主键） -->
+			<key column="fid"></key>
+			<!-- 在从表中创建一个名叫index4Factor的字段，用来存放从表对象在list容器中的先后次序（从0开始的数字） -->
+			<list-index column="index4Factor"></list-index>
+			<!-- 当前主表与从表的多表关系是一（主）对多（从） -->
+			<one-to-many class="cc.natapp4.ddaig.domain.health.FactorResult4Sample4EnclosedScale" />
+		</list>
+
+	</class>
+</hibernate-mapping>

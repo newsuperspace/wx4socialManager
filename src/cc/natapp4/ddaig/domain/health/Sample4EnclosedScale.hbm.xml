@@ -3,17 +3,19 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 	<class name="cc.natapp4.ddaig.domain.health.Sample4EnclosedScale">
-		<id name="seid" length="50">
+		<id name="sid" length="50">
 			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
-			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
+			<!-- 设置主键产生器是assigned，是由于可能需要生成qrcode，因此需要手动通过UUID创建 -->
 			<generator class="assigned"></generator>
 		</id>
-		<property name="resultStr" length="500"></property>
-		<property name="oscore" type="integer"></property>
-		<property name="sscore" type="integer"></property>
 		<property name="date" type="long"></property>
-		<property name="weigh" type="float"></property>
 
+		
+		<list name="factorResults" cascade="save-update" lazy="true">
+			<key column="sid"></key>
+			<list-index column="index4Sample"></list-index>
+			<one-to-many class="cc.natapp4.ddaig.domain.health.FactorResult4Sample4EnclosedScale"/>
+		</list>
 
 		<many-to-one name="enclosedScale" column="esid"
 			class="cc.natapp4.ddaig.domain.health.EnclosedScale"

@@ -2,20 +2,19 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-	<class name="cc.natapp4.ddaig.domain.health.Topic4EnclosedScale">
-		<id name="tid" length="50">
+	<class name="cc.natapp4.ddaig.domain.health.Option4EnclosedScale">
+		<id name="opid" length="50">
 			<!-- 设置主键产生器为uuid，则我们无需手动为持久化类的主键属性赋值，则hibernate会自动产生uuid码填充该属性及其在数据库所对应的字段 -->
-			<!-- 设置主键产生器是assigned，是由于需要根据用户的uid来生成qrcode，因此需要手动创建uid -->
+			<!-- 设置主键产生器是assigned，是由于可能需要根据主键来生成qrcode，因此需要通过UUID手动创建 -->
 			<generator class="assigned"></generator>
 		</id>
-		<property name="description" length="500"></property>
 		<property name="ord" type="integer"></property>
-		<property name="rever" type="boolean"></property>
-		<property name="keyword" length="100"></property>
+		<property name="content" length="500"></property>
+		<property name="score" type="integer"></property>
 
 
-		<many-to-one name="enclosedScale" column="esid"
-			class="cc.natapp4.ddaig.domain.health.EnclosedScale"
+		<many-to-one name="optionGroup" column="ogid"
+			class="cc.natapp4.ddaig.domain.health.OptionGroup4EnclosedScale"
 			cascade="save-update"></many-to-one>
 
 

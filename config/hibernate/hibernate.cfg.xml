@@ -32,27 +32,39 @@
 		基本:从web部署到服务器后的/WEB-INF/classes为根目录寻找映射文件
 		因此下方资源文件路径均是要以此为根目录设置相对路径
 	 -->
-	<mapping resource="cc/natapp4/ddaig/domain/Grouping.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/User.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/Activity.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/Article.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/ArticlePhoto.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/Ware.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/Exchange.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/BesureProject.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/DoingProject.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/Manager.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/Member.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/Permission.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/PermissionType.hbm.xml" />
+	
+	<!-- 房屋及地理相关 -->
 	<mapping resource="cc/natapp4/ddaig/domain/Geographic.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/House.hbm.xml" />
+	
+	<!-- 权限相关 -->
 	<mapping resource="cc/natapp4/ddaig/domain/PermissionLevel.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Permission.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/PermissionType.hbm.xml" />
+	
+	<!-- 项目相关 -->
 	<mapping resource="cc/natapp4/ddaig/domain/ProjectType.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/BesureProject.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/DoingProject.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Receipt4BesureProject.hbm.xml" />
+
+	<!-- 激励相关 -->
+	<mapping resource="cc/natapp4/ddaig/domain/Ware.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Exchange.hbm.xml" />
+	
+	<!-- 活动相关 -->
+	<mapping resource="cc/natapp4/ddaig/domain/Article.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/ArticlePhoto.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Activity.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Visitor.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/Signin.hbm.xml" />
 	
+	<!-- 人员相关 -->
+	<mapping resource="cc/natapp4/ddaig/domain/Manager.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Member.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/Grouping.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/User.hbm.xml" />
+
 	<!-- 层级相关 -->
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/FirstLevel.hbm.xml" />
 	<mapping resource="cc/natapp4/ddaig/domain/cengji/FourthLevel.hbm.xml" />
@@ -71,9 +83,14 @@
 	
 	<!-- 健康相关 -->
 	<mapping resource="cc/natapp4/ddaig/domain/health/EnclosedScale.hbm.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/health/Sample4EnclosedScale.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/health/Topic4EnclosedScale.xml" />
-	<mapping resource="cc/natapp4/ddaig/domain/health/Option4EnclosedScale.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/Factor4EnclosedScale.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/FactorResult4Sample4EnclosedScale.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/Option4EnclosedScale.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/OptionGroup4EnclosedScale.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/Sample4EnclosedScale.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/Section4Factor4EnclosedScale.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/Topic4EnclosedScale.hbm.xml" />
+	<mapping resource="cc/natapp4/ddaig/domain/health/TopicResult4FactorResult4Sample4EnclosedScale.hbm.xml" />
 
 
 
