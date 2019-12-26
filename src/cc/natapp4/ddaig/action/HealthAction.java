@@ -6,16 +6,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -36,13 +32,9 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
-import com.opensymphony.xwork2.ModelDriven;
 
 import cc.natapp4.ddaig.bean.GetData4UserListSelectors;
-import cc.natapp4.ddaig.bean.Info4BatchCreateUserResult;
-import cc.natapp4.ddaig.bean.Info4SheetJSBatchCreateUser;
 import cc.natapp4.ddaig.bean.Init4UserListSelectors;
-import cc.natapp4.ddaig.bean.SheetJS4BatchCreateUser;
 import cc.natapp4.ddaig.bean.User4Ajax;
 import cc.natapp4.ddaig.domain.Exchange;
 import cc.natapp4.ddaig.domain.Grouping;
@@ -56,9 +48,8 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
-import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Appoint;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
-import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4NavbarGetLevelInfo;
+import cc.natapp4.ddaig.service_implement.health.FactorResult4Sample4EnclosedScaleServiceImpl;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.FourthLevelService;
 import cc.natapp4.ddaig.service_interface.GroupingService;
@@ -70,6 +61,13 @@ import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.service_interface.health.EnclosedScaleService;
+import cc.natapp4.ddaig.service_interface.health.Factor4EnclosedScaleService;
+import cc.natapp4.ddaig.service_interface.health.Option4EnclosedScaleService;
+import cc.natapp4.ddaig.service_interface.health.OptionGroup4EnclosedScaleService;
+import cc.natapp4.ddaig.service_interface.health.Sample4EnclosedScaleService;
+import cc.natapp4.ddaig.service_interface.health.Section4Factor4EnclosedScaleService;
+import cc.natapp4.ddaig.service_interface.health.Topic4EnclosedScaleService;
+import cc.natapp4.ddaig.service_interface.health.TopicResult4FactorResult4Sample4EnclosedScaleService;
 import cc.natapp4.ddaig.utils.FileController;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
@@ -90,6 +88,7 @@ public class HealthAction extends ActionSupport{
 	private MemberService memberService;
 	@Autowired
 	private GroupingService groupingService;
+	// -----------------层级相关----------------
 	@Autowired
 	private MinusFirstLevelService minusFirstLevelService;
 	@Autowired
@@ -104,10 +103,27 @@ public class HealthAction extends ActionSupport{
 	private FourthLevelService fourthLevelService;
 	@Autowired
 	private WeixinService4SettingImpl weixinService4Setting;
-	
+	// -----------------健康相关----------------
 	@Autowired
-	private EnclosedScaleService enclosedScaleService;
-
+	private EnclosedScaleService  enclosedScaleService;
+	@Autowired
+	private Factor4EnclosedScaleService factor4EnclosedScaleService;
+	@Autowired
+	private FactorResult4Sample4EnclosedScaleServiceImpl factorResult4Sample4EnclosedScaleService;
+	@Autowired
+	private Option4EnclosedScaleService option4EnclosedScaleService;
+	@Autowired
+	private OptionGroup4EnclosedScaleService optionGroup4EnclosedScaleService;
+	@Autowired
+	private Sample4EnclosedScaleService sample4EnclosedScaleService;
+	@Autowired
+	private Section4Factor4EnclosedScaleService section4Factor4EnclosedScaleService;
+	@Autowired
+	private Topic4EnclosedScaleService topic4EnclosedScaleService;
+	@Autowired
+	private TopicResult4FactorResult4Sample4EnclosedScaleService topicResult4FactorResult4Sample4EnclosedScaleService;
+	
+	
 
 	// ======================================================属性驱动——向前端页面传送经过处理的数据信息
 	private String errorMessage; // 用作error全局结果集指定的页面——error.jsp中显示错误的信息内容
