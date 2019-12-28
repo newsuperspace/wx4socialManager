@@ -100,9 +100,9 @@
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("healthContent", "healthAction_getUsers.action")'>档案列表</a></li>
+											onclick='overAll.op.saveCollapseContentID2LS("healthContent", "healthAction_toEnclosedScaleListPage.action")'>封闭心理量表</a></li>
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("healthContent", "healthAction_getManagerList.action")'>全局情况</a>
+											onclick='overAll.op.saveCollapseContentID2LS("healthContent", "healthAction_getManagerList.action")'>啦啦啦</a>
 										</li>
 									</ul>
 

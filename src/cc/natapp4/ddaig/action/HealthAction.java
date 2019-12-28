@@ -48,6 +48,7 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
+import cc.natapp4.ddaig.domain.health.EnclosedScale;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_implement.health.FactorResult4Sample4EnclosedScaleServiceImpl;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
@@ -62,6 +63,7 @@ import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.service_interface.health.EnclosedScaleService;
 import cc.natapp4.ddaig.service_interface.health.Factor4EnclosedScaleService;
+import cc.natapp4.ddaig.service_interface.health.FactorResult4Sample4EnclosedScaleService;
 import cc.natapp4.ddaig.service_interface.health.Option4EnclosedScaleService;
 import cc.natapp4.ddaig.service_interface.health.OptionGroup4EnclosedScaleService;
 import cc.natapp4.ddaig.service_interface.health.Sample4EnclosedScaleService;
@@ -71,6 +73,7 @@ import cc.natapp4.ddaig.service_interface.health.TopicResult4FactorResult4Sample
 import cc.natapp4.ddaig.utils.FileController;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
+import cc.natapp4.ddaig.weixin.service_interface.WeixinService4Setting;
 import cn.com.obj.freemarker.ExportDoc;
 
 @Controller("healthAction")
@@ -102,14 +105,14 @@ public class HealthAction extends ActionSupport{
 	@Autowired
 	private FourthLevelService fourthLevelService;
 	@Autowired
-	private WeixinService4SettingImpl weixinService4Setting;
+	private WeixinService4Setting weixinService4Setting;
 	// -----------------健康相关----------------
 	@Autowired
 	private EnclosedScaleService  enclosedScaleService;
 	@Autowired
 	private Factor4EnclosedScaleService factor4EnclosedScaleService;
 	@Autowired
-	private FactorResult4Sample4EnclosedScaleServiceImpl factorResult4Sample4EnclosedScaleService;
+	private FactorResult4Sample4EnclosedScaleService factorResult4Sample4EnclosedScaleService;
 	@Autowired
 	private Option4EnclosedScaleService option4EnclosedScaleService;
 	@Autowired
@@ -471,21 +474,35 @@ public class HealthAction extends ActionSupport{
 	 * @return
 	 */
 	public String toCreateEnclosedScalePage() {
-		
-		
-		
-		
 		return "createEnclosedScalePage";
 	}
 	
 	
+	
+	
+	private String jsonStr4CreateEnclosedScale;
+	public String getJsonStr4CreateEnclosedScale() {
+		return jsonStr4CreateEnclosedScale;
+	}
+	public void setJsonStr4CreateEnclosedScale(String jsonStr4CreateEnclosedScale) {
+		this.jsonStr4CreateEnclosedScale = jsonStr4CreateEnclosedScale;
+	}
 	/**
 	 * AJAX
 	 * 执行创建封闭式量表的操作
 	 * @return
 	 */
 	public String createEnclosedScale() {
+		
+		System.out.println(this.getJsonStr4CreateEnclosedScale());
+		
 		ReturnMessage4Common  result =  new ReturnMessage4Common();  
+		result.setMessage("数据通路正常");
+		result.setResult(true);
+		
+		// 开始基于Gson的JSON字符串解析工作
+		
+		
 		
 		
 		
@@ -499,10 +516,15 @@ public class HealthAction extends ActionSupport{
 	 * @return
 	 */
 	public String toEnclosedScaleListPage() {
+		// 准备容器
+		List<EnclosedScale> list  = new ArrayList<EnclosedScale>();
+		// TODO 开始从数据库获取数据
 		
 		
 		
-		return "enclosedScaleListPage";
+		// 以指定名称“list”填入Map栈中，供给前端通过OGNL表达式解析并显示到页面上
+		ActionContext.getContext().put("list", list);
+		return "enclosedScaleList";
 	}
 	
 	
@@ -518,12 +540,7 @@ public class HealthAction extends ActionSupport{
 	}
 	
 	
-	
-	
-	
-	
-	
-	
+
 	
 	
 	
@@ -711,6 +728,7 @@ public class HealthAction extends ActionSupport{
 
 		return "download";
 	}
+	
 
 
 }
