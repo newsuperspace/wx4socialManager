@@ -36,6 +36,7 @@ import com.opensymphony.xwork2.ActionSupport;
 import cc.natapp4.ddaig.bean.GetData4UserListSelectors;
 import cc.natapp4.ddaig.bean.Init4UserListSelectors;
 import cc.natapp4.ddaig.bean.User4Ajax;
+import cc.natapp4.ddaig.bean.health.ParseJson4CreateEnclosedScale;
 import cc.natapp4.ddaig.domain.Exchange;
 import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.Manager;
@@ -501,11 +502,14 @@ public class HealthAction extends ActionSupport{
 		result.setResult(true);
 		
 		// 开始基于Gson的JSON字符串解析工作
-		
-		
-		
-		
-		
+		 //GSON直接解析成对象
+	    ParseJson4CreateEnclosedScale parseResult = new Gson().fromJson(jsonStr4CreateEnclosedScale,ParseJson4CreateEnclosedScale.class);
+	    if(null!=parseResult) {
+	    	System.out.println(parseResult.toString());
+	    }
+	    // TODO 开始创建数据库的逻辑
+
+	    
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}

@@ -10,17 +10,19 @@ $(function() {
 // 向后端发送通过第五页确认后的最终JSON数据包
 function sendData() {
 	// 服务器地址（相对路径）
-	let url = "healthAciton_createEnclosedScale.action";
+	let url = "healthAction_createEnclosedScale.action";
 	// 获取JSON数据
-	let param = getJson();
+	let param = {
+		// 因为getJson()返回的JsonObject（JSON对象），而AJAX的请求参数只能是基础数据类型，无法传输对象，因此需要转换为JSON格式字符串
+		"jsonStr4CreateEnclosedScale":JSON.stringify(getJson())
+	}
 	console.log(param);
 //	执行AJAX的POST请求
 	$.post(url, param,
 		function(data, textStatus, jqXHR) {
 			// 将服务器端返回的处理结果告知前端用户
 			weui.alert(data.message);
-		},
-		"dataType"
+		}
 	);
 }
 
