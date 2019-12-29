@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
@@ -50,6 +51,14 @@ import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.domain.health.EnclosedScale;
+import cc.natapp4.ddaig.domain.health.Factor4EnclosedScale;
+import cc.natapp4.ddaig.domain.health.FactorResult4Sample4EnclosedScale;
+import cc.natapp4.ddaig.domain.health.Option4EnclosedScale;
+import cc.natapp4.ddaig.domain.health.OptionGroup4EnclosedScale;
+import cc.natapp4.ddaig.domain.health.Sample4EnclosedScale;
+import cc.natapp4.ddaig.domain.health.Section4Factor4EnclosedScale;
+import cc.natapp4.ddaig.domain.health.Topic4EnclosedScale;
+import cc.natapp4.ddaig.domain.health.TopicResult4FactorResult4Sample4EnclosedScale;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_implement.health.FactorResult4Sample4EnclosedScaleServiceImpl;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
@@ -80,7 +89,7 @@ import cn.com.obj.freemarker.ExportDoc;
 @Controller("healthAction")
 @Scope("prototype")
 @Lazy(true)
-public class HealthAction extends ActionSupport{
+public class HealthAction extends ActionSupport {
 
 	private static final long serialVersionUID = 600271725750065543L;
 	// ==========================================================DI注入Aspect
@@ -109,7 +118,7 @@ public class HealthAction extends ActionSupport{
 	private WeixinService4Setting weixinService4Setting;
 	// -----------------健康相关----------------
 	@Autowired
-	private EnclosedScaleService  enclosedScaleService;
+	private EnclosedScaleService enclosedScaleService;
 	@Autowired
 	private Factor4EnclosedScaleService factor4EnclosedScaleService;
 	@Autowired
@@ -126,14 +135,14 @@ public class HealthAction extends ActionSupport{
 	private Topic4EnclosedScaleService topic4EnclosedScaleService;
 	@Autowired
 	private TopicResult4FactorResult4Sample4EnclosedScaleService topicResult4FactorResult4Sample4EnclosedScaleService;
-	
-	
 
 	// ======================================================属性驱动——向前端页面传送经过处理的数据信息
 	private String errorMessage; // 用作error全局结果集指定的页面——error.jsp中显示错误的信息内容
+
 	public String getErrorMessage() {
 		return errorMessage;
 	}
+
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
@@ -143,18 +152,22 @@ public class HealthAction extends ActionSupport{
 	 */
 	private String tag;
 	private String lid;
+
 	public void setTag(String tag) {
 		this.tag = tag;
 	}
+
 	public void setLid(String lid) {
 		this.lid = lid;
 	}
 
 	// ---------------------下载用属性-------------------
 	private String fileName; // 下载用的存放文件名
+
 	public String getFileName() {
 		return fileName;
 	}
+
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
@@ -162,9 +175,11 @@ public class HealthAction extends ActionSupport{
 	// 下载数据流
 	// 该inputStream属性将作为在struts-article.xml中，名为download的结果集中所使用的，用来向前端提供下载
 	private InputStream inputStream;
+
 	public InputStream getInputStream() {
 		return inputStream;
 	}
+
 	public void setInputStream(InputStream inputStream) {
 		this.inputStream = inputStream;
 	}
@@ -179,12 +194,15 @@ public class HealthAction extends ActionSupport{
 	public String getContent() {
 		return content;
 	}
+
 	public void setContent(String content) {
 		this.content = content;
 	}
+
 	public String getOpenID() {
 		return openID;
 	}
+
 	public void setOpenID(String openID) {
 		this.openID = openID;
 	}
@@ -217,7 +235,6 @@ public class HealthAction extends ActionSupport{
 		return "json";
 	}
 
-
 	/**
 	 * 该方法是目前本系统的入口方法 与getManagerList()方法相对 供给后台用户管理系统使用，获取所有用户群体（包括直辖和子孙层级的直辖）
 	 * 
@@ -249,14 +266,14 @@ public class HealthAction extends ActionSupport{
 		}
 
 		/**
-		 * 不同于普通类中通过添加在web.xml中添加RequestContextListerner监听器后就可以在任何类中
-		 * 通过执行   
-		 *  HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-		 *  HttpSession session  =  request.getSession();
-		 * 就能获取到Request和session对象
+		 * 不同于普通类中通过添加在web.xml中添加RequestContextListerner监听器后就可以在任何类中 通过执行
+		 * HttpServletRequest request =
+		 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		 * HttpSession session = request.getSession(); 就能获取到Request和session对象
 		 * 
-		 * 而如果是Action类，就只需要通过在类内随时调用  ServletActionContext.getRequest.getSession(); 就能得到session了
-		 *  
+		 * 而如果是Action类，就只需要通过在类内随时调用 ServletActionContext.getRequest.getSession();
+		 * 就能得到session了
+		 * 
 		 */
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
@@ -282,8 +299,6 @@ public class HealthAction extends ActionSupport{
 		ActionContext.getContext().put("users", users);
 		return "users";
 	}
-
-	
 
 	// ===============配套userList.jsp页面的selector筛选用户功能的系列方法======================
 	/**
@@ -371,7 +386,6 @@ public class HealthAction extends ActionSupport{
 		return "json";
 	}
 
-	
 	/**
 	 * AJAX 当users.jsp页面上，操作者通过selector下拉选项页面筛选层级用户的时候，都会onclick事件 触发
 	 * userModal.op.getData4Selector()方法中的ajax来请求本方法，用以获取子selector和其之下
@@ -467,27 +481,26 @@ public class HealthAction extends ActionSupport{
 		return "json";
 	}
 
-
-	
 	// =================================EnclosedScale封闭式问卷功能区=======================================
 	/**
 	 * 跳转到创建“封闭式问卷”的JSP页面——createEnclosedScalePage.jsp
+	 * 
 	 * @return
 	 */
 	public String toCreateEnclosedScalePage() {
 		return "createEnclosedScalePage";
 	}
-	
-	
-	
-	
+
 	private String jsonStr4CreateEnclosedScale;
+
 	public String getJsonStr4CreateEnclosedScale() {
 		return jsonStr4CreateEnclosedScale;
 	}
+
 	public void setJsonStr4CreateEnclosedScale(String jsonStr4CreateEnclosedScale) {
 		this.jsonStr4CreateEnclosedScale = jsonStr4CreateEnclosedScale;
 	}
+
 	/**
 	 * AJAX
 	 * 执行创建封闭式量表的操作
@@ -507,52 +520,140 @@ public class HealthAction extends ActionSupport{
 	    if(null!=parseResult) {
 	    	System.out.println(parseResult.toString());
 	    }
-	    // TODO 开始创建数据库的逻辑
+	    // TODO 先校验数据规范性，然后创建到数据库
+	    EnclosedScale  enclosedScale = new EnclosedScale();
+	    enclosedScale.setChName(parseResult.getGeneral().getChName());
+	    enclosedScale.setDescription(parseResult.getGeneral().getDescription());
+	    enclosedScale.setDisorder(true);
+	    enclosedScale.setEngName(parseResult.getGeneral().getEngName());
+	    enclosedScale.setEsid(UUID.randomUUID().toString());
+	    enclosedScale.setIntroduce(parseResult.getGeneral().getIntroduce());
+	    enclosedScale.setSamples(new ArrayList<Sample4EnclosedScale>());
+	    enclosedScale.setUseNum(0);
+	    enclosedScale.setWeigh(parseResult.getGeneral().getWeigh());
+	    
+	    // 开始解析factor
+	    List<Factor4EnclosedScale> factors = new ArrayList<Factor4EnclosedScale>();
+	    for(int i = 0;i<parseResult.getFactors().size();i++) {
+	    	Factor4EnclosedScale factor  = new Factor4EnclosedScale();
+	    	factor.setDescription(parseResult.getFactors().get(i).getDescription());
+	    	factor.setEnclosedScale(enclosedScale);
+	    	factor.setFactorResults(new ArrayList<FactorResult4Sample4EnclosedScale>());
+	    	factor.setFid(UUID.randomUUID().toString());
+	    	factor.setKeyword(parseResult.getFactors().get(i).getKeyword());
+	    	factor.setName(parseResult.getFactors().get(i).getName());
+	    	factor.setOrd(parseResult.getFactors().get(i).getOrder());
+	    	factor.setStamp(parseResult.getFactors().get(i).getStamp());
+	    	
+	    	// 封装计分单元
+	    	List<Section4Factor4EnclosedScale> sections = new ArrayList<Section4Factor4EnclosedScale>();
+	    	for(int j=0;j<parseResult.getFactors().get(i).getSections().size();j++) {
+	    		Section4Factor4EnclosedScale  section = new Section4Factor4EnclosedScale();
+	    		section.setDescription(parseResult.getFactors().get(i).getSections().get(j).getDescription());
+	    		section.setDiagnosis(parseResult.getFactors().get(i).getSections().get(j).getDiagnosis());
+	    		section.setFactor(factor);
+	    		section.setMaxScore(parseResult.getFactors().get(i).getSections().get(j).getMaxScore());
+	    		section.setMinScore(parseResult.getFactors().get(i).getSections().get(j).getMinScore());
+	    		section.setName(parseResult.getFactors().get(i).getSections().get(j).getName());
+	    		section.setOrd(parseResult.getFactors().get(i).getSections().get(j).getOrder());
+	    		section.setSid(UUID.randomUUID().toString());
+	    		sections.add(section);
+	    	}
+	    	factor.setSections(sections);
+	    	
+	    	// 封入空TopicList待用
+	    	factor.setTopics(new ArrayList<Topic4EnclosedScale>());
+	    	
+	    	// 放入List列表中
+	    	factors.add(factor);
+	    }
+	    enclosedScale.setFactors(factors);
+	    
+	    
+	    // 开始解析opGroup
+	    List<OptionGroup4EnclosedScale> opGroups = new ArrayList<OptionGroup4EnclosedScale>();
+	    for(int i=0;i<parseResult.getOpGroups().size();i++) {
+	    	OptionGroup4EnclosedScale opGroup = new OptionGroup4EnclosedScale();
+	    	opGroup.setIntroduce(parseResult.getOpGroups().get(0).getIntroduce());
+	    	opGroup.setName(parseResult.getOpGroups().get(0).getName());
+	    	opGroup.setOgid(UUID.randomUUID().toString());
+	    	opGroup.setOrd(parseResult.getOpGroups().get(0).getOrder());
+	    	opGroup.setStamp(parseResult.getOpGroups().get(0).getStamp());
+	    	
+	    	// 封装选项
+	    	List<Option4EnclosedScale> options = new ArrayList<Option4EnclosedScale>();
+	    	for(int j=0;j<parseResult.getOpGroups().get(0).getOptions().size();j++) {
+	    		Option4EnclosedScale option = new Option4EnclosedScale();
+	    		option.setContent(parseResult.getOpGroups().get(0).getOptions().get(j).getContent());
+	    		option.setOpid(UUID.randomUUID().toString());
+	    		option.setOptionGroup(opGroup);
+	    		option.setOrd(parseResult.getOpGroups().get(0).getOptions().get(j).getOrder());
+	    		option.setScore(parseResult.getOpGroups().get(0).getOptions().get(j).getScore());
+	    		options.add(option);
+	    	}
+	    	opGroup.setOptions(options);
+	    	
+	    	// 封入空TopicList待用
+	    	opGroup.setTopics(new ArrayList<Topic4EnclosedScale>());
+	    	
+	    	// 放入到List列表中
+	    	opGroups.add(opGroup);
+	    }
 
+	    
+	    // 开始解析Topic
+	    for(int i =0;i<parseResult.getTopics().size();i++) {
+	    	Topic4EnclosedScale topic = new Topic4EnclosedScale();
+	    	topic.setDescription(parseResult.getTopics().get(i).getContent());
+	    	topic.setKeyword(parseResult.getTopics().get(i).getKeyword());
+	    	topic.setOrd(parseResult.getTopics().get(i).getOrder());
+	    	topic.setTid(UUID.randomUUID().toString());
+	    	topic.setTopicResults(new ArrayList<TopicResult4FactorResult4Sample4EnclosedScale>());
+	    	// 开始判断当前topic以order序数关联的factor和opGroup，并进行外键关联
+	    	Factor4EnclosedScale factor = enclosedScale.getFactors().get(parseResult.getTopics().get(i).getFactor_order()-1);
+	    	factor.getTopics().add(topic);
+	    	topic.setFactor(factor);
+	    	
+	    	OptionGroup4EnclosedScale opGroup = opGroups.get(parseResult.getTopics().get(i).getOpGroup_order()-1);
+	    	opGroup.getTopics().add(topic);
+	    	topic.setOptionGroup(opGroup);
+	    }
+	    			
+	    			
+	    System.out.println(enclosedScale);
+	    
+	    // 级联（Cascade=save-update）保存/更新
+	    enclosedScaleService.save(enclosedScale);
 	    
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
-	
-	
+
 	/**
 	 * 跳转到所有封闭式量表的列表JSP页面——enclosedScaleListPage.jsp
+	 * 
 	 * @return
 	 */
 	public String toEnclosedScaleListPage() {
 		// 准备容器
-		List<EnclosedScale> list  = new ArrayList<EnclosedScale>();
+		List<EnclosedScale> list = new ArrayList<EnclosedScale>();
 		// TODO 开始从数据库获取数据
-		
-		
-		
+
 		// 以指定名称“list”填入Map栈中，供给前端通过OGNL表达式解析并显示到页面上
 		ActionContext.getContext().put("list", list);
 		return "enclosedScaleList";
 	}
-	
-	
+
 	/**
 	 * 跳转到封闭式量表的JSP页面——enclosedScalePage.jsp，进行数据采集
+	 * 
 	 * @return
 	 */
 	public String toEnclosedScalePage() {
-		
-		
-		
+
 		return "enclosedScalePage";
 	}
-	
-	
 
-	
-	
-	
-	
-	
-	
-	
-	
 	// =================================基于Freemaker下载电子报告的功能区=======================================
 	/**
 	 * 下载用于批量创建的Excel模板文件
@@ -596,6 +697,7 @@ public class HealthAction extends ActionSupport{
 
 	/**
 	 * 用于生成某个用户的健康档案的DOC文档并提供下载
+	 * 
 	 * @return
 	 * @throws Exception
 	 */
@@ -732,7 +834,5 @@ public class HealthAction extends ActionSupport{
 
 		return "download";
 	}
-	
-
 
 }
