@@ -266,7 +266,7 @@ public class HealthAction extends ActionSupport {
 		}
 
 		/**
-		 * 不同于普通类中通过添加在web.xml中添加RequestContextListerner监听器后就可以在任何类中 通过执行
+		 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
 		 * HttpServletRequest request =
 		 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
 		 * HttpSession session = request.getSession(); 就能获取到Request和session对象
@@ -287,14 +287,17 @@ public class HealthAction extends ActionSupport {
 			users = userService.getChildrenLevelUsers(tag, lid);
 		}
 
-		// 将数据库中保存的关于注册日期的格里高利里毫秒值偏移量调整成人类可阅读的yyyy-MM-dd HH:mm:ss形式
-		if (null != users) {
-			// 如果当前查看的层级有用户，则修改用户的注册日期显示，否则就没必要了
-			DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			for (User u : users) {
-				u.setRegistrationTimeStr(format.format(new Date(u.getRegistrationTime())));
+		if(null!=users) {
+			for(int i=0;i<users.size();i++) {
+				User u = users.get(0);
+				if(null==u.getSamples4EnclosedScale()) {
+					u.setSamples4EnclosedScale(new ArrayList<Sample4EnclosedScale>());
+				}
 			}
 		}
+		
+		
+		
 		// 放入到值栈中的map栈中，以共给userList.jsp中通过struts标签显示出来
 		ActionContext.getContext().put("users", users);
 		return "users";
@@ -491,6 +494,7 @@ public class HealthAction extends ActionSupport {
 		return "createEnclosedScalePage";
 	}
 
+	
 	private String jsonStr4CreateEnclosedScale;
 
 	public String getJsonStr4CreateEnclosedScale() {

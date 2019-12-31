@@ -554,10 +554,11 @@
 <script
 	src="${pageContext.request.contextPath}/js/layui-v2.5.5/layui/layui.js"></script>
 
+<!-- wechat相关 -->
 <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script src="https://res.wx.qq.com/open/libs/weuijs/1.2.1/weui.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/myJS.js"></script>
-
+<!-- 本页专属 -->
 <script
 	src="${pageContext.request.contextPath}/js/health4EnclosedScale/myScript.js"></script>
 <script

@@ -16,6 +16,7 @@
 			<!-- 普通请求路径 -->
 			<result name="enclosedScaleList">/WEB-INF/pages/right/health/enclosedScaleList.jsp</result>
 			<result name="createEnclosedScalePage">/WEB-INF/pages/right/health/createEnclosedScale.jsp</result>
+			<result name="users">/WEB-INF/pages/right/health/users.jsp</result>
 			<!-- 基于JSON的AJAX操作 -->
 			<result name="json" type="json"></result>
 
