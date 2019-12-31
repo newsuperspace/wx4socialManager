@@ -6,6 +6,12 @@ import javax.annotation.Resource;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
+import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +29,7 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
+import cc.natapp4.ddaig.hibernate.PageLimitHibernateCallback;
 
 @Repository("userDao")
 public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
@@ -73,7 +80,7 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 		} else {
 			return null;
 		}
-		
+
 	}
 
 	@Override
@@ -333,6 +340,57 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 			break;
 		}
 		return users;
+	}
+
+	@Override
+	public long getAllLevelUsersCount(String tag, String lid) {
+
+		long count = 0;
+
+//		Session session = this.getHibernateTemplate().getSessionFactory().openSession();
+//		Query query = session.createSQLQuery("select count(*) from user");
+//		count = ((Number)query.uniqueResult()).intValue();
+		List<User> users = getAllLevelUsers(tag, lid);
+		count = users.size();
+
+		return count;
+	}
+
+	@Override
+	public List<User> getAllLevelUsersByPage(String tag, String lid, int targetPageNum, int limit) {
+
+		// 根据当前操作者层级选择hql语句
+		String hql = "";
+		switch (tag) {
+		case "minus_first":
+			hql = "from User u inner join fetch u.members m inner join fetch m.minusFirstLevel mfl where mfl.mflid=?";
+			break;
+		case "zero":
+			hql = "from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where zl.zid=?";
+			break;
+		case "first":
+			hql = "from User u inner join fetch u.members m inner join fetch m.firstLevel fl where fl.flid=?";
+			break;
+		case "second":
+			hql = "from User u inner join fetch u.members m inner join fetch m.secondLevel scl where scl.scid=?";
+			break;
+		case "third":
+			hql = "from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where tl.thid=?";
+			break;
+		case "fourth":
+			hql = "from User u inner join fetch u.members m inner join fetch m.fourthLevel fl where fl.foid=?";
+			break;
+		}
+
+		// 按顺序准备用于hql语句所需要的参数数组
+		Object[] params = new Object[] { lid };
+
+		List<User> list = (List<User>) this.getHibernateTemplate()
+				.execute(new PageLimitHibernateCallback(hql, params, targetPageNum, limit));
+		if (null != list && list.size() > 0) {
+			return list;
+		}
+		return null;
 	}
 
 }

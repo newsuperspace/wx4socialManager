@@ -45,7 +45,7 @@ public interface UserDao extends BaseDao<User>{
 	public List<Member> getManagers(String tag, String levelTag, String lid);
 	
 	/**
-	 * 获取某一层级对象的子孙层级所管辖的用户，但不包括直辖用户
+	 * 获取某一层级对象的子孙层级所管辖的用户，但不包括当前层级的直辖用户
 	 * 本方法与getManager相对
 	 * @param tag   操作者层级的grouping.tag (minus_first、zero、first、second、third、fourth)
 	 * @param lid    操作者层级的lid
@@ -63,6 +63,28 @@ public interface UserDao extends BaseDao<User>{
 	 */
 	public List<User> getAllLevelUsers(String tag, String lid);
 	
+	
+	/**
+	 * 获取指定层级管理之下的所有用户（包括直辖和非直辖）的总人数
+	 * @param tag
+	 * @param lid
+	 * @return
+	 */
+	public long getAllLevelUsersCount(String tag,String lid);
+	
+	/**
+	 * 对当前管理层之下的所有用户（包括直辖和非直辖）的人员进行分页查询
+	 * @param tag  操作者层级
+	 * @param lid   操作者层级的id
+	 * @param currentPageNum  分页查询的页码（从1开始，该值应由前端传入）
+	 * @param limit    每页的数据数目（该值应由前端传入）
+	 * @return
+	 */
+	public List<User> getAllLevelUsersByPage(String tag, String lid, int targetPageNum, int limit);
+	
+	
+	
+	
 	/**
 	 * 根据用户名获取指定对象
 	 * @param username
@@ -77,5 +99,7 @@ public interface UserDao extends BaseDao<User>{
 	 * @return
 	 */
 	public User  queryByPhone(String phoneNum);
+
+	List<User> getAllLevelUsersByPage();
 	
 }

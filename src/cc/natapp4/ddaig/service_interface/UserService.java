@@ -76,4 +76,12 @@ public interface UserService extends BaseService<User> {
 	 */
 	public User getUserByUsername(String username);
 	
+	
+	/**
+	 * 获取指定层级管理直辖的所有用户（包括直辖和非直辖）的总人数
+	 * @param tag
+	 * @param lid
+	 * @return
+	 */
+	public long getAllLevelUsersCount(String tag,String lid);
 }

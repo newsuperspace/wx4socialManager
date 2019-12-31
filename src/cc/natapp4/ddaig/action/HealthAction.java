@@ -235,6 +235,55 @@ public class HealthAction extends ActionSupport {
 		return "json";
 	}
 
+	public String getCountAndFirstPage() {
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
+			}
+		}
+
+		/**
+		 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
+		 * HttpServletRequest request =
+		 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		 * HttpSession session = request.getSession(); 就能获取到Request和session对象
+		 * 
+		 * 而如果是Action类，就只需要通过在类内随时调用 ServletActionContext.getRequest.getSession();
+		 * 就能得到session了
+		 * 
+		 */
+		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+		// --------------------------开始根据操作人的层级来获取所辖用户（Admin获取所有用户）---------------------------
+		List<User> users = null;
+		if (isAdmin) {
+			// 如果是管理员则可以查看系统中的所有用户
+			users = userService.queryEntities();
+		} else {
+			// 如果当前层级（tag、lid）不是管理员，则只能获取当前操作者层级的子孙层级的管辖人员（包括每个子孙层级的直辖+非直辖）
+			users = userService.getChildrenLevelUsers(tag, lid);
+		}
+		
+		
+
+		return "json";
+	}
+
 	/**
 	 * 该方法是目前本系统的入口方法 与getManagerList()方法相对 供给后台用户管理系统使用，获取所有用户群体（包括直辖和子孙层级的直辖）
 	 * 
@@ -287,17 +336,15 @@ public class HealthAction extends ActionSupport {
 			users = userService.getChildrenLevelUsers(tag, lid);
 		}
 
-		if(null!=users) {
-			for(int i=0;i<users.size();i++) {
+		if (null != users) {
+			for (int i = 0; i < users.size(); i++) {
 				User u = users.get(0);
-				if(null==u.getSamples4EnclosedScale()) {
+				if (null == u.getSamples4EnclosedScale()) {
 					u.setSamples4EnclosedScale(new ArrayList<Sample4EnclosedScale>());
 				}
 			}
 		}
-		
-		
-		
+
 		// 放入到值栈中的map栈中，以共给userList.jsp中通过struts标签显示出来
 		ActionContext.getContext().put("users", users);
 		return "users";
@@ -494,7 +541,6 @@ public class HealthAction extends ActionSupport {
 		return "createEnclosedScalePage";
 	}
 
-	
 	private String jsonStr4CreateEnclosedScale;
 
 	public String getJsonStr4CreateEnclosedScale() {
@@ -506,129 +552,128 @@ public class HealthAction extends ActionSupport {
 	}
 
 	/**
-	 * AJAX
-	 * 执行创建封闭式量表的操作
+	 * AJAX 执行创建封闭式量表的操作
+	 * 
 	 * @return
 	 */
 	public String createEnclosedScale() {
-		
+
 		System.out.println(this.getJsonStr4CreateEnclosedScale());
-		
-		ReturnMessage4Common  result =  new ReturnMessage4Common();  
+
+		ReturnMessage4Common result = new ReturnMessage4Common();
 		result.setMessage("数据通路正常");
 		result.setResult(true);
-		
-		// 开始基于Gson的JSON字符串解析工作
-		 //GSON直接解析成对象
-	    ParseJson4CreateEnclosedScale parseResult = new Gson().fromJson(jsonStr4CreateEnclosedScale,ParseJson4CreateEnclosedScale.class);
-	    if(null!=parseResult) {
-	    	System.out.println(parseResult.toString());
-	    }
-	    // TODO 先校验数据规范性，然后创建到数据库
-	    EnclosedScale  enclosedScale = new EnclosedScale();
-	    enclosedScale.setChName(parseResult.getGeneral().getChName());
-	    enclosedScale.setDescription(parseResult.getGeneral().getDescription());
-	    enclosedScale.setDisorder(true);
-	    enclosedScale.setEngName(parseResult.getGeneral().getEngName());
-	    enclosedScale.setEsid(UUID.randomUUID().toString());
-	    enclosedScale.setIntroduce(parseResult.getGeneral().getIntroduce());
-	    enclosedScale.setSamples(new ArrayList<Sample4EnclosedScale>());
-	    enclosedScale.setUseNum(0);
-	    enclosedScale.setWeigh(parseResult.getGeneral().getWeigh());
-	    
-	    // 开始解析factor
-	    List<Factor4EnclosedScale> factors = new ArrayList<Factor4EnclosedScale>();
-	    for(int i = 0;i<parseResult.getFactors().size();i++) {
-	    	Factor4EnclosedScale factor  = new Factor4EnclosedScale();
-	    	factor.setDescription(parseResult.getFactors().get(i).getDescription());
-	    	factor.setEnclosedScale(enclosedScale);
-	    	factor.setFactorResults(new ArrayList<FactorResult4Sample4EnclosedScale>());
-	    	factor.setFid(UUID.randomUUID().toString());
-	    	factor.setKeyword(parseResult.getFactors().get(i).getKeyword());
-	    	factor.setName(parseResult.getFactors().get(i).getName());
-	    	factor.setOrd(parseResult.getFactors().get(i).getOrder());
-	    	factor.setStamp(parseResult.getFactors().get(i).getStamp());
-	    	
-	    	// 封装计分单元
-	    	List<Section4Factor4EnclosedScale> sections = new ArrayList<Section4Factor4EnclosedScale>();
-	    	for(int j=0;j<parseResult.getFactors().get(i).getSections().size();j++) {
-	    		Section4Factor4EnclosedScale  section = new Section4Factor4EnclosedScale();
-	    		section.setDescription(parseResult.getFactors().get(i).getSections().get(j).getDescription());
-	    		section.setDiagnosis(parseResult.getFactors().get(i).getSections().get(j).getDiagnosis());
-	    		section.setFactor(factor);
-	    		section.setMaxScore(parseResult.getFactors().get(i).getSections().get(j).getMaxScore());
-	    		section.setMinScore(parseResult.getFactors().get(i).getSections().get(j).getMinScore());
-	    		section.setName(parseResult.getFactors().get(i).getSections().get(j).getName());
-	    		section.setOrd(parseResult.getFactors().get(i).getSections().get(j).getOrder());
-	    		section.setSid(UUID.randomUUID().toString());
-	    		sections.add(section);
-	    	}
-	    	factor.setSections(sections);
-	    	
-	    	// 封入空TopicList待用
-	    	factor.setTopics(new ArrayList<Topic4EnclosedScale>());
-	    	
-	    	// 放入List列表中
-	    	factors.add(factor);
-	    }
-	    enclosedScale.setFactors(factors);
-	    
-	    
-	    // 开始解析opGroup
-	    List<OptionGroup4EnclosedScale> opGroups = new ArrayList<OptionGroup4EnclosedScale>();
-	    for(int i=0;i<parseResult.getOpGroups().size();i++) {
-	    	OptionGroup4EnclosedScale opGroup = new OptionGroup4EnclosedScale();
-	    	opGroup.setIntroduce(parseResult.getOpGroups().get(0).getIntroduce());
-	    	opGroup.setName(parseResult.getOpGroups().get(0).getName());
-	    	opGroup.setOgid(UUID.randomUUID().toString());
-	    	opGroup.setOrd(parseResult.getOpGroups().get(0).getOrder());
-	    	opGroup.setStamp(parseResult.getOpGroups().get(0).getStamp());
-	    	
-	    	// 封装选项
-	    	List<Option4EnclosedScale> options = new ArrayList<Option4EnclosedScale>();
-	    	for(int j=0;j<parseResult.getOpGroups().get(0).getOptions().size();j++) {
-	    		Option4EnclosedScale option = new Option4EnclosedScale();
-	    		option.setContent(parseResult.getOpGroups().get(0).getOptions().get(j).getContent());
-	    		option.setOpid(UUID.randomUUID().toString());
-	    		option.setOptionGroup(opGroup);
-	    		option.setOrd(parseResult.getOpGroups().get(0).getOptions().get(j).getOrder());
-	    		option.setScore(parseResult.getOpGroups().get(0).getOptions().get(j).getScore());
-	    		options.add(option);
-	    	}
-	    	opGroup.setOptions(options);
-	    	
-	    	// 封入空TopicList待用
-	    	opGroup.setTopics(new ArrayList<Topic4EnclosedScale>());
-	    	
-	    	// 放入到List列表中
-	    	opGroups.add(opGroup);
-	    }
 
-	    
-	    // 开始解析Topic
-	    for(int i =0;i<parseResult.getTopics().size();i++) {
-	    	Topic4EnclosedScale topic = new Topic4EnclosedScale();
-	    	topic.setDescription(parseResult.getTopics().get(i).getContent());
-	    	topic.setKeyword(parseResult.getTopics().get(i).getKeyword());
-	    	topic.setOrd(parseResult.getTopics().get(i).getOrder());
-	    	topic.setTid(UUID.randomUUID().toString());
-	    	topic.setTopicResults(new ArrayList<TopicResult4FactorResult4Sample4EnclosedScale>());
-	    	// 开始判断当前topic以order序数关联的factor和opGroup，并进行外键关联
-	    	Factor4EnclosedScale factor = enclosedScale.getFactors().get(parseResult.getTopics().get(i).getFactor_order()-1);
-	    	factor.getTopics().add(topic);
-	    	topic.setFactor(factor);
-	    	
-	    	OptionGroup4EnclosedScale opGroup = opGroups.get(parseResult.getTopics().get(i).getOpGroup_order()-1);
-	    	opGroup.getTopics().add(topic);
-	    	topic.setOptionGroup(opGroup);
-	    }
-	    			
-	    			
-	    System.out.println(enclosedScale);
-	    
-	    // 级联（Cascade=save-update）保存/更新
-	    enclosedScaleService.save(enclosedScale);
-	    
+		// 开始基于Gson的JSON字符串解析工作
+		// GSON直接解析成对象
+		ParseJson4CreateEnclosedScale parseResult = new Gson().fromJson(jsonStr4CreateEnclosedScale,
+				ParseJson4CreateEnclosedScale.class);
+		if (null != parseResult) {
+			System.out.println(parseResult.toString());
+		}
+		// TODO 先校验数据规范性，然后创建到数据库
+		EnclosedScale enclosedScale = new EnclosedScale();
+		enclosedScale.setChName(parseResult.getGeneral().getChName());
+		enclosedScale.setDescription(parseResult.getGeneral().getDescription());
+		enclosedScale.setDisorder(true);
+		enclosedScale.setEngName(parseResult.getGeneral().getEngName());
+		enclosedScale.setEsid(UUID.randomUUID().toString());
+		enclosedScale.setIntroduce(parseResult.getGeneral().getIntroduce());
+		enclosedScale.setSamples(new ArrayList<Sample4EnclosedScale>());
+		enclosedScale.setUseNum(0);
+		enclosedScale.setWeigh(parseResult.getGeneral().getWeigh());
+
+		// 开始解析factor
+		List<Factor4EnclosedScale> factors = new ArrayList<Factor4EnclosedScale>();
+		for (int i = 0; i < parseResult.getFactors().size(); i++) {
+			Factor4EnclosedScale factor = new Factor4EnclosedScale();
+			factor.setDescription(parseResult.getFactors().get(i).getDescription());
+			factor.setEnclosedScale(enclosedScale);
+			factor.setFactorResults(new ArrayList<FactorResult4Sample4EnclosedScale>());
+			factor.setFid(UUID.randomUUID().toString());
+			factor.setKeyword(parseResult.getFactors().get(i).getKeyword());
+			factor.setName(parseResult.getFactors().get(i).getName());
+			factor.setOrd(parseResult.getFactors().get(i).getOrder());
+			factor.setStamp(parseResult.getFactors().get(i).getStamp());
+
+			// 封装计分单元
+			List<Section4Factor4EnclosedScale> sections = new ArrayList<Section4Factor4EnclosedScale>();
+			for (int j = 0; j < parseResult.getFactors().get(i).getSections().size(); j++) {
+				Section4Factor4EnclosedScale section = new Section4Factor4EnclosedScale();
+				section.setDescription(parseResult.getFactors().get(i).getSections().get(j).getDescription());
+				section.setDiagnosis(parseResult.getFactors().get(i).getSections().get(j).getDiagnosis());
+				section.setFactor(factor);
+				section.setMaxScore(parseResult.getFactors().get(i).getSections().get(j).getMaxScore());
+				section.setMinScore(parseResult.getFactors().get(i).getSections().get(j).getMinScore());
+				section.setName(parseResult.getFactors().get(i).getSections().get(j).getName());
+				section.setOrd(parseResult.getFactors().get(i).getSections().get(j).getOrder());
+				section.setSid(UUID.randomUUID().toString());
+				sections.add(section);
+			}
+			factor.setSections(sections);
+
+			// 封入空TopicList待用
+			factor.setTopics(new ArrayList<Topic4EnclosedScale>());
+
+			// 放入List列表中
+			factors.add(factor);
+		}
+		enclosedScale.setFactors(factors);
+
+		// 开始解析opGroup
+		List<OptionGroup4EnclosedScale> opGroups = new ArrayList<OptionGroup4EnclosedScale>();
+		for (int i = 0; i < parseResult.getOpGroups().size(); i++) {
+			OptionGroup4EnclosedScale opGroup = new OptionGroup4EnclosedScale();
+			opGroup.setIntroduce(parseResult.getOpGroups().get(0).getIntroduce());
+			opGroup.setName(parseResult.getOpGroups().get(0).getName());
+			opGroup.setOgid(UUID.randomUUID().toString());
+			opGroup.setOrd(parseResult.getOpGroups().get(0).getOrder());
+			opGroup.setStamp(parseResult.getOpGroups().get(0).getStamp());
+
+			// 封装选项
+			List<Option4EnclosedScale> options = new ArrayList<Option4EnclosedScale>();
+			for (int j = 0; j < parseResult.getOpGroups().get(0).getOptions().size(); j++) {
+				Option4EnclosedScale option = new Option4EnclosedScale();
+				option.setContent(parseResult.getOpGroups().get(0).getOptions().get(j).getContent());
+				option.setOpid(UUID.randomUUID().toString());
+				option.setOptionGroup(opGroup);
+				option.setOrd(parseResult.getOpGroups().get(0).getOptions().get(j).getOrder());
+				option.setScore(parseResult.getOpGroups().get(0).getOptions().get(j).getScore());
+				options.add(option);
+			}
+			opGroup.setOptions(options);
+
+			// 封入空TopicList待用
+			opGroup.setTopics(new ArrayList<Topic4EnclosedScale>());
+
+			// 放入到List列表中
+			opGroups.add(opGroup);
+		}
+
+		// 开始解析Topic
+		for (int i = 0; i < parseResult.getTopics().size(); i++) {
+			Topic4EnclosedScale topic = new Topic4EnclosedScale();
+			topic.setDescription(parseResult.getTopics().get(i).getContent());
+			topic.setKeyword(parseResult.getTopics().get(i).getKeyword());
+			topic.setOrd(parseResult.getTopics().get(i).getOrder());
+			topic.setTid(UUID.randomUUID().toString());
+			topic.setTopicResults(new ArrayList<TopicResult4FactorResult4Sample4EnclosedScale>());
+			// 开始判断当前topic以order序数关联的factor和opGroup，并进行外键关联
+			Factor4EnclosedScale factor = enclosedScale.getFactors()
+					.get(parseResult.getTopics().get(i).getFactor_order() - 1);
+			factor.getTopics().add(topic);
+			topic.setFactor(factor);
+
+			OptionGroup4EnclosedScale opGroup = opGroups.get(parseResult.getTopics().get(i).getOpGroup_order() - 1);
+			opGroup.getTopics().add(topic);
+			topic.setOptionGroup(opGroup);
+		}
+
+		System.out.println(enclosedScale);
+
+		// 级联（Cascade=save-update）保存/更新
+		enclosedScaleService.save(enclosedScale);
+
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}

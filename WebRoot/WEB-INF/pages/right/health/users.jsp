@@ -243,16 +243,28 @@
 				// theme : '#1E9FFF',
 				jump : function(obj, first) {
 					//obj包含了当前分页的所有参数，比如：
-					console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
-					console.log(obj.limit); //得到每页显示的条数
-
+					let currentPage = obj.curr; //得到当前页，以便向服务端请求对应页的数据。
+					let limit = obj.limit; //得到每页显示的条数
+					let pages = obj.pages;  // 总页数
+					let count = obj.count;  // 总记录数
 					//首次不执行
-					if (!first) {
-						//do something
+					if (first) {
+						// 首次，不执行
+					}else{
+						// 非首次调用，基于AJAX获取数据
+						
 					}
 				}
 			});
 		});
+	}
+
+	// 基于AJAX————从数据库获取如下内容：
+	// （1） 总条目数并作为方法返回值
+	// （2）第一页的20个数据，并在页面上组建并显示
+	function getCountandCreateFirstPage4InitLaypage(){
+		let url = "healthAction_";
+	
 	}
 
 

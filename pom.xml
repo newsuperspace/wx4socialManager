@@ -15,14 +15,20 @@
 
 	<dependencies>
 
+		<!-- Javax Annotation -->
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>jsr250-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
-		<!-- 由于JavaSE版本升级到了更高的1.8版本，不手动加这些jar会报出 
-			（1）nested exception is java.lang.NoClassDefFoundError: javax/xml/bind/JAXBException 
-			（2）javax.xml.bind.JAXBException: Implementation of JAXB-API has not been found on module path or classpath.
-			（3）Invocation of init method failed; nested exception is org.hibernate.internal.util.config.ConfigurationException: 
-			Unable to perform unmarshalling at line number 0 and column 0 in URL 
-			file:/C:/apache-tomcat-9.0.4/webapps/weixin/WEB-INF/classes/hibernate/hibernate.cfg.xml. Message: null等异常 
-		-->
+		<!-- 由于JavaSE版本升级到了更高的1.8版本，不手动加这些jar会报出 （1）nested exception is java.lang.NoClassDefFoundError: 
+			javax/xml/bind/JAXBException （2）javax.xml.bind.JAXBException: Implementation 
+			of JAXB-API has not been found on module path or classpath. （3）Invocation 
+			of init method failed; nested exception is org.hibernate.internal.util.config.ConfigurationException: 
+			Unable to perform unmarshalling at line number 0 and column 0 in URL file:/C:/apache-tomcat-9.0.4/webapps/weixin/WEB-INF/classes/hibernate/hibernate.cfg.xml. 
+			Message: null等异常 -->
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>

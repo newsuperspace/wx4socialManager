@@ -1,10 +1,12 @@
 package cc.natapp4.ddaig.test.Dao;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import cc.natapp4.ddaig.dao_interface.UserDao;
@@ -15,12 +17,14 @@ import cc.natapp4.ddaig.domain.User;
 /**
  * 用来测试我们所搭建的domain和domian.cengji 中定义的ORM类和xxx.hbm.xml配置的正确性
  * 是否能正确在数据库中创建我们需要的数据库表
+ * 
  * @author Administrator
  *
  */
 public class TestUser_Manager_Member {
 
-	private static final ApplicationContext  context =  new ClassPathXmlApplicationContext("spring/applicationContext.xml");
+	private static final ApplicationContext context = new ClassPathXmlApplicationContext(
+			"spring/applicationContext4Test.xml");
 
 	/**
 	 * 级联的新建【通过】
@@ -69,7 +73,7 @@ public class TestUser_Manager_Member {
 //		UserDao  dao  =  (UserDao)context.getBean("userDao");
 //		dao.save(u);
 //	}
-	
+
 	/**
 	 * 级联的查询【通过】
 	 */
@@ -82,21 +86,42 @@ public class TestUser_Manager_Member {
 //	}
 
 	@Test
-	public void updateUserWithManagerAndMember(){
-		UserDao  dao  =  (UserDao)context.getBean("userDao");
-		User u= dao.queryEntityById("c2a24056-3325-47b1-bac7-fc7386b30c2e");
+	public void updateUserWithManagerAndMember() {
+		UserDao dao = (UserDao) context.getBean("userDao");
+		User u = dao.queryEntityById("c2a24056-3325-47b1-bac7-fc7386b30c2e");
 		u.setUid(UUID.randomUUID().toString());
 		dao.update(u);
 	}
-	
+
 	/**
 	 * 级联的删除【通过】
 	 */
 	@Test
-	public void deleteUserWithManagerAndMember(){
-		UserDao  dao  =  (UserDao)context.getBean("userDao");
-		User u= dao.queryEntityById("e7f4a91b-d46c-4a7c-8395-2f2ccf5e08dc");
+	public void deleteUserWithManagerAndMember() {
+		UserDao dao = (UserDao) context.getBean("userDao");
+		User u = dao.queryEntityById("e7f4a91b-d46c-4a7c-8395-2f2ccf5e08dc");
 		dao.delete(u);
+	}
+
+	/**
+	 * 获取条目数
+	 */
+	@Test
+	public void getAllLevelUsersCount() {
+		UserDao dao = (UserDao) context.getBean("userDao");
+		long count = dao.getAllLevelUsersCount("second", "46eaa2b1-d521-44b9-8e72-c16779551c26");
+		System.out.println("人员总数量==========" + count);
+	}
+
+	/**
+	 * 分页查询
+	 */
+	@Test
+	public void getAllLevelUsersByPage() {
+		UserDao dao = (UserDao) context.getBean("userDao");
+		List<User> users = dao.getAllLevelUsersByPage("zero", "8d65612d-e8b4-4655-b4a0-bb634c8f0953", 1, 10);
+		System.out.println("============" + users.size() + "===========");
+		System.out.println(users);
 	}
 
 }
