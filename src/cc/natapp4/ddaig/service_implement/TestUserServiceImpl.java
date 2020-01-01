@@ -188,4 +188,14 @@ public class TestUserServiceImpl extends BaseServiceImpl<User> implements UserSe
 		return dao.queryByPhone(phoneNum);
 	}
 
+	@Override
+	public long getAllLevelUsersCount(String tag, String lid) {
+		return dao.getAllLevelUsersCount(tag, lid);
+	}
+
+	@Override
+	public List<User> getAllLevelUsersByPage(String tag, String lid, int targetPageNum, int limit) {
+		return dao.getAllLevelUsersByPage(tag, lid, targetPageNum, limit);
+	}
+
 }

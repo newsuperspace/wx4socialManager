@@ -83,15 +83,12 @@ public interface UserDao extends BaseDao<User>{
 	public List<User> getAllLevelUsersByPage(String tag, String lid, int targetPageNum, int limit);
 	
 	
-	
-	
 	/**
 	 * 根据用户名获取指定对象
 	 * @param username
 	 * @return
 	 */
 	public User getUserByUsername(String username);
-	
 	
 	/**
 	 * 根据用户的电话（电话号码具有唯一性，是系统中判定用户唯一性的唯一证明，因此每个用户有且只有绑定一个电话号码）
@@ -100,6 +97,5 @@ public interface UserDao extends BaseDao<User>{
 	 */
 	public User  queryByPhone(String phoneNum);
 
-	List<User> getAllLevelUsersByPage();
 	
 }

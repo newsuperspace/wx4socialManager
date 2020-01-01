@@ -38,6 +38,7 @@ import cc.natapp4.ddaig.bean.GetData4UserListSelectors;
 import cc.natapp4.ddaig.bean.Init4UserListSelectors;
 import cc.natapp4.ddaig.bean.User4Ajax;
 import cc.natapp4.ddaig.bean.health.ParseJson4CreateEnclosedScale;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
 import cc.natapp4.ddaig.domain.Exchange;
 import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.Manager;
@@ -235,63 +236,28 @@ public class HealthAction extends ActionSupport {
 		return "json";
 	}
 
-	public String getCountAndFirstPage() {
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
-
-		/**
-		 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
-		 * HttpServletRequest request =
-		 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-		 * HttpSession session = request.getSession(); 就能获取到Request和session对象
-		 * 
-		 * 而如果是Action类，就只需要通过在类内随时调用 ServletActionContext.getRequest.getSession();
-		 * 就能得到session了
-		 * 
-		 */
-		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
-		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
-		// --------------------------开始根据操作人的层级来获取所辖用户（Admin获取所有用户）---------------------------
-		List<User> users = null;
-		if (isAdmin) {
-			// 如果是管理员则可以查看系统中的所有用户
-			users = userService.queryEntities();
-		} else {
-			// 如果当前层级（tag、lid）不是管理员，则只能获取当前操作者层级的子孙层级的管辖人员（包括每个子孙层级的直辖+非直辖）
-			users = userService.getChildrenLevelUsers(tag, lid);
-		}
-		
-		
-
-		return "json";
-	}
-
 	/**
-	 * 该方法是目前本系统的入口方法 与getManagerList()方法相对 供给后台用户管理系统使用，获取所有用户群体（包括直辖和子孙层级的直辖）
+	 * 用户在前端通过 menu.jsp → 健康管理 → 被测者管理 时
+	 * 用于跳转到页面，随后页面上的 $(function(){}); 会自动执行后续的初始化分页查询数据的操作，
+	 * 因此本方法无需任何持久层访问操作
 	 * 
-	 * 本方法响应 userList.jsp页面的展示请求当前操作者层级的“非直辖人员”
-	 * 
-	 * @return 结果集索引字符串
+	 * @return
 	 */
-	public String getUsers() {
+	public String toUsersPage() {
+		
+		return "users";
+	}
+	
+	/**
+	 * 
+	 * 由users.jsp页面上的getCountandCreateFirstPage4InitLaypage() 方法调用
+	 * 用于初始化users.jsp分页查询的总页数和首页数据
+	 * 
+	 * @return
+	 */
+	public String getCountandCreateFirstPage4InitLaypage() {
+
+		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
 
 		// ---------------------------Shiro认证操作者身份---------------------------
 		Subject subject = SecurityUtils.getSubject();
@@ -314,40 +280,122 @@ public class HealthAction extends ActionSupport {
 			}
 		}
 
-		/**
-		 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
-		 * HttpServletRequest request =
-		 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-		 * HttpSession session = request.getSession(); 就能获取到Request和session对象
-		 * 
-		 * 而如果是Action类，就只需要通过在类内随时调用 ServletActionContext.getRequest.getSession();
-		 * 就能得到session了
-		 * 
-		 */
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
-		// --------------------------开始根据操作人的层级来获取所辖用户（Admin获取所有用户）---------------------------
+
 		List<User> users = null;
 		if (isAdmin) {
-			// 如果是管理员则可以查看系统中的所有用户
+			// TODO (这里需要修改，在queryEntities中增加分页查询)如果是管理员则可以查看系统中的所有用户
 			users = userService.queryEntities();
 		} else {
-			// 如果当前层级（tag、lid）不是管理员，则只能获取当前操作者层级的子孙层级的管辖人员（包括每个子孙层级的直辖+非直辖）
-			users = userService.getChildrenLevelUsers(tag, lid);
+			users = userService.getAllLevelUsersByPage(tag, lid, 1, 10);
 		}
 
 		if (null != users) {
 			for (int i = 0; i < users.size(); i++) {
-				User u = users.get(0);
+				User u = users.get(i);
 				if (null == u.getSamples4EnclosedScale()) {
 					u.setSamples4EnclosedScale(new ArrayList<Sample4EnclosedScale>());
 				}
+				u.setSampleNum(u.getSamples4EnclosedScale().size());
+			}
+		} else {
+			users = new ArrayList<User>();
+		}
+
+		result.setUsers(users);
+		result.setCount(userService.getAllLevelUsersCount(tag, lid));
+
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+
+	private int targetPageNum;
+	private int limit;
+
+	public int getTargetPageNum() {
+		return targetPageNum;
+	}
+
+	public void setTargetPageNum(int targetPageNum) {
+		this.targetPageNum = targetPageNum;
+	}
+
+	public int getLimit() {
+		return limit;
+	}
+
+	public void setLimit(int limit) {
+		this.limit = limit;
+	}
+
+	/**
+	 * 获取当前管理层级之下的所有人员（直辖和非直辖）的全部测量对象，
+	 * 并基于分页查询向前端（health/users.jsp）返回数据结果，以动态组织数据展示
+	 * 
+	 * @return 结果集索引字符串
+	 */
+	public String getUsers() {
+		ReturnMessage4CountandCreateFirstPage  result = new ReturnMessage4CountandCreateFirstPage();
+		
+		// ---------------------------Shiro认证操作者身份---------------------------
+		Subject subject = SecurityUtils.getSubject();
+		String principal = (String) subject.getPrincipal();
+		// 执行当前新建操作的管理者的User对象
+		User doingMan = null;
+		// 标记当前执行者是否是admin
+		boolean isAdmin = false;
+		if (28 == principal.length()) {
+			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
+			doingMan = userService.queryByOpenId(principal);
+		} else {
+			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
+			// 先判断是不是使用admin+admin 的方式登录的测试管理员
+			if ("admin".equals(principal)) {
+				isAdmin = true;
+			} else {
+				// 非admin用户登录
+				doingMan = userService.getUserByUsername(principal);
 			}
 		}
 
-		// 放入到值栈中的map栈中，以共给userList.jsp中通过struts标签显示出来
-		ActionContext.getContext().put("users", users);
-		return "users";
+		/**
+		 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
+		 * HttpServletRequest request =
+		 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		 * HttpSession session = request.getSession(); 就能获取到Request和session对象
+		 * 
+		 * 而如果是Action类，就只需要通过在类内随时调用 ServletActionContext.getRequest.getSession();
+		 * 就能得到session了
+		 * 
+		 */
+		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+		// --------------------------开始根据操作人的层级来获取所辖用户（Admin获取所有用户）---------------------------
+		List<User> users = null;
+		if (isAdmin) {
+			// TODO (这里需要修改，在queryEntities中增加分页查询)如果是管理员则可以查看系统中的所有用户
+			users = userService.queryEntities();
+		} else {
+			users = userService.getAllLevelUsersByPage(tag, lid, targetPageNum, limit);
+		}
+
+		if (null != users) {
+			for (int i = 0; i < users.size(); i++) {
+				User u = users.get(i);
+				if (null == u.getSamples4EnclosedScale()) {
+					u.setSamples4EnclosedScale(new ArrayList<Sample4EnclosedScale>());
+				}
+				u.setSampleNum(u.getSamples4EnclosedScale().size());
+			}
+		} else {
+			users = new ArrayList<User>();
+		}
+
+		result.setUsers(users);
+
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
 	}
 
 	// ===============配套userList.jsp页面的selector筛选用户功能的系列方法======================

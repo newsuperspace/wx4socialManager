@@ -10,8 +10,12 @@ import cc.natapp4.ddaig.domain.health.Sample4EnclosedScale;
 
 public class User implements Serializable {
 	
+	
 	//====================================字段==================================
-	// ---------------------------------------普通字段-------------------------------------
+	// ---------------------------------------参与前端显示的字段-------------------------------------
+	private int sampleNum;  // 该用户包含的样本量，供给health/users.jsp在列表中显示数据之用，不参与数据库范畴
+	
+	// ---------------------------------------数据库字段-------------------------------------
 	private String uid;  // 【主键】
 	private String openid;  // 微信的openID值 ★
 	private String cardid;  // 身份证号
@@ -258,6 +262,17 @@ public class User implements Serializable {
 	}
 	public void setSamples4EnclosedScale(List<Sample4EnclosedScale> samples4EnclosedScale) {
 		this.samples4EnclosedScale = samples4EnclosedScale;
+	}
+
+	
+	
+	
+	public int getSampleNum() {
+		return sampleNum;
+	}
+
+	public void setSampleNum(int sampleNum) {
+		this.sampleNum = sampleNum;
 	}
 	
 	

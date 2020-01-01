@@ -118,14 +118,16 @@
 									</tr>
 								</thead>
 								<tbody id="tbody">
-									<s:iterator value="#users">
+									<!-- 通过JS脚本动态生成 -->
+									<!-- 
+										<s:iterator value="#users">
 										<tr>
 											<td><s:a href="#"
 													onclick="userModal.op.userInfo('%{uid}')">
 													<s:property value="username" />
 												</s:a></td>
 											<td><s:a href="#" onclick="toSampleList4User('%{uid}')">
-													<s:property value="samples4EnclosedScale.size()" />
+													<s:property value="sampleNum" />
 												</s:a></td>
 											<td><s:property value="sex" /></td>
 											<td><s:property value="age" /></td>
@@ -144,6 +146,7 @@
 											</td>
 										</tr>
 									</s:iterator>
+									 -->
 								</tbody>
 							</table>
 						</div>
@@ -232,9 +235,9 @@
 			//执行一个laypage实例
 			laypage.render({
 				elem : 'laypage', //注意，这里的 test1 是 ID，不用加 # 号
-				count : 150, //数据总数，从服务端得到
+				count : getCountandCreateFirstPage4InitLaypage(), //数据总数，从服务端得到
 				layout : [ 'count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip' ],
-				limit : 20,
+				limit : 10,
 				limits : [ 10, 15, 20, 25, 30 ],
 				prev : "<",
 				next : ">",
@@ -243,16 +246,42 @@
 				// theme : '#1E9FFF',
 				jump : function(obj, first) {
 					//obj包含了当前分页的所有参数，比如：
-					let currentPage = obj.curr; //得到当前页，以便向服务端请求对应页的数据。
+					let targetPageNum = obj.curr; //得到目标页页码（从1开始），以便向服务端请求对应页的数据。
 					let limit = obj.limit; //得到每页显示的条数
-					let pages = obj.pages;  // 总页数
-					let count = obj.count;  // 总记录数
+					let pages = obj.pages; // 总页数
+					let count = obj.count; // 总记录数
 					//首次不执行
 					if (first) {
 						// 首次，不执行
-					}else{
-						// 非首次调用，基于AJAX获取数据
-						
+					} else {
+						// 非首次执行，基于AJAX获取数据
+						let url = "healthAction_getUsers.action";
+						let param = {
+							"targetPageNum" : targetPageNum,
+							"limit" : limit
+						}
+						$.post(url, param, function(data, textStatus, req) {
+							console.log(data);
+							// 定位表格体
+							let table = $("#tbody");
+							// 清空表格体中的数据
+							table.empty();
+							// 重新组织数据
+							for (let i = 0; i < data.users.length; i++) {
+								let tr = $("<tr></tr>");
+								let name = $("<td><a href='#' onclick='userModal.op.userInfo(\"" + data.users[i].uid + "\")'>" + data.users[i].username + "</a></td>");
+								let sampleNum = $("<td><a href='#' onclick='toSampleList4User(\"" + data.users[i].uid + "\")'>" + data.users[i].sampleNum + "</a></td>");
+								let sex = $("<td>" + data.users[i].sex + "</td>");
+								let age = $("<td>" + data.users[i].age + "</td>");
+								let phone = $("<td>" + data.users[i].phone + "</td>");
+								let address = $('<td class="text-truncate" data-toggle="tooltip" title="' + data.users[i].address + '">' + data.users[i].address + '</td>');
+								let btns = $('<td><div class="btn-group" role="group"><button type="button" class="btn btn-outline-secondary btn-sm" onclick="showEnclosedScaleSelector(\'' + data.users[i].uid + '\');">新样本</button><button type="button" class="btn btn-outline-secondary btn-sm">其他</button></div></td>');
+								// 拼装
+								tr.append(name).append(sampleNum).append(sex).append(age).append(phone).append(address).append(btns);
+								// 将新建行显示在页面上
+								table.append(tr);
+							}
+						});
 					}
 				}
 			});
@@ -262,9 +291,42 @@
 	// 基于AJAX————从数据库获取如下内容：
 	// （1） 总条目数并作为方法返回值
 	// （2）第一页的20个数据，并在页面上组建并显示
-	function getCountandCreateFirstPage4InitLaypage(){
-		let url = "healthAction_";
-	
+	function getCountandCreateFirstPage4InitLaypage() {
+		let count = 0;
+
+		let url = "healthAction_getCountandCreateFirstPage4InitLaypage.action";
+
+		$.ajaxSetup({
+			async : false // 全局设置Ajax为同步执行
+		});
+
+		$.post(url, null, function(data, textStatus, req) {
+			count = data.count;
+			console.log(data);
+			// 定位表格体
+			let table = $("#tbody");
+			for (let i = 0; i < data.users.length; i++) {
+				let tr = $("<tr></tr>");
+				let name = $("<td><a href='#' onclick='userModal.op.userInfo(\"" + data.users[i].uid + "\")'>" + data.users[i].username + "</a></td>");
+				let sampleNum = $("<td><a href='#' onclick='toSampleList4User(\"" + data.users[i].uid + "\")'>" + data.users[i].sampleNum + "</a></td>");
+				let sex = $("<td>" + data.users[i].sex + "</td>");
+				let age = $("<td>" + data.users[i].age + "</td>");
+				let phone = $("<td>" + data.users[i].phone + "</td>");
+				let address = $('<td class="text-truncate" data-toggle="tooltip" title="' + data.users[i].address + '">' + data.users[i].address + '</td>');
+				let btns = $('<td><div class="btn-group" role="group"><button type="button" class="btn btn-outline-secondary btn-sm" onclick="showEnclosedScaleSelector(\'' + data.users[i].uid + '\');">新样本</button><button type="button" class="btn btn-outline-secondary btn-sm">其他</button></div></td>');
+				// 拼装
+				tr.append(name).append(sampleNum).append(sex).append(age).append(phone).append(address).append(btns);
+				// 将新建行显示在页面上
+				table.append(tr);
+			}
+
+		});
+
+		$.ajaxSetup({
+			async : true // 恢复全局设置Ajax为异步执行
+		});
+
+		return count;
 	}
 
 

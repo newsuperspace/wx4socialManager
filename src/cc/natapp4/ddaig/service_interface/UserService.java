@@ -84,4 +84,16 @@ public interface UserService extends BaseService<User> {
 	 * @return
 	 */
 	public long getAllLevelUsersCount(String tag,String lid);
+	
+	
+	
+	/**
+	 * 对当前管理层之下的所有用户（包括直辖和非直辖）的人员进行分页查询
+	 * @param tag  操作者层级
+	 * @param lid   操作者层级的id
+	 * @param currentPageNum  分页查询的页码（从1开始，该值应由前端传入）
+	 * @param limit    每页的数据数目（该值应由前端传入）
+	 * @return
+	 */
+	public List<User> getAllLevelUsersByPage(String tag, String lid, int targetPageNum, int limit);
 }

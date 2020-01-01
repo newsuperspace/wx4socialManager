@@ -102,7 +102,7 @@
 										<li class="nav-item"><a class="nav-link" href="#"
 											onclick='overAll.op.saveCollapseContentID2LS("healthContent", "healthAction_toEnclosedScaleListPage.action")'>封闭心理量表</a></li>
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("healthContent", "healthAction_getUsers.action")'>被测者管理</a>
+											onclick='overAll.op.saveCollapseContentID2LS("healthContent", "healthAction_toUsersPage.action")'>被测者管理</a>
 										</li>
 									</ul>
 
