@@ -37,6 +37,7 @@ import com.opensymphony.xwork2.ActionSupport;
 import cc.natapp4.ddaig.bean.GetData4UserListSelectors;
 import cc.natapp4.ddaig.bean.Init4UserListSelectors;
 import cc.natapp4.ddaig.bean.User4Ajax;
+import cc.natapp4.ddaig.bean.health.Bean4InitSelector;
 import cc.natapp4.ddaig.bean.health.ParseJson4CreateEnclosedScale;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
 import cc.natapp4.ddaig.domain.Exchange;
@@ -237,17 +238,15 @@ public class HealthAction extends ActionSupport {
 	}
 
 	/**
-	 * 用户在前端通过 menu.jsp → 健康管理 → 被测者管理 时
-	 * 用于跳转到页面，随后页面上的 $(function(){}); 会自动执行后续的初始化分页查询数据的操作，
-	 * 因此本方法无需任何持久层访问操作
+	 * 用户在前端通过 menu.jsp → 健康管理 → 被测者管理 时 用于跳转到页面，随后页面上的 $(function(){});
+	 * 会自动执行后续的初始化分页查询数据的操作， 因此本方法无需任何持久层访问操作
 	 * 
 	 * @return
 	 */
 	public String toUsersPage() {
-		
 		return "users";
 	}
-	
+
 	/**
 	 * 
 	 * 由users.jsp页面上的getCountandCreateFirstPage4InitLaypage() 方法调用
@@ -259,32 +258,11 @@ public class HealthAction extends ActionSupport {
 
 		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
 
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
-
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 
 		List<User> users = null;
-		if (isAdmin) {
+		if ("admin".equals(tag)) {
 			// TODO (这里需要修改，在queryEntities中增加分页查询)如果是管理员则可以查看系统中的所有用户
 			users = userService.queryEntities();
 		} else {
@@ -330,34 +308,12 @@ public class HealthAction extends ActionSupport {
 	}
 
 	/**
-	 * 获取当前管理层级之下的所有人员（直辖和非直辖）的全部测量对象，
-	 * 并基于分页查询向前端（health/users.jsp）返回数据结果，以动态组织数据展示
+	 * 获取当前管理层级之下的所有人员（直辖和非直辖）的全部测量对象， 并基于分页查询向前端（health/users.jsp）返回数据结果，以动态组织数据展示
 	 * 
 	 * @return 结果集索引字符串
 	 */
 	public String getUsers() {
-		ReturnMessage4CountandCreateFirstPage  result = new ReturnMessage4CountandCreateFirstPage();
-		
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
+		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
 
 		/**
 		 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
@@ -373,7 +329,7 @@ public class HealthAction extends ActionSupport {
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 		// --------------------------开始根据操作人的层级来获取所辖用户（Admin获取所有用户）---------------------------
 		List<User> users = null;
-		if (isAdmin) {
+		if ("admin".equals(tag)) {
 			// TODO (这里需要修改，在queryEntities中增加分页查询)如果是管理员则可以查看系统中的所有用户
 			users = userService.queryEntities();
 		} else {
@@ -400,182 +356,87 @@ public class HealthAction extends ActionSupport {
 
 	// ===============配套userList.jsp页面的selector筛选用户功能的系列方法======================
 	/**
-	 * 当用户请求users.jsp页面的时候，会在也买你通过$(function(){//...}); 进行初始化工作
-	 * 通过AJAX请求本方法，用以初始化userList.jsp页面上用于过滤用户的selector的panel面板。
-	 * 
-	 * TODO 分页查询
+	 * 根据当前操作者层级，从数据库获取父+子层级数据，组成susers.jsp页面中基于WEUI的层级过滤器（picker）
+	 * 所需要的JSON数据格式，并返回给前端可以让其直接使用。
 	 * 
 	 * @return
 	 */
 	public String initSelector() {
-		Init4UserListSelectors init = new Init4UserListSelectors();
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
+		List<Bean4InitSelector> total = new ArrayList<Bean4InitSelector>();
+
+		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+
+		if ("admin".equals(tag)) {
+			// 当前操作者为系统管理员，获取所有层级数据
+			List<MinusFirstLevel> minusFirstLevels = minusFirstLevelService.queryEntities();
+			for (int a = 0; a < minusFirstLevels.size(); a++) {
+				Bean4InitSelector minusFirst = new Bean4InitSelector();
+				minusFirst.setLabel(minusFirstLevels.get(a).getName());
+				minusFirst.setValue("minusFirst_" + minusFirstLevels.get(a).getMflid());
+				List<Bean4InitSelector> children4MinusFirst = new ArrayList<Bean4InitSelector>();
+
+				List<ZeroLevel> zeroLevels = minusFirstLevels.get(a).getAllChildren4Ajax();
+				for (int b = 0; b < zeroLevels.size(); b++) {
+					Bean4InitSelector zero = new Bean4InitSelector();
+					zero.setLabel(zeroLevels.get(b).getName());
+					zero.setValue("zero_" + zeroLevels.get(b).getZid());
+					List<Bean4InitSelector> children4Zero = new ArrayList<Bean4InitSelector>();
+
+					List<FirstLevel> firstLevels = zeroLevels.get(b).getAllChildren4Ajax();
+					for (int c = 0; c < firstLevels.size(); c++) {
+						Bean4InitSelector first = new Bean4InitSelector();
+						first.setLabel(firstLevels.get(c).getName());
+						first.setValue("first_" + firstLevels.get(c).getFlid());
+						List<Bean4InitSelector> children4First = new ArrayList<Bean4InitSelector>();
+
+						List<SecondLevel> secondLevels = firstLevels.get(c).getAllChildren4Ajax();
+						for (int d = 0; d < secondLevels.size(); d++) {
+							Bean4InitSelector second = new Bean4InitSelector();
+							second.setLabel(secondLevels.get(d).getName());
+							second.setValue("second_" + secondLevels.get(d).getScid());
+							List<Bean4InitSelector> children4Second = new ArrayList<Bean4InitSelector>();
+
+							List<ThirdLevel> thirdLevels = secondLevels.get(d).getAllChildren4Ajax();
+							for (int e = 0; e < thirdLevels.size(); e++) {
+								Bean4InitSelector third = new Bean4InitSelector();
+								third.setLabel(thirdLevels.get(e).getName());
+								third.setValue("third_" + thirdLevels.get(e).getThid());
+								List<Bean4InitSelector> children4Third = new ArrayList<Bean4InitSelector>();
+
+								List<FourthLevel> fourthLevels = thirdLevels.get(e).getAllChildren4Ajax();
+								for (int f = 0; f < fourthLevels.size(); f++) {
+									Bean4InitSelector fourth = new Bean4InitSelector();
+									fourth.setLabel(fourthLevels.get(f).getName());
+									fourth.setValue("fourth_" + fourthLevels.get(f).getFoid());
+									fourth.setChildren(new ArrayList<Bean4InitSelector>());
+
+									children4Third.add(fourth);
+								}
+
+								third.setChildren(children4Third);
+								children4Second.add(third);
+							}
+
+							second.setChildren(children4Second);
+							children4First.add(second);
+						}
+
+						first.setChildren(children4First);
+						children4Zero.add(first);
+					}
+
+					zero.setChildren(children4Zero);
+					children4MinusFirst.add(zero);
+				}
+
+				minusFirst.setChildren(children4MinusFirst);
+				total.add(minusFirst);
 			}
-		}
-		// 开始组织初始化数据用的domain
-		if (isAdmin) {
-			// 当前访问userList.jsp页面的是系统管理员
-			// 系统中获取所有MinusFirstLevel层级对象
-			List<MinusFirstLevel> queryEntities = minusFirstLevelService.queryEntities();
-			init.setMinusFirstLevels(queryEntities);
-			// 设置tag标记属性为"admin"
-			init.setTag("admin");
-		} else {
-			// 当前访问userList.jsp页面的是层级管理者
-			// 聚焦当前操作者的层级对象
-			String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
-			String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
-			switch (tag) {
-			case "minus_first":
-				// 当前层级管理者为minus_first
-				MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
-				init.setTag("minus_first");
-				init.setMinusFirstLevel(minusFirstLevel);
-				init.setZeroLevels(minusFirstLevel.getAllChildren4Ajax());
-				break;
-			case "zero":
-				// 当前层级管理者为zeroLevel
-				ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
-				init.setTag("zero");
-				init.setZeroLevel(zeroLevel);
-				init.setFirstLevels(zeroLevel.getAllChildren4Ajax());
-				break;
-			case "first":
-				// 当前层级管理者为firstLevel
-				FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
-				init.setTag("first");
-				init.setFirstLevel(firstLevel);
-				init.setSecondLevels(firstLevel.getAllChildren4Ajax());
-				break;
-			case "second":
-				// 当前层级管理者为secondLevel
-				SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
-				init.setTag("second");
-				init.setSecondLevel(secondLevel);
-				init.setThirdLevels(secondLevel.getAllChildren4Ajax());
-				break;
-			case "third":
-				// 当前层级管理者为thirdLevel
-				ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
-				init.setTag("third");
-				init.setThirdLevel(thirdLevel);
-				init.setFourthLevels(thirdLevel.getAllChildren4Ajax());
-				break;
-			case "fourth":
-				// 当前层级管理者为fourthLevel
-				FourthLevel fourthLevel = fourthLevelService.queryEntityById(lid);
-				init.setTag("fourth");
-				init.setFourthLevel(fourthLevel);
-				break;
-			}
-		}
 
-		ActionContext.getContext().getValueStack().push(init);
-		return "json";
-	}
-
-	/**
-	 * AJAX 当users.jsp页面上，操作者通过selector下拉选项页面筛选层级用户的时候，都会onclick事件 触发
-	 * userModal.op.getData4Selector()方法中的ajax来请求本方法，用以获取子selector和其之下
-	 * 的所有用户的数据信息，返回给前端显示出来。
-	 * 
-	 * @return
-	 */
-	public String getData4Selector() {
-		// 整个后台系统，就是通过如下方法获取到当前操作者的层级和层级ID的，用于精准定位当前层级
-		String myTag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
-		String myLid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
-		// 基于属性驱动，获取从前端获取的请求参数，用以表达前端索要数据的意图
-		String tag = this.tag;
-		String lid = this.lid;
-		// 准备通过JSON方式返回给前端的Bean
-		GetData4UserListSelectors bean = new GetData4UserListSelectors();
-
-		// 开始分析前端所要的数据
-		switch (tag) {
-		// 当userList.jsp中的minusFirst的selector选择“--请选择--”时，执行本分支获取系统全部用户数据显示在前端
-		case "all": // 索要系统平台中的所有用户数据
-			// 只有admin用户才能获取所有用户数据，出于安全考虑我们需要校验当前操作者是否真的是admin
-			if ("admin".equals(myTag)) {
-				// 当前操作者的确是admin，可以授权获取全部用户数据
-				bean.setResult(true);
-				bean.setUsers(userService.queryEntities());
-			} else {
-				// 当前请求为非法，驳回
-				bean.setResult(false);
-				bean.setMessage("非法请求，您不是administrator用户，请求被驳回");
-			}
-			break;
-		// 当userList.jsp中的
-		case "minus_first":
-			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
-			// 准备子selector的数据
-			/*
-			 * ⭐⭐⭐⭐⭐ 一个常见的错误 ⭐⭐⭐⭐⭐ 这是一个常见的问题，本次请求处理分支需要在一次Hibernate事务中进行 三次查询，
-			 * （1）从minusFirstLevel中获取所有子层级，基于Hibernate配置文件
-			 * 设置了延迟加载，因此当我们通过minusFirstLevel.getChildren()的时候会调用查找语句获取数据
-			 * （2）userService.getChildrenLevelUsers() 查询指定层级的非直辖用户数据
-			 * （3）userService.getManagers() 查询指定层级的直辖用户数据
-			 * 
-			 * 因为之前在第一个查询中我们使用了minusFirstLevel.getAllChildren4Ajax() 这个方法会在内部断开
-			 * 所有zeroLevel和minusFirstLevel的外键关联，但并不提交到数据库，仅仅用于向前端返回时避开可能
-			 * 的基于JSON解析的死循环，但由于之后好要在同一个事务中进行两次查询，hibernate会将第一次查询
-			 * 结果的持久化状态对象如果有修改的化提交到数据库后再进行下一个查询，这就导致刚刚我们切断了 与父层级的外键关联也被保存到了数据库中。
-			 * 解决办法就是在父层级中关于子层级的集合属性上加上@JSON(serialize=false) 这样就会避免JSON
-			 * 解析的时候通过父层级去解析该容器中的全部子层级了，从而避免了死循环的产生，因此我们在第一次
-			 * 查询时直接使用minusFirstLevel.getChildren() 即可。
-			 */
-			bean.setZeroLevels(new ArrayList(minusFirstLevel.getChildren()));
-			// 准备users的数据
-			bean.setUsers(userService.getAllLevelUsers(tag, lid));
-			break;
-
-		case "zero":
-			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
-			bean.setFirstLevels(new ArrayList(zeroLevel.getChildren()));
-			// 准备users的数据
-			bean.setUsers(userService.getAllLevelUsers(tag, lid));
-			break;
-
-		case "first":
-			FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
-			bean.setSecondLevels(new ArrayList(firstLevel.getChildren()));
-			// 准备users的数据
-			bean.setUsers(userService.getAllLevelUsers(tag, lid));
-			break;
-
-		case "second":
-			SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
-			bean.setThirdLevels(new ArrayList(secondLevel.getChildren()));
-			// 准备users的数据
-			bean.setUsers(userService.getAllLevelUsers(tag, lid));
-			break;
-
-		case "third":
-			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
-			bean.setFourthLevels(new ArrayList(thirdLevel.getChildren()));
-			// 准备users的数据
-			bean.setUsers(userService.getAllLevelUsers(tag, lid));
-			break;
-
-		case "fourth":
-			// fourth部分只有user数据，没有子层级数据了
-			// 准备users的数据
-			bean.setUsers(userService.getAllLevelUsers(tag, lid));
-			break;
 		}
 
-		ActionContext.getContext().getValueStack().push(bean);
+		ActionContext.getContext().getValueStack().push(total);
 		return "json";
 	}
 

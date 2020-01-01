@@ -65,13 +65,12 @@
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 
-									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#selectUsers">
+									<button class="btn btn-sm btn-outline-secondary" onclick="showSelector();">
 										<span class="glyphicon glyphicon-search"></span> 筛选
 									</button>
 									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#selectUsers">
-										<span class="glyphicon glyphicon-sort-by-order"></span> 排序
+										data-toggle="modal" data-target="#selectUsers" onclick="">
+										<span class="glyphicon glyphicon-sort-by-order"></span> 重排
 									</button>
 									<div class="dropdown ml-1">
 										<button
@@ -187,16 +186,31 @@
 <script src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript">
 
+	// 显示层级过滤器（基于WEUI的联动选择器）
+	function showSelector(){
+	
+	}
+
+
 	// 用于存放通过 initEnclosedScaleTips 从服务器端获取的所有可用量表的数据信息，共给showEnclosedScaleSelector显示选择器用
 	var enclosedScaleTips = [];
+	var levelTips = null;
 
 	$(function() {
 		initLaypage();
 		initEnclosedScaleTips();
+		//initSelector();
 	});
+	
+	// 初始化层级过滤器所需要用到的数据源
+	function initSelector(){
+		let url = "healthAction_initSelector.action";
+		
+		
+	}
 
 
-	// 从服务器端获取所有可用可用量表的数据信息
+	// 从服务器端获取所有可用量表的数据信息
 	function initEnclosedScaleTips() {
 		// TODO 基于AJAX向服务器端获取可用量表的数据信息，并解析
 		for (let i = 0; i < 10; i++) {
