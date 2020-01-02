@@ -376,40 +376,40 @@ public class HealthAction extends ActionSupport {
 				minusFirst.setValue("minusFirst_" + minusFirstLevels.get(a).getMflid());
 				List<Bean4InitSelector> children4MinusFirst = new ArrayList<Bean4InitSelector>();
 
-				List<ZeroLevel> zeroLevels = minusFirstLevels.get(a).getAllChildren4Ajax();
-				for (int b = 0; b < zeroLevels.size(); b++) {
+				Set<ZeroLevel> zeroLevels = minusFirstLevels.get(a).getChildren();
+				for (ZeroLevel b : zeroLevels) {
 					Bean4InitSelector zero = new Bean4InitSelector();
-					zero.setLabel(zeroLevels.get(b).getName());
-					zero.setValue("zero_" + zeroLevels.get(b).getZid());
+					zero.setLabel(b.getName());
+					zero.setValue("zero_" + b.getZid());
 					List<Bean4InitSelector> children4Zero = new ArrayList<Bean4InitSelector>();
 
-					List<FirstLevel> firstLevels = zeroLevels.get(b).getAllChildren4Ajax();
-					for (int c = 0; c < firstLevels.size(); c++) {
+					Set<FirstLevel> firstLevels = b.getChildren();
+					for (FirstLevel c : firstLevels) {
 						Bean4InitSelector first = new Bean4InitSelector();
-						first.setLabel(firstLevels.get(c).getName());
-						first.setValue("first_" + firstLevels.get(c).getFlid());
+						first.setLabel(c.getName());
+						first.setValue("first_" + c.getFlid());
 						List<Bean4InitSelector> children4First = new ArrayList<Bean4InitSelector>();
 
-						List<SecondLevel> secondLevels = firstLevels.get(c).getAllChildren4Ajax();
-						for (int d = 0; d < secondLevels.size(); d++) {
+						Set<SecondLevel> secondLevels = c.getChildren();
+						for (SecondLevel d: secondLevels) {
 							Bean4InitSelector second = new Bean4InitSelector();
-							second.setLabel(secondLevels.get(d).getName());
-							second.setValue("second_" + secondLevels.get(d).getScid());
+							second.setLabel(d.getName());
+							second.setValue("second_" + d.getScid());
 							List<Bean4InitSelector> children4Second = new ArrayList<Bean4InitSelector>();
 
-							List<ThirdLevel> thirdLevels = secondLevels.get(d).getAllChildren4Ajax();
-							for (int e = 0; e < thirdLevels.size(); e++) {
+							Set<ThirdLevel> thirdLevels = d.getChildren();
+							for (ThirdLevel e: thirdLevels) {
 								Bean4InitSelector third = new Bean4InitSelector();
-								third.setLabel(thirdLevels.get(e).getName());
-								third.setValue("third_" + thirdLevels.get(e).getThid());
+								third.setLabel(e.getName());
+								third.setValue("third_" + e.getThid());
 								List<Bean4InitSelector> children4Third = new ArrayList<Bean4InitSelector>();
 
-								List<FourthLevel> fourthLevels = thirdLevels.get(e).getAllChildren4Ajax();
-								for (int f = 0; f < fourthLevels.size(); f++) {
+								Set<FourthLevel> fourthLevels = e.getChildren();
+								for (FourthLevel f: fourthLevels) {
 									Bean4InitSelector fourth = new Bean4InitSelector();
-									fourth.setLabel(fourthLevels.get(f).getName());
-									fourth.setValue("fourth_" + fourthLevels.get(f).getFoid());
-									fourth.setChildren(new ArrayList<Bean4InitSelector>());
+									fourth.setLabel(f.getName());
+									fourth.setValue("fourth_" + f.getFoid());
+									fourth.setChildren(new ArrayList<Bean4InitSelector>()); // 防止JSON解析空指针
 
 									children4Third.add(fourth);
 								}
@@ -434,6 +434,84 @@ public class HealthAction extends ActionSupport {
 				total.add(minusFirst);
 			}
 
+		}else {
+			// 非管理员用户
+			switch (tag) {
+			case "minus_first":
+				// 当前层级管理者为minus_first
+				MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
+				
+				Bean4InitSelector minusFirstBean = new Bean4InitSelector();
+				minusFirstBean.setLabel(minusFirstLevel.getName());
+				minusFirstBean.setValue("minusFirst_" + minusFirstLevel.getMflid());
+				List<Bean4InitSelector> children4MinusFirst = new ArrayList<Bean4InitSelector>();
+				
+				for(ZeroLevel zeroLevel:minusFirstLevel.getChildren() ) {
+					Bean4InitSelector zeroBean = new Bean4InitSelector();
+					zeroBean.setLabel(zeroLevel.getName());
+					zeroBean.setValue(zeroLevel.getZid());
+					List<Bean4InitSelector> children4Zero = new ArrayList<Bean4InitSelector>();
+					
+					for() {
+						
+					}
+				}
+				
+				minusFirstBean.setChildren(children4MinusFirst);
+				total.add(minusFirstBean);
+				break;
+			case "zero":
+				// 当前层级管理者为zeroLevel
+				ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
+				init.setTag("zero");
+				init.setZeroLevel(zeroLevel);
+				// TODO 修改ZeroLevel.children 为List容器，不要SET容器
+				List<FirstLevel> firstLevelList = new ArrayList<FirstLevel>();
+				Set<FirstLevel> firstLevelSet = zeroLevel.getChildren();
+				firstLevelList.addAll(firstLevelSet);
+				init.setFirstLevels(firstLevelList);
+				break;
+			case "first":
+				// 当前层级管理者为firstLevel
+				FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
+				init.setTag("first");
+				init.setFirstLevel(firstLevel);
+				// TODO 修改FirstLevel.children 为List容器，不要SET容器
+				List<SecondLevel> secondLevelList = new ArrayList<SecondLevel>();
+				Set<SecondLevel> secondLevelSet = firstLevel.getChildren();
+				secondLevelList.addAll(secondLevelSet);
+				init.setSecondLevels(secondLevelList);
+				break;
+			case "second":
+				// 当前层级管理者为secondLevel
+				SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
+				init.setTag("second");
+				init.setSecondLevel(secondLevel);
+				// TODO 修改SecondLevel.children 为List容器，不要SET容器
+				List<ThirdLevel> thirdLevelList = new ArrayList<ThirdLevel>();
+				Set<ThirdLevel> thirdLevelSet = secondLevel.getChildren();
+				thirdLevelList.addAll(thirdLevelSet);
+				init.setThirdLevels(thirdLevelList);
+				break;
+			case "third":
+				// 当前层级管理者为thirdLevel
+				ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
+				init.setTag("third");
+				init.setThirdLevel(thirdLevel);
+				// TODO 修改ThirdLevel.children 为List容器，不要SET容器
+				List<FourthLevel> fourthLevelList = new ArrayList<FourthLevel>();
+				Set<FourthLevel> fourthLevelSet = thirdLevel.getChildren();
+				fourthLevelList.addAll(fourthLevelSet);
+				init.setFourthLevels(fourthLevelList);
+				break;
+			case "fourth":
+				// 当前层级管理者为fourthLevel
+				FourthLevel fourthLevel = fourthLevelService.queryEntityById(lid);
+				init.setTag("fourth");
+				init.setFourthLevel(fourthLevel);
+				break;
+			}
+			
 		}
 
 		ActionContext.getContext().getValueStack().push(total);

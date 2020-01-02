@@ -59,24 +59,9 @@ public class FirstLevel implements LevelInterface {
 	// 当前层级对象所创建的点位
 	private List<Geographic> geographics;
 	
-	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
-	private List<SecondLevel> allChildren4Ajax;
 
 	// ==================================SETTERs/GETTERs=====================================
 	
-	// AJAX   获取所有子层级
-	public List<SecondLevel> getAllChildren4Ajax() {
-		List<SecondLevel> list = new ArrayList<SecondLevel>();
-
-		Set<SecondLevel> ch = this.getChildren();
-		Iterator<SecondLevel> iterator = ch.iterator();
-		while (iterator.hasNext()) {
-			SecondLevel second = iterator.next();
-			second.setParent(null); // 切断父子关系，防止@JSON解析的时候出现死循环
-			list.add(second);
-		}
-		return list;
-	}
 
 	@JSON(serialize = false)
 	public List<Geographic> getGeographics() {

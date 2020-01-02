@@ -453,32 +453,12 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	 */
 	public String getUserList() {
 
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
 
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 		// --------------------------开始根据操作人的层级来获取所辖用户（Admin获取所有用户）---------------------------
 		List<User> users = null;
-		if (isAdmin) {
+		if ("admin".equals(tag)) {
 			// 如果是管理员则可以查看系统中的所有用户
 			users = userService.queryEntities();
 		} else {
@@ -535,21 +515,11 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	 */
 	public String initSelector() {
 		Init4UserListSelectors init = new Init4UserListSelectors();
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			}
-		}
 		// 开始组织初始化数据用的domain
-		if (isAdmin) {
+		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+
+		if ("admin".equals(tag)) {
 			// 当前访问userList.jsp页面的是系统管理员
 			// 系统中获取所有MinusFirstLevel层级对象
 			List<MinusFirstLevel> queryEntities = minusFirstLevelService.queryEntities();
@@ -559,43 +529,61 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		} else {
 			// 当前访问userList.jsp页面的是层级管理者
 			// 聚焦当前操作者的层级对象
-			String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
-			String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 			switch (tag) {
 			case "minus_first":
 				// 当前层级管理者为minus_first
 				MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(lid);
 				init.setTag("minus_first");
 				init.setMinusFirstLevel(minusFirstLevel);
-				init.setZeroLevels(minusFirstLevel.getAllChildren4Ajax());
+				// TODO 修改SecondLevel.children 为List容器，不要SET容器
+				List<ZeroLevel> zeroLevelList = new ArrayList<ZeroLevel>();
+				Set<ZeroLevel> zeroLevelSet = minusFirstLevel.getChildren();
+				zeroLevelList.addAll(zeroLevelSet);
+				init.setZeroLevels(zeroLevelList);
 				break;
 			case "zero":
 				// 当前层级管理者为zeroLevel
 				ZeroLevel zeroLevel = zeroLevelService.queryEntityById(lid);
 				init.setTag("zero");
 				init.setZeroLevel(zeroLevel);
-				init.setFirstLevels(zeroLevel.getAllChildren4Ajax());
+				// TODO 修改ZeroLevel.children 为List容器，不要SET容器
+				List<FirstLevel> firstLevelList = new ArrayList<FirstLevel>();
+				Set<FirstLevel> firstLevelSet = zeroLevel.getChildren();
+				firstLevelList.addAll(firstLevelSet);
+				init.setFirstLevels(firstLevelList);
 				break;
 			case "first":
 				// 当前层级管理者为firstLevel
 				FirstLevel firstLevel = firstLevelService.queryEntityById(lid);
 				init.setTag("first");
 				init.setFirstLevel(firstLevel);
-				init.setSecondLevels(firstLevel.getAllChildren4Ajax());
+				// TODO 修改FirstLevel.children 为List容器，不要SET容器
+				List<SecondLevel> secondLevelList = new ArrayList<SecondLevel>();
+				Set<SecondLevel> secondLevelSet = firstLevel.getChildren();
+				secondLevelList.addAll(secondLevelSet);
+				init.setSecondLevels(secondLevelList);
 				break;
 			case "second":
 				// 当前层级管理者为secondLevel
 				SecondLevel secondLevel = secondLevelService.queryEntityById(lid);
 				init.setTag("second");
 				init.setSecondLevel(secondLevel);
-				init.setThirdLevels(secondLevel.getAllChildren4Ajax());
+				// TODO 修改SecondLevel.children 为List容器，不要SET容器
+				List<ThirdLevel> thirdLevelList = new ArrayList<ThirdLevel>();
+				Set<ThirdLevel> thirdLevelSet = secondLevel.getChildren();
+				thirdLevelList.addAll(thirdLevelSet);
+				init.setThirdLevels(thirdLevelList);
 				break;
 			case "third":
 				// 当前层级管理者为thirdLevel
 				ThirdLevel thirdLevel = thirdLevelService.queryEntityById(lid);
 				init.setTag("third");
 				init.setThirdLevel(thirdLevel);
-				init.setFourthLevels(thirdLevel.getAllChildren4Ajax());
+				// TODO 修改ThirdLevel.children 为List容器，不要SET容器
+				List<FourthLevel> fourthLevelList = new ArrayList<FourthLevel>();
+				Set<FourthLevel> fourthLevelSet = thirdLevel.getChildren();
+				fourthLevelList.addAll(fourthLevelSet);
+				init.setFourthLevels(fourthLevelList);
 				break;
 			case "fourth":
 				// 当前层级管理者为fourthLevel

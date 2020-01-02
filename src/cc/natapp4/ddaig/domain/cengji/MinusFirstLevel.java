@@ -63,25 +63,8 @@ public class MinusFirstLevel implements LevelInterface {
 	// 当前层级之下等待审核的项目列表
 	private Set<BesureProject> besureProjects;
 
-	// ------------专供前端通过Ajax获取数据是，必须要获取到子层级对象的有关数据时存在的容器属性，这些属性与数据库没有任何关系-------------
-	private List<ZeroLevel> allChildren4Ajax; // 承装全部子层级对象
 
 	// ==================================SETTERs/GETTERs=====================================
-	// AJAX
-	public List<ZeroLevel> getAllChildren4Ajax() {
-
-		List<ZeroLevel> list = new ArrayList<ZeroLevel>();
-
-		Set<ZeroLevel> ch = this.getChildren();
-		Iterator<ZeroLevel> iterator = ch.iterator();
-		while (iterator.hasNext()) {
-			ZeroLevel zero = iterator.next();
-			// 切断父子关系，防止@JSON解析的时候出现死循环⭐
-			zero.setParent(null);
-			list.add(zero);
-		}
-		return list;
-	}
 
 	@JSON(serialize=false)
 	public List<House> getHouses() {
