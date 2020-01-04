@@ -219,9 +219,10 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		return dao.getAllLevelUsersCount(tag, lid);
 	}
 
+	
 	@Override
-	public List<User> getAllLevelUsersByPage(String tag, String lid, int targetPageNum, int limit) {
-		return dao.getAllLevelUsersByPage(tag, lid, targetPageNum, limit);
+	public List<User> getAllLevelUsersByPage(String targetTag, String targetLid, int targetPageNum, int pageItemNumLimit){
+		return dao.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
 	}
 
 	

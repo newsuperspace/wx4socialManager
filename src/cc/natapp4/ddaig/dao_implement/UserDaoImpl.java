@@ -357,11 +357,11 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 	}
 
 	@Override
-	public List<User> getAllLevelUsersByPage(String tag, String lid, int targetPageNum, int limit) {
+	public List<User> getAllLevelUsersByPage(String targetTag, String targetLid, int targetPageNum, int pageItemNumLimit) {
 
 		// 根据当前操作者层级选择hql语句
 		String hql = "";
-		switch (tag) {
+		switch (targetTag) {
 		case "minus_first":
 			hql = "from User u inner join fetch u.members m inner join fetch m.minusFirstLevel mfl where mfl.mflid=?";
 			break;
@@ -383,10 +383,10 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 		}
 
 		// 按顺序准备用于hql语句所需要的参数数组
-		Object[] params = new Object[] { lid };
+		Object[] params = new Object[] { targetLid };
 
 		List<User> list = (List<User>) this.getHibernateTemplate()
-				.execute(new PageLimitHibernateCallback(hql, params, targetPageNum, limit));
+				.execute(new PageLimitHibernateCallback(hql, params, targetPageNum, pageItemNumLimit));
 		if (null != list && list.size() > 0) {
 			return list;
 		}

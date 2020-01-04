@@ -260,19 +260,19 @@
 				// theme : '#1E9FFF',
 				jump : function(obj, first) {
 					//obj包含了当前分页的所有参数，比如：
-					let targetPageNum = obj.curr; //得到目标页页码（从1开始），以便向服务端请求对应页的数据。
-					let limit = obj.limit; //得到每页显示的条数
-					let pages = obj.pages; // 总页数
-					let count = obj.count; // 总记录数
+					let targetPageNum = obj.curr; 		//得到目标页页码（从1开始），以便向服务端请求对应页的数据。
+					let pageItemNumLimit = obj.limit; 	//得到每页显示的条数
+					let pages = obj.pages; 				// 总页数
+					let count = obj.count; 				// 总记录数
 					//首次不执行
 					if (first) {
 						// 首次，不执行
 					} else {
 						// 非首次执行，基于AJAX获取数据
-						let url = "healthAction_getUsers.action";
+						let url = "healthAction_getCurrentLevelUsersByPageLimit.action";
 						let param = {
 							"targetPageNum" : targetPageNum,
-							"limit" : limit
+							"pageItemNumLimit" : pageItemNumLimit
 						}
 						$.post(url, param, function(data, textStatus, req) {
 							console.log(data);

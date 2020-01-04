@@ -66,21 +66,21 @@ public interface UserDao extends BaseDao<User>{
 	
 	/**
 	 * 获取指定层级管理之下的所有用户（包括直辖和非直辖）的总人数
-	 * @param tag
-	 * @param lid
+	 * @param tag      目标层级的tag（minus_first、zero、first、second、third、fourth）
+	 * @param lid		目标层级的ID
 	 * @return
 	 */
 	public long getAllLevelUsersCount(String tag,String lid);
 	
 	/**
-	 * 对当前管理层之下的所有用户（包括直辖和非直辖）的人员进行分页查询
-	 * @param tag  操作者层级
-	 * @param lid   操作者层级的id
-	 * @param currentPageNum  分页查询的页码（从1开始，该值应由前端传入）
-	 * @param limit    每页的数据数目（该值应由前端传入）
+	 * 对指定层级（通过tage和lid确定具体层级对象）管理层之下的所有用户（包括直辖和非直辖）的人员进行分页查询（通过页码和单页数据量）
+	 * @param targetTag				获取哪个层级（标签）的用户
+	 * @param targetLid				获取哪个层级（主键ID）的用户
+	 * @param targetPageNum			目标页码
+	 * @param pageItemNumLimit		每页显示的数据条目数
 	 * @return
 	 */
-	public List<User> getAllLevelUsersByPage(String tag, String lid, int targetPageNum, int limit);
+	public List<User> getAllLevelUsersByPage(String targetTag, String targetLid, int targetPageNum, int pageItemNumLimit);
 	
 	
 	/**
