@@ -4,6 +4,7 @@ import java.util.List;
 
 import cc.natapp4.ddaig.bean.health.Bean4InitSelector;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 
 /**
@@ -58,7 +59,7 @@ public interface HealthService {
 	 * @param lid		当前操作者层级的lid主键ID
 	 * @return
 	 */
-	public List<Bean4InitSelector> initSelector(String tag,String lid);
+	public ReturnMessage4InitSelector initSelector(String tag,String lid);
 	
 	
 	

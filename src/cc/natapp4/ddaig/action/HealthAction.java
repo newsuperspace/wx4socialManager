@@ -40,6 +40,7 @@ import cc.natapp4.ddaig.bean.User4Ajax;
 import cc.natapp4.ddaig.bean.health.Bean4InitSelector;
 import cc.natapp4.ddaig.bean.health.ParseJson4CreateEnclosedScale;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
 import cc.natapp4.ddaig.domain.Exchange;
 import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.Manager;
@@ -263,14 +264,23 @@ public class HealthAction extends ActionSupport {
 	 * 
 	 * @return
 	 */
-	public String initSelector() {
-		
+	public String initLevelSelector() {
+		/**
+		 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
+		 * HttpServletRequest request =
+		 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		 * HttpSession session = request.getSession(); 就能获取到Request和session对象
+		 * 
+		 * 而如果是Action类，就只需要通过在类内随时调用 ServletActionContext.getRequest.getSession();
+		 * 就能得到session了
+		 * 
+		 */
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 		
-		List<Bean4InitSelector> total = healthService.initSelector(tag, lid);
+		ReturnMessage4InitSelector result = healthService.initSelector(tag, lid);
 		
-		ActionContext.getContext().getValueStack().push(total);
+		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
 
@@ -322,16 +332,29 @@ public class HealthAction extends ActionSupport {
 		return "enclosedScaleList";
 	}
 
-	/**
-	 * 跳转到封闭式量表的JSP页面——enclosedScalePage.jsp，进行数据采集
-	 * 
-	 * @return
-	 */
-	public String toEnclosedScalePage() {
 
-		return "enclosedScalePage";
-	}
-
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 //	// =================================基于Freemaker下载电子报告的功能区=======================================
 //	/**
 //	 * 下载用于批量创建的Excel模板文件
