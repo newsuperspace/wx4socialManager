@@ -99,7 +99,6 @@ public class HealthAction extends ActionSupport {
 	// ==========================================================DI注入Aspect
 	@Autowired
 	private HealthService healthService;
-	
 
 	// ======================================================属性驱动——向前端页面传送经过处理的数据信息
 	private String errorMessage; // 用作error全局结果集指定的页面——error.jsp中显示错误的信息内容
@@ -115,17 +114,21 @@ public class HealthAction extends ActionSupport {
 	/*
 	 * (1) getData4Selector()
 	 */
-	private String tag;     // 用户数据过滤——目标层级的标签（minus_first、zero、first、second、third、fourth）
-	private String lid;		// 用户数据过滤——目标层级的主键ID
+	private String tag; // 用户数据过滤——目标层级的标签（minus_first、zero、first、second、third、fourth）
+	private String lid; // 用户数据过滤——目标层级的主键ID
+
 	public String getTag() {
 		return tag;
 	}
+
 	public void setTag(String tag) {
 		this.tag = tag;
 	}
+
 	public String getLid() {
 		return lid;
 	}
+
 	public void setLid(String lid) {
 		this.lid = lid;
 	}
@@ -197,6 +200,28 @@ public class HealthAction extends ActionSupport {
 		return "users";
 	}
 
+	/*
+	 * 来自users.jsp 用于分页查询和初始化分页查询
+	 */
+	private String selectedTag; // 前端基于过滤器选中的目标层级标签
+	private String selectedLid; // 前端基于过滤器选中的目标层级的主键ID
+
+	public String getSelectedTag() {
+		return selectedTag;
+	}
+
+	public void setSelectedTag(String selectedTag) {
+		this.selectedTag = selectedTag;
+	}
+
+	public String getSelectedLid() {
+		return selectedLid;
+	}
+
+	public void setSelectedLid(String selectedLid) {
+		this.selectedLid = selectedLid;
+	}
+
 	/**
 	 * 
 	 * 由health/users.jsp页面上的getCountandCreateFirstPage4InitLaypage() 方法调用
@@ -205,9 +230,25 @@ public class HealthAction extends ActionSupport {
 	 * @return
 	 */
 	public String getCountandCreateFirstPage4InitLaypage() {
-
-		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
-		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+		String tag;
+		String lid;
+		if(!StringUtils.isEmpty(this.selectedTag)&&!StringUtils.isEmpty(this.selectedLid)) {
+			tag = this.selectedTag;
+			lid = this.selectedLid;
+		}else {
+			/**
+			 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
+			 * HttpServletRequest request =
+			 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+			 * HttpSession session = request.getSession(); 就能获取到Request和session对象
+			 * 
+			 * 而如果是Action类，就只需要通过在类内随时调用 ServletActionContext.getRequest.getSession();
+			 * 就能得到session了
+			 * 
+			 */
+			tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+			lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+		}
 		
 		ReturnMessage4CountandCreateFirstPage result = healthService.getCountandCreateFirstPage4InitLaypage(tag, lid, 1, 10);
 		
@@ -215,18 +256,21 @@ public class HealthAction extends ActionSupport {
 		return "json";
 	}
 
-	
-	private int targetPageNum;  		// 分页查询时，前端返回的目标页的页码（从1开始的页码）
-	private int pageItemNumLimit;		// 分页查询时，前端页面返回的单页上的数据条目数
+	private int targetPageNum; // 分页查询时，前端返回的目标页的页码（从1开始的页码）
+	private int pageItemNumLimit; // 分页查询时，前端页面返回的单页上的数据条目数
+
 	public int getTargetPageNum() {
 		return targetPageNum;
 	}
+
 	public void setTargetPageNum(int targetPageNum) {
 		this.targetPageNum = targetPageNum;
 	}
+
 	public int getPageItemNumLimit() {
 		return pageItemNumLimit;
 	}
+
 	public void setPageItemNumLimit(int pageItemNumLimit) {
 		this.pageItemNumLimit = pageItemNumLimit;
 	}
@@ -237,22 +281,29 @@ public class HealthAction extends ActionSupport {
 	 * @return 结果集索引字符串
 	 */
 	public String getCurrentLevelUsersByPageLimit() {
-		
 
-		/**
-		 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
-		 * HttpServletRequest request =
-		 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-		 * HttpSession session = request.getSession(); 就能获取到Request和session对象
-		 * 
-		 * 而如果是Action类，就只需要通过在类内随时调用 ServletActionContext.getRequest.getSession();
-		 * 就能得到session了
-		 * 
-		 */
-		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
-		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
-		
-		ReturnMessage4CountandCreateFirstPage result = healthService.getUsersByPageLimit(tag, lid, this.targetPageNum, this.pageItemNumLimit);
+		String tag;
+		String lid;
+		if(!StringUtils.isEmpty(this.selectedTag)&&!StringUtils.isEmpty(this.selectedLid)) {
+			tag = this.selectedTag;
+			lid = this.selectedLid;
+		}else {
+			/**
+			 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
+			 * HttpServletRequest request =
+			 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+			 * HttpSession session = request.getSession(); 就能获取到Request和session对象
+			 * 
+			 * 而如果是Action类，就只需要通过在类内随时调用 ServletActionContext.getRequest.getSession();
+			 * 就能得到session了
+			 * 
+			 */
+			tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+			lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+		}
+
+		ReturnMessage4CountandCreateFirstPage result = healthService.getUsersByPageLimit(tag, lid, this.targetPageNum,
+				this.pageItemNumLimit);
 
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
@@ -277,9 +328,9 @@ public class HealthAction extends ActionSupport {
 		 */
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
-		
+
 		ReturnMessage4InitSelector result = healthService.initSelector(tag, lid);
-		
+
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
@@ -294,10 +345,12 @@ public class HealthAction extends ActionSupport {
 		return "createEnclosedScalePage";
 	}
 
-	private String jsonStr4CreateEnclosedScale;    // 接收创建封闭式问卷的JSON格式字符串，后端基于Gson对其吉星解析封装
+	private String jsonStr4CreateEnclosedScale; // 接收创建封闭式问卷的JSON格式字符串，后端基于Gson对其吉星解析封装
+
 	public String getJsonStr4CreateEnclosedScale() {
 		return jsonStr4CreateEnclosedScale;
 	}
+
 	public void setJsonStr4CreateEnclosedScale(String jsonStr4CreateEnclosedScale) {
 		this.jsonStr4CreateEnclosedScale = jsonStr4CreateEnclosedScale;
 	}
@@ -332,29 +385,6 @@ public class HealthAction extends ActionSupport {
 		return "enclosedScaleList";
 	}
 
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 //	// =================================基于Freemaker下载电子报告的功能区=======================================
 //	/**
 //	 * 下载用于批量创建的Excel模板文件

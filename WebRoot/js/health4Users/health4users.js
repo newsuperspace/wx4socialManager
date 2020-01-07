@@ -1,7 +1,10 @@
 // 在通过showSelector()显示picker时的数据源
 var dataSource4LevelSelector = [];
 var defaultValue4LevelSelector = [];
-var pickerObj; // 级联选择器操作对象
+var pickerObj = null; // 级联选择器操作对象
+var selectedTag = null; // 用于过滤层级用户的级联选择器选中的目标层级标签（minus_first、zero、first、second、third、fourth）
+var selectedLid = null; // 用于过滤层级用户的级联选择器选中的目标层级ID
+
 // 用于存放通过 initEnclosedScaleTips 从服务器端获取的所有可用量表的数据信息，共给showEnclosedScaleSelector显示选择器用
 var dataSource4EnclosedScaleSelector = [];
 
@@ -45,11 +48,35 @@ function initLevelSelector() {
 				console.log(indexArr);
 				console.log("--------data--------");
 				console.log(data);
+
+				let index = data.length - 1; // 将索引设置到最后一位
+				let value;
+				if (data[index].value != "0") {
+					// 说明最后一个就是要过滤的目标
+					value = data[index].value;
+					selectedTag = value.split("_")[0];
+					selectedLid = value.split("_")[1];
+				} else {
+					// 需要从后向前循环，指导找到一个value！=0的对象
+					index -= 1;
+					let isStop = true;
+					while (isStop) {
+						value = data[index].value;
+						if ("0" != value) {
+							selectedTag = value.split("_")[0];
+							selectedLid = value.split("_")[1];
+							isStop = false;
+						}
+						index -= 1;
+					}
+				}
+				console.log("selectedTag:" + selectedTag + "," + "selectedLid:" + selectedLid);
+				initLaypage();
 			}
 		});
 	});
-
 }
+
 
 
 // 从服务器端获取所有可用量表的数据信息
@@ -111,6 +138,10 @@ function initLaypage() {
 					// 非首次执行，基于AJAX获取数据
 					let url = "healthAction_getCurrentLevelUsersByPageLimit.action";
 					let param = {
+						// 【层级过滤】如果前端通过picker选择了目标过滤层级，则这两个参数是有值的，否则后端得到的是null
+						"selectedTag" : selectedTag,
+						"selectedLid" : selectedLid,
+						// 【分页查询】下面两个参数是由LayUI提供的，分别是目标页码和每页数据条目数
 						"targetPageNum" : targetPageNum,
 						"pageItemNumLimit" : pageItemNumLimit
 					}
@@ -149,16 +180,22 @@ function getCountandCreateFirstPage4InitLaypage() {
 	let count = 0;
 
 	let url = "healthAction_getCountandCreateFirstPage4InitLaypage.action";
+	let param = {
+		// 请求参数，如果前端通过picker选择了目标过滤层级，则这两个参数是有值的，否则后端得到的是null
+		"selectedTag" : selectedTag,
+		"selectedLid" : selectedLid
+	}
 
 	$.ajaxSetup({
 		async : false // 全局设置Ajax为同步执行
 	});
 
-	$.post(url, null, function(data, textStatus, req) {
+	$.post(url, param, function(data, textStatus, req) {
 		count = data.count;
 		console.log(data);
 		// 定位表格体
 		let table = $("#tbody");
+		table.empty();
 		for (let i = 0; i < data.users.length; i++) {
 			let tr = $("<tr></tr>");
 			let name = $("<td><a href='#' onclick='userModal.op.userInfo(\"" + data.users[i].uid + "\")'>" + data.users[i].username + "</a></td>");
