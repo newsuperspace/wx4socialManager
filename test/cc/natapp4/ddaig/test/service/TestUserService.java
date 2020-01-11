@@ -29,13 +29,6 @@ public class TestUserService {
 	private UserService userService = (UserService) context.getBean("testUserService");
 	private GroupingService  groupingService  = (GroupingService) context.getBean("groupingService");
 	
-	private	MinusFirstLevelService minusFirstLevelService = (MinusFirstLevelService) context.getBean("minusFirstLevelService");
-	private	ZeroLevelService zeroLevelService = (ZeroLevelService) context.getBean("zeroLevelService");
-	private	FirstLevelService firstLevelService = (FirstLevelService) context.getBean("firstLevelService");
-	private	SecondLevelService secondLevelService = (SecondLevelService) context.getBean("secondLevelService");
-	private	ThirdLevelService thirdLevelService = (ThirdLevelService) context.getBean("thirdLevelService");
-	private	FourthLevelService fourthLevelService = (FourthLevelService) context.getBean("fourthLevelService");
-	
 	
 	@Test
 	public void testCheckRealName() throws Throwable{
@@ -72,24 +65,6 @@ public class TestUserService {
 		
 		userService.save(user);
 	}	
-	
-	@Test
-	public void testGetManagers(){
-		List<Member> managers = userService.getManagers("all", "zero", "64976f64-c13e-4d78-8c0b-62b858e53a5a");
-		for(int i=0; i<managers.size(); i++){
-			System.out.println("第"+i+"个用户名是："+managers.get(i).getUser().getUsername());
-		}
-	}
-	
-	@Test
-	public void testGetChildrenLevelUsers(){
-		List<User> childrenLevelUsers = userService.getChildrenLevelUsers("zero", "64976f64-c13e-4d78-8c0b-62b858e53a5a");
-		for(int i=0; i<childrenLevelUsers.size(); i++){
-			System.out.println("第"+i+"个用户名是："+childrenLevelUsers.get(i).getUsername());
-		}
-	}
-	
-	
 	
 	
 	

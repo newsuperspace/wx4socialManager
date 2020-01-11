@@ -255,47 +255,6 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 		return "visitorList";
 	}
 
-	/**
-	 * 【未实现】 根据当前操作者的层级对象，获取该层级对象之下的所有层级对象的所有活动的数据信息，并显示到后台指定的jsp页面上
-	 * 在该JSP页面上可以通过日期选择器/层级选择等方式对数据进行进一步筛选
-	 * 
-	 * @return
-	 */
-	public String allActivityList() {
-
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
-
-		// 如果当前操作者是admin， 那么可以获取系统中所有activity的数据信息
-		if (isAdmin) {
-			List<Activity> list = activityService.queryEntities();
-			ActionContext.getContext().put("activities", list);
-			return "allActivityList";
-		} else {
-			// 非admin也就是正式层级对象的管理者的用户，只能获取该层级对象之下的所有子层级对象的全部活动
-
-		}
-
-		return "allActivityList";
-	}
 
 	/**
 	 * 【完成】 新建活动前的必要准备 （1）将未来新建的活动所属的doingProject的dpid返回到前端页面createActivity.jsp
@@ -305,26 +264,6 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	 * @return
 	 */
 	public String createPage() {
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
 
 		// 把活动所属的doingProject的dpid放入到map栈空间中，供给createActivity.jsp页面上通过struts的<s:property>标签显示在页面上
 		ActionContext.getContext().put("dpid", this.getDpid());
@@ -412,26 +351,6 @@ public class ActivityAction extends ActionSupport implements ModelDriven<Activit
 	 * @return
 	 */
 	public String createActivity() {
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
 
 		ReturnMessage4CreateActivity message = new ReturnMessage4CreateActivity();
 

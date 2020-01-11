@@ -1,15 +1,12 @@
 package cc.natapp4.ddaig.test.Dao;
 
-
 import java.util.List;
 
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import cc.natapp4.ddaig.dao_interface.ManagerDao;
 import cc.natapp4.ddaig.dao_interface.UserDao;
-import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.User;
 
 /**
@@ -20,7 +17,7 @@ import cc.natapp4.ddaig.domain.User;
  */
 public class TestUserDao {
 
-	private static final ApplicationContext  context =  new ClassPathXmlApplicationContext("spring/applicationContext.xml");
+	private static final ApplicationContext  context =  new ClassPathXmlApplicationContext("spring/applicationContext4Test.xml");
 
 //	@Test
 //	public void  testQueryManagerByTag(){
@@ -32,16 +29,11 @@ public class TestUserDao {
 //	}
 	
 	@Test
-	public void testQueryByUsername(){
-		UserDao  dao  =  (UserDao) context.getBean("userDao");
-		User user = dao.getUserByUsername("张三");
-		if(null!=user){
-			System.out.println("查出了数据");
-		}else{
-			System.out.println("没查出数据");
-		}
+	public void testGetSelfLevelUsers() {
+		UserDao dao = (UserDao)context.getBean("userDao");
+		List<User> list = dao.getSelfLevelUsers("admin", "", "");
+		System.out.println(list.size());
 	}
-	
 	
 	
 }

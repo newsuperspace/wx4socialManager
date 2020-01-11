@@ -271,7 +271,7 @@ public class ShiroAction extends ActionSupport {
 		}else{
 			// 其他正常用户的登录
 			// 开始类似login()中关于微信端登录的外部认证工作
-			User u = userService.getUserByUsername(username);
+			User u = userService.queryByUsername(username);
 			if (null != u && u.getPassword().equals(password)) {
 				// 外部验证通过，可以放行到selectManager.jsp页面选择具体要登录的manager了
 				List<Manager> managers = new ArrayList<Manager>();

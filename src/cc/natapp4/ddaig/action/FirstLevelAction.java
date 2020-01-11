@@ -291,33 +291,15 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 
 	public String getLevelList() { // <!-- ● -->
 
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
+		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 
 		List<FirstLevel> list = null;
 		ServletContext context = ServletActionContext.getServletContext();
 		StringBuffer sb = null;
 		File file = null;
 		// 分辨当前操作者是Admin还是非Admin
-		if (isAdmin) {
+		if ("admin".equals(tag)) {
 			// 当前查访者是Admin,获取数据库中的所有FirstLevel对象
 			list = firstLevelService.queryEntities();
 			// 检查所有待展示层级的qrcode是否还存在，不存在的自动重新生成
@@ -342,9 +324,6 @@ public class FirstLevelAction implements ModelDriven<FirstLevel> { // <!-- ● -
 		} else {
 			list = new ArrayList<FirstLevel>();
 			// 当前查访者是非Admin管理者，进一步分析当前操作者执行者的层级位置，然后从children属性结构中获取当前操作者下属的层级对象
-			String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
-			String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
-
 			switch (tag) {
 			// 对于非Admin用户来说，能够获取到FirstLevel层级对象信息的只可能是街道和社区层级的管理者
 			case "minus_first":

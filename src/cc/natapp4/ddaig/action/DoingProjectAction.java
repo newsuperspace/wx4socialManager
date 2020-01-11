@@ -155,31 +155,15 @@ public class DoingProjectAction extends ActionSupport implements ModelDriven<Doi
 	 */
 	public String getProjects() {
 
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = userService.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
-			}
-		}
 
 		// 获取当前操作者层级的的grouping.tag和lid
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
-
+		
+		boolean isAdmin = false;
+		if("admin".equals(tag))
+			isAdmin = true;
+		
 		// 判断前端请求的是那个层级的项目
 		List<DoingProject> list = doingProjectService.queryEntities();
 		// 存放筛选出来的符合前端索取条件的项目

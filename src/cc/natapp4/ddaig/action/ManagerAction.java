@@ -22,6 +22,7 @@ import com.opensymphony.xwork2.ModelDriven;
 
 import cc.natapp4.ddaig.domain.Manager;
 import cc.natapp4.ddaig.domain.Member;
+import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
 import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
@@ -206,7 +207,8 @@ public class ManagerAction extends ActionSupport implements ModelDriven<Manager>
 	public String downloadWorkCard() throws IOException {
 		String levelTag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
-		List<Member> members = userService.getManagers("all", levelTag, lid);
+		List<User> users = userService.getManagers(levelTag, lid, "all");
+		
 		
 		String levelName = "";
 		String minusFirstName = "";
@@ -258,7 +260,7 @@ public class ManagerAction extends ActionSupport implements ModelDriven<Manager>
 		fullPath += File.separator + levelName + "的成员电子工作证" + ".doc";
 		fullPath = ServletActionContext.getServletContext().getRealPath(fullPath);
 		try {
-			maker.exportDoc4WorkCard(members, levelName, minusFirstName, zeroName, fullPath, "workCard.ftl");
+			maker.exportDoc4WorkCard(users, levelName, minusFirstName, zeroName, fullPath, "workCard.ftl");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

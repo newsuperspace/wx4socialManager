@@ -10,9 +10,35 @@
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<!-- Bootstrap CSS -->
+	
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/css/weui-v2.1.3/weui.css">
+<link
+	href="https://cdn.bootcss.com/awesome-bootstrap-checkbox/v0.2.3/awesome-bootstrap-checkbox.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/jquery-ui/jquery-ui.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/easyui-v1.7.0/themes/icon.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/easyui-v1.7.0/themes/default/easyui.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/layui-v2.5.5/layui/css/layui.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/picker-extend/picker-extend.css"
+	rel="stylesheet" />
+<!-- 
+	layui 中会对所有<a> 标签进行颜色上的样式设定。
+	CSS的所有样式冲突遵循，后加载的样式覆盖之前加载的样式，因此为了保持所有页面基于bootstrap的表现基础
+	我们需要最后再加载bootstrap样式
+ -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
+	
 </head>
 <body>
 
@@ -43,13 +69,10 @@
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 									
+									<div id="levelSelector" hidden="hidden"></div>
 									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#selectUsers">
+										onclick="showLevelSelector();">
 										<span class="glyphicon glyphicon-search"></span> 筛选
-									</button>
-									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#selectUsers">
-										<span class="glyphicon glyphicon-sort-by-order"></span> 排序
 									</button>
 									<div class="dropdown ml-1">
 										<button
@@ -60,7 +83,7 @@
 										</button>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="others">
 											<a class="dropdown-item" href="#"
-												onclick="userModal.op.batchCreateQR();">批量重建二维码</a>
+												onclick="alert('AAAAA');">操作A</a>
 											<a class="dropdown-item disabled" href="#">Disabled
 												action</a>
 											<h6 class="dropdown-header">Section header</h6>
@@ -69,55 +92,15 @@
 											<a class="dropdown-item" href="#">After divider action</a>
 										</div>
 									</div>
+									
 								</div>
 							</div>
 						</div>
 						
-						<!-- =============Selectors=========== -->
-                        <div class="collapse mb-2" id="selectorPanel">
-                            <div class="card card-body">
-                                <div class="row">
-                                    <div class="col-md-2">
-                                        街道层级
-                                        <select class="form-control form-control-sm" id="minusFirst" name="minusFirst" disabled="true" onchange="userModal.op.getData4Selector(this);"> 
-                                            <option value="0" selected>--请选择--</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        社区层级
-                                        <select class="form-control form-control-sm" id="zero" name="zero" disabled="true" onchange="userModal.op.getData4Selector(this);">
-                                            <option value="0" selected>--请选择--</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        第一层级
-                                        <select class="form-control form-control-sm" id="first" name="first" disabled="true" onchange="userModal.op.getData4Selector(this);">
-                                            <option value="0" selected>--请选择--</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        第二层级
-                                        <select class="form-control form-control-sm" id="second" name="second" disabled="true" onchange="userModal.op.getData4Selector(this);">
-                                            <option value="0" selected>--请选择--</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        第三层级
-                                        <select class="form-control form-control-sm" id="third" name="third" disabled="true" onchange="userModal.op.getData4Selector(this);">
-                                            <option value="0" selected>--请选择--</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        第四层级
-                                        <select class="form-control form-control-sm" id="fourth" name="fourth" disabled="true" onchange="userModal.op.getData4Selector(this);">
-                                            <option value="0" selected>--请选择--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+						<!-- =============Selector开始=========== -->
+						<!-- =============Selector结束=========== -->
 						
-						<!-- =============表格=========== -->
+						<!-- =============表格开始=========== -->
 						<div
 							style="
                         white-space: nowrap;
@@ -144,7 +127,8 @@
 									</tr>
 								</thead>
 								<tbody id="tbody">
-									<s:iterator value="#users">
+								
+									
 										<tr>
 											<td><s:a href="#"
 													onclick="userModal.op.userInfo('%{uid}')">
@@ -171,35 +155,28 @@
 											<td>
 												<div class="btn-group" role="group">
 													<button type="button"
-														class="btn btn-outline-secondary btn-sm">推送</button>
+														class="btn btn-outline-secondary btn-sm">通知</button>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">其他</button>
 												</div>
 											</td>
 										</tr>
-									</s:iterator>
+										
+									
 								</tbody>
 							</table>
 						</div>
-						<!-- 分页栏 -->
-						<nav aria-label="Page navigation" class="mt-3">
-							<ul class="pagination justify-content-center">
-								<li class="page-item disabled"><a class="page-link"
-									href="#" aria-label="向前"> <span aria-hidden="true">&laquo;</span>
-										<span class="sr-only">向前</span>
-								</a></li>
-								<li class="page-item active"><a class="page-link" href="#">1</a></li>
-								<li class="page-item"><a class="page-link" href="#">2</a></li>
-								<li class="page-item"><a class="page-link" href="#">3</a></li>
-								<li class="page-item"><a class="page-link" href="#">100</a></li>
-								<li class="page-item"><a class="page-link" href="#">101</a></li>
-								<li class="page-item"><a class="page-link" href="#"
-									aria-label="向后"> <span aria-hidden="true">&raquo;</span> <span
-										class="sr-only">向后</span>
-								</a></li>
-							</ul>
-						</nav>
 						<!-- 表格结束 -->
+						<!-- 分页栏开始 -->
+						<div class="row mt-2">
+							<div class="col"></div>
+							<div class="col-auto">
+								<div id="laypage"></div>
+							</div>
+							<div class="col"></div>
+						</div>
+						<!-- 分页栏结束 -->						
+						
 					</div>
 				</div>
 			</div>
@@ -302,59 +279,31 @@
 		<!-- Modal 4 用户更改 -->
 
 		<!-- Modal 4 排序 -->
-
-		<!-- Modal 4 筛选 -->
-		<div class="modal fade" id="selectUserModal" tabindex="-1"
-			role="dialog" aria-labelledby="selectUserModal" aria-hidden="true">
-			<div class="modal-dialog  modal-lg" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title">筛选用户</h4>
-						<button type="button" class="close" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div class="container-fluid">Add rows here</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary"
-								data-dismiss="modal">关闭</button>
-							<button type="button" class="btn btn-primary">确定</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+		
 		<!-- container结束 -->
 	</div>
 </body>
+<!-- 必要JS -->
 <script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
-<script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/jquery-ui/jquery-ui.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
+<script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/easyui-v1.7.0/jquery.easyui.min.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/layui-v2.5.5/layui/layui.js"></script>
+<!-- 独占脚本 -->
+<script src="${pageContext.request.contextPath}/js/userAndManager/js4userList.js"></script>
+<script src="${pageContext.request.contextPath}/js/picker-extend/picker-extend.js"></script>
 
+<!-- wechat相关 -->
 <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
-<script type="text/javascript"
-	src="${pageContext.request.contextPath}/js/myJS.js"></script>
-<script type="text/javascript"
-	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
+<script src="https://res.wx.qq.com/open/libs/weuijs/1.2.1/weui.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript">
-	// 本内部脚本用于初始化当前页面——userList.jsp中的一些组件
-	$(function(){
-		// 初始化selector面板
-		userModal.init.initSelector();
-		// 其他初始化工作...
-		
-	});
-	
-	
-	// 点击用户的分值，跳转到用户参与活动的历史界面
-	function toUserVisitList(uid){
-		$(location).attr("href","userAction_toUserVisitList.action?uid="+uid);
-	}
-	
 
-</script>
 	
+</script>
 </html>

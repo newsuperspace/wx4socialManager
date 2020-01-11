@@ -231,7 +231,7 @@ public class FourthLevelAction implements ModelDriven<FourthLevel> { // <!-- ●
 				isAdmin = true;
 			} else {
 				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
+				doingMan = userService.queryByUsername(principal);
 			}
 		}
 

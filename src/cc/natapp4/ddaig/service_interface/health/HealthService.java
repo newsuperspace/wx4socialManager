@@ -1,8 +1,6 @@
 package cc.natapp4.ddaig.service_interface.health;
 
-import java.util.List;
 
-import cc.natapp4.ddaig.bean.health.Bean4InitSelector;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
@@ -54,7 +52,7 @@ public interface HealthService {
 	
 	
 	/**
-	 * 为当前层级操作者，在访问健康管理-被测者目录的时候，初始化用于过滤其不同子层级用户的selector数据
+	 * 为当前层级操作者，在访问健康管理-被测者目录的时候，初始化用于过滤其不同子层级用户的selector数据，该selector是基于picker-extend.js实现的
 	 * @param tag		当前操作者层级的tag（admin、minus_first、zero、first、second、third、fourth）
 	 * @param lid		当前操作者层级的lid主键ID
 	 * @return

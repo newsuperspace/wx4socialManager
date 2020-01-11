@@ -56,12 +56,9 @@
 										</button>
 										<div class="dropdown-menu dropdown-menu-right"
 											aria-labelledby="others">
-											<!-- 
-											<a class="dropdown-item" href="#"
-												onclick="userModal.op.batchCreateQR();">批量重建二维码</a>
-											 -->
-											 <a
-												class="dropdown-item disabled" href="#">Disabled action</a>
+											<a class="dropdown-item" href="#" onclick="alert('AAAAA');">操作A</a>
+											<a class="dropdown-item disabled" href="#">Disabled
+												action</a>
 											<h6 class="dropdown-header">Section header</h6>
 											<a class="dropdown-item" href="#">Action</a>
 											<div class="dropdown-divider"></div>

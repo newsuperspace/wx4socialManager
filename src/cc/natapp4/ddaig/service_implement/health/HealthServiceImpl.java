@@ -18,6 +18,7 @@ import cc.natapp4.ddaig.bean.health.Bean4InitSelector;
 import cc.natapp4.ddaig.bean.health.ParseJson4CreateEnclosedScale;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
+import cc.natapp4.ddaig.dao_interface.UserDao;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
@@ -63,9 +64,7 @@ public class HealthServiceImpl implements HealthService {
 
 	// ===================DI注入==================
 	@Autowired
-	private UserService userService;
-	@Autowired
-	private ManagerService managerService;
+	private UserDao userDao;
 	// -----------------层级相关----------------
 	@Autowired
 	private MinusFirstLevelService minusFirstLevelService;
@@ -130,12 +129,7 @@ public class HealthServiceImpl implements HealthService {
 		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
 
 		List<User> users = null;
-		if ("admin".equals(targetTag)) {
-			// TODO (这里需要修改，在queryEntities中增加分页查询)如果是管理员则可以查看系统中的所有用户
-			users = userService.queryEntities();
-		} else {
-			users = userService.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
-		}
+		users = userDao.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
 
 		if (null != users) {
 			for (int i = 0; i < users.size(); i++) {
@@ -155,7 +149,7 @@ public class HealthServiceImpl implements HealthService {
 		// 首页数据准备完毕
 		result.setUsers(users);
 		// 总数居量准备完毕
-		result.setCount(userService.getAllLevelUsersCount(targetTag, targetLid));
+		result.setCount(userDao.getAllLevelUsersCount(targetTag, targetLid));
 
 		return result;
 	}
@@ -292,12 +286,7 @@ public class HealthServiceImpl implements HealthService {
 		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
 
 		List<User> users = null;
-		if ("admin".equals(targetTag)) {
-			// TODO (这里需要修改，在queryEntities中增加分页查询)如果是管理员则可以查看系统中的所有用户
-			users = userService.queryEntities();
-		} else {
-			users = userService.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
-		}
+		users = userDao.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
 
 		if (null != users) {
 			for (int i = 0; i < users.size(); i++) {
@@ -322,8 +311,7 @@ public class HealthServiceImpl implements HealthService {
 		List<Bean4InitSelector> total = new ArrayList<Bean4InitSelector>();
 		/*
 		 * 前端负责使用当前方法给出的JSON数据源的时候，会检查每个Bean中的children的length长度
-		 * 因此为防止出现空指针异常，哪怕默认项不含有子对象，也要给出一个空数组（Bean中就是List容器）
-		 * 而不能是null
+		 * 因此为防止出现空指针异常，哪怕默认项不含有子对象，也要给出一个空数组（Bean中就是List容器） 而不能是null
 		 */
 		Bean4InitSelector defaultBean = new Bean4InitSelector("", "0", new ArrayList<Bean4InitSelector>());
 
@@ -787,7 +775,7 @@ public class HealthServiceImpl implements HealthService {
 		}
 
 		result.setDataSource(total);
-		result.setDefaultValue(new ArrayList<String>());  // 前端picker-extend.js会检查数组深度，因此不能为null，需要给出一个空数组
+		result.setDefaultValue(new ArrayList<String>()); // 前端picker-extend.js会检查数组深度，因此不能为null，需要给出一个空数组
 		return result;
 	}
 

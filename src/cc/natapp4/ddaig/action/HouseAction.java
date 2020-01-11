@@ -105,7 +105,7 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 				isAdmin = true;
 			} else {
 				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
+				doingMan = userService.queryByUsername(principal);
 			}
 		}
 
@@ -186,7 +186,7 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 				isAdmin = true;
 			} else {
 				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
+				doingMan = userService.queryByUsername(principal);
 			}
 		}
 
@@ -396,7 +396,7 @@ public class HouseAction extends ActionSupport implements ModelDriven<House> {
 				isAdmin = true;
 			} else {
 				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
+				doingMan = userService.queryByUsername(principal);
 			}
 		}
 		// 用于存放向前端返回的活动室数据

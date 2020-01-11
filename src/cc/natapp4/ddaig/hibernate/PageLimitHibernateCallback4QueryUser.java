@@ -9,7 +9,7 @@ import org.springframework.orm.hibernate5.HibernateCallback;
 
 import cc.natapp4.ddaig.domain.User;
 
-public class PageLimitHibernateCallback implements HibernateCallback<List<User>> {
+public class PageLimitHibernateCallback4QueryUser implements HibernateCallback<List<User>> {
 
 	private String hql;       	// HQL语句
 	private Object[] params;  	// HQL中“？”占位符对应的参数
@@ -17,12 +17,13 @@ public class PageLimitHibernateCallback implements HibernateCallback<List<User>>
 	private int pageSize; 		// 每页的条目数量
 	private int begin; 			// 基于目标页面的序号和每页的条目数量，计算出数据库截取数据的起始序号（从0开始）
 
-	public PageLimitHibernateCallback(String hql, Object[] params, int pageNumber, int pageSize) {
+	public PageLimitHibernateCallback4QueryUser(String hql, Object[] params, int pageNumber, int pageSize) {
 		super();
 		this.hql = hql;
 		this.params = params;
 		this.pageNumber = pageNumber;
 		this.pageSize = pageSize;
+		// 分页查询的起始位置计算公式
 		this.begin = (pageNumber - 1) * pageSize;
 	}
 

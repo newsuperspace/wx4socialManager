@@ -57,9 +57,9 @@
 										</button>
 										<div class="dropdown-menu dropdown-menu-right"
 											aria-labelledby="others">
-											<a class="dropdown-item" href="#"
-												onclick="userModal.op.batchCreateQR();">批量重建二维码</a> <a
-												class="dropdown-item disabled" href="#">Disabled action</a>
+											<a class="dropdown-item" href="#" onclick="alert('AAAAA');">操作A</a>
+											<a class="dropdown-item disabled" href="#">Disabled
+												action</a>
 											<h6 class="dropdown-header">Section header</h6>
 											<a class="dropdown-item" href="#">Action</a>
 											<div class="dropdown-divider"></div>
@@ -105,18 +105,14 @@
 											<td><s:property value="user.email" /></td>
 											<td><s:property value="timeStr" /></td>
 
-											<td>
-												<s:if test="status==0">
+											<td><s:if test="status==0">
 													<span class="badge badge-primary">未审核</span>
-												</s:if>
-												<s:elseif test="status==1">
+												</s:if> <s:elseif test="status==1">
 													<span class="badge badge-secondary">已拒绝</span>
-												</s:elseif>
-												<s:elseif test="status==2">
+												</s:elseif> <s:elseif test="status==2">
 													<span class="badge badge-success">已通过</span>
-												</s:elseif>
-											</td>
-											
+												</s:elseif></td>
+
 											<td>
 												<div class="btn-group" role="group">
 													<s:a class="btn btn-outline-secondary btn-sm" href="#"
@@ -202,7 +198,8 @@
 
 							<div class="form-group">
 								<label for="message-text" class="col-form-label">回复信息:</label>
-								<textarea class="form-control" cols="3"  value="message"  id="message">111</textarea>
+								<textarea class="form-control" cols="3" value="message"
+									id="message">111</textarea>
 							</div>
 						</form>
 
@@ -305,7 +302,7 @@
 					let url = "approveAction_agreeUserApply4JoinLevel.action";
 					let param = {
 						'ua4jlid' : $("#ua4jlid").val(),
-						'message': $("#message").val(),
+						'message' : $("#message").val(),
 					}
 					$.post(url, param, function(data, textStatus, req) {
 						// 显示后台回复的message的信息
@@ -341,7 +338,7 @@
 					let url = "approveAction_refuseUserApply4JoinLevel.action";
 					let param = {
 						'ua4jlid' : $("#ua4jlid").val(),
-						'message': $("#message").val(),
+						'message' : $("#message").val(),
 					}
 					$.post(url, param, function(data, textStatus, req) {
 						// 显示后台回复的message的信息

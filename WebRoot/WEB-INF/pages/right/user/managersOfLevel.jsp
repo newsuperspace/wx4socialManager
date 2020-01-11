@@ -32,7 +32,7 @@
 						<!-- =============标题=========== -->
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
-							<h1 class="h2"><s:property  value="#managerName"/>层级的所有管理员</h1>
+							<h1 class="h2"><s:property  value="#managerName"/> 层级的所有管理员</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 

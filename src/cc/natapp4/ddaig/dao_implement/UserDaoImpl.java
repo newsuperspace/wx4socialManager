@@ -29,7 +29,8 @@ import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
 import cc.natapp4.ddaig.domain.cengji.SecondLevel;
 import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
 import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
-import cc.natapp4.ddaig.hibernate.PageLimitHibernateCallback;
+import cc.natapp4.ddaig.hibernate.CommonHibernateCallback4QueryUser;
+import cc.natapp4.ddaig.hibernate.PageLimitHibernateCallback4QueryUser;
 
 @Repository("userDao")
 public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
@@ -96,168 +97,7 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 	}
 
 	@Override
-	public List<Member> getManagers(String tag, String levelTag, String lid) {
-		// ---------------------------Shiro认证操作者身份---------------------------
-		Subject subject = SecurityUtils.getSubject();
-		String principal = (String) subject.getPrincipal();
-		// 执行当前新建操作的管理者的User对象
-		User doingMan = null;
-		// 标记当前执行者是否是admin
-		boolean isAdmin = false;
-		if (28 == principal.length()) {
-			// openID是恒定不变的28个字符，说明本次登陆是通过openID登陆的（微信端自动登陆/login.jsp登陆）
-			doingMan = this.queryByOpenId(principal);
-		} else {
-			// 用户名登陆（通过signin.jsp页面的表单提交的登陆）
-			// 先判断是不是使用admin+admin 的方式登录的测试管理员
-			if ("admin".equals(principal)) {
-				isAdmin = true;
-			} else {
-				// 非admin用户登录
-				doingMan = this.getUserByUsername(principal);
-			}
-		}
-
-		// 开始查询
-		List<Member> list = null;
-		if (isAdmin) {
-			// admin用户，在最大范围内查找目标tag的用户
-			switch (tag) {
-			// 根据“不在其位，不谋其政”的管理原则，admin只能看到 街道/unreal/common 这三个tag或者是三个tag的总和
-			case "minus_first":
-				list = (List<Member>) this.getHibernateTemplate()
-						.find("from Member m where m.grouping.tag=? and m.minusFirstLevel=?", "minus_first", null);
-				break;
-			case "common":
-				list = (List<Member>) this.getHibernateTemplate()
-						.find("from Member m where m.grouping.tag=? and m.minusFirstLevel=?", "common", null);
-				break;
-			case "unreal":
-				list = (List<Member>) this.getHibernateTemplate()
-						.find("from Member m where m.grouping.tag=? and m.minusFirstLevel=?", "unreal", null);
-				break;
-			default:
-				list = (List<Member>) this.getHibernateTemplate().find(
-						"from Member m where m.grouping.tag in(?,?,?) and m.minusFirstLevel=null", "minus_first",
-						"common", "unreal");
-				break;
-			}
-		} else {
-			// 非admin用户，根据其lid在有限范围内查找目标tag的用户
-			if ("minus_first".equals(levelTag)) {
-				// 执行人是街道层级管理者
-				switch (tag) {
-				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
-				// 社区/unreal/common 这三个tag或者是三个tag的总和
-				case "zero":
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.minusFirstLevel mfl where m.grouping.tag=? and mfl.mflid=? and m.zeroLevel=null",
-							"zero", lid);
-					break;
-				case "common":
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.minusFirstLevel mfl where m.grouping.tag=? and mfl.mflid=? and m.zeroLevel=null",
-							"common", lid);
-					break;
-				default: // 查询所有tag
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.minusFirstLevel mfl where m.grouping.tag in(?,?) and mfl.mflid=? and m.zeroLevel=null",
-							"zero", "common", lid);
-					break;
-				}
-			} else if ("zero".equals(levelTag)) {
-				// 执行人是社区层级管理者
-				switch (tag) {
-				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
-				// 第一/unreal/common 这三个tag或者是三个tag的总和
-				case "first":
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.zeroLevel zl where m.grouping.tag=? and zl.zid=? and m.firstLevel=null",
-							"first", lid);
-					break;
-				case "common":
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.zeroLevel zl where m.grouping.tag=? and zl.zid=? and m.firstLevel=null",
-							"common", lid);
-					break;
-				default: // 查询所有tag
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.zeroLevel zl where m.grouping.tag in(?,?) and zl.zid=? and m.firstLevel=null",
-							"first", "common", lid);
-					break;
-				}
-			} else if ("first".equals(levelTag)) {
-				// 执行人是第一层级管理者
-				switch (tag) {
-				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
-				// 第二/unreal/common 这三个tag或者是三个tag的总和
-				case "second":
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.firstLevel fl where m.grouping.tag=? and fl.flid=? and m.secondLevel=null",
-							"second", lid);
-					break;
-				case "common":
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.firstLevel fl where m.grouping.tag=? and fl.flid=? and m.secondLevel=null",
-							"common", lid);
-					break;
-				default: // 查询所有tag
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.firstLevel fl where m.grouping.tag in(?,?) and fl.flid=? and m.secondLevel=null",
-							"second", "common", lid);
-					break;
-				}
-			} else if ("second".equals(levelTag)) {
-				// 执行人是第二层级管理者
-				switch (tag) {
-				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
-				// 第三/unreal/common 这三个tag或者是三个tag的总和
-				case "third":
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.secondLevel scl where m.grouping.tag=? and scl.scid=? and m.thirdLevel=null",
-							"third", lid);
-					break;
-				case "common":
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.secondLevel scl where m.grouping.tag=? and scl.scid=? and m.thirdLevel=null",
-							"common", lid);
-					break;
-				default: // 查询所有tag
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.secondLevel scl where m.grouping.tag in(?,?) and scl.scid=? and m.thirdLevel=null",
-							"third", "common", lid);
-					break;
-				}
-			} else if ("third".equals(levelTag)) {
-				// 执行人是第三层级管理者
-				switch (tag) {
-				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
-				// 第四/unreal/common 这三个tag或者是三个tag的总和
-				case "fourth":
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.thirdLevel tl where m.grouping.tag=? and tl.thid=? and m.fourthLevel=null",
-							"fourth", lid);
-					break;
-				case "common":
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.thirdLevel tl where m.grouping.tag=? and tl.thid=? and m.fourthLevel=null",
-							"common", lid);
-					break;
-				default:
-					list = (List<Member>) this.getHibernateTemplate().find(
-							"from Member m inner join fetch m.thirdLevel tl where m.grouping.tag in(?,?) and tl.thid=? and m.fourthLevel=null",
-							"fourth", "common", lid);
-					break;
-				}
-			} else {
-				// 执行人是其他层级（例如第四层级等）的管理者,但是第四层级管理者是看不到menu.jsp页面上“人员派任”入口的，所以不可能调用到这里
-			}
-		}
-		return list;
-	}
-
-	@Override
-	public User getUserByUsername(String username) {
+	public User queryByUsername(String username) {
 
 		try {
 			/*
@@ -272,46 +112,12 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 	}
 
 	@Override
-	public List<User> getChildrenLevelUsers(String tag, String lid) {
-		List<User> users = null;
-		switch (tag) {
-		case "minus_first":
-			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.minusFirstLevel mfl where mfl.mflid=? and m.zeroLevel<>null",
-					lid);
-			break;
-		case "zero":
-			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where zl.zid=? and m.firstLevel<>null",
-					lid);
-			break;
-		case "first":
-			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.firstLevel fl where fl.flid=? and m.secondLevel<>null",
-					lid);
-			break;
-		case "second":
-			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.secondLevel scl where scl.scid=? and m.thirdLevel<>null",
-					lid);
-			break;
-		case "third":
-			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where tl.thid=? and m.fourthLevel<>null",
-					lid);
-			break;
-		case "fourth":
-			users = (List<User>) this.getHibernateTemplate().find(
-					"from User u inner join fetch u.members m inner join fetch m.fourthLevel fl where fl.foid=?", lid);
-			break;
-		}
-		return users;
-	}
-
-	@Override
 	public List<User> getAllLevelUsers(String tag, String lid) {
 		List<User> users = null;
 		switch (tag) {
+		case "admin":
+			users = this.queryEntities();
+			break;
 		case "minus_first":
 			users = (List<User>) this.getHibernateTemplate().find(
 					"from User u inner join fetch u.members m inner join fetch m.minusFirstLevel mfl where mfl.mflid=?",
@@ -346,7 +152,6 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 	public long getAllLevelUsersCount(String tag, String lid) {
 
 		long count = 0;
-
 //		Session session = this.getHibernateTemplate().getSessionFactory().openSession();
 //		Query query = session.createSQLQuery("select count(*) from user");
 //		count = ((Number)query.uniqueResult()).intValue();
@@ -357,11 +162,15 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 	}
 
 	@Override
-	public List<User> getAllLevelUsersByPage(String targetTag, String targetLid, int targetPageNum, int pageItemNumLimit) {
+	public List<User> getAllLevelUsersByPage(String targetTag, String targetLid, int targetPageNum,
+			int pageItemNumLimit) {
 
 		// 根据当前操作者层级选择hql语句
 		String hql = "";
 		switch (targetTag) {
+		case "admin":
+			hql = "from User";
+			break;
 		case "minus_first":
 			hql = "from User u inner join fetch u.members m inner join fetch m.minusFirstLevel mfl where mfl.mflid=?";
 			break;
@@ -386,12 +195,348 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 		Object[] params = new Object[] { targetLid };
 
 		List<User> list = (List<User>) this.getHibernateTemplate()
-				.execute(new PageLimitHibernateCallback(hql, params, targetPageNum, pageItemNumLimit));
+				.execute(new PageLimitHibernateCallback4QueryUser(hql, params, targetPageNum, pageItemNumLimit));
 		if (null != list && list.size() > 0) {
 			return list;
 		}
 		return null;
 	}
 
+	@Override
+	public List<User> getSelfLevelUsers(String targetLevelTag, String targetLevelId, String groupTag) {
+
+		String hql = "";
+		// 按顺序准备用于hql语句所需要的参数数组
+		Object[] params = null;
+
+		// 如果targetLevelTag表明当前操作者时admin，则
+		if ("admin".equals(targetLevelTag)) {
+			// 先准备好通用的hql语句
+			hql = "from User u inner join fetch u.members m where m.grouping.tag=? and m.minusFirstLevel=null";
+			switch (groupTag) {
+			// 根据“不在其位，不谋其政”的管理原则，admin只能看到 街道/unreal/common 这三个tag或者是三个tag的总和
+			case "minus_first":
+				params = new Object[] { "minus_first" };
+				break;
+			case "common":
+				params = new Object[] { "common" };
+				break;
+			case "unreal":
+				params = new Object[] { "unreal" };
+				break;
+			default:
+				hql = "from User u inner join fetch u.members m where m.grouping.tag in(?,?,?) and m.minusFirstLevel=null";
+				params = new Object[] { "minus_first", "common", "unreal" };
+				break;
+			}
+		} else {
+			// 非admin用户，根据其lid在有限范围内查找目标用户
+			if ("minus_first".equals(targetLevelTag)) {
+				// 执行人是街道层级管理者
+				hql = "from User u inner join fetch u.members m inner join fetch m.minusFirstLevel mfl where m.grouping.tag=? and mfl.mflid=? and m.zeroLevel=null";
+				switch (groupTag) {
+				// 社区/unreal/common 这三个tag或者是三个tag的总和
+				case "zero":
+					params = new Object[] { "zero", targetLevelId };
+					break;
+				case "common":
+					params = new Object[] { "common", targetLevelId };
+					break;
+				default: // 查询所有tag
+					hql = "from User u inner join fetch  u.members m inner join fetch m.minusFirstLevel mfl where m.grouping.tag in(?,?) and mfl.mflid=? and m.zeroLevel=null";
+					params = new Object[] { "zero", "common", targetLevelId };
+					break;
+				}
+			} else if ("zero".equals(targetLevelTag)) {
+				// 执行人是社区层级管理者
+				hql = "from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where m.grouping.tag=? and zl.zid=? and m.firstLevel = null";
+				switch (groupTag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
+				// 第一/unreal/common 这三个tag或者是三个tag的总和
+				case "first":
+					params = new Object[] { "first", targetLevelId };
+					break;
+				case "common":
+					params = new Object[] { "common", targetLevelId };
+					break;
+				default: // 查询所有tag
+					hql = "from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where m.grouping.tag in(?,?) and zl.zid=? and m.firstLevel = null";
+					params = new Object[] { "first", "common", targetLevelId };
+					break;
+				}
+			} else if ("first".equals(targetLevelTag)) {
+				// 执行人是第一层级管理者
+				hql = "from User u inner join fetch u.members m inner join fetch m.firstLevel fl where m.grouping.tag=? and fl.flid=? and m.secondLevel=null";
+				switch (groupTag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
+				// 第二/unreal/common 这三个tag或者是三个tag的总和
+				case "second":
+					params = new Object[] { "second", targetLevelId };
+					break;
+				case "common":
+					params = new Object[] { "common", targetLevelId };
+					break;
+				default: // 查询所有tag
+					hql = "from User u inner join fetch u.members m inner join fetch m.firstLevel fl where m.grouping.tag in(?,?) and fl.flid=? and m.secondLevel=null";
+					params = new Object[] { "second", "common", targetLevelId };
+					break;
+				}
+			} else if ("second".equals(targetLevelTag)) {
+				// 执行人是第二层级管理者
+				hql = "from User u inner join fetch u.members m inner join fetch m.secondLevel scl where m.grouping.tag=? and scl.scid=? and m.thirdLevel = null";
+				switch (groupTag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
+				// 第三/unreal/common 这三个tag或者是三个tag的总和
+				case "third":
+					params = new Object[] { "third", targetLevelId };
+					break;
+				case "common":
+					params = new Object[] { "common", targetLevelId };
+					break;
+				default: // 查询所有tag
+					hql = "from User u inner join fetch u.members m inner join fetch m.secondLevel scl where m.grouping.tag in(?,?) and scl.scid=? and m.thirdLevel = null";
+					params = new Object[] { "third", "common", targetLevelId };
+					break;
+				}
+			} else if ("third".equals(targetLevelTag)) {
+				// 执行人是第三层级管理者
+				hql = "from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where m.grouping.tag=? and tl.thid=? and m.fourthLevel=null";
+				switch (groupTag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
+				// 第四/unreal/common 这三个tag或者是三个tag的总和
+				case "fourth":
+					params = new Object[] { "fourth", targetLevelId };
+					break;
+				case "common":
+					params = new Object[] { "common", targetLevelId };
+					break;
+				default:
+					hql = "from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where m.grouping.tag in(?,?) and tl.thid=? and m.fourthLevel=null";
+					params = new Object[] { "fourth", "common", targetLevelId };
+					break;
+				}
+			} else if ("fourth".equals(targetLevelTag)) {
+				hql = "from User u inner join fetch u.members m inner join fetch m.fourthLevel fol where fol.foid=?";
+				params = new Object[] { targetLevelId };
+			}
+		}
+
+		List<User> users = this.getHibernateTemplate().execute(new CommonHibernateCallback4QueryUser(hql, params));
+		return users;
+	}
+
+	@Override
+	public long getSelfLevelUsersCount(String targetLevelTag, String targetLevelId, String groupTag) {
+
+		List<User> selfLevelUsers = this.getSelfLevelUsers(targetLevelTag, targetLevelId, groupTag);
+		if (null == selfLevelUsers) {
+			return 0;
+		} else {
+			return selfLevelUsers.size();
+		}
+	}
+
+	@Override
+	public List<User> getSelfLevelUsersByPage(String targetLevelTag, String targetLevelId, int targetPageNum,
+			int pageItemNumLimit, String groupTag) {
+
+		String hql = "";
+		// 按顺序准备用于hql语句所需要的参数数组
+		Object[] params = null;
+
+		// 如果targetLevelTag表明当前操作者时admin，则
+		if ("admin".equals(targetLevelTag)) {
+			// 先准备好通用的hql语句
+			hql = "from User u inner join fetch u.members m where m.grouping.tag=? and m.minusFirstLevel=null";
+			switch (groupTag) {
+			// 根据“不在其位，不谋其政”的管理原则，admin只能看到 街道/unreal/common 这三个tag或者是三个tag的总和
+			case "minus_first":
+				params = new Object[] { "minus_first" };
+				break;
+			case "common":
+				params = new Object[] { "common" };
+				break;
+			case "unreal":
+				params = new Object[] { "unreal" };
+				break;
+			default:
+				hql = "from User u inner join fetch u.members m where m.grouping.tag in(?,?,?) and m.minusFirstLevel=null";
+				params = new Object[] { "minus_first", "common", "unreal" };
+				break;
+			}
+		} else {
+			// 非admin用户，根据其lid在有限范围内查找目标用户
+			if ("minus_first".equals(targetLevelTag)) {
+				// 执行人是街道层级管理者
+				hql = "from User u inner join fetch u.members m inner join fetch m.minusFirstLevel mfl where m.grouping.tag=? and mfl.mflid=? and m.zeroLevel=null";
+				switch (groupTag) {
+				// 社区/unreal/common 这三个tag或者是三个tag的总和
+				case "zero":
+					params = new Object[] { "zero", targetLevelId };
+					break;
+				case "common":
+					params = new Object[] { "common", targetLevelId };
+					break;
+				default: // 查询所有tag
+					hql = "from User u inner join fetch  u.members m inner join fetch m.minusFirstLevel mfl where m.grouping.tag in(?,?) and mfl.mflid=? and m.zeroLevel=null";
+					params = new Object[] { "zero", "common", targetLevelId };
+					break;
+				}
+			} else if ("zero".equals(targetLevelTag)) {
+				// 执行人是社区层级管理者
+				hql = "from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where m.grouping.tag=? and zl.zid=? and m.firstLevel = null";
+				switch (groupTag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
+				// 第一/unreal/common 这三个tag或者是三个tag的总和
+				case "first":
+					params = new Object[] { "first", targetLevelId };
+					break;
+				case "common":
+					params = new Object[] { "common", targetLevelId };
+					break;
+				default: // 查询所有tag
+					hql = "from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where m.grouping.tag in(?,?) and zl.zid=? and m.firstLevel = null";
+					params = new Object[] { "first", "common", targetLevelId };
+					break;
+				}
+			} else if ("first".equals(targetLevelTag)) {
+				// 执行人是第一层级管理者
+				hql = "from User u inner join fetch u.members m inner join fetch m.firstLevel fl where m.grouping.tag=? and fl.flid=? and m.secondLevel=null";
+				switch (groupTag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
+				// 第二/unreal/common 这三个tag或者是三个tag的总和
+				case "second":
+					params = new Object[] { "second", targetLevelId };
+					break;
+				case "common":
+					params = new Object[] { "common", targetLevelId };
+					break;
+				default: // 查询所有tag
+					hql = "from User u inner join fetch u.members m inner join fetch m.firstLevel fl where m.grouping.tag in(?,?) and fl.flid=? and m.secondLevel=null";
+					params = new Object[] { "second", "common", targetLevelId };
+					break;
+				}
+			} else if ("second".equals(targetLevelTag)) {
+				// 执行人是第二层级管理者
+				hql = "from User u inner join fetch u.members m inner join fetch m.secondLevel scl where m.grouping.tag=? and scl.scid=? and m.thirdLevel = null";
+				switch (groupTag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
+				// 第三/unreal/common 这三个tag或者是三个tag的总和
+				case "third":
+					params = new Object[] { "third", targetLevelId };
+					break;
+				case "common":
+					params = new Object[] { "common", targetLevelId };
+					break;
+				default: // 查询所有tag
+					hql = "from User u inner join fetch u.members m inner join fetch m.secondLevel scl where m.grouping.tag in(?,?) and scl.scid=? and m.thirdLevel = null";
+					params = new Object[] { "third", "common", targetLevelId };
+					break;
+				}
+			} else if ("third".equals(targetLevelTag)) {
+				// 执行人是第三层级管理者
+				hql = "from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where m.grouping.tag=? and tl.thid=? and m.fourthLevel=null";
+				switch (groupTag) {
+				// 根据“不在其位，不谋其政”的管理原则，街道管理者只能看到他所管轄的（member对应位的lid是它）
+				// 第四/unreal/common 这三个tag或者是三个tag的总和
+				case "fourth":
+					params = new Object[] { "fourth", targetLevelId };
+					break;
+				case "common":
+					params = new Object[] { "common", targetLevelId };
+					break;
+				default:
+					hql = "from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where m.grouping.tag in(?,?) and tl.thid=? and m.fourthLevel=null";
+					params = new Object[] { "fourth", "common", targetLevelId };
+					break;
+				}
+			} else if ("fourth".equals(targetLevelTag)) {
+				hql = "from User u inner join fetch u.members m inner join fetch m.fourthLevel fol where fol.foid=?";
+				params = new Object[] { targetLevelId };
+			}
+		}
+
+		List<User> result = this.getHibernateTemplate()
+				.execute(new PageLimitHibernateCallback4QueryUser(hql, params, targetPageNum, pageItemNumLimit));
+		return result;
+	}
+
+	@Override
+	public List<User> getChildrenLevelUsers(String targetLevelTag, String targetLevelId) {
+
+		// 根据当前操作者层级选择hql语句
+		String hql = "";
+		switch (targetLevelTag) {
+		case "admin":
+			hql = "from User u inner join fetch u.members m where m.minusFirstLevel <> null";
+			break;
+		case "minus_first":
+			hql = "from User u inner join fetch u.members m inner join fetch m.minusFirstLevel mfl where mfl.mflid=? and m.zeroLevel<>null";
+			break;
+		case "zero":
+			hql = "from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where zl.zid=? and m.firstLevel<>null";
+			break;
+		case "first":
+			hql = "from User u inner join fetch u.members m inner join fetch m.firstLevel fl where fl.flid=? and m.secondLevel<>null";
+			break;
+		case "second":
+			hql = "from User u inner join fetch u.members m inner join fetch m.secondLevel scl where scl.scid=? and m.thirdLevel<>null";
+			break;
+		case "third":
+			hql = "from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where tl.thid=? and m.fourthLevel<>null";
+			break;
+		}
+
+		// 按顺序准备用于hql语句所需要的参数数组
+		Object[] params = new Object[] { targetLevelId };
+
+		List<User> result = this.getHibernateTemplate().execute(new CommonHibernateCallback4QueryUser(hql, params));
+		return result;
+	}
+
+	@Override
+	public long getChildrenLevelUsersCount(String targetLevelTag, String targetLevelId) {
+
+		List<User> childrenLevelUsers = this.getChildrenLevelUsers(targetLevelTag, targetLevelId);
+		if (null == childrenLevelUsers) {
+			return 0;
+		} else {
+			return childrenLevelUsers.size();
+		}
+	}
+
+	@Override
+	public List<User> getChildrenLevelUsersByPage(String targetLevelTag, String targetLevelId, int targetPageNum,
+			int pageItemNumLimit) {
+
+		// 根据当前操作者层级选择hql语句
+		String hql = "";
+		// 按顺序准备用于hql语句所需要的参数数组
+		Object[] params = new Object[] { targetLevelId };
+		switch (targetLevelTag) {
+		case "admin":
+			hql = "from User u inner join fetch u.members m where m.minusFirstLevel <> null";
+			params = new Object[] {};
+			break;
+		case "minus_first":
+			hql = "from User u inner join fetch u.members m inner join fetch m.minusFirstLevel mfl where mfl.mflid=? and m.zeroLevel<>null";
+			break;
+		case "zero":
+			hql = "from User u inner join fetch u.members m inner join fetch m.zeroLevel zl where zl.zid=? and m.firstLevel<>null";
+			break;
+		case "first":
+			hql = "from User u inner join fetch u.members m inner join fetch m.firstLevel fl where fl.flid=? and m.secondLevel<>null";
+			break;
+		case "second":
+			hql = "from User u inner join fetch u.members m inner join fetch m.secondLevel scl where scl.scid=? and m.thirdLevel<>null";
+			break;
+		case "third":
+			hql = "from User u inner join fetch u.members m inner join fetch m.thirdLevel tl where tl.thid=? and m.fourthLevel<>null";
+			break;
+		}
+		
+		List<User> result = this.getHibernateTemplate().execute(new PageLimitHibernateCallback4QueryUser(hql, params, targetPageNum, pageItemNumLimit));
+		return result;
+	}
 
 }

@@ -39,7 +39,7 @@
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
 
-									<button class="btn btn-sm btn-outline-secondary"  onclick="$(location).attr('href','userAction_getManagerList.action');"
+									<button class="btn btn-sm btn-outline-secondary"  onclick="$(location).attr('href','userAction_toManagerList.action');"
 										data-toggle="modal" data-target="#newUserModal">
 										<span class="glyphicon glyphicon-plus"></span>返回
 									</button>

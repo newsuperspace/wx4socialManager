@@ -2,25 +2,43 @@ package cc.natapp4.ddaig.service_implement;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 
 import org.apache.struts2.ServletActionContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-
+import cc.natapp4.ddaig.bean.health.Bean4InitSelector;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
 import cc.natapp4.ddaig.dao_interface.BaseDao;
 import cc.natapp4.ddaig.dao_interface.UserDao;
 import cc.natapp4.ddaig.domain.Grouping;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
+import cc.natapp4.ddaig.domain.cengji.FirstLevel;
+import cc.natapp4.ddaig.domain.cengji.FourthLevel;
+import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
+import cc.natapp4.ddaig.domain.cengji.SecondLevel;
+import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
+import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
+import cc.natapp4.ddaig.domain.health.Sample4EnclosedScale;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
+import cc.natapp4.ddaig.service_interface.FirstLevelService;
+import cc.natapp4.ddaig.service_interface.FourthLevelService;
 import cc.natapp4.ddaig.service_interface.GroupingService;
+import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
+import cc.natapp4.ddaig.service_interface.SecondLevelService;
+import cc.natapp4.ddaig.service_interface.ThirdLevelService;
 import cc.natapp4.ddaig.service_interface.UserService;
+import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.utils.QRCodeUtils;
 import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
 
@@ -59,6 +77,19 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	private UserDao dao;
 	@Resource(name = "groupingService")
 	private GroupingService groupingService;
+	@Autowired
+	private MinusFirstLevelService minusFirstLevelService;
+	@Autowired
+	private ZeroLevelService zeroLevelService;
+	@Autowired
+	private FirstLevelService firstLevelService;
+	@Autowired
+	private SecondLevelService secondLevelService;
+	@Autowired
+	private ThirdLevelService thirdLevelService;
+	@Autowired
+	private FourthLevelService fourthLevelService;
+	
 	/*
 	 * TODO 下方涉及负责与微信公众号交互的weixinService4Setting等Service由于需要在Servlet环境的支持
 	 * 因此在JUnit测试有关User/Manager/Member的Service→Dao层的时候请先注解掉这部分内容
@@ -75,7 +106,19 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	public User queryByOpenId(String openID) {
 		return dao.queryByOpenId(openID);
 	}
+	
+	@Override
+	public User queryByPhone(String phoneNum) {
+		return dao.queryByPhone(phoneNum);
+	}
 
+	@Override
+	public List<User> queryByTagName(String tagName) {
+
+		List<User> list = dao.queryByTagName(tagName);
+		return list;
+	}
+	
 	/**
 	 * 实名认证
 	 */
@@ -146,84 +189,547 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		super.save(t);
 	}
 
-	/**
-	 * 在公众号初始化阶段(WeiXinAction类中的recall()中调用mpService4Setting.InitPlatform()
-	 * 实现公众号初始化) 调用的新建用户的方法，它不会生成qrcode图片
-	 * 之所以不在初始化阶段直接使用UserServiceImpl的save()方法,是由于save()
-	 * 方法中调用QRCodeUtils中的createUserQR()方法的时候会根据用户的uid生成个人专属qrcode
-	 * 但是在创建保存qrcode的图片路径的时候需要用到ServletActionContext.getServletContext()
-	 * 是依据TLS（线程局部存储技术）实现的，需要线程ID，但是公众号初始化是创建的新线程
-	 * 因此通过ServletActionContext.getServletContext()根据新线程的ID（该线程不是servlet线程）
-	 * 自然也就找不到ServletContext对象，从而爆出NullPointerException。
-	 * 所以对于初始化平台时，新建用户的需求，只能向数据库新建除QRCODE的数据，等之后平台初始化成功后，在通过一个方法（
-	 * batchCreateUserQR()）批量根据数据库中的每个用户的uid补创建qrcode
-	 */
-	public void saveInInit(User t) {
-		// 由于需要使用uid来创建qrcode，所以这里手动uid并传入到bean中
-		String uid = UUID.randomUUID().toString();
-		t.setUid(uid);
-		// 至此后台新建用户所需要的数据都已经放入到bean中了，最后再提交父类，调用UserDao保存到数据库
-		super.save(t);
-	}
-
-	/**
-	 * 批处理：批量生成用户数据库中所有用户的QRCODE 图片 适合初始化公众号后，或者应用新部署到服务器，旧的用户QRCODE已经丢失的时候
-	 * 由在后台调用该方法，这样就可以根据每个用户的uid重新生成对应的QRCODE图片
-	 */
-	public void batchCreateUserQR() {
-		List<User> list = this.queryEntities();
-		for (User u : list) {
-			String uid = u.getUid();
-			String qr = QRCodeUtils.createUserQR(uid);
-			u.setQrcode(qr);
-			// 由于Hibernate的二级缓存机制，使得哦们根本不需要显式调用update()方法，就能自动向数据库保存修改了 ★
-			// this.update(u);
-		}
-		System.out.println("全部用户的uid已重新生成！");
-	}
-
 	@Override
-	public List<User> queryByTagName(String tagName) {
-
-		List<User> list = dao.queryByTagName(tagName);
-		return list;
+	public User queryByUsername(String username) {
+		return dao.queryByUsername(username);
 	}
-
-	@Override
-	public List<Member> getManagers(String tag, String levelTag, String lid) {
-		return dao.getManagers(tag, levelTag, lid);
-	}
-
-	@Override
-	public User getUserByUsername(String username) {
-		return dao.getUserByUsername(username);
-	}
-
-	@Override
-	public List<User> getChildrenLevelUsers(String tag, String lid) {
-		return dao.getChildrenLevelUsers(tag, lid);
-	}
-
-	@Override
-	public List<User> getAllLevelUsers(String tag, String lid) {
-		return dao.getAllLevelUsers(tag, lid);
-	}
-
-	@Override
-	public User queryByPhone(String phoneNum) {
-		return dao.queryByPhone(phoneNum);
-	}
-
-	@Override
-	public long getAllLevelUsersCount(String tag, String lid) {
-		return dao.getAllLevelUsersCount(tag, lid);
-	}
+	
 
 	
 	@Override
-	public List<User> getAllLevelUsersByPage(String targetTag, String targetLid, int targetPageNum, int pageItemNumLimit){
-		return dao.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
+	public ReturnMessage4CountandCreateFirstPage getCountandCreateFirstPage4InitLaypage(String targetTag,
+			String targetLid, int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag) {
+
+		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
+		List<User> firstPageUsers = new ArrayList<User>();
+		long total = 0;
+		
+		if("userList4currentLevel".equals(whereFrom)) {
+			// 如果请求者来自userList且目标获取对象和当前登录的层级管理者相同，则只获取当前层级的非直辖成员
+			firstPageUsers = this.dao.getChildrenLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
+			total = this.dao.getChildrenLevelUsersCount(targetTag, targetLid);
+		}else if("userList4childLevel".equals(whereFrom)) {
+			// 如果请求者来自userList且目标获取对象和当前登录的层级管理者不同（目标是当前层级的子孙），则获取目标层级的所有成员(直辖+非直辖)
+			firstPageUsers = this.dao.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
+			total = this.dao.getAllLevelUsersCount(targetTag, targetLid);
+		}else if("managerList".equals(whereFrom)) {
+			// 如果请求来在managerList，则只获取
+			firstPageUsers = this.dao.getSelfLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit, groupTag);
+			total = this.dao.getSelfLevelUsersCount(targetTag, targetLid, targetTag);
+		}
+		
+		result.setCount(total);
+		result.setUsers(firstPageUsers);
+		return result;
 	}
+
+	@Override
+	public ReturnMessage4CountandCreateFirstPage getUsersByPageLimit(String targetTag, String targetLid,
+			int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag) {
+
+		
+		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
+		List<User> users = new ArrayList<User>();;
+
+		if("userList4currentLevel".equals(whereFrom)) {
+			users = dao.getChildrenLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
+		}else if("userList4childLevel".equals(whereFrom)) {
+			users = dao.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
+		}else if("managerList".equals(whereFrom)){
+			users = dao.getSelfLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit, groupTag);
+		}
+		
+		result.setUsers(users);
+		return result;
+	}
+	
+
+	@Override
+	public ReturnMessage4InitSelector initSelector(String currentLevelTag, String currentLevelId) {
+		ReturnMessage4InitSelector result = new ReturnMessage4InitSelector();
+		List<Bean4InitSelector> total = new ArrayList<Bean4InitSelector>();
+		/*
+		 * 前端负责使用当前方法给出的JSON数据源的时候，会检查每个Bean中的children的length长度
+		 * 因此为防止出现空指针异常，哪怕默认项不含有子对象，也要给出一个空数组（Bean中就是List容器） 而不能是null
+		 */
+		Bean4InitSelector defaultBean = new Bean4InitSelector("", "0", new ArrayList<Bean4InitSelector>());
+
+		if ("admin".equals(currentLevelTag)) {
+			// 当前操作者为系统管理员，获取所有层级数据
+			List<MinusFirstLevel> minusFirstLevels = minusFirstLevelService.queryEntities();
+			for (int a = 0; a < minusFirstLevels.size(); a++) {
+				Bean4InitSelector minusFirst = new Bean4InitSelector();
+				minusFirst.setLabel(minusFirstLevels.get(a).getName());
+				minusFirst.setValue("minusFirst_" + minusFirstLevels.get(a).getMflid());
+				List<Bean4InitSelector> children4MinusFirst = new ArrayList<Bean4InitSelector>();
+				Set<ZeroLevel> zeroLevels = minusFirstLevels.get(a).getChildren();
+
+				if (null != zeroLevels && zeroLevels.size() > 0)
+					children4MinusFirst.add(defaultBean);
+
+				for (ZeroLevel b : zeroLevels) {
+					Bean4InitSelector zero = new Bean4InitSelector();
+					zero.setLabel(b.getName());
+					zero.setValue("zero_" + b.getZid());
+					List<Bean4InitSelector> children4Zero = new ArrayList<Bean4InitSelector>();
+					Set<FirstLevel> firstLevels = b.getChildren();
+
+					if (null != firstLevels && firstLevels.size() > 0)
+						children4Zero.add(defaultBean);
+
+					for (FirstLevel c : firstLevels) {
+						Bean4InitSelector first = new Bean4InitSelector();
+						first.setLabel(c.getName());
+						first.setValue("first_" + c.getFlid());
+						List<Bean4InitSelector> children4First = new ArrayList<Bean4InitSelector>();
+						Set<SecondLevel> secondLevels = c.getChildren();
+
+						if (null != secondLevels && secondLevels.size() > 0)
+							children4First.add(defaultBean);
+
+						for (SecondLevel d : secondLevels) {
+							Bean4InitSelector second = new Bean4InitSelector();
+							second.setLabel(d.getName());
+							second.setValue("second_" + d.getScid());
+							List<Bean4InitSelector> children4Second = new ArrayList<Bean4InitSelector>();
+							Set<ThirdLevel> thirdLevels = d.getChildren();
+
+							if (null != thirdLevels && thirdLevels.size() > 0)
+								children4Second.add(defaultBean);
+
+							for (ThirdLevel e : thirdLevels) {
+								Bean4InitSelector third = new Bean4InitSelector();
+								third.setLabel(e.getName());
+								third.setValue("third_" + e.getThid());
+								List<Bean4InitSelector> children4Third = new ArrayList<Bean4InitSelector>();
+								Set<FourthLevel> fourthLevels = e.getChildren();
+
+								if (null != fourthLevels && fourthLevels.size() > 0)
+									children4Third.add(defaultBean);
+
+								for (FourthLevel f : fourthLevels) {
+									Bean4InitSelector fourth = new Bean4InitSelector();
+									fourth.setLabel(f.getName());
+									fourth.setValue("fourth_" + f.getFoid());
+									fourth.setChildren(new ArrayList<Bean4InitSelector>()); // 防止JSON解析空指针
+
+									children4Third.add(fourth);
+								}
+
+								third.setChildren(children4Third);
+								children4Second.add(third);
+							}
+
+							second.setChildren(children4Second);
+							children4First.add(second);
+						}
+
+						first.setChildren(children4First);
+						children4Zero.add(first);
+					}
+
+					zero.setChildren(children4Zero);
+					children4MinusFirst.add(zero);
+				}
+
+				minusFirst.setChildren(children4MinusFirst);
+				total.add(minusFirst);
+			}
+
+		} else if ("minus_first".equals(currentLevelTag)) {
+			// 当前层级管理者为minus_first
+			MinusFirstLevel minusFirstLevel = minusFirstLevelService.queryEntityById(currentLevelId);
+
+			Bean4InitSelector minusFirstBean = new Bean4InitSelector();
+			minusFirstBean.setLabel(minusFirstLevel.getName());
+			minusFirstBean.setValue("minusFirst_" + minusFirstLevel.getMflid());
+			List<Bean4InitSelector> children4MinusFirst = new ArrayList<Bean4InitSelector>();
+
+			if (null != minusFirstLevel.getChildren() && minusFirstLevel.getChildren().size() > 0)
+				children4MinusFirst.add(defaultBean);
+
+			for (ZeroLevel zeroLevel : minusFirstLevel.getChildren()) {
+				Bean4InitSelector zeroBean = new Bean4InitSelector();
+				zeroBean.setLabel(zeroLevel.getName());
+				zeroBean.setValue("zero_" + zeroLevel.getZid());
+				List<Bean4InitSelector> children4Zero = new ArrayList<Bean4InitSelector>();
+
+				if (null != zeroLevel.getChildren() && zeroLevel.getChildren().size() > 0)
+					children4Zero.add(defaultBean);
+
+				for (FirstLevel firstLevel : zeroLevel.getChildren()) {
+					Bean4InitSelector firstBean = new Bean4InitSelector();
+					firstBean.setLabel(firstLevel.getName());
+					firstBean.setValue("first_" + firstLevel.getFlid());
+					List<Bean4InitSelector> children4First = new ArrayList<Bean4InitSelector>();
+
+					if (null != firstLevel.getChildren() && firstLevel.getChildren().size() > 0)
+						children4First.add(defaultBean);
+
+					for (SecondLevel secondLevel : firstLevel.getChildren()) {
+						Bean4InitSelector secondBean = new Bean4InitSelector();
+						secondBean.setLabel(secondLevel.getName());
+						secondBean.setValue("second_" + secondLevel.getScid());
+						List<Bean4InitSelector> children4Second = new ArrayList<Bean4InitSelector>();
+
+						if (null != secondLevel.getChildren() && secondLevel.getChildren().size() > 0)
+							children4Second.add(defaultBean);
+
+						for (ThirdLevel thirdLevel : secondLevel.getChildren()) {
+							Bean4InitSelector thirdBean = new Bean4InitSelector();
+							thirdBean.setLabel(thirdLevel.getName());
+							thirdBean.setValue("third_" + thirdLevel.getThid());
+							List<Bean4InitSelector> children4Third = new ArrayList<Bean4InitSelector>();
+
+							if (null != thirdLevel.getChildren() && thirdLevel.getChildren().size() > 0)
+								children4Third.add(defaultBean);
+
+							for (FourthLevel fourthLevel : thirdLevel.getChildren()) {
+								Bean4InitSelector fourthBean = new Bean4InitSelector();
+								fourthBean.setLabel(fourthLevel.getName());
+								fourthBean.setValue("fourth_" + fourthLevel.getFoid());
+								fourthBean.setChildren(new ArrayList<Bean4InitSelector>()); // 防止JSON解析空指针
+								children4Third.add(fourthBean);
+							}
+
+							thirdBean.setChildren(children4Third);
+							children4Second.add(thirdBean);
+						}
+
+						secondBean.setChildren(children4Second);
+						children4First.add(secondBean);
+					}
+
+					firstBean.setChildren(children4First);
+					children4Zero.add(firstBean);
+				}
+
+				zeroBean.setChildren(children4Zero);
+				children4MinusFirst.add(zeroBean);
+			}
+
+			minusFirstBean.setChildren(children4MinusFirst);
+			total.add(minusFirstBean);
+
+		} else if ("zero".equals(currentLevelTag)) {
+
+			// 当前层级管理者为zero
+			ZeroLevel zeroLevel = zeroLevelService.queryEntityById(currentLevelId);
+			Bean4InitSelector zeroBean = new Bean4InitSelector();
+			zeroBean.setLabel(zeroLevel.getName());
+			zeroBean.setValue("zero_" + zeroLevel.getZid());
+			List<Bean4InitSelector> children4Zero = new ArrayList<Bean4InitSelector>();
+
+			if (null != zeroLevel.getChildren() && zeroLevel.getChildren().size() > 0)
+				children4Zero.add(defaultBean);
+
+			for (FirstLevel firstLevel : zeroLevel.getChildren()) {
+				Bean4InitSelector firstBean = new Bean4InitSelector();
+				firstBean.setLabel(firstLevel.getName());
+				firstBean.setValue("first_" + firstLevel.getFlid());
+				List<Bean4InitSelector> children4First = new ArrayList<Bean4InitSelector>();
+
+				if (null != firstLevel.getChildren() && firstLevel.getChildren().size() > 0)
+					children4First.add(defaultBean);
+
+				for (SecondLevel secondLevel : firstLevel.getChildren()) {
+					Bean4InitSelector secondBean = new Bean4InitSelector();
+					secondBean.setLabel(secondLevel.getName());
+					secondBean.setValue("second_" + secondLevel.getScid());
+					List<Bean4InitSelector> children4Second = new ArrayList<Bean4InitSelector>();
+
+					if (null != secondLevel.getChildren() && secondLevel.getChildren().size() > 0)
+						children4Second.add(defaultBean);
+
+					for (ThirdLevel thirdLevel : secondLevel.getChildren()) {
+						Bean4InitSelector thirdBean = new Bean4InitSelector();
+						thirdBean.setLabel(thirdLevel.getName());
+						thirdBean.setValue("third_" + thirdLevel.getThid());
+						List<Bean4InitSelector> children4Third = new ArrayList<Bean4InitSelector>();
+
+						if (null != thirdLevel.getChildren() && thirdLevel.getChildren().size() > 0)
+							children4Third.add(defaultBean);
+
+						for (FourthLevel fourthLevel : thirdLevel.getChildren()) {
+							Bean4InitSelector fourthBean = new Bean4InitSelector();
+							fourthBean.setLabel(fourthLevel.getName());
+							fourthBean.setValue("fourth_" + fourthLevel.getFoid());
+							fourthBean.setChildren(new ArrayList<Bean4InitSelector>()); // 防止JSON解析空指针
+							children4Third.add(fourthBean);
+						}
+
+						thirdBean.setChildren(children4Third);
+						children4Second.add(thirdBean);
+					}
+
+					secondBean.setChildren(children4Second);
+					children4First.add(secondBean);
+				}
+
+				firstBean.setChildren(children4First);
+				children4Zero.add(firstBean);
+			}
+			zeroBean.setChildren(children4Zero);
+
+			MinusFirstLevel minusFirstLevel = zeroLevel.getParent();
+			Bean4InitSelector minusFirstBean = new Bean4InitSelector();
+			minusFirstBean.setLabel(minusFirstLevel.getName());
+			minusFirstBean.setValue("minusFirst_" + minusFirstLevel.getMflid());
+			List<Bean4InitSelector> children4MinusFirst = new ArrayList<Bean4InitSelector>();
+			children4MinusFirst.add(zeroBean);
+			minusFirstBean.setChildren(children4MinusFirst);
+
+			total.add(minusFirstBean);
+
+		} else if ("first".equals(currentLevelTag)) {
+
+			// 当前层级管理者为First
+			FirstLevel firstLevel = firstLevelService.queryEntityById(currentLevelId);
+			Bean4InitSelector firstBean = new Bean4InitSelector();
+			firstBean.setLabel(firstLevel.getName());
+			firstBean.setValue("first_" + firstLevel.getFlid());
+			List<Bean4InitSelector> children4First = new ArrayList<Bean4InitSelector>();
+
+			if (null != firstLevel.getChildren() && firstLevel.getChildren().size() > 0)
+				children4First.add(defaultBean);
+
+			for (SecondLevel secondLevel : firstLevel.getChildren()) {
+				Bean4InitSelector secondBean = new Bean4InitSelector();
+				secondBean.setLabel(secondLevel.getName());
+				secondBean.setValue("second_" + secondLevel.getScid());
+				List<Bean4InitSelector> children4Second = new ArrayList<Bean4InitSelector>();
+
+				if (null != secondLevel.getChildren() && secondLevel.getChildren().size() > 0)
+					children4Second.add(defaultBean);
+
+				for (ThirdLevel thirdLevel : secondLevel.getChildren()) {
+					Bean4InitSelector thirdBean = new Bean4InitSelector();
+					thirdBean.setLabel(thirdLevel.getName());
+					thirdBean.setValue("third_" + thirdLevel.getThid());
+					List<Bean4InitSelector> children4Third = new ArrayList<Bean4InitSelector>();
+
+					if (null != thirdLevel.getChildren() && thirdLevel.getChildren().size() > 0)
+						children4Third.add(defaultBean);
+
+					for (FourthLevel fourthLevel : thirdLevel.getChildren()) {
+						Bean4InitSelector fourthBean = new Bean4InitSelector();
+						fourthBean.setLabel(fourthLevel.getName());
+						fourthBean.setValue("fourth_" + fourthLevel.getFoid());
+						fourthBean.setChildren(new ArrayList<Bean4InitSelector>()); // 防止JSON解析空指针
+						children4Third.add(fourthBean);
+					}
+
+					thirdBean.setChildren(children4Third);
+					children4Second.add(thirdBean);
+				}
+
+				secondBean.setChildren(children4Second);
+				children4First.add(secondBean);
+			}
+			firstBean.setChildren(children4First);
+
+			ZeroLevel zeroLevel = firstLevel.getParent();
+			Bean4InitSelector zeroBean = new Bean4InitSelector();
+			zeroBean.setLabel(zeroLevel.getName());
+			zeroBean.setValue("zero_" + zeroLevel.getZid());
+			List<Bean4InitSelector> children4Zero = new ArrayList<Bean4InitSelector>();
+			children4Zero.add(firstBean);
+			zeroBean.setChildren(children4Zero);
+
+			MinusFirstLevel minusFirstLevel = zeroLevel.getParent();
+			Bean4InitSelector minusFirstBean = new Bean4InitSelector();
+			minusFirstBean.setLabel(minusFirstLevel.getName());
+			minusFirstBean.setValue("minusFirst_" + minusFirstLevel.getMflid());
+			List<Bean4InitSelector> children4MinusFirst = new ArrayList<Bean4InitSelector>();
+			children4MinusFirst.add(zeroBean);
+			minusFirstBean.setChildren(children4MinusFirst);
+
+			total.add(minusFirstBean);
+
+		} else if ("second".equals(currentLevelTag)) {
+
+			// 当前层级管理者为Second
+			SecondLevel secondLevel = secondLevelService.queryEntityById(currentLevelId);
+			Bean4InitSelector secondBean = new Bean4InitSelector();
+			secondBean.setLabel(secondLevel.getName());
+			secondBean.setValue("second_" + secondLevel.getScid());
+			List<Bean4InitSelector> children4Second = new ArrayList<Bean4InitSelector>();
+
+			if (null != secondLevel.getChildren() && secondLevel.getChildren().size() > 0)
+				children4Second.add(defaultBean);
+
+			for (ThirdLevel thirdLevel : secondLevel.getChildren()) {
+				Bean4InitSelector thirdBean = new Bean4InitSelector();
+				thirdBean.setLabel(thirdLevel.getName());
+				thirdBean.setValue("third_" + thirdLevel.getThid());
+				List<Bean4InitSelector> children4Third = new ArrayList<Bean4InitSelector>();
+
+				if (null != thirdLevel.getChildren() && thirdLevel.getChildren().size() > 0)
+					children4Third.add(defaultBean);
+
+				for (FourthLevel fourthLevel : thirdLevel.getChildren()) {
+					Bean4InitSelector fourthBean = new Bean4InitSelector();
+					fourthBean.setLabel(fourthLevel.getName());
+					fourthBean.setValue("fourth_" + fourthLevel.getFoid());
+					fourthBean.setChildren(new ArrayList<Bean4InitSelector>()); // 防止JSON解析空指针
+					children4Third.add(fourthBean);
+				}
+
+				thirdBean.setChildren(children4Third);
+				children4Second.add(thirdBean);
+			}
+			secondBean.setChildren(children4Second);
+
+			FirstLevel firstLevel = secondLevel.getParent();
+			Bean4InitSelector firstBean = new Bean4InitSelector();
+			firstBean.setLabel(firstLevel.getName());
+			firstBean.setValue("first_" + firstLevel.getFlid());
+			List<Bean4InitSelector> children4First = new ArrayList<Bean4InitSelector>();
+			children4First.add(secondBean);
+			firstBean.setChildren(children4First);
+
+			ZeroLevel zeroLevel = firstLevel.getParent();
+			Bean4InitSelector zeroBean = new Bean4InitSelector();
+			zeroBean.setLabel(zeroLevel.getName());
+			zeroBean.setValue("zero_" + zeroLevel.getZid());
+			List<Bean4InitSelector> children4Zero = new ArrayList<Bean4InitSelector>();
+			children4Zero.add(firstBean);
+			zeroBean.setChildren(children4Zero);
+
+			MinusFirstLevel minusFirstLevel = zeroLevel.getParent();
+			Bean4InitSelector minusFirstBean = new Bean4InitSelector();
+			minusFirstBean.setLabel(minusFirstLevel.getName());
+			minusFirstBean.setValue("minusFirst_" + minusFirstLevel.getMflid());
+			List<Bean4InitSelector> children4MinusFirst = new ArrayList<Bean4InitSelector>();
+			children4MinusFirst.add(zeroBean);
+			minusFirstBean.setChildren(children4MinusFirst);
+
+			total.add(minusFirstBean);
+
+		} else if ("third".equals(currentLevelTag)) {
+
+			// 当前层级管理者为Third
+
+			ThirdLevel thirdLevel = thirdLevelService.queryEntityById(currentLevelId);
+			Bean4InitSelector thirdBean = new Bean4InitSelector();
+			thirdBean.setLabel(thirdLevel.getName());
+			thirdBean.setValue("third_" + thirdLevel.getThid());
+			List<Bean4InitSelector> children4Third = new ArrayList<Bean4InitSelector>();
+
+			if (null != thirdLevel.getChildren() && thirdLevel.getChildren().size() > 0)
+				children4Third.add(defaultBean);
+
+			for (FourthLevel fourthLevel : thirdLevel.getChildren()) {
+				Bean4InitSelector fourthBean = new Bean4InitSelector();
+				fourthBean.setLabel(fourthLevel.getName());
+				fourthBean.setValue("fourth_" + fourthLevel.getFoid());
+				fourthBean.setChildren(new ArrayList<Bean4InitSelector>()); // 防止JSON解析空指针
+				children4Third.add(fourthBean);
+			}
+			thirdBean.setChildren(children4Third);
+
+			SecondLevel secondLevel = thirdLevel.getParent();
+			Bean4InitSelector secondBean = new Bean4InitSelector();
+			secondBean.setLabel(secondLevel.getName());
+			secondBean.setValue("second_" + secondLevel.getScid());
+			List<Bean4InitSelector> children4Second = new ArrayList<Bean4InitSelector>();
+			children4Second.add(thirdBean);
+			secondBean.setChildren(children4Second);
+
+			FirstLevel firstLevel = secondLevel.getParent();
+			Bean4InitSelector firstBean = new Bean4InitSelector();
+			firstBean.setLabel(firstLevel.getName());
+			firstBean.setValue("first_" + firstLevel.getFlid());
+			List<Bean4InitSelector> children4First = new ArrayList<Bean4InitSelector>();
+			children4First.add(secondBean);
+			firstBean.setChildren(children4First);
+
+			ZeroLevel zeroLevel = firstLevel.getParent();
+			Bean4InitSelector zeroBean = new Bean4InitSelector();
+			zeroBean.setLabel(zeroLevel.getName());
+			zeroBean.setValue("zero_" + zeroLevel.getZid());
+			List<Bean4InitSelector> children4Zero = new ArrayList<Bean4InitSelector>();
+			children4Zero.add(firstBean);
+			zeroBean.setChildren(children4Zero);
+
+			MinusFirstLevel minusFirstLevel = zeroLevel.getParent();
+			Bean4InitSelector minusFirstBean = new Bean4InitSelector();
+			minusFirstBean.setLabel(minusFirstLevel.getName());
+			minusFirstBean.setValue("minusFirst_" + minusFirstLevel.getMflid());
+			List<Bean4InitSelector> children4MinusFirst = new ArrayList<Bean4InitSelector>();
+			children4MinusFirst.add(zeroBean);
+			minusFirstBean.setChildren(children4MinusFirst);
+
+			total.add(minusFirstBean);
+
+		} else if ("fourth".equals(currentLevelTag)) {
+			// 当前层级管理者为Fourth
+			FourthLevel fourthLevel = fourthLevelService.queryEntityById(currentLevelId);
+			Bean4InitSelector fourthBean = new Bean4InitSelector();
+			fourthBean.setLabel(fourthLevel.getName());
+			fourthBean.setValue("fourth_" + fourthLevel.getFoid());
+			fourthBean.setChildren(new ArrayList<Bean4InitSelector>()); // 防止JSON解析空指针
+
+			ThirdLevel thirdLevel = fourthLevel.getParent();
+			Bean4InitSelector thirdBean = new Bean4InitSelector();
+			thirdBean.setLabel(thirdLevel.getName());
+			thirdBean.setValue("third_" + thirdLevel.getThid());
+			List<Bean4InitSelector> children4Third = new ArrayList<Bean4InitSelector>();
+			children4Third.add(fourthBean);
+			thirdBean.setChildren(children4Third);
+
+			SecondLevel secondLevel = thirdLevel.getParent();
+			Bean4InitSelector secondBean = new Bean4InitSelector();
+			secondBean.setLabel(secondLevel.getName());
+			secondBean.setValue("second_" + secondLevel.getScid());
+			List<Bean4InitSelector> children4Second = new ArrayList<Bean4InitSelector>();
+			children4Second.add(thirdBean);
+			secondBean.setChildren(children4Second);
+
+			FirstLevel firstLevel = secondLevel.getParent();
+			Bean4InitSelector firstBean = new Bean4InitSelector();
+			firstBean.setLabel(firstLevel.getName());
+			firstBean.setValue("first_" + firstLevel.getFlid());
+			List<Bean4InitSelector> children4First = new ArrayList<Bean4InitSelector>();
+			children4First.add(secondBean);
+			firstBean.setChildren(children4First);
+
+			ZeroLevel zeroLevel = firstLevel.getParent();
+			Bean4InitSelector zeroBean = new Bean4InitSelector();
+			zeroBean.setLabel(zeroLevel.getName());
+			zeroBean.setValue("zero_" + zeroLevel.getZid());
+			List<Bean4InitSelector> children4Zero = new ArrayList<Bean4InitSelector>();
+			children4Zero.add(firstBean);
+			zeroBean.setChildren(children4Zero);
+
+			MinusFirstLevel minusFirstLevel = zeroLevel.getParent();
+			Bean4InitSelector minusFirstBean = new Bean4InitSelector();
+			minusFirstBean.setLabel(minusFirstLevel.getName());
+			minusFirstBean.setValue("minusFirst_" + minusFirstLevel.getMflid());
+			List<Bean4InitSelector> children4MinusFirst = new ArrayList<Bean4InitSelector>();
+			children4MinusFirst.add(zeroBean);
+			minusFirstBean.setChildren(children4MinusFirst);
+
+			total.add(minusFirstBean);
+		}
+
+		result.setDataSource(total);
+		result.setDefaultValue(new ArrayList<String>()); // 前端picker-extend.js会检查数组深度，因此不能为null，需要给出一个空数组
+		return result;
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	@Override
+	public List<User> getManagers(String targetLevelTag, String targetLevelId, String groupTag) {
+		return dao.getSelfLevelUsers(targetLevelTag, targetLevelId, groupTag);
+	}
+
 
 	
 }

@@ -14,13 +14,15 @@
 		strict-method-invocation="false">
 		<action name="userAction_*" method="{1}" class="userAction">
 			<result>/index.jsp</result>
-			<result name="list">/WEB-INF/pages/right/user/userList.jsp
+			<result name="userList">/WEB-INF/pages/right/user/userList.jsp
 			</result>
 			<result name="managerList">/WEB-INF/pages/right/user/managerList.jsp
 			</result>
 			<result name="batchCreateUser">/WEB-INF/pages/right/user/batchCreateUser.jsp
 			</result>
+			
 			<result name="json" type="json"></result>
+			
 			<result name="visitList">/WEB-INF/pages/right/user/visitList.jsp</result>
 
 			<!-- 负责处理下载有FreeMarker生成的“直辖人员电子台账” -->

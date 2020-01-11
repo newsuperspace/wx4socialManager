@@ -299,7 +299,7 @@ public class MyRealm4Input extends AuthorizingRealm {
 		}
 
 		// 现在根据username从数据库中查找到了对应的用户对象,并且判断TA是不是一个管理员（manager是否为null）
-		User user = userService.getUserByUsername(username);
+		User user = userService.queryByUsername(username);
 		if (null == user) {
 			return null;
 		}

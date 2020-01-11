@@ -54,9 +54,9 @@
 										</button>
 										<div class="dropdown-menu dropdown-menu-right"
 											aria-labelledby="others">
-											<a class="dropdown-item" href="#"
-												onclick="userModal.op.batchCreateQR();">批量重建二维码</a> <a
-												class="dropdown-item disabled" href="#">Disabled action</a>
+											<a class="dropdown-item" href="#" onclick="alert('AAAAA');">操作A</a>
+											<a class="dropdown-item disabled" href="#">Disabled
+												action</a>
 											<h6 class="dropdown-header">Section header</h6>
 											<a class="dropdown-item" href="#">Action</a>
 											<div class="dropdown-divider"></div>
@@ -117,9 +117,8 @@
 														href="#">新活动</s:a>
 													 -->
 													<s:a cssClass="btn btn-sm btn-outline-secondary"
-														role="button" type="button"
-														data-toggle="modal" data-target="#modelId"
-														onclick="dpid='%{dpid}';" href="#">新活动</s:a>
+														role="button" type="button" data-toggle="modal"
+														data-target="#modelId" onclick="dpid='%{dpid}';" href="#">新活动</s:a>
 													<button type="button"
 														class="btn btn-outline-secondary btn-sm">其他</button>
 												</div>
@@ -199,8 +198,7 @@
 									<label class="form-check-label">
 										<div id="agreeDiv" hidden="true">
 											<input type="checkbox" class="form-check-input" name="agree"
-												id="agree" value="1" > <span
-												style="color: #8e8e8e">认真贯彻志愿者安全行为规范</span>
+												id="agree" value="1"> <span style="color: #8e8e8e">认真贯彻志愿者安全行为规范</span>
 										</div>
 									</label>
 								</div>
@@ -379,12 +377,11 @@
 			}
 		});
 	});
-	
-	function createActivity(){
-		console.log("新建活动的dpid是："+dpid);
+
+	function createActivity() {
+		console.log("新建活动的dpid是：" + dpid);
 		projectModal.op.createActivity(dpid);
 	}
-	
 </script>
 
 </html>

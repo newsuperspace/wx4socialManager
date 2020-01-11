@@ -78,7 +78,7 @@ public class ExportDoc {
 	 * ===========================================================================
 	 */
 	
-	public Map<String,Object> getDataMap4WorkCard(List<Member> members, String levelName, String minusFirstName, String zeroName){
+	public Map<String,Object> getDataMap4WorkCard(List<User> users, String levelName, String minusFirstName, String zeroName){
 		Map<String,Object> map = new HashMap<String,Object>();
 		
 		List<WorkCard> cards = new ArrayList<WorkCard>();
@@ -86,17 +86,17 @@ public class ExportDoc {
 		String imgRealPath = "";
 		String base64Str = "";
 		int indexNum = 1;
-		for(Member m: members){
+		for(User u: users){
 				wc = new WorkCard();
 				wc.setIndexNum(indexNum);
 				wc.setLevelName(levelName);
 				wc.setMinusFirstName(minusFirstName);
 				wc.setZeroName(zeroName);
-				wc.setPhone(m.getUser().getPhone());
+				wc.setPhone(u.getPhone());
 				
 				// 判断二维码是否存在，不存在则直接创建
 				File file = new File(
-						ServletActionContext.getServletContext().getRealPath(File.separator + m.getUser().getQrcode()));
+						ServletActionContext.getServletContext().getRealPath(File.separator + u.getQrcode()));
 				if (!file.exists()) {
 					// 如果不存在二维码文件，则重新创建二维码文件
 					File parentFile = file.getParentFile();
@@ -104,15 +104,15 @@ public class ExportDoc {
 					if (!parentFile.exists()) {
 						parentFile.mkdirs();
 					}
-					String qrcode = QRCodeUtils.createUserQR(m.getUser().getUid());
-					m.getUser().setQrcode(qrcode);
+					String qrcode = QRCodeUtils.createUserQR(u.getUid());
+					u.setQrcode(qrcode);
 				}
-				imgRealPath = ServletActionContext.getServletContext().getRealPath(File.separator +m.getUser().getQrcode());
+				imgRealPath = ServletActionContext.getServletContext().getRealPath(File.separator +u.getQrcode());
 				base64Str = Image2Base64andBase642ImageUtils.getImgStr(imgRealPath);
 				wc.setQrcodeB64Str(base64Str);
 				
-				wc.setSex(m.getUser().getSex());
-				wc.setUsername(m.getUser().getUsername());
+				wc.setSex(u.getSex());
+				wc.setUsername(u.getUsername());
 				
 				cards.add(wc);
 				indexNum +=1;
@@ -122,11 +122,11 @@ public class ExportDoc {
 	}
 	
 	
-	public void exportDoc4WorkCard(List<Member> members, String levelName, String minusFirstName, String zeroName, String fullDocPath, String tempName) throws Exception{
+	public void exportDoc4WorkCard(List<User> users, String levelName, String minusFirstName, String zeroName, String fullDocPath, String tempName) throws Exception{
 		FileOutputStream out = new FileOutputStream(fullDocPath);
 		OutputStreamWriter writer = new OutputStreamWriter(out, this.encoding);
 		BufferedWriter bufferWriter = new BufferedWriter(writer);
-		this.getTemplate(tempName).process(this.getDataMap4WorkCard(members, levelName, minusFirstName, zeroName), bufferWriter);
+		this.getTemplate(tempName).process(this.getDataMap4WorkCard(users, levelName, minusFirstName, zeroName), bufferWriter);
 		// 一定要关闭流啊，不然创建的临时数据doc文件下载完毕后不能立刻删除
 		bufferWriter.close();
 		writer.close();

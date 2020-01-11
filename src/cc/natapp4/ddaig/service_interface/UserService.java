@@ -2,6 +2,8 @@ package cc.natapp4.ddaig.service_interface;
 
 import java.util.List;
 
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
 import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
@@ -9,91 +11,75 @@ import cc.natapp4.ddaig.exception.WeixinExceptionWhenCheckRealName;
 public interface UserService extends BaseService<User> {
 
 	/**
-	 * 当前UserService接口 对应UserDao接口 的个性化方法
-	 * 用于通过openID 从数据库中查找用户
-	 * @param openID  目标用户在公众平台的openID值
-	 * @return  找到用户返回该用户的User对象，否则返回null
-	 */
-	public User queryByOpenId(String openID);
-	
-	/**
-	 * 根据用户的电话（电话号码具有唯一性，是系统中判定用户唯一性的唯一证明，因此每个用户有且只有绑定一个电话号码）
-	 * @param phoneNum   User.phone 中记录的用户的电话号码
-	 * @return
-	 */
-	public User  queryByPhone(String phoneNum);
-	
-	
-	public void checkRealName(String openID, String username, String sex, String birth, String phone) throws WeixinExceptionWhenCheckRealName  ;
-	
-	/**
-	 * 微信初始化阶段调用的新建用户方法
-	 * @param t
-	 */
-	public void saveInInit(User t);
-	
-	public void batchCreateUserQR();
-	
-	public List<User> queryByTagName(String tagName);
-	
-	/**
-	 * 注意，本方法仅供当前登入系统的层级管理者查询自己所“直辖”的层级成员，不能用于查找特定层级的直辖人员
-	 * 如果有您有类似userList.jsp页面中selector筛选当前操作者层级之下子层级的业务需要请调用getAllLevelUsers()
-	 * 
-	 * 与getChildrenLevelUsers()方法不同，本方法是用来获取当前操作者层级的直辖人员（由于这些人员可以为胜任为管理者因此
-	 * 方法名叫getManagers()有获取潜在管理者之意），通过传输不同grouping.tag的参数，还可以进一步精细化从所有直辖人员中
-	 * 获取特定tag标签（unreal、common以及各个层级标签包括：minus_first、zero、first、second、third、fourth）的人员对象
-	 * @param tag  你所要寻找的指定用户的member.grouping.tag
-	 * @param levelTag   从Action层传递过来的，存放在HttpSession中的，当前操作者的层级标签（也是minus_first、zero、first、second、third、fourth）
-	 * @param lid			从Action层传递过来的，存放在HttpSession中的，当前操作者层级的lid主键
-	 * @return
-	 */
-	public List<Member> getManagers(String tag, String levelTag, String lid);
-	
-	/**
-	 * 获取指定层级对象管理之下的所有用户数据，即其“直辖”和“非直辖”的总和
-	 * 
-	 * @param tag 待查的目标层级的标记，可选用的是minus_first、zero、first、second、third、fourth、
-	 * @param lid	待查的目标层级的ID
-	 * @return
-	 */
-	public List<User> getAllLevelUsers(String tag, String lid);
-	
-	/**
-	 * 获取某一层级对象的子孙层级所管辖的用户，不包含该层级的直辖用户
-	 * 本方法与getManagers相对
-	 * @param tag   待查层级的grouping.tag (minus_first、zero、first、second、third、fourth)
-	 * @param lid    待查层级的lid
-	 * @return
-	 */
-	public List<User> getChildrenLevelUsers(String tag, String lid);
-	
-	
-	/**
 	 * 通过用户的username获取user对象
+	 * 
 	 * @param username
 	 * @return
 	 */
-	public User getUserByUsername(String username);
+	public User queryByUsername(String username);
+
+	/**
+	 * 当前UserService接口 对应UserDao接口 的个性化方法 用于通过openID 从数据库中查找用户
+	 * 
+	 * @param openID 目标用户在公众平台的openID值
+	 * @return 找到用户返回该用户的User对象，否则返回null
+	 */
+	public User queryByOpenId(String openID);
+
+	/**
+	 * 根据用户的电话（电话号码具有唯一性，是系统中判定用户唯一性的唯一证明，因此每个用户有且只有绑定一个电话号码）
+	 * 
+	 * @param phoneNum User.phone 中记录的用户的电话号码
+	 * @return
+	 */
+	public User queryByPhone(String phoneNum);
+
+	public List<User> queryByTagName(String tagName);
+	
+	public void checkRealName(String openID, String username, String sex, String birth, String phone)
+			throws WeixinExceptionWhenCheckRealName;
+
+
+	
+	public List<User> getManagers(String targetLevelTag, String targetLevelId, String groupTag);
 	
 	
 	/**
-	 * 获取指定层级管理直辖的所有用户（包括直辖和非直辖）的总人数
-	 * @param tag
-	 * @param lid
+	 * 【专门共给 userList.jsp 和 managerList.jsp 页面获取初始化分页查询数据之用】
+	 * 
+	 * @param targetTag				获取分页数据的目标层级的tag（admin、minus_first、zero、first、second、third、fourth）
+	 * @param targetLid				获取分页数据的目标层级的lid
+	 * @param targetPageNum			获取分页数据的页码数（默认为1）
+	 * @param pageItemNumLimit		获取分页数据的单页数据量（默认为10）
+	 * @param whereFrom				请求来源————userList（来自userList.jsp页面）和 managerList（来自managerList.jsp） 用于分支调用self系和children系的Dao方法
+	 * @param groupTag				如果whereFrom为managerList，则这个参数用于表明进一步获取哪个group.tag 的群组数据
 	 * @return
 	 */
-	public long getAllLevelUsersCount(String tag,String lid);
+	public ReturnMessage4CountandCreateFirstPage getCountandCreateFirstPage4InitLaypage(String targetTag,
+			String targetLid, int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag);
 	
+	/**
+	 * 【专门共给 userList.jsp 和 managerList.jsp 进行分页查询数据之用】
+	 * 
+	 * @param targetTag				获取分页数据的目标层级的tag（admin、minus_first、zero、first、second、third、fourth）
+	 * @param targetLid				获取分页数据的目标层级的lid
+	 * @param targetPageNum			获取分页数据的页码数（默认为1）
+	 * @param pageItemNumLimit		获取分页数据的单页数据量（默认为10）
+	 * @param whereFrom				请求来源————userList（来自userList.jsp页面）和 managerList（来自managerList.jsp） 用于分支调用self系和children系的Dao方法
+	 * @param groupTag				如果whereFrom为managerList，则这个参数用于表明进一步获取哪个group.tag 的群组数据
+	 * @return
+	 */
+	public ReturnMessage4CountandCreateFirstPage getUsersByPageLimit(String targetTag,
+			String targetLid, int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag);
 	
 	
 	/**
-	 * 对指定层级（通过tage和lid确定具体层级对象）管理层之下的所有用户（包括直辖和非直辖）的人员进行分页查询（通过页码和单页数据量）
-	 * @param targetTag				获取哪个层级（标签）的用户
-	 * @param targetLid				获取哪个层级（主键ID）的用户
-	 * @param targetPageNum			目标页码
-	 * @param pageItemNumLimit		每页显示的数据条目数
+	 * 【专门共给 userList.jsp 和 managerList.jsp 进行层级过滤器初始化之用（前端基于picker-extend.js）】
+	 * 为当前层级操作者，在访问健康管理-被测者目录的时候，初始化用于过滤其不同子层级用户的selector数据，该selector是基于picker-extend.js实现的
+	 * @param currenLevelTag		当前操作者层级的tag（admin、minus_first、zero、first、second、third、fourth）
+	 * @param currentLevelId		当前操作者层级的lid主键ID
 	 * @return
 	 */
-	public List<User> getAllLevelUsersByPage(String targetTag, String targetLid, int targetPageNum, int pageItemNumLimit);
+	public ReturnMessage4InitSelector initSelector(String currentLevelTag,String currentLevelId);
+	
 }

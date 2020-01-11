@@ -310,7 +310,7 @@ public class HealthAction extends ActionSupport {
 	}
 
 	/**
-	 * 根据当前操作者层级，从数据库获取父+子层级数据，组成susers.jsp页面中基于WEUI的层级过滤器（picker）
+	 * 根据当前操作者层级，从数据库获取父+子层级数据，组成users.jsp页面中基于picker-extends.js的层级过滤器（picker）
 	 * 所需要的JSON数据格式，并返回给前端可以让其直接使用。
 	 * 
 	 * @return

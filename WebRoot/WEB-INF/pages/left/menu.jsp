@@ -70,9 +70,9 @@
 
 									<ul class="navbar-nav mr-auto mt-0 pt-0">
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getUserList.action")'>非直辖人员</a></li>
+											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_toUserList.action")'>非直辖人员</a></li>
 										<li class="nav-item"><a class="nav-link" href="#"
-											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_getManagerList.action")'>直辖人员</a>
+											onclick='overAll.op.saveCollapseContentID2LS("userContent", "userAction_toManagerList.action")'>直辖人员</a>
 										</li>
 									</ul>
 

@@ -310,7 +310,7 @@ public class SecondLevelAction implements ModelDriven<SecondLevel> { // <!-- ●
 				isAdmin = true;
 			} else {
 				// 非admin用户登录
-				doingMan = userService.getUserByUsername(principal);
+				doingMan = userService.queryByUsername(principal);
 			}
 		}
 

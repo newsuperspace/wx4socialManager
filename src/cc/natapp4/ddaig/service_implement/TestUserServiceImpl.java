@@ -11,7 +11,8 @@ import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
 import cc.natapp4.ddaig.dao_interface.BaseDao;
 import cc.natapp4.ddaig.dao_interface.UserDao;
 import cc.natapp4.ddaig.domain.Grouping;
@@ -163,39 +164,49 @@ public class TestUserServiceImpl extends BaseServiceImpl<User> implements UserSe
 		return list;
 	}
 
-	@Override
-	public List<Member> getManagers(String tag, String levelTag, String lid) {
-		return dao.getManagers(tag, levelTag, lid);
-	}
 
 	@Override
-	public User getUserByUsername(String username) {
-		return dao.getUserByUsername(username);
+	public User queryByUsername(String username) {
+		return dao.queryByUsername(username);
 	}
 
-	@Override
-	public List<User> getChildrenLevelUsers(String tag, String lid) {
-		return dao.getChildrenLevelUsers(tag, lid);
-	}
-
-	@Override
-	public List<User> getAllLevelUsers(String tag, String lid) {
-		return dao.getAllLevelUsers(tag, lid);
-	}
 
 	@Override
 	public User queryByPhone(String phoneNum) {
 		return dao.queryByPhone(phoneNum);
 	}
 
+	
+	
+	
+	
+	
+	
+
 	@Override
-	public long getAllLevelUsersCount(String tag, String lid) {
-		return dao.getAllLevelUsersCount(tag, lid);
+	public ReturnMessage4CountandCreateFirstPage getCountandCreateFirstPage4InitLaypage(String targetTag,
+			String targetLid, int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
-	public List<User> getAllLevelUsersByPage(String tag, String lid, int targetPageNum, int limit) {
-		return dao.getAllLevelUsersByPage(tag, lid, targetPageNum, limit);
+	public ReturnMessage4CountandCreateFirstPage getUsersByPageLimit(String targetTag, String targetLid,
+			int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ReturnMessage4InitSelector initSelector(String currentLevelTag, String currentLevelId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<User> getManagers(String targetLevelTag, String targetLevelId, String groupTag) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

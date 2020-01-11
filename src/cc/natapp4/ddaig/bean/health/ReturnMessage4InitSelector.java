@@ -11,7 +11,7 @@ public class ReturnMessage4InitSelector implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private List<Bean4InitSelector> dataSource;
-	private List<String> defaultValue;				// 回显选择位置
+	private List<String> defaultValue;				// 前端的picker-extend组建用于回显各个wheel的选中位置，形如 [0、0、0、0、1、2]
 	
 	
 	public List<Bean4InitSelector> getDataSource() {
