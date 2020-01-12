@@ -52,7 +52,7 @@ public class Member implements Serializable {
 	
 	// ==========================SETTERs/GETTERs=============================
 
-	// 不设@JSON
+	@JSON(serialize=false)
 	public User getUser() {
 		return user;
 	}
@@ -122,7 +122,6 @@ public class Member implements Serializable {
 		this.grouping = grouping;
 	}
 
-	@JSON(serialize=false)
 	public List<Manager> getManagers() {
 		return managers;
 	}

@@ -141,7 +141,7 @@ public class Manager implements Serializable {
 
 
 	// ===============================SETTERs/GETTERs================================
-	// 不设@JSON
+	@JSON(serialize=false)
 	public Member getMember() {
 		return member;
 	}

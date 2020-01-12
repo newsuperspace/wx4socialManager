@@ -10,7 +10,7 @@
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	
+
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/weui-v2.1.3/weui.css">
 <link
@@ -38,7 +38,7 @@
  -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
-	
+
 </head>
 <body>
 
@@ -61,14 +61,16 @@
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
 							<h1 class="h2">
 								非直辖人员信息
-								<button class="btn btn-sm btn-light" id="button4selectorPanel" data-toggle="collapse" data-target="#selectorPanel"
-                                    onclick="userModal.op.changeIcon();">
-                                    <span class="glyphicon glyphicon-chevron-down" id="icon4selectorPanel"></span>
-                                </button>
+								<button class="btn btn-sm btn-light" id="button4selectorPanel"
+									data-toggle="collapse" data-target="#selectorPanel"
+									onclick="userModal.op.changeIcon();">
+									<span class="glyphicon glyphicon-chevron-down"
+										id="icon4selectorPanel"></span>
+								</button>
 							</h1>
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group mr-2">
-									
+
 									<div id="levelSelector" hidden="hidden"></div>
 									<button class="btn btn-sm btn-outline-secondary"
 										onclick="showLevelSelector();">
@@ -81,9 +83,9 @@
 											aria-haspopup="true" aria-expanded="false">
 											<span class="glyphicon glyphicon-cog"></span> 其他
 										</button>
-										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="others">
-											<a class="dropdown-item" href="#"
-												onclick="alert('AAAAA');">操作A</a>
+										<div class="dropdown-menu dropdown-menu-right"
+											aria-labelledby="others">
+											<a class="dropdown-item" href="#" onclick="alert('AAAAA');">操作A</a>
 											<a class="dropdown-item disabled" href="#">Disabled
 												action</a>
 											<h6 class="dropdown-header">Section header</h6>
@@ -92,14 +94,14 @@
 											<a class="dropdown-item" href="#">After divider action</a>
 										</div>
 									</div>
-									
+
 								</div>
 							</div>
 						</div>
-						
+
 						<!-- =============Selector开始=========== -->
 						<!-- =============Selector结束=========== -->
-						
+
 						<!-- =============表格开始=========== -->
 						<div
 							style="
@@ -127,42 +129,8 @@
 									</tr>
 								</thead>
 								<tbody id="tbody">
-								
-									
-										<tr>
-											<td><s:a href="#"
-													onclick="userModal.op.userInfo('%{uid}')">
-													<s:property value="username" />
-												</s:a></td>
-											<td><s:property value="sickname" /></td>
-											<td><s:property value="sex" /></td>
-											<td><s:property value="age" /></td>
-											<td><s:property value="serveTime" /></td>
-											<td><s:a href="#" onclick="toUserVisitList('%{uid}')"><s:property value="score" /></s:a></td>
-											<td><s:property value="phone" /></td>
-											<td class="text-truncate" data-toggle="tooltip"
-												title="<s:property value='address'/>"><s:property
-													value="address" /></td>
-											<td><s:property value="email" /></td>
-											<td><s:property value="cardid" /></td>
-											<td><s:property value="registrationTimeStr" /></td>
-											<td><s:if test="ishere">是</s:if> <s:else>否</s:else></td>
-											<td><s:if test="locked">
-													<span class="badge badge-danger">锁死</span>
-												</s:if> <s:else>
-													<span class="badge badge-success">正常</span>
-												</s:else></td>
-											<td>
-												<div class="btn-group" role="group">
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">通知</button>
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">其他</button>
-												</div>
-											</td>
-										</tr>
-										
-									
+
+
 								</tbody>
 							</table>
 						</div>
@@ -175,16 +143,16 @@
 							</div>
 							<div class="col"></div>
 						</div>
-						<!-- 分页栏结束 -->						
-						
+						<!-- 分页栏结束 -->
+
 					</div>
 				</div>
 			</div>
 		</div>
 		<!-- =================================================模态对话框==================================================== -->
-		
+
 		<!-- Modal4用户详情 -->
-	<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
+		<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
 			aria-labelledby="detialsModal" aria-hidden="true">
 			<div class="modal-dialog modal-lg" role="document">
 				<div class="modal-content">
@@ -279,7 +247,7 @@
 		<!-- Modal 4 用户更改 -->
 
 		<!-- Modal 4 排序 -->
-		
+
 		<!-- container结束 -->
 	</div>
 </body>
@@ -287,16 +255,19 @@
 <script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
 <script
 	src="${pageContext.request.contextPath}/js/jquery-ui/jquery-ui.js"></script>
-<script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
+<!-- popper.js必须在bootstrap.js之前被加载否则无法使用弹出菜单 -->
 <script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
 <script
 	src="${pageContext.request.contextPath}/js/easyui-v1.7.0/jquery.easyui.min.js"></script>
 <script
 	src="${pageContext.request.contextPath}/js/layui-v2.5.5/layui/layui.js"></script>
 <!-- 独占脚本 -->
-<script src="${pageContext.request.contextPath}/js/userAndManager/js4userList.js"></script>
-<script src="${pageContext.request.contextPath}/js/picker-extend/picker-extend.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/userAndManager/js4userList.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/picker-extend/picker-extend.js"></script>
 
 <!-- wechat相关 -->
 <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>

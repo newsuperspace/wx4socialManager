@@ -229,6 +229,7 @@
 	</div>
 </body>
 <script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
+<!-- popper.js必须在bootstrap.js之前被加载否则无法使用弹出菜单 -->
 <script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>

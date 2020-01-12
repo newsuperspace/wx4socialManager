@@ -74,12 +74,21 @@ public interface UserService extends BaseService<User> {
 	
 	
 	/**
-	 * 【专门共给 userList.jsp 和 managerList.jsp 进行层级过滤器初始化之用（前端基于picker-extend.js）】
+	 * 【专门共给 userList.jsp 进行层级过滤器初始化之用（前端基于picker-extend.js）】
 	 * 为当前层级操作者，在访问健康管理-被测者目录的时候，初始化用于过滤其不同子层级用户的selector数据，该selector是基于picker-extend.js实现的
 	 * @param currenLevelTag		当前操作者层级的tag（admin、minus_first、zero、first、second、third、fourth）
 	 * @param currentLevelId		当前操作者层级的lid主键ID
 	 * @return
 	 */
-	public ReturnMessage4InitSelector initSelector(String currentLevelTag,String currentLevelId);
+	public ReturnMessage4InitSelector initLevelSelector(String currentLevelTag,String currentLevelId);
+	
+	/**
+	 * 【专门供给managerList.jsp 进行grouping.tag 分组标签的人员过滤（前端基于picker-extend.js）】
+	 * @param currentLevelTag 		当前操作者层级的tag（admin、minus_first、zero、first、second、third、fourth）
+	 * @param currentLevelId		当前操作者层级的lid主键ID
+	 * @return
+	 */
+	public ReturnMessage4InitSelector initGroupTagSelector(String currentLevelTag,String currentLevelId);
+	
 	
 }

@@ -14,9 +14,17 @@ public class User implements Serializable {
 	//====================================字段==================================
 	// ---------------------------------------参与前端显示的字段-------------------------------------
 	private int sampleNum;  // 该用户包含的样本量，供给health/users.jsp在列表中显示数据之用，不参与数据库范畴
-	
+	private Member member; // 用于在managerList.jsp上显示用户对应当前操作者层级的member对象，从而方便获取memberid和managers等数据
+	public Member getMember() {
+		return member;
+	}
+	public void setMember(Member member) {
+		this.member = member;
+	}
+
 	// ---------------------------------------数据库字段-------------------------------------
 	private String uid;  // 【主键】
+
 	private String openid;  // 微信的openID值 ★
 	private String cardid;  // 身份证号
 	private String username;    // 真实名字

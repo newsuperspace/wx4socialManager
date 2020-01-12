@@ -8,8 +8,6 @@ var selectedLid = null; // 用于userList.jsp页面上过滤层级用户的级�
 
 var whereFrom = "userList"; // 用于服务器端userAction中关于人员分页查询的共用方法内区分相关请求来自于userList.jsp和managerList.jsp的哪个页面
 
-var selectedGroupTag = null; // 用于过滤managerList.jsp页面上过滤不同group.tag的标签
-
 $(function() {
 	initLaypage();
 	initLevelSelector();
@@ -176,9 +174,9 @@ function getCountandCreateFirstPage4InitLaypage() {
 	let url = "userAction_getCountandCreateFirstPage4InitLaypage.action";
 	let param = {
 		"whereFrom":whereFrom,
-		// 请求参数，如果前端通过picker选择了目标过滤层级，则这两个参数是有值的，否则后端得到的是null
+		// 【层级过滤】如果前端通过picker选择了目标过滤层级，则这两个参数是有值的，否则后端得到的是null
 		"selectedTag" : selectedTag,
-		"selectedLid" : selectedLid
+		"selectedLid" : selectedLid,
 	}
 
 	$.ajaxSetup({

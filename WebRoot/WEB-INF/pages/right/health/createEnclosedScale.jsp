@@ -111,7 +111,7 @@
 											</div>
 											<div class="weui-cell__bd">
 												<input id="weigh" name="weigh" class="weui-input"
-													placeholder="请输入权重" type="number"  />
+													placeholder="请输入权重" type="number" />
 											</div>
 										</div>
 
@@ -539,15 +539,16 @@
 
 				</div>
 			</div>
-			
+
 		</div>
 	</div>
 </body>
 <script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
 <script
 	src="${pageContext.request.contextPath}/js/jquery-ui/jquery-ui.js"></script>
-<script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
+<!-- popper.js必须在bootstrap.js之前被加载否则无法使用弹出菜单 -->
 <script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
 <script
 	src="${pageContext.request.contextPath}/js/easyui-v1.7.0/jquery.easyui.min.js"></script>

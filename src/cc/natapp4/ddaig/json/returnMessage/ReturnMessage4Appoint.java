@@ -2,6 +2,7 @@ package cc.natapp4.ddaig.json.returnMessage;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import cc.natapp4.ddaig.domain.cengji.FirstLevel;
 import cc.natapp4.ddaig.domain.cengji.FourthLevel;
@@ -34,22 +35,18 @@ public class ReturnMessage4Appoint implements Serializable {
 	private int lowest;   // 被任命的管理者级别（controllerNum+1,遵循“不在其位，不谋其政”原则使得当前层次管理者只能委任次一级的层次，不能越级委任）
 	private int controllerNum;   // 执行任命操作的管理者的级别（-1、0、1、2、3、4、10086）
 	
-	// 对于Admin来说，系统中所有 街道层级对象都在这个容器里
-	List<MinusFirstLevel>  minusLevels;
-	
-	/*
-	 * 功能1： 对于非Admin的操作者来说，当前操作者的层级对象会保存在下列属性中的一个里，
-	 * 并根据controllerNum来定位
-	 * 功能2： 供给userAction.getAppointSelectInfo()中存放被查找的层级对象
-	 */
-	MinusFirstLevel  minusFirst;
-	ZeroLevel zero;
-	FirstLevel first;
-	SecondLevel second;
-	ThirdLevel third;
-	FourthLevel fourth;
-	
-	
+	// 如果当前操作者为Admin(controllerNum==10086)来说，系统中所有 街道层级对象都在这个容器里
+	private List<MinusFirstLevel>  minusLevels;
+	// 如果当前操作者为minus_first（controllerNum==-1），则这里应该存放的是该minus_first层级管理之下的所有zero层级
+	private Set<ZeroLevel>  zeroLevels;
+	// 如果当前操作者为zero（controllerNum==0），则这里应该存放的是该zero层级管理之下的所有first层级
+	private Set<FirstLevel> firstLevels;
+	// 如果当前操作者为first（controllerNum==1），则这里应该存放的是该first层级管理之下的所有second层级
+	private Set<SecondLevel> secondLevels;
+	// 如果当前操作者为Second（controllerNum==2），则这里应该存放的是该second层级管理之下的所有third层级
+	private Set<ThirdLevel> thirdLevels;
+	// 如果当前操作者为third（controllerNum==3），则这里应该存放的是该third层级管理之下的所有fourth层级
+	private Set<FourthLevel> fourthLevels;
 	public String getMessage() {
 		return message;
 	}
@@ -74,47 +71,43 @@ public class ReturnMessage4Appoint implements Serializable {
 	public void setControllerNum(int controllerNum) {
 		this.controllerNum = controllerNum;
 	}
+	public Set<ZeroLevel> getZeroLevels() {
+		return zeroLevels;
+	}
+	public void setZeroLevels(Set<ZeroLevel> zeroLevels) {
+		this.zeroLevels = zeroLevels;
+	}
+	public Set<FirstLevel> getFirstLevels() {
+		return firstLevels;
+	}
+	public void setFirstLevels(Set<FirstLevel> firstLevels) {
+		this.firstLevels = firstLevels;
+	}
+	public Set<SecondLevel> getSecondLevels() {
+		return secondLevels;
+	}
+	public void setSecondLevels(Set<SecondLevel> secondLevels) {
+		this.secondLevels = secondLevels;
+	}
+	public Set<ThirdLevel> getThirdLevels() {
+		return thirdLevels;
+	}
+	public void setThirdLevels(Set<ThirdLevel> thirdLevels) {
+		this.thirdLevels = thirdLevels;
+	}
+	public Set<FourthLevel> getFourthLevels() {
+		return fourthLevels;
+	}
+	public void setFourthLevels(Set<FourthLevel> fourthLevels) {
+		this.fourthLevels = fourthLevels;
+	}
 	public List<MinusFirstLevel> getMinusLevels() {
 		return minusLevels;
 	}
 	public void setMinusLevels(List<MinusFirstLevel> minusLevels) {
 		this.minusLevels = minusLevels;
 	}
-	public MinusFirstLevel getMinusFirst() {
-		return minusFirst;
-	}
-	public void setMinusFirst(MinusFirstLevel minusFirst) {
-		this.minusFirst = minusFirst;
-	}
-	public ZeroLevel getZero() {
-		return zero;
-	}
-	public void setZero(ZeroLevel zero) {
-		this.zero = zero;
-	}
-	public FirstLevel getFirst() {
-		return first;
-	}
-	public void setFirst(FirstLevel first) {
-		this.first = first;
-	}
-	public SecondLevel getSecond() {
-		return second;
-	}
-	public void setSecond(SecondLevel second) {
-		this.second = second;
-	}
-	public ThirdLevel getThird() {
-		return third;
-	}
-	public void setThird(ThirdLevel third) {
-		this.third = third;
-	}
-	public FourthLevel getFourth() {
-		return fourth;
-	}
-	public void setFourth(FourthLevel fourth) {
-		this.fourth = fourth;
-	}
+
+	
 	
 }

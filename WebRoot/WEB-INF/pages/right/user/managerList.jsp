@@ -10,9 +10,35 @@
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<!-- Bootstrap CSS -->
+
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/css/weui-v2.1.3/weui.css">
+<link
+	href="https://cdn.bootcss.com/awesome-bootstrap-checkbox/v0.2.3/awesome-bootstrap-checkbox.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/jquery-ui/jquery-ui.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/easyui-v1.7.0/themes/icon.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/easyui-v1.7.0/themes/default/easyui.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/layui-v2.5.5/layui/css/layui.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/picker-extend/picker-extend.css"
+	rel="stylesheet" />
+<!-- 
+	layui 中会对所有<a> 标签进行颜色上的样式设定。
+	CSS的所有样式冲突遵循，后加载的样式覆盖之前加载的样式，因此为了保持所有页面基于bootstrap的表现基础
+	我们需要最后再加载bootstrap样式
+ -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
+
 </head>
 <body>
 
@@ -41,12 +67,14 @@
 										data-toggle="modal" data-target="#newUserModal">
 										<span class="glyphicon glyphicon-plus"></span> 新建
 									</button>
-									<button class="btn btn-sm btn-outline-secondary" onclick="$(location).attr('href','userAction_toBatchCreateUserPage.action');">
+									<button class="btn btn-sm btn-outline-secondary"
+										onclick="$(location).attr('href','userAction_toBatchCreateUserPage.action');">
 										<span class="glyphicon glyphicon-plus"></span> 批新建
 									</button>
 
+									<div id="groupTagSelector" hidden="hidden"></div>
 									<button class="btn btn-sm btn-outline-secondary"
-										data-toggle="modal" data-target="#selectUsers">
+										onclick="showGroupTagSelector();">
 										<span class="glyphicon glyphicon-search"></span> 筛选
 									</button>
 									<button class="btn btn-sm btn-outline-secondary"
@@ -62,11 +90,10 @@
 										</button>
 										<div class="dropdown-menu dropdown-menu-right"
 											aria-labelledby="others">
+											<a class="dropdown-item" href="#" onclick="exportLedger();">导出电子台账</a>
 											<a class="dropdown-item" href="#"
-												onclick="exportLedger();">导出电子台账</a> 
-											<a class="dropdown-item" href="#"
-												onclick="downloadWorkCard();">生成电子工作证</a> 
-											<a class="dropdown-item disabled" href="#">失效的功能</a>
+												onclick="downloadWorkCard();">生成电子工作证</a> <a
+												class="dropdown-item disabled" href="#">失效的功能</a>
 											<h6 class="dropdown-header">Section header</h6>
 											<a class="dropdown-item" href="#">功能1</a>
 											<div class="dropdown-divider"></div>
@@ -82,7 +109,7 @@
                         white-space: nowrap;
                         overflow-x: hidden;
                         overflow-x: auto;">
-							<table 
+							<table
 								class="table table-striped table-sm table-bordered table-hover text-center">
 								<thead class="thead-dark">
 									<tr>
@@ -95,201 +122,20 @@
 										<th>管理的组织</th>
 
 										<th>电话</th>
-										<th>操作</th>
-									</tr>
-								</thead>
-								<tbody>
-									<s:iterator value="#members">
-										<tr>
-											<td><s:a href="#"
-													onclick="userModal.op.userInfo('%{user.uid}')">
-													<s:property value="user.username" />
-												</s:a></td>
-											<td><s:a href="#"
-													onclick="toUserVisitList('%{user.uid}')">
-													<s:property value="user.score" />
-												</s:a></td>
-											<td><s:property value="user.sickname" /></td>
-											<td class="text-truncate" data-toggle="tooltip"
-												title="<s:property value='user.openid'/>"><s:property
-													value="user.openid" /></td>
-											<td><s:if test="grouping.tag=='common'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:if> <s:elseif test="grouping.tag=='unreal'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='admin'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='zero'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='first'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='second'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='third'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='fourth'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='minus_first'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif> <s:elseif test="grouping.tag=='money'">
-													<span class="badge badge-success"> <s:property
-															value="grouping.groupName" />
-													</span>
-												</s:elseif></td>
-											<td><s:if test="null==managers || 0==managers.size()">
-													未匹配
-												</s:if> <s:else>
-													<s:a href="#"
-														onclick="managerModal.op.toManagedLevelList('%{memberid}');">
-														<s:if test="managers.size()>3">
-															<s:iterator value="managers" status="status" begin="0"
-																end="2">
-																<s:if test="#status.index==2">
-																	<s:if test="'minus_first'==grouping.tag">
-																		<s:property value="minusFirstLevel.name" />...
-																	</s:if>
-																	<s:elseif test="'zero'==grouping.tag">
-																		<s:property value="zeroLevel.name" />...
-																	</s:elseif>
-																	<s:elseif test="'first'==grouping.tag">
-																		<s:property value="firstLevel.name" />...
-																	</s:elseif>
-																	<s:elseif test="'second'==grouping.tag">
-																		<s:property value="secondLevel.name" />...
-																	</s:elseif>
-																	<s:elseif test="'third'==grouping.tag">
-																		<s:property value="thirdLevel.name" />...
-																	</s:elseif>
-																	<s:elseif test="'fourth'==grouping.tag">
-																		<s:property value="fourthLevel.name" />...
-																	</s:elseif>
-																</s:if>
-																<s:else>
-																	<s:if test="'minus_first'==grouping.tag">
-																		<s:property value="minusFirstLevel.name" />，
-																	</s:if>
-																	<s:elseif test="'zero'==grouping.tag">
-																		<s:property value="zeroLevel.name" />,
-																	</s:elseif>
-																	<s:elseif test="'first'==grouping.tag">
-																		<s:property value="firstLevel.name" />,
-																	</s:elseif>
-																	<s:elseif test="'second'==grouping.tag">
-																		<s:property value="secondLevel.name" />,
-																	</s:elseif>
-																	<s:elseif test="'third'==grouping.tag">
-																		<s:property value="thirdLevel.name" />,
-																	</s:elseif>
-																	<s:elseif test="'fourth'==grouping.tag">
-																		<s:property value="fourthLevel.name" />,
-																	</s:elseif>
-																</s:else>
-															</s:iterator>
-														</s:if>
-														<s:else>
-															<s:iterator value="managers" status="status">
-																<s:if test="(#status.index+1)==managers.size()">
-																	<s:if test="'minus_first'==grouping.tag">
-																		<s:property value="minusFirstLevel.name" />
-																	</s:if>
-																	<s:elseif test="'zero'==grouping.tag">
-																		<s:property value="zeroLevel.name" />
-																	</s:elseif>
-																	<s:elseif test="'first'==grouping.tag">
-																		<s:property value="firstLevel.name" />
-																	</s:elseif>
-																	<s:elseif test="'second'==grouping.tag">
-																		<s:property value="secondLevel.name" />
-																	</s:elseif>
-																	<s:elseif test="'third'==grouping.tag">
-																		<s:property value="thirdLevel.name" />
-																	</s:elseif>
-																	<s:elseif test="'fourth'==grouping.tag">
-																		<s:property value="fourthLevel.name" />
-																	</s:elseif>
-																</s:if>
-																<s:else>
-																	<s:if test="'minus_first'==grouping.tag">
-																		<s:property value="minusFirstLevel.name" />，
-																	</s:if>
-																	<s:elseif test="'zero'==grouping.tag">
-																		<s:property value="zeroLevel.name" />,
-																	</s:elseif>
-																	<s:elseif test="'first'==grouping.tag">
-																		<s:property value="firstLevel.name" />,
-																	</s:elseif>
-																	<s:elseif test="'second'==grouping.tag">
-																		<s:property value="secondLevel.name" />,
-																	</s:elseif>
-																	<s:elseif test="'third'==grouping.tag">
-																		<s:property value="thirdLevel.name" />,
-																	</s:elseif>
-																	<s:elseif test="'fourth'==grouping.tag">
-																		<s:property value="fourthLevel.name" />,
-																	</s:elseif>
-																</s:else>
-															</s:iterator>
-														</s:else>
-													</s:a>
-												</s:else></td>
-											<td><s:property value="user.phone" /></td>
-											<td>
-												<div class="btn-group" role="group">
-													<s:if test="null==manager">
-														<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
-															onclick="managerModal.op.showAppointModal('%{user.uid}');">任命</s:a>
-													</s:if>
-													<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
-														onclick="userModal.op.showUpdateUserModal('%{user.uid}');">修改</s:a>
-
-													<!--<s:a cssClass="btn btn-outline-secondary btn-sm" href="#"
-														onclick="managerModal.op.showAssignedUserModal('%{uid}')">分配</s:a> -->
-													<button type="button"
-														class="btn btn-outline-secondary btn-sm">其他</button>
-												</div>
-											</td>
-										</tr>
-									</s:iterator>
-								</tbody>
+										<th>操作</th> </tr> </thead> <tbody id="tbody"></tbody>
 							</table>
 						</div>
-						<!-- 分页栏 -->
-						<nav aria-label="Page navigation" class="mt-3">
-							<ul class="pagination justify-content-center">
-								<li class="page-item disabled"><a class="page-link"
-									href="#" aria-label="向前"> <span aria-hidden="true">&laquo;</span>
-										<span class="sr-only">向前</span>
-								</a></li>
-								<li class="page-item active"><a class="page-link" href="#">1</a></li>
-								<li class="page-item"><a class="page-link" href="#">2</a></li>
-								<li class="page-item"><a class="page-link" href="#">3</a></li>
-								<li class="page-item"><a class="page-link" href="#">100</a></li>
-								<li class="page-item"><a class="page-link" href="#">101</a></li>
-								<li class="page-item"><a class="page-link" href="#"
-									aria-label="向后"> <span aria-hidden="true">&raquo;</span> <span
-										class="sr-only">向后</span>
-								</a></li>
-							</ul>
-						</nav>
 						<!-- 表格结束 -->
+						<!-- 分页栏开始 -->
+						<div class="row mt-2">
+							<div class="col"></div>
+							<div class="col-auto">
+								<div id="laypage"></div>
+							</div>
+							<div class="col"></div>
+						</div>
+						<!-- 分页栏结束 -->		
+						
 					</div>
 				</div>
 			</div>
@@ -377,7 +223,6 @@
 				</div>
 			</div>
 		</div>
-
 
 		<!-- Modal 4 新建用户 -->
 		<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog"
@@ -498,8 +343,6 @@
 			</div>
 		</div>
 
-
-
 		<!-- Modal 4 任命 -->
 		<div class="modal fade" id="appoint" tabindex="-1" role="dialog"
 			aria-labelledby="appoint" aria-hidden="true">
@@ -580,7 +423,6 @@
 				</div>
 			</div>
 		</div>
-
 
 		<!-- Modal 4 修改用户 -->
 		<div class="modal fade" id="updateUserModal" tabindex="-1"
@@ -726,7 +568,6 @@
 			</div>
 		</div>
 
-
 		<!-- Modal 4 用户详情 -->
 		<div class="modal fade" id="detialsModal" tabindex="-1" role="dialog"
 			aria-labelledby="detialsModal" aria-hidden="true">
@@ -821,64 +662,49 @@
 			</div>
 		</div>
 
-		<!-- Modal 4 排序 -->
-
-		<!-- Modal 4 筛选 -->
-		<div class="modal fade" id="selectUserModal" tabindex="-1"
-			role="dialog" aria-labelledby="selectUserModal" aria-hidden="true">
-			<div class="modal-dialog  modal-lg" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title">筛选用户</h4>
-						<button type="button" class="close" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div class="container-fluid">Add rows here</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary"
-								data-dismiss="modal">关闭</button>
-							<button type="button" class="btn btn-primary">确定</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
 		<!-- container结束 -->
 	</div>
 </body>
 <script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/jquery-ui/jquery-ui.js"></script>
+<!-- popper.js必须在bootstrap.js之前被加载否则无法使用弹出菜单 -->
 <script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
-
+<script
+	src="${pageContext.request.contextPath}/js/easyui-v1.7.0/jquery.easyui.min.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/layui-v2.5.5/layui/layui.js"></script>
+<!-- wechat相关 -->
 <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
-<script type="text/javascript"
-	src="${pageContext.request.contextPath}/js/myJS.js"></script>
-<script type="text/javascript"
-	src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
-<script lang="text/javascript" src="${pageContext.request.contextPath}/js/xlsx.full.min.js"></script>
+<script src="https://res.wx.qq.com/open/libs/weuijs/1.2.1/weui.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/myJS.js"></script>
+
+<!-- 独占脚本 -->
+<script
+	src="${pageContext.request.contextPath}/js/userAndManager/js4managerList.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/picker-extend/picker-extend.js"></script>
+<script lang="text/javascript"
+	src="${pageContext.request.contextPath}/js/xlsx.full.min.js"></script>
 <script>
 
 	// 导出并下载当前层级管理者直辖人员的“电子台账”
-	function exportLedger(){
+	function exportLedger() {
 		// 准备并访问当前层级直辖人员的电子台账的下载链接
 		$(location).attr("href", "userAction_downloadUserLedger.action");
 	}
 
-	function downloadWorkCard(){
+	function downloadWorkCard() {
 		// 准备并访问当前层级直辖人员的工作证的批量生成链接
-		$(location).attr("href","managerAction_downloadWorkCard.action");
+		$(location).attr("href", "managerAction_downloadWorkCard.action");
 	}
-	
-	
-	function toUserVisitList(uid){
-		$(location).attr("href","userAction_toUserVisitList.action?uid="+uid);
-	}
-	
 
+
+	function toUserVisitList(uid) {
+		$(location).attr("href", "userAction_toUserVisitList.action?uid=" + uid);
+	}
 </script>
 
 </html>

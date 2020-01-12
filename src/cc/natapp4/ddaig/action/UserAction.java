@@ -338,12 +338,13 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 	}
 
 	/**
-	 * 根据当前操作者层级，从数据库获取父+子层级数据，组成userList.jsp和managerList.jsp页面中基于picker-extends.js的层级过滤器（picker）
+	 * 根据当前操作者层级，从数据库获取父+子层级数据，组成userList.jsp页面中基于picker-extends.js的层级过滤器（picker）
 	 * 所需要的JSON数据格式，并返回给前端可以让其直接使用。
 	 * 
 	 * @return
 	 */
 	public String initLevelSelector() {
+		long startTime = System.currentTimeMillis();
 		/**
 		 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
 		 * HttpServletRequest request =
@@ -357,8 +358,42 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 
-		ReturnMessage4InitSelector result = userService.initSelector(tag, lid);
+		ReturnMessage4InitSelector result = userService.initLevelSelector(tag, lid);
 
+		long endTime = System.currentTimeMillis();
+		System.out.println("======initLevelSelector完成,用时" + (endTime - startTime) + "======");
+		
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+
+	/**
+	 * 根据当前操作者层级，从数据库中查找该层级对管理直辖用户所使用的group.tag,并组装成 tagName_tagID
+	 * 的值形式，回传给前端等待的picker-extend,js用于组建“标签选择器”
+	 * 
+	 * @return
+	 */
+	public String initGroupTagSelector() {
+
+		long startTime = System.currentTimeMillis();
+		/**
+		 * 不同于普通类中通过添加在web.xml中添加RequestContextListener监听器后就可以在任何类中 通过执行
+		 * HttpServletRequest request =
+		 * ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		 * HttpSession session = request.getSession(); 就能获取到Request和session对象
+		 * 
+		 * 而如果是Action类，就只需要通过在类内随时调用 ServletActionContext.getRequest.getSession();
+		 * 就能得到session了
+		 * 
+		 */
+		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
+		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
+
+		ReturnMessage4InitSelector result = userService.initGroupTagSelector(tag, lid);
+		
+		long endTime = System.currentTimeMillis();
+		System.out.println("======initGroupTagSelector完成,用时" + (endTime - startTime) + "======");
+		
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
 	}
@@ -1005,7 +1040,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 				// break;
 				// }
 				/*
-				 * 接入微信平台后需要开启这部分代码用来修改微信公众号的该用户的tag
+				 * TODO 接入微信平台后需要开启这部分代码用来修改微信公众号的该用户的tag
 				 */
 				// String[] ids = { openid };
 				// try {
@@ -1870,6 +1905,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		User u = userService.queryEntityById(uid);
 		// 被任命人员在当前操作者层级中的member成员对象
 		Member member = null;
+		// 获取当前操作者层级的关键信息
 		String levelTag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 		for (Member m : u.getMembers()) {
@@ -1973,26 +2009,26 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		} else {
 			// 非Admin操作者
 			switch (levelTag) {
-			// 将当前操作执行者绑定的层级对象，放入到result中返回给前端，方便前端获取通过children4Ajax获取次一级层级对象，来补充select的option选项
+			// 将当前操作执行者的直接子层级对象放入到result中的对应位置返回给前端
 			case "minus_first":
 				controllerNum = -1;
-				result.setMinusFirst(minusFirstLevelService.queryEntityById(lid));
+				result.setZeroLevels(minusFirstLevelService.queryEntityById(lid).getChildren());
 				break;
 			case "zero":
 				controllerNum = 0;
-				result.setZero(zeroLevelService.queryEntityById(lid));
+				result.setFirstLevels(zeroLevelService.queryEntityById(lid).getChildren());
 				break;
 			case "first":
 				controllerNum = 1;
-				result.setFirst(firstLevelService.queryEntityById(lid));
+				result.setSecondLevels(firstLevelService.queryEntityById(lid).getChildren());
 				break;
 			case "second":
 				controllerNum = 2;
-				result.setSecond(secondLevelService.queryEntityById(lid));
+				result.setThirdLevels(secondLevelService.queryEntityById(lid).getChildren());
 				break;
 			case "third":
 				controllerNum = 3;
-				result.setThird(thirdLevelService.queryEntityById(lid));
+				result.setFourthLevels(thirdLevelService.queryEntityById(lid).getChildren());
 				break;
 			}
 		}

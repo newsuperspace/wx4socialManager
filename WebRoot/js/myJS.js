@@ -764,197 +764,6 @@ var managerModal = {
 			$(location).attr("href", url);
 		},
 
-		/*
-		 * 判断指派人员的modal是否可以提交了（是否在select中选择了正确的option，value非0）
-		 */
-		//		showAssignedUserModalCanBeCommit : function(uid, level) {
-		//
-		//			var $select = $("#userAssigned" + level)
-		//
-		//			if ($select.val() == 0) {
-		//				// 用户没有选中正确的option，不予提交
-		//				// 设置按钮为不可用状态，并直接返回
-		//				$("#button4UserAssigned").attr("disabled", true);
-		//				return;
-		//			}
-		//			// 用户选择了 某个层级对象的option，可以执行指派操作了
-		//			$("#button4UserAssigned").unbind().bind("click", function() {
-		//				managerModal.op.assignedUser(uid, level, $select.val());
-		//			}).attr("disabled", false);
-		//		},
-
-
-		/*
-		 * 分配用户到子层级的“中间层&直属层”中
-		 * uid： 被分配的人员的uid
-		 */
-		//		showAssignedUserModal : function(uid) {
-		//
-		//			// 先要判断被操作用户的是否被委任了职责，其tag是否为common或unreal
-		//			var data = {
-		//				uid : uid
-		//			}
-		//
-		//			// 需要先等待下面的post请求从服务器获得返回的结果并判断后才能决定是否执行下面弹出Modal的操作，因此需要手动设置Ajax为同步执行（默认是异步执行）
-		//			$.ajaxSetup({
-		//				async : false // 全局设置Ajax为同步执行
-		//			});
-		//			var weContinue = true;
-		//			$.post("userAction_getUserInfo.action", data, function(data, textStatus, req) {
-		//				if (data.managers!= null && data.managers.size()>0) {
-		//					alert("该用户当前正在任职，请先将其卸任");
-		//					weContinue = false;
-		//				}
-		//				if (data.member.grouping.tag != "common" && data.member.grouping.tag != "unreal") {
-		//					alert("该用户当前的分组为管理者分组,请修改后再试");
-		//					weContinue = false;
-		//				}
-		//			});
-		//			// 重新设置Ajax为异步执行
-		//			$.ajaxSetup({
-		//				async : true
-		//			});
-		//			// 判断是否继续
-		//			if (!weContinue) {
-		//				return;
-		//			}
-		/*
-		 * 通过Ajax可以从后端返回当前操作者的层级对象，
-		 * 从中我们可以通过 data.grouping.tag 分析出操作者的层级分组,进而得知在userAssignedModal中应该显示的是那个select
-		 * 然后从 data.children4Ajax 得到可以指派人员的直接子层级数据，用来组织select中的option
-		 *  
-		 */
-		//			$.post("userAction_showUserAssignedModal.action", null, function(data, textStatus, req) {
-		//				// 先隐藏userAssigned的Modal中的所有select
-		//				$("#userAssignedModal div.row").hide();
-		//				// 将提交按钮预制成“不可用状态”
-		//				$("#button4UserAssigned").attr("disabled", true)
-		//
-		//				let level = data.level;
-		//				switch (level) {
-		//				case -1:
-		//					// 操作者是街道层级，将直属人员分配到社区
-		//					var $select = $("#userAssigned0").empty();
-		//					console.log($select.attr("id"));
-		//					var $option = $("<option value='0' selected>--请选择--</option>");
-		//					$select.append($option);
-		//					$select.unbind().bind("change", function() {
-		//						managerModal.op.showAssignedUserModalCanBeCommit(uid, 0)
-		//					});
-		//					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
-		//						$option = $("<option></option>");
-		//						$option.attr("value", data.allChildren4Ajax[i].zid);
-		//						$option.text(data.allChildren4Ajax[i].name);
-		//						$select.append($option);
-		//					}
-		//					break;
-		//				case 0:
-		//					// 操作者是社区层级，将直属人员分配到第一级
-		//					var $select = $("#userAssigned1").empty();
-		//					var $option = $("<option value='0' selected>--请选择--</option>");
-		//					$select.append($option);
-		//					$select.unbind().bind("change", function() {
-		//						managerModal.op.showAssignedUserModalCanBeCommit(uid, 1);
-		//					});
-		//					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
-		//						var $option = $("<option></option>");
-		//						$option.attr("value", data.allChildren4Ajax[i].flid);
-		//						$option.text(data.allChildren4Ajax[i].name);
-		//						$select.append($option);
-		//					}
-		//					break;
-		//				case 1:
-		//					// 操作者是第一层级，将直属人员分配到第二级
-		//					var $select = $("#userAssigned2").empty();
-		//					var $option = $("<option value='0' selected>--请选择--</option>");
-		//					$select.append($option);
-		//					$select.unbind().bind("change", function() {
-		//						managerModal.op.showAssignedUserModalCanBeCommit(uid, 2);
-		//					});
-		//					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
-		//						var $option = $("<option></option>");
-		//						$option.attr("value", data.allChildren4Ajax[i].scid);
-		//						$option.text(data.allChildren4Ajax[i].name);
-		//						$select.append($option);
-		//					}
-		//					break;
-		//				case 2:
-		//					// 操作者是第二层层级，将直属人员分配到第三级
-		//					var $select = $("#userAssigned3").empty();
-		//					var $option = $("<option value='0' selected>--请选择--</option>");
-		//					$select.append($option);
-		//					$select.unbind().bind("change", function() {
-		//						managerModal.op.showAssignedUserModalCanBeCommit(uid, 3);
-		//					});
-		//					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
-		//						var $option = $("<option></option>");
-		//						$option.attr("value", data.allChildren4Ajax[i].thid);
-		//						$option.text(data.allChildren4Ajax[i].name);
-		//						$select.append($option);
-		//					}
-		//					break;
-		//				case 3:
-		//					// 操作者是第三层级，将直属人员分配到第四级
-		//					var $select = $("#userAssigned4").empty();
-		//					var $option = $("<option value='0' selected>--请选择--</option>");
-		//					$select.append($option);
-		//					$select.unbind().bind("change", function() {
-		//						managerModal.op.showAssignedUserModalCanBeCommit(uid, 4);
-		//					});
-		//					for (let i = 0; i < data.allChildren4Ajax.length; i++) {
-		//						var $option = $("<option></option>");
-		//						$option.attr("value", data.allChildren4Ajax[i].foid);
-		//						$option.text(data.allChildren4Ajax[i].name);
-		//						$select.append($option);
-		//					}
-		//					break;
-		//				default:
-		//					// admin操作者会将用户分派到街道层级（-1）
-		//					var $select = $("#userAssigned-1").empty();
-		//					var $option = $("<option value='0' selected>--请选择--</option>");
-		//					$select.append($option);
-		//					$select.unbind().bind("change", function() {
-		//						managerModal.op.showAssignedUserModalCanBeCommit(uid, -1);
-		//					});
-		//					for (let i = 0; i < data.length; i++) {
-		//						$option = $("<option></option>");
-		//						$option.attr("value", data[i].mflid);
-		//						$option.text(data[i].name);
-		//						$select.append($option);
-		//					}
-		//					break;
-		//				}
-		//				$select.parent().parent().show();
-		//				$("#userAssignedModal").modal("show");
-		//			});
-		//		},
-		//
-		//		/*
-		//		 * 执行分配操作
-		//		 * uid : 待分配人的uid
-		//		 * level: 被分配到层级对象的层级数（-1，0，1，2，3，4）
-		//		 * lid: 被分配到的层级对象的lid
-		//		 */
-		//		assignedUser : function(uid, level, lid) {
-		//
-		//			var data = {
-		//				uid : uid,
-		//				level : level,
-		//				lid : lid
-		//			}
-		//
-		//			$.post("userAction_assignedUser.action", data, function(data, textStatus, req) {
-		//				if (data.result) {
-		//					// 人员派遣成功
-		//					alert(data.message);
-		//					window.location.reload();
-		//				} else {
-		//					alert(data.message);
-		//					$("#userAssignedModal").modal("hide");
-		//				}
-		//			});
-		//
-		//		},
 
 		/*
 		 * 向后端发起正式的任命操作
@@ -995,7 +804,7 @@ var managerModal = {
 			 *  那就说明可以提交“任命”
 			 */
 			if (level == lowest) {
-				var appointLevelID = $("#appoint" + level).val();
+				let appointLevelID = $("#appoint" + level).val();
 				if ('0' == appointLevelID) {
 					return;
 				}
@@ -1011,6 +820,7 @@ var managerModal = {
 		 * uid： 被任命的管理者的uid
 		 */
 		showAppointModal : function(uid) {
+			console.log("人员任命已开始");
 			// 先取消“提交”按钮的可用性
 			$("#button4appoint").attr("disabled", "disabled");
 			// 然后，开始通过Ajax从后端获取必要的层级对象的信息，用来组织MODAL的页面显示
@@ -1063,59 +873,53 @@ var managerModal = {
 						var $select = $("#appoint" + lowest).empty();
 						// 先创建一个默认的option
 						$select.append($("<option value='0' selected>--请选择--</option>"));
-						// 分析操作者的层级
-						var level = null;
 						switch (controllerNum) {
 						case -1:
-							// 操作者是街道，则操作者的层级对象是data.minusFirst
+							// 操作者是街道，则操作者的层级对象是data.zeroLevels
 							level = data.minusFirst;
-							for (let i = 0; i < level.allChildren4Ajax.length; i++) {
+							for (let i = 0; i < data.zeroLevels.length; i++) {
 								// 获取次层级zeroLevel对象
-								var child = level.allChildren4Ajax[i];
+								var child = data.zeroLevels[i];
 								var option = $("<option></option>");
 								option.attr("value", child.zid).text(child.name);
 								$select.append(option);
 							}
 							break;
 						case 0:
-							// 操作者是社区，则操作者的层级对象是data.zero
-							level = data.zero;
-							for (let i = 0; i < level.allChildren4Ajax.length; i++) {
+							// 操作者是社区，则操作者的层级对象是data.firstLevels
+							for (let i = 0; i < data.firstLevels.length; i++) {
 								// 获取次层级firstLevel对象
-								var child = level.allChildren4Ajax[i];
+								var child = data.firstLevels[i];
 								var option = $("<option></option>");
 								option.attr("value", child.flid).text(child.name);
 								$select.append(option);
 							}
 							break;
 						case 1:
-							// 操作者是第一级，则操作者的层级对象是data.first
-							level = data.first;
-							for (let i = 0; i < level.allChildren4Ajax.length; i++) {
+							// 操作者是第一级，则操作者的层级对象是data.secondLevels
+							for (let i = 0; i < data.secondLevels.length; i++) {
 								// 获取次层级secondLevel对象
-								var child = level.allChildren4Ajax[i];
+								var child = data.secondLevels[i];
 								var option = $("<option></option>");
 								option.attr("value", child.scid).text(child.name);
 								$select.append(option);
 							}
 							break;
 						case 2:
-							// 操作者是第二级，则操作者的层级对象是data.second
-							level = data.second;
-							for (let i = 0; i < level.allChildren4Ajax.length; i++) {
+							// 操作者是第二级，则操作者的层级对象是data.thirdLevels
+							for (let i = 0; i < data.thirdLevels.length; i++) {
 								// 获取次层级thirdLevel对象
-								var child = level.allChildren4Ajax[i];
+								var child = data.thirdLevels[i];
 								var option = $("<option></option>");
 								option.attr("value", child.thid).text(child.name);
 								$select.append(option);
 							}
 							break;
 						case 3:
-							// 操作者是第三级，则操作者的层级对象是data.third
-							level = data.third;
-							for (let i = 0; i < level.allChildren4Ajax.length; i++) {
+							// 操作者是第三级，则操作者的层级对象是data.fourthLevels
+							for (let i = 0; i < data.fourthLevels.length; i++) {
 								// 获取次层级fourthLevel对象
-								var child = level.allChildren4Ajax[i];
+								var child = data.fourthLevels[i];
 								var option = $("<option></option>");
 								option.attr("value", child.foid).text(child.name);
 								$select.append(option);

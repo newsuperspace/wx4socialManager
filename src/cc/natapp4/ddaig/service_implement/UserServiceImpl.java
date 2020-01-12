@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.struts2.ServletActionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -89,7 +90,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	private ThirdLevelService thirdLevelService;
 	@Autowired
 	private FourthLevelService fourthLevelService;
-	
+
 	/*
 	 * TODO 下方涉及负责与微信公众号交互的weixinService4Setting等Service由于需要在Servlet环境的支持
 	 * 因此在JUnit测试有关User/Manager/Member的Service→Dao层的时候请先注解掉这部分内容
@@ -106,7 +107,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	public User queryByOpenId(String openID) {
 		return dao.queryByOpenId(openID);
 	}
-	
+
 	@Override
 	public User queryByPhone(String phoneNum) {
 		return dao.queryByPhone(phoneNum);
@@ -118,41 +119,41 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		List<User> list = dao.queryByTagName(tagName);
 		return list;
 	}
-	
+
 	/**
 	 * 实名认证
 	 */
 	@Override
 	public void checkRealName(String openID, String username, String sex, String birth, String phone)
 			throws WeixinExceptionWhenCheckRealName {
-		
+
 		// TODO 这里还是有问题的，因为必须要先检测是否有后台添加用户，这里为了尽快检测系统可用性而选择只有微信公众号添加用户这一种方式
 		// TODO 因此这里需要在UserDao中添加根据cardid查找用户的方法，然后确认实名认证是否是相同用户
 		User user = dao.queryByOpenId(openID);
 		user.setPhone(phone);
 		user.setUsername(username);
-		if("1".equals(sex)){
+		if ("1".equals(sex)) {
 			user.setSex("男");
-		}else{
+		} else {
 			user.setSex("女");
 		}
 		user.setBirth(birth);
-		
+
 		// 开始计算年龄
-		SimpleDateFormat  formatter = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		long time = 0;
 		try {
 			time = formatter.parse(birth).getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		
+
 		/*
 		 * ★★★ 这里必须要注意，如果我们希望计算的是一个long类型的数学表达式，就像下面这种乘法式
 		 * 那么必须在其中一个数字（通常是第一个数字）后面加上L标志，否则Java默认按照int型计算结果
 		 * 所以如果不加L，那么计算出来的值最多只有10位，而long类型有11位
 		 */
-		int age  =  (int) Math.floor((System.currentTimeMillis() - time)/(1000L*60*60*24*365));
+		int age = (int) Math.floor((System.currentTimeMillis() - time) / (1000L * 60 * 60 * 24 * 365));
 		user.setAge(age);
 		// 变更该用户的标签
 		List<Grouping> list = this.groupingService.queryEntities();
@@ -160,8 +161,8 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 			// 实名认证后的用户其member.grouping.tag = common
 			if (g.getTag().equals("common")) {
 				// 遍历待实名认证用户的所有member，找到默认member并修改其grouping.tag从unreal到common
-				for(Member m: user.getMembers()){
-					if(null==m.getMinusFirstLevel()){
+				for (Member m : user.getMembers()) {
+					if (null == m.getMinusFirstLevel()) {
 						m.setGrouping(g);
 					}
 				}
@@ -171,8 +172,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	}
 
 	/**
-	 * 类洗浴新鲜活动Activity的子类个性化方法，bacause需要自动生成用来分别各个用户的unique的QRCODE
-	 * 因此这里需要一个覆盖父类的子类方法
+	 * 类洗浴新鲜活动Activity的子类个性化方法，bacause需要自动生成用来分别各个用户的unique的QRCODE 因此这里需要一个覆盖父类的子类方法
 	 * 
 	 * 非初始化阶段（），所调用的新建用户的save，它会顺便生成每个用户专属的qrcode
 	 */
@@ -193,9 +193,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	public User queryByUsername(String username) {
 		return dao.queryByUsername(username);
 	}
-	
 
-	
 	@Override
 	public ReturnMessage4CountandCreateFirstPage getCountandCreateFirstPage4InitLaypage(String targetTag,
 			String targetLid, int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag) {
@@ -203,21 +201,81 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
 		List<User> firstPageUsers = new ArrayList<User>();
 		long total = 0;
-		
-		if("userList4currentLevel".equals(whereFrom)) {
+
+		if ("userList4currentLevel".equals(whereFrom)) {
 			// 如果请求者来自userList且目标获取对象和当前登录的层级管理者相同，则只获取当前层级的非直辖成员
-			firstPageUsers = this.dao.getChildrenLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
+			firstPageUsers = this.dao.getChildrenLevelUsersByPage(targetTag, targetLid, targetPageNum,
+					pageItemNumLimit);
 			total = this.dao.getChildrenLevelUsersCount(targetTag, targetLid);
-		}else if("userList4childLevel".equals(whereFrom)) {
+		} else if ("userList4childLevel".equals(whereFrom)) {
 			// 如果请求者来自userList且目标获取对象和当前登录的层级管理者不同（目标是当前层级的子孙），则获取目标层级的所有成员(直辖+非直辖)
 			firstPageUsers = this.dao.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
 			total = this.dao.getAllLevelUsersCount(targetTag, targetLid);
-		}else if("managerList".equals(whereFrom)) {
+		} else if ("managerList".equals(whereFrom)) {
 			// 如果请求来在managerList，则只获取
-			firstPageUsers = this.dao.getSelfLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit, groupTag);
-			total = this.dao.getSelfLevelUsersCount(targetTag, targetLid, targetTag);
+			firstPageUsers = this.dao.getSelfLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit,
+					groupTag);
+
+			// 定位每个user对应于当前操作者层级（二者是直辖关系）的member对象
+			for (User u : firstPageUsers) {
+				Member member = null;
+				List<Member> members = u.getMembers();
+				for (Member m : members) {
+					if(null==m)
+						continue;
+					
+					switch (targetTag) {
+					case "admin":
+						if (null == m.getMinusFirstLevel()) {
+							member = m;
+						}
+						break;
+					case "minus_first":
+						if (null != m.getMinusFirstLevel() && null == m.getZeroLevel()
+								&& m.getMinusFirstLevel().getMflid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					case "zero":
+						if (null != m.getZeroLevel() && null == m.getFirstLevel()
+								&& m.getZeroLevel().getZid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					case "first":
+						if (null != m.getFirstLevel() && null == m.getSecondLevel()
+								&& m.getFirstLevel().getFlid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					case "second":
+						if (null != m.getSecondLevel() && null == m.getThirdLevel()
+								&& m.getSecondLevel().getScid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					case "third":
+						if (null != m.getThirdLevel() && null == m.getFourthLevel()
+								&& m.getThirdLevel().getThid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					case "fourth":
+						if (null != m.getFourthLevel() && m.getFourthLevel().getFoid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					}
+					if (null != member) {
+						break;
+					}
+				}
+				u.setMember(member);
+			}
+
+			total = this.dao.getSelfLevelUsersCount(targetTag, targetLid, groupTag);
 		}
-		
+
 		result.setCount(total);
 		result.setUsers(firstPageUsers);
 		return result;
@@ -227,25 +285,82 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 	public ReturnMessage4CountandCreateFirstPage getUsersByPageLimit(String targetTag, String targetLid,
 			int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag) {
 
-		
 		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
-		List<User> users = new ArrayList<User>();;
+		List<User> users = new ArrayList<User>();
+		;
 
-		if("userList4currentLevel".equals(whereFrom)) {
+		if ("userList4currentLevel".equals(whereFrom)) {
 			users = dao.getChildrenLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
-		}else if("userList4childLevel".equals(whereFrom)) {
+		} else if ("userList4childLevel".equals(whereFrom)) {
 			users = dao.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
-		}else if("managerList".equals(whereFrom)){
+		} else if ("managerList".equals(whereFrom)) {
 			users = dao.getSelfLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit, groupTag);
+
+			// 定位每个user对应于当前操作者层级（二者是直辖关系）的member对象
+			for (User u : users) {
+				Member member = null;
+				List<Member> members = u.getMembers();
+				for (Member m : members) {
+					if(null==m)
+						continue;
+					
+					switch (targetTag) {
+					case "admin":
+						if (null == m.getMinusFirstLevel()) {
+							member = m;
+						}
+						break;
+					case "minus_first":
+						if (null != m.getMinusFirstLevel() && null == m.getZeroLevel()
+								&& m.getMinusFirstLevel().getMflid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					case "zero":
+						if (null != m.getZeroLevel() && null == m.getFirstLevel()
+								&& m.getZeroLevel().getZid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					case "first":
+						if (null != m.getFirstLevel() && null == m.getSecondLevel()
+								&& m.getFirstLevel().getFlid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					case "second":
+						if (null != m.getSecondLevel() && null == m.getThirdLevel()
+								&& m.getSecondLevel().getScid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					case "third":
+						if (null != m.getThirdLevel() && null == m.getFourthLevel()
+								&& m.getThirdLevel().getThid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					case "fourth":
+						if (null != m.getFourthLevel() && m.getFourthLevel().getFoid().equals(targetLid)) {
+							member = m;
+						}
+						break;
+					}
+					if (null != member) {
+						break;
+					}
+				}
+				u.setMember(member);
+			}
+
 		}
-		
+
 		result.setUsers(users);
 		return result;
 	}
-	
 
 	@Override
-	public ReturnMessage4InitSelector initSelector(String currentLevelTag, String currentLevelId) {
+	public ReturnMessage4InitSelector initLevelSelector(String currentLevelTag, String currentLevelId) {
 		ReturnMessage4InitSelector result = new ReturnMessage4InitSelector();
 		List<Bean4InitSelector> total = new ArrayList<Bean4InitSelector>();
 		/*
@@ -718,18 +833,90 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
 		return result;
 	}
 
-	
-	
-	
-	
-	
-	
-	
+	@Override
+	public ReturnMessage4InitSelector initGroupTagSelector(String currentLevelTag, String currentLevelId) {
+		ReturnMessage4InitSelector result = new ReturnMessage4InitSelector();
+		List<Bean4InitSelector> list = new ArrayList<Bean4InitSelector>();
+		list.add(new Bean4InitSelector("不限", "all", new ArrayList<Bean4InitSelector>()));
+
+		if ("admin".equals(currentLevelTag)) {
+			Grouping groupUnreal = groupingService.queryByTagName("unreal");
+			Bean4InitSelector beanUnreal = new Bean4InitSelector(groupUnreal.getGroupName(), groupUnreal.getTag(),
+					new ArrayList<Bean4InitSelector>());
+			Grouping groupMinusFirst = groupingService.queryByTagName("minus_first");
+			Bean4InitSelector beanMinusFirst = new Bean4InitSelector(groupMinusFirst.getGroupName(),
+					groupMinusFirst.getTag(), new ArrayList<Bean4InitSelector>());
+			Grouping groupCommon = groupingService.queryByTagName("common");
+			Bean4InitSelector beanCommon = new Bean4InitSelector(groupCommon.getGroupName(), groupCommon.getTag(),
+					new ArrayList<Bean4InitSelector>());
+
+			list.add(beanUnreal);
+			list.add(beanCommon);
+			list.add(beanMinusFirst);
+		} else if ("minus_first".equals(currentLevelTag)) {
+			Grouping groupZero = groupingService.queryByTagName("zero");
+			Bean4InitSelector beanZero = new Bean4InitSelector(groupZero.getGroupName(), groupZero.getTag(),
+					new ArrayList<Bean4InitSelector>());
+			Grouping groupCommon = groupingService.queryByTagName("common");
+			Bean4InitSelector beanCommon = new Bean4InitSelector(groupCommon.getGroupName(), groupCommon.getTag(),
+					new ArrayList<Bean4InitSelector>());
+
+			list.add(beanCommon);
+			list.add(beanZero);
+		} else if ("zero".equals(currentLevelTag)) {
+			Grouping groupFirst = groupingService.queryByTagName("first");
+			Bean4InitSelector beanFirst = new Bean4InitSelector(groupFirst.getGroupName(), groupFirst.getTag(),
+					new ArrayList<Bean4InitSelector>());
+			Grouping groupCommon = groupingService.queryByTagName("common");
+			Bean4InitSelector beanCommon = new Bean4InitSelector(groupCommon.getGroupName(), groupCommon.getTag(),
+					new ArrayList<Bean4InitSelector>());
+
+			list.add(beanCommon);
+			list.add(beanFirst);
+		} else if ("first".equals(currentLevelTag)) {
+			Grouping groupSecond = groupingService.queryByTagName("second");
+			Bean4InitSelector beanSecond = new Bean4InitSelector(groupSecond.getGroupName(), groupSecond.getTag(),
+					new ArrayList<Bean4InitSelector>());
+			Grouping groupCommon = groupingService.queryByTagName("common");
+			Bean4InitSelector beanCommon = new Bean4InitSelector(groupCommon.getGroupName(), groupCommon.getTag(),
+					new ArrayList<Bean4InitSelector>());
+
+			list.add(beanCommon);
+			list.add(beanSecond);
+		} else if ("second".equals(currentLevelTag)) {
+			Grouping groupThird = groupingService.queryByTagName("third");
+			Bean4InitSelector beanThird = new Bean4InitSelector(groupThird.getGroupName(), groupThird.getTag(),
+					new ArrayList<Bean4InitSelector>());
+			Grouping groupCommon = groupingService.queryByTagName("common");
+			Bean4InitSelector beanCommon = new Bean4InitSelector(groupCommon.getGroupName(), groupCommon.getTag(),
+					new ArrayList<Bean4InitSelector>());
+
+			list.add(beanCommon);
+			list.add(beanThird);
+		} else if ("third".equals(currentLevelTag)) {
+			Grouping groupFourth = groupingService.queryByTagName("fourth");
+			Bean4InitSelector beanFourth = new Bean4InitSelector(groupFourth.getGroupName(), groupFourth.getTag(),
+					new ArrayList<Bean4InitSelector>());
+			Grouping groupCommon = groupingService.queryByTagName("common");
+			Bean4InitSelector beanCommon = new Bean4InitSelector(groupCommon.getGroupName(), groupCommon.getTag(),
+					new ArrayList<Bean4InitSelector>());
+
+			list.add(beanCommon);
+			list.add(beanFourth);
+		} else if ("fourth".equals(currentLevelTag)) {
+			Grouping groupCommon = groupingService.queryByTagName("common");
+			Bean4InitSelector beanCommon = new Bean4InitSelector(groupCommon.getGroupName(), groupCommon.getTag(),
+					new ArrayList<Bean4InitSelector>());
+			list.add(beanCommon);
+		}
+
+		result.setDataSource(list);
+		return result;
+	}
+
 	@Override
 	public List<User> getManagers(String targetLevelTag, String targetLevelId, String groupTag) {
 		return dao.getSelfLevelUsers(targetLevelTag, targetLevelId, groupTag);
 	}
 
-
-	
 }

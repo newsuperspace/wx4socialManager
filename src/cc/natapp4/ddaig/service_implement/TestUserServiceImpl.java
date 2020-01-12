@@ -198,13 +198,19 @@ public class TestUserServiceImpl extends BaseServiceImpl<User> implements UserSe
 	}
 
 	@Override
-	public ReturnMessage4InitSelector initSelector(String currentLevelTag, String currentLevelId) {
+	public ReturnMessage4InitSelector initLevelSelector(String currentLevelTag, String currentLevelId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<User> getManagers(String targetLevelTag, String targetLevelId, String groupTag) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ReturnMessage4InitSelector initGroupTagSelector(String currentLevelTag, String currentLevelId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
