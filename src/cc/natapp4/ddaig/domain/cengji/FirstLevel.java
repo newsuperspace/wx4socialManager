@@ -151,7 +151,7 @@ public class FirstLevel implements LevelInterface {
 	 * 层级对象的成员，无需随时都跟随着层级对象返回到前端，需要的时候 在临时获取然后将Set<Member>返回到前端即可，因此需要添加@JSON
 	 * 注解提高struts-json-plugin.jar的执行效率
 	 */
-	@JSON
+	@JSON(serialize = false)
 	public Set<Member> getMembers() {
 		return members;
 	}

@@ -196,6 +196,7 @@ public class ZeroLevel implements LevelInterface {
 		this.managers = managers;
 	}
 
+	@JSON(serialize = false)
 	public List<Ware> getWares() {
 		return wares;
 	}

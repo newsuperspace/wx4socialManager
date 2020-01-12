@@ -96,8 +96,9 @@ function initLaypage() {
 						"targetPageNum" : targetPageNum,
 						"pageItemNumLimit" : pageItemNumLimit
 					}
+					
 					$.post(url, param, function(data, textStatus, req) {
-						console.log(data);
+						
 						// 定位表格体
 						let table = $("#tbody");
 						// 清空表格体中的数据
@@ -259,9 +260,12 @@ function getCountandCreateFirstPage4InitLaypage() {
 		async : false // 全局设置Ajax为同步执行
 	});
 
+	let startTime = new Date().getTime();
 	$.post(url, param, function(data, textStatus, req) {
+		let endTime = new Date().getTime();
+		console.log("=========js4managerList.initLaypage服务器响应速度:"+(endTime-startTime)+"毫秒========")
+
 		count = data.count;
-		console.log(data);
 		// 定位表格体
 		let table = $("#tbody");
 		table.empty();
