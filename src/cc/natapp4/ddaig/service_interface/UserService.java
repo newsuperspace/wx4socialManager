@@ -2,7 +2,7 @@ package cc.natapp4.ddaig.service_interface;
 
 import java.util.List;
 
-import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage4User;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
 import cc.natapp4.ddaig.domain.Member;
 import cc.natapp4.ddaig.domain.User;
@@ -55,7 +55,7 @@ public interface UserService extends BaseService<User> {
 	 * @param groupTag				如果whereFrom为managerList，则这个参数用于表明进一步获取哪个group.tag 的群组数据
 	 * @return
 	 */
-	public ReturnMessage4CountandCreateFirstPage getCountandCreateFirstPage4InitLaypage(String targetTag,
+	public ReturnMessage4CountandCreateFirstPage4User getCountandCreateFirstPage4InitLaypage(String targetTag,
 			String targetLid, int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag);
 	
 	/**
@@ -69,7 +69,7 @@ public interface UserService extends BaseService<User> {
 	 * @param groupTag				如果whereFrom为managerList，则这个参数用于表明进一步获取哪个group.tag 的群组数据
 	 * @return
 	 */
-	public ReturnMessage4CountandCreateFirstPage getUsersByPageLimit(String targetTag,
+	public ReturnMessage4CountandCreateFirstPage4User getUsersByPageLimit(String targetTag,
 			String targetLid, int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag);
 	
 	

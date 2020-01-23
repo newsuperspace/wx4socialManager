@@ -1,94 +1,27 @@
 package cc.natapp4.ddaig.action;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-import javax.servlet.ServletContext;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.apache.struts2.ServletActionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 
-import cc.natapp4.ddaig.bean.GetData4UserListSelectors;
-import cc.natapp4.ddaig.bean.Init4UserListSelectors;
-import cc.natapp4.ddaig.bean.User4Ajax;
-import cc.natapp4.ddaig.bean.health.Bean4InitSelector;
-import cc.natapp4.ddaig.bean.health.ParseJson4CreateEnclosedScale;
-import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage4Eslist;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage4User;
+
 import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
-import cc.natapp4.ddaig.domain.Exchange;
-import cc.natapp4.ddaig.domain.Grouping;
-import cc.natapp4.ddaig.domain.Manager;
-import cc.natapp4.ddaig.domain.Member;
-import cc.natapp4.ddaig.domain.User;
-import cc.natapp4.ddaig.domain.Visitor;
-import cc.natapp4.ddaig.domain.cengji.FirstLevel;
-import cc.natapp4.ddaig.domain.cengji.FourthLevel;
-import cc.natapp4.ddaig.domain.cengji.MinusFirstLevel;
-import cc.natapp4.ddaig.domain.cengji.SecondLevel;
-import cc.natapp4.ddaig.domain.cengji.ThirdLevel;
-import cc.natapp4.ddaig.domain.cengji.ZeroLevel;
 import cc.natapp4.ddaig.domain.health.EnclosedScale;
-import cc.natapp4.ddaig.domain.health.Factor4EnclosedScale;
-import cc.natapp4.ddaig.domain.health.FactorResult4Sample4EnclosedScale;
-import cc.natapp4.ddaig.domain.health.Option4EnclosedScale;
-import cc.natapp4.ddaig.domain.health.OptionGroup4EnclosedScale;
-import cc.natapp4.ddaig.domain.health.Sample4EnclosedScale;
-import cc.natapp4.ddaig.domain.health.Section4Factor4EnclosedScale;
-import cc.natapp4.ddaig.domain.health.Topic4EnclosedScale;
-import cc.natapp4.ddaig.domain.health.TopicResult4FactorResult4Sample4EnclosedScale;
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
-import cc.natapp4.ddaig.service_implement.health.FactorResult4Sample4EnclosedScaleServiceImpl;
-import cc.natapp4.ddaig.service_interface.FirstLevelService;
-import cc.natapp4.ddaig.service_interface.FourthLevelService;
-import cc.natapp4.ddaig.service_interface.GroupingService;
-import cc.natapp4.ddaig.service_interface.ManagerService;
-import cc.natapp4.ddaig.service_interface.MemberService;
-import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
-import cc.natapp4.ddaig.service_interface.SecondLevelService;
-import cc.natapp4.ddaig.service_interface.ThirdLevelService;
-import cc.natapp4.ddaig.service_interface.UserService;
-import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.service_interface.health.EnclosedScaleService;
-import cc.natapp4.ddaig.service_interface.health.Factor4EnclosedScaleService;
-import cc.natapp4.ddaig.service_interface.health.FactorResult4Sample4EnclosedScaleService;
 import cc.natapp4.ddaig.service_interface.health.HealthService;
-import cc.natapp4.ddaig.service_interface.health.Option4EnclosedScaleService;
-import cc.natapp4.ddaig.service_interface.health.OptionGroup4EnclosedScaleService;
-import cc.natapp4.ddaig.service_interface.health.Sample4EnclosedScaleService;
-import cc.natapp4.ddaig.service_interface.health.Section4Factor4EnclosedScaleService;
-import cc.natapp4.ddaig.service_interface.health.Topic4EnclosedScaleService;
-import cc.natapp4.ddaig.service_interface.health.TopicResult4FactorResult4Sample4EnclosedScaleService;
-import cc.natapp4.ddaig.utils.FileController;
-import cc.natapp4.ddaig.utils.QRCodeUtils;
-import cc.natapp4.ddaig.weixin.service_implement.WeixinService4SettingImpl;
-import cc.natapp4.ddaig.weixin.service_interface.WeixinService4Setting;
-import cn.com.obj.freemarker.ExportDoc;
 
 @Controller("healthAction")
 @Scope("prototype")
@@ -99,6 +32,8 @@ public class HealthAction extends ActionSupport {
 	// ==========================================================DI注入Aspect
 	@Autowired
 	private HealthService healthService;
+	@Autowired
+	private EnclosedScaleService enclosedScaleService;
 
 	// ======================================================属性驱动——向前端页面传送经过处理的数据信息
 	private String errorMessage; // 用作error全局结果集指定的页面——error.jsp中显示错误的信息内容
@@ -250,7 +185,7 @@ public class HealthAction extends ActionSupport {
 			lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 		}
 		
-		ReturnMessage4CountandCreateFirstPage result = healthService.getCountandCreateFirstPage4InitLaypage(tag, lid, 1, 10);
+		ReturnMessage4CountandCreateFirstPage4User result = healthService.getCountandCreateFirstPage4InitLaypage4UsersPage(tag, lid, 1, 10);
 		
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
@@ -302,7 +237,7 @@ public class HealthAction extends ActionSupport {
 			lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 		}
 
-		ReturnMessage4CountandCreateFirstPage result = healthService.getUsersByPageLimit(tag, lid, this.targetPageNum,
+		ReturnMessage4CountandCreateFirstPage4User result = healthService.getUsersByPageLimit(tag, lid, this.targetPageNum,
 				this.pageItemNumLimit);
 
 		ActionContext.getContext().getValueStack().push(result);
@@ -329,7 +264,7 @@ public class HealthAction extends ActionSupport {
 		String tag = (String) ServletActionContext.getRequest().getSession().getAttribute("tag");
 		String lid = (String) ServletActionContext.getRequest().getSession().getAttribute("lid");
 
-		ReturnMessage4InitSelector result = healthService.initSelector(tag, lid);
+		ReturnMessage4InitSelector result = healthService.initSelector4Level(tag, lid);
 
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
@@ -346,11 +281,9 @@ public class HealthAction extends ActionSupport {
 	}
 
 	private String jsonStr4CreateEnclosedScale; // 接收创建封闭式问卷的JSON格式字符串，后端基于Gson对其吉星解析封装
-
 	public String getJsonStr4CreateEnclosedScale() {
 		return jsonStr4CreateEnclosedScale;
 	}
-
 	public void setJsonStr4CreateEnclosedScale(String jsonStr4CreateEnclosedScale) {
 		this.jsonStr4CreateEnclosedScale = jsonStr4CreateEnclosedScale;
 	}
@@ -385,6 +318,38 @@ public class HealthAction extends ActionSupport {
 		return "enclosedScaleList";
 	}
 
+	
+	/**
+	 * 【分页查询】 封闭量表-在前端页面（enclosedScaleList.jsp）基于Layui的分页查询请求
+	 * @return
+	 */
+	public String getEssByPageLimit() {
+		ReturnMessage4CountandCreateFirstPage4Eslist result  = new ReturnMessage4CountandCreateFirstPage4Eslist();
+		
+		result = this.enclosedScaleService.getEssByPageLimit(targetPageNum, pageItemNumLimit);
+		
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+	
+	
+	/**
+	 * 【分页查询】 封闭量表-初始化前端（enclosedScaleList.jsp）基于Layui的首页数据之用
+	 * @return
+	 */
+	public String getCountandCreateFirstPage4InitLaypage4EslistPage() {
+		ReturnMessage4CountandCreateFirstPage4Eslist  result = new ReturnMessage4CountandCreateFirstPage4Eslist();
+		
+		result = this.enclosedScaleService.getCountandCreateFirstPage4InitLaypage4EslistPage();
+		
+		ActionContext.getContext().getValueStack().push(result);
+		return "json";
+	}
+	
+	
+	
+	
+	
 //	// =================================基于Freemaker下载电子报告的功能区=======================================
 //	/**
 //	 * 下载用于批量创建的Excel模板文件

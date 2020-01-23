@@ -6,8 +6,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.struts2.ServletActionContext;
-import org.apache.struts2.components.Bean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -16,7 +14,8 @@ import com.google.gson.Gson;
 
 import cc.natapp4.ddaig.bean.health.Bean4InitSelector;
 import cc.natapp4.ddaig.bean.health.ParseJson4CreateEnclosedScale;
-import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage4Eslist;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage4User;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
 import cc.natapp4.ddaig.dao_interface.UserDao;
 import cc.natapp4.ddaig.domain.User;
@@ -38,13 +37,9 @@ import cc.natapp4.ddaig.domain.health.TopicResult4FactorResult4Sample4EnclosedSc
 import cc.natapp4.ddaig.json.returnMessage.ReturnMessage4Common;
 import cc.natapp4.ddaig.service_interface.FirstLevelService;
 import cc.natapp4.ddaig.service_interface.FourthLevelService;
-import cc.natapp4.ddaig.service_interface.GroupingService;
-import cc.natapp4.ddaig.service_interface.ManagerService;
-import cc.natapp4.ddaig.service_interface.MemberService;
 import cc.natapp4.ddaig.service_interface.MinusFirstLevelService;
 import cc.natapp4.ddaig.service_interface.SecondLevelService;
 import cc.natapp4.ddaig.service_interface.ThirdLevelService;
-import cc.natapp4.ddaig.service_interface.UserService;
 import cc.natapp4.ddaig.service_interface.ZeroLevelService;
 import cc.natapp4.ddaig.service_interface.health.EnclosedScaleService;
 import cc.natapp4.ddaig.service_interface.health.Factor4EnclosedScaleService;
@@ -123,10 +118,10 @@ public class HealthServiceImpl implements HealthService {
 	}
 
 	@Override
-	public ReturnMessage4CountandCreateFirstPage getCountandCreateFirstPage4InitLaypage(String targetTag,
+	public ReturnMessage4CountandCreateFirstPage4User getCountandCreateFirstPage4InitLaypage4UsersPage(String targetTag,
 			String targetLid, int targetPageNum, int pageItemNumLimit) {
 
-		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
+		ReturnMessage4CountandCreateFirstPage4User result = new ReturnMessage4CountandCreateFirstPage4User();
 
 		List<User> users = null;
 		users = userDao.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
@@ -280,10 +275,10 @@ public class HealthServiceImpl implements HealthService {
 	}
 
 	@Override
-	public ReturnMessage4CountandCreateFirstPage getUsersByPageLimit(String targetTag, String targetLid,
+	public ReturnMessage4CountandCreateFirstPage4User getUsersByPageLimit(String targetTag, String targetLid,
 			int targetPageNum, int pageItemNumLimit) {
 
-		ReturnMessage4CountandCreateFirstPage result = new ReturnMessage4CountandCreateFirstPage();
+		ReturnMessage4CountandCreateFirstPage4User result = new ReturnMessage4CountandCreateFirstPage4User();
 
 		List<User> users = null;
 		users = userDao.getAllLevelUsersByPage(targetTag, targetLid, targetPageNum, pageItemNumLimit);
@@ -305,7 +300,7 @@ public class HealthServiceImpl implements HealthService {
 	}
 
 	@Override
-	public ReturnMessage4InitSelector initSelector(String tag, String lid) {
+	public ReturnMessage4InitSelector initSelector4Level(String tag, String lid) {
 
 		ReturnMessage4InitSelector result = new ReturnMessage4InitSelector();
 		List<Bean4InitSelector> total = new ArrayList<Bean4InitSelector>();
@@ -778,5 +773,6 @@ public class HealthServiceImpl implements HealthService {
 		result.setDefaultValue(new ArrayList<String>()); // 前端picker-extend.js会检查数组深度，因此不能为null，需要给出一个空数组
 		return result;
 	}
+
 
 }

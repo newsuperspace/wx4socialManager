@@ -43,7 +43,7 @@ import cc.natapp4.ddaig.bean.Info4SheetJSBatchCreateUser;
 import cc.natapp4.ddaig.bean.Init4UserListSelectors;
 import cc.natapp4.ddaig.bean.SheetJS4BatchCreateUser;
 import cc.natapp4.ddaig.bean.User4Ajax;
-import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage4User;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
 import cc.natapp4.ddaig.domain.Exchange;
 import cc.natapp4.ddaig.domain.Grouping;
@@ -331,7 +331,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		}
 
 		// TODO 目前还没有涉及group.tag的过滤，因此给出一个all，表示查找所有
-		ReturnMessage4CountandCreateFirstPage result = this.userService.getCountandCreateFirstPage4InitLaypage(tag, lid,
+		ReturnMessage4CountandCreateFirstPage4User result = this.userService.getCountandCreateFirstPage4InitLaypage(tag, lid,
 				1, 10, whereFrom, groupTag);
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";
@@ -441,7 +441,7 @@ public class UserAction extends ActionSupport implements ModelDriven<User> {
 		}
 
 		// TODO 目前还没有涉及group.tag的过滤，因此给出一个all，表示查找所有
-		ReturnMessage4CountandCreateFirstPage result = userService.getUsersByPageLimit(tag, lid, this.targetPageNum,
+		ReturnMessage4CountandCreateFirstPage4User result = userService.getUsersByPageLimit(tag, lid, this.targetPageNum,
 				this.pageItemNumLimit, whereFrom, groupTag);
 		ActionContext.getContext().getValueStack().push(result);
 		return "json";

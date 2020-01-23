@@ -1,7 +1,10 @@
 package cc.natapp4.ddaig.domain.health;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.List;
+
+import org.apache.struts2.json.annotations.JSON;
 
 /**
  * 封闭式问卷主体
@@ -27,6 +30,7 @@ public class EnclosedScale implements Serializable {
 	private float weigh; // 权重
 	private int useNum; // 累计使用数量
 
+	private int version = 1; // 版本号
 	/**
 	 * ============== 设置字段 ==============
 	 */
@@ -46,11 +50,49 @@ public class EnclosedScale implements Serializable {
 	private List<Sample4EnclosedScale> samples; // 容纳当前问卷所产生的
 
 	
+	/*
+	 * ==============前端显示用字段==============
+	 */
+	private int topicNum;   // 向前端显示题目数量
+	public int getTopicNum() {
+		int total = 0;
+		for(Factor4EnclosedScale factor: factors) {
+			List<Topic4EnclosedScale> topics = factor.getTopics();
+			total += topics.size();
+		}
+		return total;
+	}
+
+	private long sampleNum;   // 向前端显示样本数量
+	public long getSampleNum() {
+		return samples.size();
+	}
+	
+	private int factorNum;		// 向前端显示因子数量
+	public int getFactorNum() {
+		return factors.size();
+	}
+
+	private String date = "2020-12-31";  // 向前端现实形如 yyyy-MM-dd 创建日期
+	public String getDate() {
+//		SimpleDateFormat  formater = new SimpleDateFormat("yyyy-MM-dd");
+//		formater.format(new Date())
+		return date;
+	}
+
 	// ==============================SETTER/GETTER===================================
+	public int getVersion() {
+		return version;
+	}
+	public void setVersion(int version) {
+		this.version = version;
+	}
+	
+	
 	public String getEsid() {
 		return esid;
 	}
-
+	
 	public void setEsid(String esid) {
 		this.esid = esid;
 	}
@@ -111,18 +153,18 @@ public class EnclosedScale implements Serializable {
 		this.disorder = disorder;
 	}
 
+	@JSON(serialize=false)
 	public List<Factor4EnclosedScale> getFactors() {
 		return factors;
 	}
-
 	public void setFactors(List<Factor4EnclosedScale> factors) {
 		this.factors = factors;
 	}
 
+	@JSON(serialize=false)
 	public List<Sample4EnclosedScale> getSamples() {
 		return samples;
 	}
-
 	public void setSamples(List<Sample4EnclosedScale> samples) {
 		this.samples = samples;
 	}

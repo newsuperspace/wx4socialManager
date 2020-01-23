@@ -11,7 +11,7 @@ import org.apache.struts2.ServletActionContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage;
+import cc.natapp4.ddaig.bean.health.ReturnMessage4CountandCreateFirstPage4User;
 import cc.natapp4.ddaig.bean.health.ReturnMessage4InitSelector;
 import cc.natapp4.ddaig.dao_interface.BaseDao;
 import cc.natapp4.ddaig.dao_interface.UserDao;
@@ -184,14 +184,14 @@ public class TestUserServiceImpl extends BaseServiceImpl<User> implements UserSe
 	
 
 	@Override
-	public ReturnMessage4CountandCreateFirstPage getCountandCreateFirstPage4InitLaypage(String targetTag,
+	public ReturnMessage4CountandCreateFirstPage4User getCountandCreateFirstPage4InitLaypage(String targetTag,
 			String targetLid, int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ReturnMessage4CountandCreateFirstPage getUsersByPageLimit(String targetTag, String targetLid,
+	public ReturnMessage4CountandCreateFirstPage4User getUsersByPageLimit(String targetTag, String targetLid,
 			int targetPageNum, int pageItemNumLimit, String whereFrom, String groupTag) {
 		// TODO Auto-generated method stub
 		return null;

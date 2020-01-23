@@ -5,7 +5,7 @@ import java.util.List;
 
 import cc.natapp4.ddaig.domain.User;
 
-public class ReturnMessage4CountandCreateFirstPage implements Serializable {
+public class ReturnMessage4CountandCreateFirstPage4User implements Serializable {
 
 	/**
 	 *  版本号

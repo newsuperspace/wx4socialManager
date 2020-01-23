@@ -89,6 +89,7 @@ function initEnclosedScaleSelector() {
 		dataSource4EnclosedScaleSelector.push(tip);
 	}
 }
+
 function showEnclosedScaleSelector(uid) {
 	weui.picker(enclosedScaleTips, {
 		className : 'custom-classname',

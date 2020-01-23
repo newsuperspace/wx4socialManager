@@ -10,7 +10,31 @@
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<!-- Bootstrap CSS -->
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/css/weui-v2.1.3/weui.css">
+<link
+	href="https://cdn.bootcss.com/awesome-bootstrap-checkbox/v0.2.3/awesome-bootstrap-checkbox.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/jquery-ui/jquery-ui.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/easyui-v1.7.0/themes/icon.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/easyui-v1.7.0/themes/default/easyui.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/layui-v2.5.5/layui/css/layui.css"
+	rel="stylesheet" />
+<link
+	href="${pageContext.request.contextPath}/js/picker-extend/picker-extend.css"
+	rel="stylesheet" />
+<!-- 
+	layui 中会对所有<a> 标签进行颜色上的样式设定。
+	CSS的所有样式冲突遵循，后加载的样式覆盖之前加载的样式，因此为了保持所有页面基于bootstrap的表现基础
+	我们需要最后再加载bootstrap样式
+ -->
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/bootstrap.css">
 </head>
@@ -76,54 +100,6 @@
 						<!-- =============标题结束=========== -->
 
 						<!-- =============Selector开始=========== -->
-						<div class="collapse mb-2" id="selectorPanel">
-							<div class="card card-body">
-								<div class="row">
-									<div class="col-md-2">
-										街道层级 <select class="form-control form-control-sm"
-											id="minusFirst" name="minusFirst" disabled="true"
-											onchange="getData4Selector(this);">
-											<option value="0" selected>--请选择--</option>
-										</select>
-									</div>
-									<div class="col-md-2">
-										社区层级 <select class="form-control form-control-sm" id="zero"
-											name="zero" disabled="true"
-											onchange="getData4Selector(this);">
-											<option value="0" selected>--请选择--</option>
-										</select>
-									</div>
-									<div class="col-md-2">
-										第一层级 <select class="form-control form-control-sm" id="first"
-											name="first" disabled="true"
-											onchange="getData4Selector(this);">
-											<option value="0" selected>--请选择--</option>
-										</select>
-									</div>
-									<div class="col-md-2">
-										第二层级 <select class="form-control form-control-sm" id="second"
-											name="second" disabled="true"
-											onchange="getData4Selector(this);">
-											<option value="0" selected>--请选择--</option>
-										</select>
-									</div>
-									<div class="col-md-2">
-										第三层级 <select class="form-control form-control-sm" id="third"
-											name="third" disabled="true"
-											onchange="getData4Selector(this);">
-											<option value="0" selected>--请选择--</option>
-										</select>
-									</div>
-									<div class="col-md-2">
-										第四层级 <select class="form-control form-control-sm" id="fourth"
-											name="fourth" disabled="true"
-											onchange="getData4Selector(this);">
-											<option value="0" selected>--请选择--</option>
-										</select>
-									</div>
-								</div>
-							</div>
-						</div>
 						<!-- =============Selector结束=========== -->
 
 						<!-- =============表格开始=========== -->
@@ -177,23 +153,13 @@
 						</div>
 						<!-- 表格结束 -->
 						<!-- 分页栏开始 -->
-						<nav aria-label="Page navigation" class="mt-3">
-							<ul class="pagination justify-content-center">
-								<li class="page-item disabled"><a class="page-link"
-									href="#" aria-label="向前"> <span aria-hidden="true">&laquo;</span>
-										<span class="sr-only">向前</span>
-								</a></li>
-								<li class="page-item active"><a class="page-link" href="#">1</a></li>
-								<li class="page-item"><a class="page-link" href="#">2</a></li>
-								<li class="page-item"><a class="page-link" href="#">3</a></li>
-								<li class="page-item"><a class="page-link" href="#">100</a></li>
-								<li class="page-item"><a class="page-link" href="#">101</a></li>
-								<li class="page-item"><a class="page-link" href="#"
-									aria-label="向后"> <span aria-hidden="true">&raquo;</span> <span
-										class="sr-only">向后</span>
-								</a></li>
-							</ul>
-						</nav>
+						<div class="row mt-2">
+							<div class="col"></div>
+							<div class="col-auto">
+								<div id="laypage"></div>
+							</div>
+							<div class="col"></div>
+						</div>
 						<!-- 分页栏结束 -->
 
 					</div>
@@ -229,24 +195,29 @@
 	</div>
 </body>
 <script src="${pageContext.request.contextPath}/js/jquery-3.2.0.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/jquery-ui/jquery-ui.js"></script>
 <!-- popper.js必须在bootstrap.js之前被加载否则无法使用弹出菜单 -->
 <script src="${pageContext.request.contextPath}/js/popper.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/easyui-v1.7.0/jquery.easyui.min.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/layui-v2.5.5/layui/layui.js"></script>
+<!-- 独占脚本 -->
+<script
+	src="${pageContext.request.contextPath}/js/health4EnclosedScale/js4enclosedScaleListPage.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/picker-extend/picker-extend.js"></script>
 
+<!-- wechat相关 -->
 <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
-<script type="text/javascript"
-	src="${pageContext.request.contextPath}/js/myJS.js"></script>
-<script type="text/javascript"
-	src="https://res.wx.qq.com/open/libs/weuijs/1.2.1/weui.min.js"></script>
+<script src="https://res.wx.qq.com/open/libs/weuijs/1.2.1/weui.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/myJS.js"></script>
 <script type="text/javascript">
 
-	// 从服务器获取量表详细信息，显示特定页面单元中并展示出来
-	function enclosedScaleInfo(esid) {
-		weui.alert(esid);
-	}
-
-	// 跳转到
+	
 </script>
 
 </html>

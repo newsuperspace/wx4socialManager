@@ -57,7 +57,7 @@
 						<div
 							class="justify-content-between d-flex flex-wrap flex-md-nowrap align-items-center pb-1 mb-4 border-bottom">
 							<h1 class="h2">
-								受测人员
+								被测者管理
 								<button class="btn btn-sm btn-light" id="button4selectorPanel"
 									data-toggle="collapse" data-target="#selectorPanel"
 									onclick="changeIcon();">
