@@ -209,7 +209,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.25</version>
+			<version>8.0.16</version>
 		</dependency>
 		<!-- Sevlet的API，是web开发的关键基础 -->
 		<dependency>
