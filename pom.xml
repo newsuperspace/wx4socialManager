@@ -152,7 +152,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.9</version>
+			<version>4.13.1</version>
 		</dependency>
 		<!-- C3P0数据库数据源连接池 -->
 		<dependency>
