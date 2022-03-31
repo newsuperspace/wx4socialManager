@@ -309,7 +309,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-			<version>4.3.9.RELEASE</version>
+			<version>5.3.18</version>
 		</dependency>
 		<!-- Spring的支持包 -->
 		<dependency>
